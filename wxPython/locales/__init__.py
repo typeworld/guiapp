@@ -4,6 +4,12 @@ import re
 
 
 content = {
+	'Add': {
+		'de': u'Hinzufügen',
+		},
+	'Cancel': {
+		'de': u'Abbrechen',
+		},
 	'About': {
 		'de': u'Über',
 		},
@@ -18,6 +24,21 @@ content = {
 		},
 	'Publishers': {
 		'de': u'Verlage',
+		},
+	'Add Publisher': {
+		'de': u'Verlag hinzufügen',
+		},
+	'Reload': {
+		'de': u'Aktualisieren',
+		},
+	'Remove': {
+		'de': u'Entfernen',
+		},
+	'Install': {
+		'de': u'Installieren',
+		},
+	'Install All': {
+		'de': u'Alle installieren',
 		},
 }
 
@@ -41,7 +62,7 @@ def localizeString(source, languages = ['en']):
 	def my_replace(match):
 		return localize(match.group(2), languages)
 
-	return re.sub(r'(\%\((.+?)\))', my_replace, source)
+	return re.sub(r'(\#\((.+?)\))', my_replace, source)
 
 
 if __name__ == '__main__':

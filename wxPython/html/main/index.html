@@ -6,168 +6,19 @@
 
 <script type="text/javascript" src="js/jquery-3.2.1.min.js"></script> 
 <script type="text/javascript" src="js/js.js"></script>
+<link rel="stylesheet" href="css/index.css">
 
  <style>
 
-/*---------------clear-------------*/
-.clear:after {
-content: ".";
-display: block;
-height: 0;
-clear: both;
-visibility: hidden;
-}
-.clear {display:inline-block;}
-/* Hide from IE Mac \*/
-.clear { display:block; }
-/* End hide from IE Mac */
-* html .clear {height:1px;}
-/*---------------clear-------------*/
-
-
-* {
-/*	position: relative;  */
-	padding: 0; margin: 0;
-	cursor: default;
-}
-
-html {
-	height: 100%;
-	width: 100%;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 10pt;
-    margin: none;
-
-}
-
-.wrapper {
-
-    overflow: hidden;
-    height: 100%;
-}
-::-webkit-scrollbar {
-    width: 0px;  /* remove scrollbar space */
-    background: transparent;  /* optional: just make scrollbar invisible */
-}
-
-#sidebar {
-	font-size: 14px;
-	position:absolute;
-    background-color: #333;
-    color: #DDD;
-    width: 200px;
-/*    height: 100%;
-*/
-    top: 0;
-    bottom: 0;
-
-    overflow-y: scroll;
-
-
-	
-}
-
-#sidebar .headline {
-	font-size: 75%;
-	text-transform: uppercase;
-	letter-spacing: 2px;
-    padding: 15px;
-    padding-bottom: 8px;
-    padding-left: 20px;
-    padding-right: 20px;
-    color: #999;
-}
 
 
 
-
-.publisher {
-    padding: 13px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-
-}
-
-.publisher.hover {
-	background-color: rgba(0, 0, 0, .1);
-}
-
-.publisher.selected {
-	background-color: black;
-}
-
-.publisher .name {
-	position: relative;
-	padding: 3px;
-	padding-left: 0px;
-	padding-right: 0px;
-
-	float: left;
-}
-
-.badge {
-	position: relative;
-	padding: 3px;
-	padding-left: 6px;
-	padding-right: 6px;
-	border-radius: 5px;
-	float: right;
-
-	display: none;
-}
-
-.publisher[dir="rtl"] .name {
-	float: right;
-	text-align: right;
- }
-
-.publisher[dir="rtl"] .badge {
-	float: left;
- }
-
-
-#sidebar .publisher .new {
-	color: black;
-	background-color: orange;
-}
-
-#main {
-	position:absolute;
-
-	left: 200px;
-	top: 0;
-	bottom: 0;
-
-    height: 100%;
-    background-color: #FFF;
-
-    overflow-y: scroll;
-
-}
 
 </style>
 
 <script>
 
-$( document ).ready(function() {
 
-	$(".publisher").click(function() {
-		$(".publisher").removeClass('selected');
-		$(this).addClass('selected');
-	});
-
-	$(".publisher").hover(
-	  function() {
-	    $( this ).addClass( "hover" );
-	  }, function() {
-	    $( this ).removeClass( "hover" );
-	  }
-	);
-
-});
 
 </script>
 
@@ -176,21 +27,62 @@ $( document ).ready(function() {
 
 <body class="clear">
 
+<div id="addPublisher">
+	<h1>#(Add Publisher)</h1>
+	<form action="JavaScript:python('self.addPublisher(____' + $('#url').val() + '____)');">
+		<input type="text" id="url" name="url" placeholder="http://">
+		<input type="submit" value="#(Add)">
+		<input type="button" value="#(Cancel)" onclick="hideAddPublisher();" class="secondary">
+	</form>
+
+<!-- python('self.addPublisher(\'' + $('#addPublisher #url').val() + '\')'); -->
+</div>
+
 <div class="wrapper">
 	<div id="sidebar">
 		<div class="headline">
-		%(Publishers)
+		#(Publishers)
 		</div>
 		<div id="publishers">
+
+
 		</div>
+
+		<div id="bottom">
+			<a onclick="showAddPublisher();">+ #(Add Publisher)</a>
+		</div>
+
 	</div>
+
 </div>
 
 <div class="wrapper">
 	<div id="main">
-		<button onclick="alert('a');">Simple</button>
-		<button onclick="python('self.setBadge(\'abjad\', \'3\');self.setBadge(\'yanone\', \'3\');');">Badge</button>
-	</div>
+
+<!-- 		<div class="publisher">
+			<div class="head" style="height: 60px;">
+				<div class="names centerOuter">
+					<div class=" centerInner">
+						<div class="name">
+							Yanone
+						</div>
+						<div class="website">
+							<a href="https://yanone.de">https://yanone.de</a>
+						</div>
+					</div>
+				</div>
+				<div class="buttons">
+					<div>
+						<a href="">Preferences</a>
+					</div>
+					<div>
+						<a href="x-python://self.removePublisher('publisher_0')">Remove Yanone</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+ -->	</div>
 </div>
 
 

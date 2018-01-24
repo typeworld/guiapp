@@ -225,6 +225,8 @@ input[type=button].important,input[type=submit].important,.button.important {
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
 #main {
+
+	display: none;
 	position:absolute;
 
 	left: 200px;
@@ -292,6 +294,8 @@ input[type=button].important,input[type=submit].important,.button.important {
 	padding: 25px;
 }
 
+/* ////////////// FAMILY ////////////// */
+
 #main .publisher .family .title {
 	padding-left: 25px;
 	padding-right: 25px;
@@ -305,6 +309,13 @@ input[type=button].important,input[type=submit].important,.button.important {
 	font-weight: bold;
 	color: #F17022;
 }
+
+#main .publisher .family .title.selected .name {
+	color: white;
+}
+
+
+/* ////////////// FONT ////////////// */
 
 #main .publisher .font {
 	padding-left: 25px;
@@ -323,8 +334,22 @@ input[type=button].important,input[type=submit].important,.button.important {
 	background-color: #F17022;
 }
 
-#main .publisher .family .title.selected .name {
-	color: white;
+#main .publisher .font .installButton {
+	display: none;
+}
+#main .publisher .font .removeButton {
+	display: none;
+}
+#main .publisher .font .status {
+	display: none;
+}
+
+#main .publisher .family a:hover {
+	color: gray;
+}
+
+#main .publisher .family a:active {
+	color: black;
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */

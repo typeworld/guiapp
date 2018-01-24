@@ -45,6 +45,7 @@ $( document ).ready(function() {
 	});
 
 
+
 	// $("#sidebar .publisher").hover(function() {
 	//     $( this ).addClass( "hover" );
 	//   }, function() {
@@ -72,7 +73,7 @@ $( document ).ready(function() {
 });
 
 function showAddPublisher() {
-//	$('#addPublisher #url').val(null);
+	$('#addPublisher #url').val(null);
 	$('#addPublisher').slideDown();
 	registerKeypress(27, function(){ hideAddPublisher(); });
 	$('#addPublisher #url').focus();
@@ -81,4 +82,11 @@ function showAddPublisher() {
 function hideAddPublisher() {
 	unregisterKeypress(27);
 	$('#addPublisher').slideUp();
+}
+
+function showMain() {
+	$('#main').slideDown();
+}
+function hideMain() {
+	$('#main').slideUp();
 }

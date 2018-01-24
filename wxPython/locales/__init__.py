@@ -37,8 +37,26 @@ content = {
 	'Install': {
 		'de': u'Installieren',
 		},
+	'Installed': {
+		'de': u'Installiert',
+		},
+	'Installing': {
+		'de': u'Installiere',
+		},
 	'Install All': {
 		'de': u'Alle installieren',
+		},
+	'Not Installed': {
+		'de': u'Nicht installiert',
+		},
+	'Remove': {
+		'de': u'Entfernen',
+		},
+	'Removing': {
+		'de': u'Entferne',
+		},
+	'Remove All': {
+		'de': u'Alle entfernen',
 		},
 }
 

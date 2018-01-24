@@ -169,6 +169,8 @@ class AppFrame(wx.Frame):
 		if uri.startswith('x-python://'):
 			code = uri.split("x-python://")[1]
 			code = urllib.unquote(code).decode('utf8')
+			code = code.replace('http//', 'http://')
+			code = code.replace('https//', 'https://')
 			code = code.replace('____', '\'')
 			exec(code)
 			evt.Veto()
@@ -189,27 +191,146 @@ class AppFrame(wx.Frame):
 
 	def addPublisher(self, url):
 
-		url = url.replace('http//', 'http://')
-		url = url.replace('https//', 'https://')
 
 		print 'addPublisher', url
 
-		self.client.addRepository(url)
+		success, message = self.client.addRepository(url)
 
-		self.setSideBarHTML()
-		# if self.client.preferences and self.client.preferences.get('currentPublisher'):
-		# 	self.setPublisherHTML(self.client.preferences.get('currentPublisher'))
+		if success:
+			self.setSideBarHTML()
+			self.html.RunScript("hideAddPublisher();")
 
-		self.html.RunScript("hideAddPublisher();")
+		else:
+			self.errorMessage(message)
 
 	def removePublisher(self, i):
 		publisher = self.orderedPublishers()[int(i.split('_')[1])]
 		publisher.remove()
 		self.client.preferences.set('currentPublisher', None)
 		self.setSideBarHTML()
+		self.html.RunScript("hideMain();")
 
 	def publisherPreferences(self, i):
 		print 'publisherPreferences', i
+
+	def removeFont(self, canonicalURL, fontID):
+
+		api = self.client.endpoints[canonicalURL].latestVersion()
+
+		if self.client.endpoints.has_key(canonicalURL):
+			endpoint = self.client.endpoints[canonicalURL]
+			success, message = endpoint.removeFont(fontID)
+
+			if success:
+
+				# Get font
+				for foundry in api.response.getCommand().foundries:
+					for family in foundry.families:
+						for font in family.fonts:
+							if font.uniqueID == fontID:
+								self.html.RunScript('$("#%s").html("%s");' % (fontID, self.fontHTML(api, font)))
+								break
+
+			else:
+
+				if type(message) in (str, unicode):
+					self.errorMessage(message)
+				else:
+					self.errorMessage('Server: %s' % message.getText(self.locale()))
+
+		else:
+			success = False
+			self.errorMessage('The URL %s is unknown.' % (canonicalURL))
+
+
+
+
+	def installFont(self, canonicalURL, fontID, version):
+		self.html.RunScript("$('#%s .installButton').hide();" % fontID)
+		self.html.RunScript("$('#%s .status').show();" % fontID)
+
+		api = self.client.endpoints[canonicalURL].latestVersion()
+
+		if self.client.endpoints.has_key(canonicalURL):
+			endpoint = self.client.endpoints[canonicalURL]
+			success, message = endpoint.installFont(fontID, version)
+
+			if success:
+
+				# self.html.RunScript("$('#%s .status').hide();" % fontID)
+				# self.html.RunScript("$('#%s .removeButton').show();" % fontID)
+				
+
+				# Get font
+				for foundry in api.response.getCommand().foundries:
+					for family in foundry.families:
+						for font in family.fonts:
+							if font.uniqueID == fontID:
+								self.html.RunScript('$("#%s").html("%s");' % (fontID, self.fontHTML(api, font)))
+								break
+
+			else:
+
+				if type(message) in (str, unicode):
+					
+					if message == 'seatAllowanceReached':
+						self.errorMessage('seatAllowanceReached')
+
+					else:
+						self.errorMessage(message)
+				else:
+					self.errorMessage('Server: %s' % message.getText(self.locale()))
+
+		else:
+			success = False
+			self.errorMessage('The URL %s is unknown.' % (canonicalURL))
+
+		if not success:
+			self.html.RunScript("$('#%s .installButton').show();" % fontID)
+			self.html.RunScript("$('#%s .status').hide();" % fontID)
+
+
+	def errorMessage(self, message):
+		dlg = wx.MessageDialog(self, message, '', wx.ICON_ERROR)
+		result = dlg.ShowModal()
+		dlg.Destroy()
+
+
+	def fontHTML(self, api, font):
+		html = []
+		html.append('<div class="clear">')
+		html.append('<div class="left" style="width: 50%;">')
+		html.append(font.name.getText(self.locale()))
+		html.append('</div>') # .left
+		html.append('<div class="left">')
+		installedVersion = api.parent.parent.installedFontVersion(font.uniqueID)
+		if installedVersion:
+			html.append('#(Installed): %s' % installedVersion)
+		else:
+			html.append('#(Not Installed)')
+		html.append('</div>') # .left
+		html.append('<div class="right installButton" style="display: %s;">' % ('none' if installedVersion else 'block'))
+		html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____)">' % (api.canonicalURL, font.uniqueID, font.getSortedVersions()[-1].number))
+		html.append('#(Install)')
+		html.append('</a>')
+		html.append('</div>') # .right
+		html.append('<div class="right removeButton" style="display: %s;">' % ('block' if installedVersion else 'none'))
+		html.append('<a href="x-python://self.removeFont(____%s____, ____%s____)">' % (api.canonicalURL, font.uniqueID))
+		html.append('#(Remove)')
+		html.append('</a>')
+		html.append('</div>') # .right
+		html.append('<div class="right status">')
+		html.append('#(Installing)...')
+		html.append('</div>') # .right
+		html.append('</div>') # .clear
+
+		# Print HTML
+		html = ''.join(html)
+		html = html.replace('"', '\'')
+		html = html.replace('\n', '')
+		html = self.localizeString(html)
+
+		return html
 
 	def setPublisherHTML(self, i):
 
@@ -255,51 +376,46 @@ class AppFrame(wx.Frame):
 
 
 
-		html.append('</div>') # .head
-
-
-		html.append('<div class="families">')
-
-		for family in foundry.families:
-			html.append('<div class="family">')
-
-			html.append('<div class="title">')
-			html.append('<div class="clear">')
-			html.append('<div class="left name">')
-			html.append(family.name.getText(self.locale()))
-			html.append('</div>') # .left.name
-			html.append('<div class="right">')
-			html.append('#(Install All)')
-			html.append('</div>') # .right
-			html.append('</div>') # .clear
 			html.append('</div>') # .head
 
-			for font in family.fonts:
-				html.append('<div class="font">')
 
+			html.append('<div class="families">')
+
+			for family in foundry.families:
+				html.append('<div class="family" id="%s">' % family.uniqueID)
+
+				html.append('<div class="title">')
 				html.append('<div class="clear">')
-				html.append('<div class="left">')
-				html.append(font.name.getText(self.locale()))
-				html.append('</div>') # .left
+				html.append('<div class="left name">')
+				html.append(family.name.getText(self.locale()))
+				html.append('</div>') # .left.name
 				html.append('<div class="right">')
-				html.append('#(Install)')
+				html.append('<a href="x-python://self.installAllFonts(____%s____)">' % family.uniqueID)
+				html.append('#(Install All)')
+				html.append('</a>')
 				html.append('</div>') # .right
 				html.append('</div>') # .clear
+				html.append('</div>') # .head
 
-				html.append('</div>') # .font
+				for font in family.fonts:
+					html.append('<div class="font" id="%s">' % font.uniqueID)
 
-			html.append('</div>') # .family
+					html.append(self.fontHTML(api, font))
 
+					html.append('</div>') # .font
 
-		html.append('</div>') # .families
-
-
-
-
-
+				html.append('</div>') # .family
 
 
-		html.append('</div>') # .foundry
+			html.append('</div>') # .families
+
+
+
+
+
+
+
+			html.append('</div>') # .foundry
 
 
 
@@ -317,21 +433,25 @@ class AppFrame(wx.Frame):
 $( document ).ready(function() {
 
 	$("#main .font, #main .family .title").hover(function() {
-	    $( this ).addClass( "hover" );
+		$( this ).addClass( "hover" );
 	  }, function() {
-	    $( this ).removeClass( "hover" );
+		$( this ).removeClass( "hover" );
 	  }
 	);
 
-	$("#main .font, #main .family .title").click(function() {
-		$("#main .font, #main .family .title").removeClass('selected');
-	    $( this ).addClass( "selected" );
-	  });
 
 });
 
 </script>''')
 
+
+		# Unused:
+		'''
+	$("#main .font, #main .family .title").click(function() {
+		$("#main .font, #main .family .title").removeClass('selected');
+		$( this ).addClass( "selected" );
+	  });
+'''
 
 
 
@@ -354,6 +474,7 @@ $( document ).ready(function() {
 		# Set Sidebar Focus
 		self.html.RunScript("$('#sidebar .publisher').removeClass('selected');")
 		self.html.RunScript("$('#sidebar #%s').addClass('selected');" % i)
+		self.html.RunScript("showMain();")
 
 
 	def setSideBarHTML(self):
@@ -392,9 +513,9 @@ $( document ).ready(function() {
 $( document ).ready(function() {
 
 	$("#sidebar .publisher").hover(function() {
-	    $( this ).addClass( "hover" );
+		$( this ).addClass( "hover" );
 	  }, function() {
-	    $( this ).removeClass( "hover" );
+		$( this ).removeClass( "hover" );
 	  }
 	);
 
@@ -456,7 +577,7 @@ $( document ).ready(function() {
 		'''
 		if not hasattr(self, '_locale'):
 			from AppKit import NSLocale
-			self._locale = [str(NSLocale.autoupdatingCurrentLocale().localeIdentifier().split('_')[0])]
+			self._locale = [str(NSLocale.autoupdatingCurrentLocale().localeIdentifier().split('_')[0]), 'en']
 		return self._locale
 
 	def setBadge(self, publisherKeyword, string):

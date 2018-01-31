@@ -85,8 +85,24 @@ function hideAddPublisher() {
 }
 
 function showMain() {
+	$('#welcome').slideUp();
 	$('#main').slideDown();
 }
 function hideMain() {
+	$('#welcome').slideDown();
 	$('#main').slideUp();
 }
+
+
+/* ///////////////////////////////////////////////////////////////////////////////////////////////////// */
+
+
+// JQUERY
+
+$( document ).ready(function() {
+
+	$( function() {
+	    $( document ).tooltip();
+	  } );
+
+});

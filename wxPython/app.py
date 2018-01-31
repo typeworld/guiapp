@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import wx, os, webbrowser, urllib
+import wx, os, webbrowser, urllib, base64
+from threading import Thread
 import wx.html2
 from locales import *
 
@@ -11,6 +12,14 @@ from typeWorld.client import APIClient, AppKitNSUserDefaults
 
 APPNAME = 'Type.World'
 APPVERSION = 0.1
+
+import AppKit
+#from AppKit import NSDockTilePlugIn
+
+class NSDockTilePlugIn(AppKit.NSObject):
+
+	def setDockTile_(self, dockTile):
+		dockTile.setBadgeLabel_(str(3))
 
 
 class AboutWindow(wx.Dialog):
@@ -95,6 +104,8 @@ class AppFrame(wx.Frame):
 		menu = wx.Menu()
 		m_about = menu.Append(wx.ID_ABOUT, "&About %s" % APPNAME)
 		self.Bind(wx.EVT_MENU, self.onAbout, m_about)
+		m_CheckForUpdates = menu.Append(1, "Check for updates...")
+		self.Bind(wx.EVT_MENU, self.onCheckForUpdates, m_CheckForUpdates)
 		menuBar.Append(menu, "&Help")
 		# Preferences
 		m_prefs = menu.Append(wx.ID_PREFERENCES, "&Preferences\tCtrl-,")
@@ -103,16 +114,88 @@ class AppFrame(wx.Frame):
 		self.SetMenuBar(menuBar)
 
 		self.CentreOnScreen()
+#		self.ShowWithEffect()
+		self.Show()
 
+
+		self.Bind(wx.EVT_SIZE, self.onResize, self)
 
 		from AppKit import NSApp
-		self._NSApp = NSApp()
-		self.Bind(wx.EVT_SIZE, self.onResize, self)
+		self.nsapp = NSApp()
+		self._dockTile = self.nsapp.dockTile()
+
+
+		# if wx.Platform == '__WXMAC__':
+		# 	w = self.nsapp.mainWindow()
+
+		# 	from AppKit import NSFullSizeContentViewWindowMask, NSWindowTitleHidden, NSBorderlessWindowMask, NSResizableWindowMask, NSTitledWindowMask, NSFullSizeContentViewWindowMask, NSWindowStyleMaskFullSizeContentView
+
+#			w.setStyleMask_(NSFullSizeContentViewWindowMask)
+
+			# 0: NSWindowStyleMaskTitled
+			# 1: NSWindowStyleMaskClosable
+			# 2: NSWindowStyleMaskMiniaturizable
+			# 3: NSWindowStyleMaskResizable
+			# 8: NSWindowStyleMaskTexturedBackground
+			# 12: NSWindowStyleMaskUnifiedTitleAndToolbar
+			# 14: NSWindowStyleMaskFullScreen
+			# 15: NSWindowStyleMaskFullSizeContentView
+			# 4: NSWindowStyleMaskUtilityWindow
+			# 6: NSWindowStyleMaskDocModalWindow
+			# 7: NSWindowStyleMaskNonactivatingPanel
+			# 13: NSWindowStyleMaskHUDWindow
+
+
+			# w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3)
+			# w.setTitlebarAppearsTransparent_(True)
+			# w.setTitleVisibility_(NSWindowTitleHidden)
+
+
+#			w.setTitle_(' ')
+
+
+#			w.setStyleMask_(NSBorderlessWindowMask)
+			#w.setTitlebarAppearsTransparent_(1)
+#			w.setIsMovable_(True)
+			#w.setTitleVisibility_(0)
+			#w.setMovableByWindowBackground_(True)
+			# js = '$("#sidebar").css("padding-top", "18px");'
+			# self.html.RunScript(js)
+
+
+
+		# Your Qt QApplication instance
+		QT_APP = self
+		# URL to Appcast.xml, eg. https://yourserver.com/Appcast.xml
+		APPCAST_URL = 'https://type.world/downloads/guiapp/appcast.xml'
+		# Path to Sparkle's "Sparkle.framework" inside your app bundle
+
+		if '.app' in os.path.dirname(__file__):
+			SPARKLE_PATH = os.path.join(os.path.dirname(__file__), '..', 'Frameworks', 'Sparkle.framework')
+		else:
+			SPARKLE_PATH = '/Users/yanone/Code/Sparkle/Sparkle.framework'
+
+		from objc import pathForFramework, loadBundle
+		sparkle_path = pathForFramework(SPARKLE_PATH)
+		self.objc_namespace = dict()
+		loadBundle('Sparkle', self.objc_namespace, bundle_path=sparkle_path)
+		def about_to_quit():
+			# See https://github.com/sparkle-project/Sparkle/issues/839
+			self.objc_namespace['NSApplication'].sharedApplication().terminate_(None)
+
+#		QT_APP.aboutToQuit.connect(about_to_quit)
+		self.sparkle = self.objc_namespace['SUUpdater'].sharedUpdater()
+		self.sparkle.setAutomaticallyChecksForUpdates_(True)
+#		self.sparkle.setAutomaticallyDownloadsUpdates_(True)
+		NSURL = self.objc_namespace['NSURL']
+		self.sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
+		self.sparkle.checkForUpdatesInBackground()
 
 
 
 	def orderedPublishers(self):
 		return [self.client.endpoints[x] for x in self.client.endpoints.keys()]
+
 
 	def publishersNames(self):
 		# Build list, sort it
@@ -124,6 +207,9 @@ class AppFrame(wx.Frame):
 		return publishers
 
 
+	def onCheckForUpdates(self, event):
+		self.sparkle.checkForUpdates_(None)
+
 	def onClose(self, event):
 		# dlg = wx.MessageDialog(self, 
 		# 	"Do you really want to close this application?",
@@ -132,14 +218,18 @@ class AppFrame(wx.Frame):
 		# dlg.Destroy()
 		# if result == wx.ID_OK:
 		# 	self.Destroy()
+
+		# See https://github.com/sparkle-project/Sparkle/issues/839
+#		self.objc_namespace['NSApplication'].sharedApplication().terminate_(None)
+
 		self.Destroy()
 
 	def onResize(self, event):
 		# Make title bar transparent
 		# https://developer.apple.com/documentation/appkit/nswindowstylemask?language=objc
 #		if False:
-		if wx.Platform == '__WXMAC__':
-			w = self._NSApp.mainWindow()
+		# if wx.Platform == '__WXMAC__':
+		# 	w = self.nsapp.mainWindow()
 			# w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3 | 1 << 15)
 			# w.setTitlebarAppearsTransparent_(1)
 #			w.setTitle_(' ')
@@ -203,8 +293,10 @@ class AppFrame(wx.Frame):
 		else:
 			self.errorMessage(message)
 
-	def removePublisher(self, i):
-		publisher = self.orderedPublishers()[int(i.split('_')[1])]
+	def removePublisher(self, b64ID):
+
+		ID = base64.b64decode(b64ID.replace('-', '='))
+		publisher = self.client.endpoints[ID]
 		publisher.remove()
 		self.client.preferences.set('currentPublisher', None)
 		self.setSideBarHTML()
@@ -220,6 +312,7 @@ class AppFrame(wx.Frame):
 		if self.client.endpoints.has_key(canonicalURL):
 			endpoint = self.client.endpoints[canonicalURL]
 			success, message = endpoint.removeFont(fontID)
+			b64ID = base64.b64encode(canonicalURL).replace("=", "-")
 
 			if success:
 
@@ -230,6 +323,8 @@ class AppFrame(wx.Frame):
 							if font.uniqueID == fontID:
 								self.html.RunScript('$("#%s").html("%s");' % (fontID, self.fontHTML(api, font)))
 								break
+
+				self.setPublisherBadge(b64ID, endpoint.amountInstalledFonts())
 
 			else:
 
@@ -242,6 +337,31 @@ class AppFrame(wx.Frame):
 			success = False
 			self.errorMessage('The URL %s is unknown.' % (canonicalURL))
 
+	def reloadPublisher(self, b64ID):
+
+		print 'reloadPublisher', b64ID
+
+
+		ID = base64.b64decode(b64ID.replace('-', '='))
+
+
+		success, message = self.client.endpoints[ID].update()
+
+		if success:
+
+			self.setPublisherHTML(b64ID)
+			
+		else:
+
+			if type(message) in (str, unicode):
+				
+				self.errorMessage(message)
+			else:
+				self.errorMessage('Server: %s' % message.getText(self.locale()))
+
+
+		self.html.RunScript('$("#sidebar #%s .badges").show();' % b64ID)
+		self.html.RunScript('$("#sidebar #%s .reloadAnimation").hide();' % b64ID)
 
 
 
@@ -249,7 +369,10 @@ class AppFrame(wx.Frame):
 		self.html.RunScript("$('#%s .installButton').hide();" % fontID)
 		self.html.RunScript("$('#%s .status').show();" % fontID)
 
-		api = self.client.endpoints[canonicalURL].latestVersion()
+
+		publisher = self.client.endpoints[canonicalURL]
+		api = publisher.latestVersion()
+		b64ID = base64.b64encode(canonicalURL).replace("=", "-")
 
 		if self.client.endpoints.has_key(canonicalURL):
 			endpoint = self.client.endpoints[canonicalURL]
@@ -261,6 +384,7 @@ class AppFrame(wx.Frame):
 				# self.html.RunScript("$('#%s .removeButton').show();" % fontID)
 				
 
+
 				# Get font
 				for foundry in api.response.getCommand().foundries:
 					for family in foundry.families:
@@ -268,6 +392,9 @@ class AppFrame(wx.Frame):
 							if font.uniqueID == fontID:
 								self.html.RunScript('$("#%s").html("%s");' % (fontID, self.fontHTML(api, font)))
 								break
+
+				self.setPublisherBadge(b64ID, publisher.amountInstalledFonts())
+				
 
 			else:
 
@@ -301,6 +428,12 @@ class AppFrame(wx.Frame):
 		html.append('<div class="clear">')
 		html.append('<div class="left" style="width: 50%;">')
 		html.append(font.name.getText(self.locale()))
+		if font.free:
+			html.append('<span class="fontLabel free">free</span>')
+		if font.beta:
+			html.append('<span class="fontLabel beta">beta</span>')
+		if font.variableFont:
+			html.append('<span class="fontLabel var">OTVar</span>')
 		html.append('</div>') # .left
 		html.append('<div class="left">')
 		installedVersion = api.parent.parent.installedFontVersion(font.uniqueID)
@@ -332,14 +465,18 @@ class AppFrame(wx.Frame):
 
 		return html
 
-	def setPublisherHTML(self, i):
+	def setPublisherHTML(self, b64ID):
+
+#		print b64ID
+
+		ID = base64.b64decode(b64ID.replace('-', '='))
 
 		if self.client.preferences:
-			self.client.preferences.set('currentPublisher', i)
+			self.client.preferences.set('currentPublisher', b64ID)
 
 		html = []
 
-		api = self.orderedPublishers()[int(i.split('_')[1])].latestVersion()
+		api = self.client.endpoints[ID].latestVersion()
 
 		name, locale = api.name.getTextAndLocale(locale = self.locale())
 		logo = False
@@ -349,14 +486,14 @@ class AppFrame(wx.Frame):
 		# Preferences
 		html.append('<div class="buttons clear">')
 		html.append('<div class="left">#(Publisher): %s</div>' % (name))
-		html.append('<div class="right"><a class="warningButton" href="x-python://self.removePublisher(____%s____)">#(Remove)</a></div>' % (i))
-		html.append('<div class="right"><a href="x-python://self.publisherPreferences(____%s____)">#(Preferences)</a></div>' % i)
-		html.append('<div class="right"><a href="x-python://self.publisherPreferences(____%s____)">#(Reload)</a></div>' % i)
+		html.append('<div class="right"><a class="warningButton" href="x-python://self.removePublisher(____%s____)">#(Remove)</a></div>' % (b64ID))
+		html.append('<div class="right"><a href="x-python://self.publisherPreferences(____%s____)">#(Preferences)</a></div>' % b64ID)
+		html.append('<div class="right"><a class="reloadPublisherButton">#(Reload)</a></div>')
 		html.append('</div>') # .buttons
 		html.append('</div>') # .head
 		html.append('</div>') # .publisher
 
-		html.append('<div class="publisher" id="%s">' % (i))
+		html.append('<div class="publisher" id="%s">' % (b64ID))
 
 		for foundry in api.response.getCommand().foundries:
 
@@ -439,10 +576,16 @@ $( document ).ready(function() {
 	  }
 	);
 
+	$("#main .publisher a.reloadPublisherButton").click(function() {
+		$("#sidebar #%s .badges").hide();
+		$("#sidebar #%s .reloadAnimation").show();
+		python("self.reloadPublisher(____%s____)");
+	});
+
 
 });
 
-</script>''')
+</script>''' % (b64ID, b64ID, b64ID))
 
 
 		# Unused:
@@ -473,8 +616,9 @@ $( document ).ready(function() {
 
 		# Set Sidebar Focus
 		self.html.RunScript("$('#sidebar .publisher').removeClass('selected');")
-		self.html.RunScript("$('#sidebar #%s').addClass('selected');" % i)
+		self.html.RunScript("$('#sidebar #%s').addClass('selected');" % b64ID)
 		self.html.RunScript("showMain();")
+
 
 
 	def setSideBarHTML(self):
@@ -487,7 +631,11 @@ $( document ).ready(function() {
 		# pass
 
 		# Create HTML
-		for key, name, language in self.publishersNames():
+		for publisher in self.orderedPublishers():
+
+			b64ID = base64.b64encode(publisher.canonicalURL).replace('=', '-')
+
+			name, language = publisher.latestVersion().name.getTextAndLocale(locale = self.locale())
 
 			if language in (u'ar', u'he'):
 				direction = 'rtl'
@@ -496,16 +644,23 @@ $( document ).ready(function() {
 			else:
 				direction = 'ltr'
 
+			installedFonts = publisher.amountInstalledFonts()
 			html.append(u'''
-<a href="x-python://self.setPublisherHTML(____publisher_%s____)">
-	<div id="publisher_%s" class="publisher clear" lang="%s" dir="%s">
+<a href="x-python://self.setPublisherHTML(____%s____)">
+	<div id="%s" class="publisher clear" lang="%s" dir="%s">
 		<div class="name">
 		%s
 		</div>
-		<div class="new badge">
+		<div class="reloadAnimation" style="display: none;">
+		↺
+		</div>
+		<div class="badges">
+			<div class="badge installed" style="display: %s;">
+			%s
+			</div>
 		</div>
 	</div>
-</a>''' % (key, key, language, direction, name))
+</a>''' % (b64ID, b64ID, language, direction, name, 'block' if installedFonts else 'none', installedFonts or ''))
 
 
 		html.append('''<script>
@@ -528,9 +683,10 @@ $( document ).ready(function() {
 		html = ''.join(html)
 		html = html.replace('"', '\'')
 		html = html.replace('\n', '')
-		print html
+#		print html
 		js = '$("#publishers").html("' + html + '");'
 		self.html.RunScript(js)
+
 
 
 
@@ -540,9 +696,10 @@ $( document ).ready(function() {
 		# https://developer.apple.com/documentation/appkit/nswindowstylemask?language=objc
 #		if False:
 		if wx.Platform == '__WXMAC__':
-			w = self._NSApp.mainWindow()
+			w = self.nsapp.mainWindow()
 			# w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3 | 1 << 15)
 			# w.setTitlebarAppearsTransparent_(1)
+			# w.setIsMovable_(True)
 			# w.setTitle_(' ')
 			# w.setTitleVisibility_(1)
 			# w.setMovableByWindowBackground_(True)
@@ -554,15 +711,16 @@ $( document ).ready(function() {
 
 
 		self.setSideBarHTML()
-		if self.client.preferences and self.client.preferences.get('currentPublisher'):
-			self.setPublisherHTML(self.client.preferences.get('currentPublisher'))
+		# if self.client.preferences and self.client.preferences.get('currentPublisher'):
+		# 	self.setPublisherHTML(self.client.preferences.get('currentPublisher'))
 
 
 	def setBadgeLabel(self, label):
 		u'''\
 		Set dock icon badge
 		'''
-		self._dockTile = self._nsApp.dockTile()
+		label = str(label)
+		self._dockTile.display()
 		self._dockTile.setBadgeLabel_(label)
 
 	def localize(self, key):
@@ -570,6 +728,10 @@ $( document ).ready(function() {
 
 	def localizeString(self, string):
 		return localizeString(string, languages = self.locale())
+
+	def replaceHTML(self, html):
+		html = html.replace('##htmlroot##', os.path.join(os.path.dirname(__file__), 'html'))
+		return html
 
 	def locale(self):
 		u'''\
@@ -580,10 +742,11 @@ $( document ).ready(function() {
 			self._locale = [str(NSLocale.autoupdatingCurrentLocale().localeIdentifier().split('_')[0]), 'en']
 		return self._locale
 
-	def setBadge(self, publisherKeyword, string):
-		self.html.RunScript('$("#sidebar #%s .new").fadeOut();' % (publisherKeyword))
-		self.html.RunScript('$("#sidebar #%s .new").fadeIn();' % (publisherKeyword))
-		self.html.RunScript('$("#sidebar #%s .new").html("%s");' % (publisherKeyword, string))
+	def setPublisherBadge(self, b64ID, string):
+		if string:
+			self.html.RunScript('$("#sidebar #%s .badge.installed").fadeOut(200, function() { $("#sidebar #%s .badge.installed").html("%s"); $("#sidebar #%s .badge.installed").fadeIn(200); });' % (b64ID, b64ID, string, b64ID))
+		else:
+			self.html.RunScript('$("#sidebar #%s .badge.installed").fadeOut(200);' % b64ID)
 
 	def debug(self, string):
 		print string
@@ -593,8 +756,25 @@ if __name__ == '__main__':
 
 	frame = AppFrame(None)
 #	frame.html.LoadURL(os.path.join('file://', os.path.dirname(__file__), 'html', 'main', 'index.html'))
+
+	
+
 	html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'index.html'))
-	frame.html.SetPage(frame.localizeString(html), os.path.join(os.path.dirname(__file__), 'html', 'main', 'index.html'))
+
+	html = html.replace('##jquery##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'jquery-1.12.4.js'))))
+	html = html.replace('##jqueryui##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'jquery-ui.js'))))
+	html = html.replace('##js.js##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'js.js'))))
+	html = html.replace('##css##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'index.css'))))
+	html = html.replace('##jqueryuicss##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'jquery-ui.css'))))
+
+	html = frame.localizeString(html)
+	html = frame.replaceHTML(html)
+
+	# import cgi
+	# html = cgi.escape(html)
+#	html = html.decode('windows-1252')
+
+	frame.html.SetPage(html, os.path.join(os.path.dirname(__file__), 'html', 'main'))
 	frame.Show()
 	app.MainLoop()
 

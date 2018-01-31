@@ -29,7 +29,7 @@ content = {
 		'de': u'Verlag hinzufügen',
 		},
 	'Reload': {
-		'de': u'Aktualisieren',
+		'de': u'Neu laden',
 		},
 	'Remove': {
 		'de': u'Entfernen',
@@ -58,7 +58,13 @@ content = {
 	'Remove All': {
 		'de': u'Alle entfernen',
 		},
+	'WelcomeMessage': {
+		'en': u'Welcome to Type.World.<br />Click here to add a publisher.',
+		'de': u'Willkommen bei Type.World.<br />Klicke hier, um einen Verlag hinzuzufügen.',
+		},
 }
+
+
 
 def localize(key, languages = ['en']):
 	u'''\

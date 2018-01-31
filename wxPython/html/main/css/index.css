@@ -198,7 +198,14 @@ input[type=button].important,input[type=submit].important,.button.important {
 	border-radius: 5px;
 	float: right;
 
-	display: none;
+/*	display: none;*/
+}
+
+#sidebar .reloadAnimation {
+	position: relative;
+	float: right;
+
+/*	display: none;*/
 }
 
 #sidebar .publisher[dir="rtl"] .name {
@@ -210,10 +217,16 @@ input[type=button].important,input[type=submit].important,.button.important {
 	float: left;
  }
 
+#sidebar .publisher[dir="rtl"] .reloadAnimation {
+	float: left;
 
-#sidebar .publisher .new {
+/*	display: none;*/
+}
+
+
+#sidebar .publisher .badge.installed {
 	color: black;
-	background-color: orange;
+	background-color: #97BF0D;
 }
 
 #sidebar #bottom {
@@ -226,7 +239,7 @@ input[type=button].important,input[type=submit].important,.button.important {
 
 #main {
 
-	display: none;
+	/*display: none;*/
 	position:absolute;
 
 	left: 200px;
@@ -238,6 +251,7 @@ input[type=button].important,input[type=submit].important,.button.important {
     background-color: #FFF;
 
     overflow-y: scroll;
+
 
 }
 
@@ -320,10 +334,12 @@ input[type=button].important,input[type=submit].important,.button.important {
 #main .publisher .font {
 	padding-left: 25px;
 	padding-right: 25px;
-	padding-top: 5px;
-	padding-bottom: 5px;
+	padding-top: 3px;
+	padding-bottom: 3px;
 	margin-left: -25px;
 	margin-right: -25px;
+
+	transition: background-color .2s;
 }
 
 #main .publisher .font.hover, #main .publisher .family .title.hover {
@@ -344,12 +360,45 @@ input[type=button].important,input[type=submit].important,.button.important {
 	display: none;
 }
 
-#main .publisher .family a:hover {
+#main .publisher a:hover {
 	color: gray;
 }
 
-#main .publisher .family a:active {
+#main .publisher a:active {
 	color: black;
+}
+
+.fontLabel {
+	background-color: lightgray;
+	border-radius:8px; -moz-border-radius:8px; -webkit-border-radius:8px; -khtml-border-radius:8px;
+	margin-left: 5px;
+	font-size: 80%;
+	padding: 3px;
+	padding-left: 6px;
+	padding-right: 6px;
+	position: relative;
+	top: -1px;
+
+	transition: background-color .2s;
+}
+
+.fontLabel.free {
+	background-color: #D4EBF4;
+	color: #009EE0;
+}
+
+.fontLabel.beta {
+	background-color: #F4D9CB;
+	color: #F17022;
+}
+
+.fontLabel.var {
+	background-color: #F4DBB3;
+	color: #CC8D27;
+}
+
+#main .publisher .font.hover .fontLabel {
+	background-color: #FFF;
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
@@ -373,4 +422,24 @@ input[type=button].important,input[type=submit].important,.button.important {
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
+
+#welcome {
+
+	/*display: none;*/
+	position:absolute;
+
+	left: 200px;
+	top: 0;
+	bottom: 0;
+	right: 0px;
+
+    height: 100%;
+    background-color: #EDEBDD;
+
+    overflow-y: scroll;
+
+    font-size: 24pt;
+    line-height: 34pt;
+
+}
 

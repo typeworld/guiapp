@@ -29,14 +29,16 @@ codesign -dv --verbose=4  ~/Code/TypeWorldApp/dist/Type.World.app
 spctl --assess --verbose ~/Code/TypeWorldApp/dist/Type.World.app
 codesign --verify --deep --strict --verbose=2 ~/Code/TypeWorldApp/dist/Type.World.app
 
+
 # DMG
 #ln -s /Applications dist/Applications
 hdiutil create -size 100m -fs HFS+ -srcfolder ~/Code/TypeWorldApp/dist -volname "Type.World App" ~/Code/TypeWorldApp/dmg/TypeWorldApp.`cat ~/Code/TypeWorldApp/build/version`.dmg
-codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dmg/TypeWorldApp.`cat ~/Code/TypeWorldApp/build/version`.dmg
-codesign --verify --deep --strict --verbose=2 ~/Code/TypeWorldApp/dmg/TypeWorldApp.`cat ~/Code/TypeWorldApp/build/version`.dmg
+#codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dmg/TypeWorldApp.`cat ~/Code/TypeWorldApp/build/version`.dmg
+#codesign --verify --deep --strict --verbose=2 ~/Code/TypeWorldApp/dmg/TypeWorldApp.`cat ~/Code/TypeWorldApp/build/version`.dmg
+
+mv ~/Code/TypeWorldApp/dist/Type.World.app ~/Code/TypeWorldApp/apps/Type.World.`cat ~/Code/TypeWorldApp/build/version`.app
 
 # Sparkle
-~/Code/Sparkle/bin/sign_update ~/Code/TypeWorldApp/dmg/TypeWorldApp.`cat ~/Code/TypeWorldApp/build/version`.dmg ~/Code/dsa_priv.pem
-~/Code/Sparkle/bin/generate_appcast ~/Code/dsa_priv.pem ~/Code/TypeWorldApp/dmg
+python appcast.py
 
 exit 0

@@ -8,6 +8,7 @@ Plist = dict(CFBundleDocumentTypes= [dict(CFBundleTypeExtensions=["*"],
                                     ]
              )
 
+version = '0.1.1'
 
 APP = ['app.py']
 DATA_FILES = []
@@ -22,8 +23,8 @@ OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into 
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {
                 'CFBundleName': 'Type.World',
-                'CFBundleShortVersionString':'0.1.1', # must be in X.X.X format
-                'CFBundleVersion': '0.1.1',
+                'CFBundleShortVersionString':version, # must be in X.X.X format
+                'CFBundleVersion': version,
                 'CFBundleIdentifier':'world.type.guiapp', #optional
                 'NSHumanReadableCopyright': '@ Yanone 2018', #optional
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default

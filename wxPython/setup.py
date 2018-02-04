@@ -29,6 +29,7 @@ OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into 
                 'NSHumanReadableCopyright': '@ Yanone 2018', #optional
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default
                 'NSDockTilePlugIn': '@executable_path/../Resources/lib/python2.7/AppBadge.docktileplugin.py',
+                'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World JSON Protocol', 'CFBundleURLSchemes': ['x-typeworldjson']}],
 
                 # Sparkle
                 'SUFeedURL': 'https://type.world/downloads/guiapp/appcast.xml',
@@ -43,6 +44,9 @@ OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into 
 #			'no-chdir': True,
            }
 
+
+
+os.system('rm -rf ~/Code/TypeWorldApp/apps/Type.World.%s.app' % version)
 
 
 setup(

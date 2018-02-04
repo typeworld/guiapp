@@ -4,6 +4,8 @@ import wx, os, webbrowser, urllib, base64
 from threading import Thread
 import wx.html2
 from locales import *
+import sys
+import urllib
 
 from ynlib.files import ReadFromFile
 from ynlib.strings import kashidas, kashidaSentence
@@ -62,6 +64,7 @@ class AppFrame(wx.Frame):
 	def __init__(self, parent):        
 
 		self.client = APIClient(preferences = AppKitNSUserDefaults('world.type.clientapp'))
+		self.justAddedPublisher = None
 
 		if self.client.preferences.get('sizeMainWindow'):
 			size = tuple(self.client.preferences.get('sizeMainWindow'))
@@ -124,6 +127,8 @@ class AppFrame(wx.Frame):
 		self.nsapp = NSApp()
 		self._dockTile = self.nsapp.dockTile()
 
+
+		# self.Bind(wx.EVT_ACTIVATE, self.onActivate)
 
 		# if wx.Platform == '__WXMAC__':
 		# 	w = self.nsapp.mainWindow()
@@ -210,6 +215,9 @@ class AppFrame(wx.Frame):
 	def onCheckForUpdates(self, event):
 		self.sparkle.checkForUpdates_(None)
 
+	def onActivate(self, event):
+		self.errorMessage('Activated: %s' % sys.argv)
+
 	def onClose(self, event):
 		# dlg = wx.MessageDialog(self, 
 		# 	"Do you really want to close this application?",
@@ -281,14 +289,23 @@ class AppFrame(wx.Frame):
 
 	def addPublisher(self, url):
 
+		url = url.replace('http//', 'http://')
+		url = url.replace('https//', 'https://')
 
 		print 'addPublisher', url
 
-		success, message = self.client.addRepository(url)
+		success, message, publisher = self.client.addRepository(url)
 
 		if success:
+
+			b64ID = base64.b64encode(publisher.latestVersion().canonicalURL).replace('=', '-')
+
 			self.setSideBarHTML()
-			self.html.RunScript("hideAddPublisher();")
+			# self.html.RunScript("hideAddPublisher();")
+			# self.html.RunScript("$('#sidebar #%s').click();" % b64ID)
+			self.setPublisherHTML(b64ID)
+
+			self.justAddedPublisher = b64ID
 
 		else:
 			self.errorMessage(message)
@@ -692,28 +709,12 @@ $( document ).ready(function() {
 
 	def onLoad(self, event):
 
-		# Make title bar transparent
-		# https://developer.apple.com/documentation/appkit/nswindowstylemask?language=objc
-#		if False:
-		if wx.Platform == '__WXMAC__':
-			w = self.nsapp.mainWindow()
-			# w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3 | 1 << 15)
-			# w.setTitlebarAppearsTransparent_(1)
-			# w.setIsMovable_(True)
-			# w.setTitle_(' ')
-			# w.setTitleVisibility_(1)
-			# w.setMovableByWindowBackground_(True)
-			# js = '$("#sidebar").css("padding-top", "18px");'
-			# self.html.RunScript(js)
-
-		# DEV, REMOVE LATER
-#		self.client.addRepository('http://192.168.56.102/type.world/api/wsqmRxRmY3C8vtrutfIr/?command=installableFonts&user=zFiZMRY3QHbq537RKL87')
-
-
 		self.setSideBarHTML()
-		# if self.client.preferences and self.client.preferences.get('currentPublisher'):
-		# 	self.setPublisherHTML(self.client.preferences.get('currentPublisher'))
 
+		# Open drawer for newly added publisher
+		if self.justAddedPublisher:
+			self.setPublisherHTML(self.justAddedPublisher)
+			self.justAddedPublisher = None
 
 	def setBadgeLabel(self, label):
 		u'''\
@@ -751,30 +752,44 @@ $( document ).ready(function() {
 	def debug(self, string):
 		print string
 
+
+
+class MyApp(wx.App):
+	def MacOpenURL(self, url):
+		if url.startswith('x-typeworldjson://'):
+			url = url.replace('x-typeworldjson://', '')
+			self.frame.addPublisher(url)
+
+	def OnInit(self):
+		frame = AppFrame(None)
+		self.frame = frame
+		
+
+		html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'index.html'))
+
+		html = html.replace('##jquery##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'jquery-1.12.4.js'))))
+		html = html.replace('##jqueryui##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'jquery-ui.js'))))
+		html = html.replace('##js.js##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'js.js'))))
+		html = html.replace('##css##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'index.css'))))
+		html = html.replace('##jqueryuicss##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'jquery-ui.css'))))
+
+		html = frame.localizeString(html)
+		html = frame.replaceHTML(html)
+
+		# import cgi
+		# html = cgi.escape(html)
+	#	html = html.decode('windows-1252')
+
+		frame.html.SetPage(html, os.path.join(os.path.dirname(__file__), 'html', 'main'))
+		frame.Show()
+
+		return True
+
+
 if __name__ == '__main__':
-	app = wx.App()
+	app = MyApp()
 
-	frame = AppFrame(None)
-#	frame.html.LoadURL(os.path.join('file://', os.path.dirname(__file__), 'html', 'main', 'index.html'))
 
-	
-
-	html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'index.html'))
-
-	html = html.replace('##jquery##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'jquery-1.12.4.js'))))
-	html = html.replace('##jqueryui##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'jquery-ui.js'))))
-	html = html.replace('##js.js##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'js.js'))))
-	html = html.replace('##css##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'index.css'))))
-	html = html.replace('##jqueryuicss##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'jquery-ui.css'))))
-
-	html = frame.localizeString(html)
-	html = frame.replaceHTML(html)
-
-	# import cgi
-	# html = cgi.escape(html)
-#	html = html.decode('windows-1252')
-
-	frame.html.SetPage(html, os.path.join(os.path.dirname(__file__), 'html', 'main'))
-	frame.Show()
 	app.MainLoop()
+
 

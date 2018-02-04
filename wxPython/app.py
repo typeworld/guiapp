@@ -65,6 +65,7 @@ class AppFrame(wx.Frame):
 
 		self.client = APIClient(preferences = AppKitNSUserDefaults('world.type.clientapp'))
 		self.justAddedPublisher = None
+		self.fullyLoaded = False
 
 		if self.client.preferences.get('sizeMainWindow'):
 			size = tuple(self.client.preferences.get('sizeMainWindow'))
@@ -301,11 +302,7 @@ class AppFrame(wx.Frame):
 			b64ID = base64.b64encode(publisher.latestVersion().canonicalURL).replace('=', '-')
 
 			self.setSideBarHTML()
-			# self.html.RunScript("hideAddPublisher();")
-			# self.html.RunScript("$('#sidebar #%s').click();" % b64ID)
 			self.setPublisherHTML(b64ID)
-
-			self.justAddedPublisher = b64ID
 
 		else:
 			self.errorMessage(message)
@@ -713,8 +710,10 @@ $( document ).ready(function() {
 
 		# Open drawer for newly added publisher
 		if self.justAddedPublisher:
-			self.setPublisherHTML(self.justAddedPublisher)
+			self.addPublisher(self.justAddedPublisher)
 			self.justAddedPublisher = None
+
+		self.fullyLoaded = True
 
 	def setBadgeLabel(self, label):
 		u'''\
@@ -724,11 +723,15 @@ $( document ).ready(function() {
 		self._dockTile.display()
 		self._dockTile.setBadgeLabel_(label)
 
-	def localize(self, key):
-		return localize(key, self.locale())
+	def localize(self, key, html):
+		string = localize(key, self.locale())
+		if html:
+			string = string.replace('\n', '<br />')
+		print string
 
-	def localizeString(self, string):
-		return localizeString(string, languages = self.locale())
+	def localizeString(self, string, html = False):
+		string = localizeString(string, languages = self.locale(), html = html)
+		return string
 
 	def replaceHTML(self, html):
 		html = html.replace('##htmlroot##', os.path.join(os.path.dirname(__file__), 'html'))
@@ -758,7 +761,11 @@ class MyApp(wx.App):
 	def MacOpenURL(self, url):
 		if url.startswith('x-typeworldjson://'):
 			url = url.replace('x-typeworldjson://', '')
-			self.frame.addPublisher(url)
+			
+			if self.frame.fullyLoaded:
+				self.frame.addPublisher(url)
+			else:
+				self.frame.justAddedPublisher = url
 
 	def OnInit(self):
 		frame = AppFrame(None)
@@ -773,7 +780,7 @@ class MyApp(wx.App):
 		html = html.replace('##css##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'index.css'))))
 		html = html.replace('##jqueryuicss##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'jquery-ui.css'))))
 
-		html = frame.localizeString(html)
+		html = frame.localizeString(html, html = True)
 		html = frame.replaceHTML(html)
 
 		# import cgi

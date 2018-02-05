@@ -759,8 +759,8 @@ $( document ).ready(function() {
 
 class MyApp(wx.App):
 	def MacOpenURL(self, url):
-		if url.startswith('x-typeworldjson://'):
-			url = url.replace('x-typeworldjson://', '')
+		if url.startswith('typeworldjson://'):
+			url = url.replace('typeworldjson://', '')
 			
 			if self.frame.fullyLoaded:
 				self.frame.addPublisher(url)

@@ -11,6 +11,9 @@ function linkout(url) {
     window.location.href = url;
 }
 
+function contextmenu(evt) {
+	python('self.onContextMenu(____' + evt.pageX + '____, ____' + evt.pageY + '____, ____' + $(evt.target).closest('.contextmenu').attr('class') + '____, ____' + $(evt.target).closest('.contextmenu').attr('name') + '____)')
+}
 
 keypressFunctions = [];
 
@@ -22,9 +25,13 @@ function unregisterKeypress(key) {
 	keypressFunctions[key] = null;
 }
 
-
 $( document ).ready(function() {
 
+	$(document).bind("contextmenu",function(evt){
+		contextmenu(evt);
+		evt.preventDefault();
+    	return false;
+	});
 
 	$("#sidebar .publisher").click(function() {
 		$("#sidebar .publisher").removeClass('selected');
@@ -99,10 +106,7 @@ function hideMain() {
 
 // JQUERY
 
-$( document ).ready(function() {
-
 	$( function() {
 	    $( document ).tooltip();
 	  } );
 
-});

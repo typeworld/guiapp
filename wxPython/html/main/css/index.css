@@ -122,6 +122,16 @@ input[type=button].important,input[type=submit].important,.button.important {
 }
 
 
+.contextmenu {
+	  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+
+}
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
 
@@ -135,7 +145,7 @@ input[type=button].important,input[type=submit].important,.button.important {
     background: transparent;  /* optional: just make scrollbar invisible */
 }
 
-#sidebar {
+.sidebar {
 	font-size: 14px;
 	position:absolute;
     background-color: #333;
@@ -152,7 +162,7 @@ input[type=button].important,input[type=submit].important,.button.important {
 	
 }
 
-#sidebar .headline {
+.sidebar .headline {
 	font-size: 75%;
 	text-transform: uppercase;
 	letter-spacing: 2px;
@@ -166,22 +176,22 @@ input[type=button].important,input[type=submit].important,.button.important {
 
 
 
-#sidebar .publisher {
+.sidebar .publisher {
     padding: 13px;
     padding-top: 4px;
     padding-bottom: 4px;
 
 }
 
-#sidebar .publisher.hover {
+.sidebar .publisher.hover {
 	background-color: rgba(0, 0, 0, .1);
 }
 
-#sidebar .publisher.selected {
+.sidebar .publisher.selected {
 	background-color: black;
 }
 
-#sidebar .publisher .name {
+.sidebar .publisher .name {
 	position: relative;
 	padding: 3px;
 	padding-left: 0px;
@@ -190,7 +200,7 @@ input[type=button].important,input[type=submit].important,.button.important {
 	float: left;
 }
 
-#sidebar .badge {
+.sidebar .badge {
 	position: relative;
 	padding: 3px;
 	padding-left: 6px;
@@ -201,39 +211,50 @@ input[type=button].important,input[type=submit].important,.button.important {
 /*	display: none;*/
 }
 
-#sidebar .reloadAnimation {
+.sidebar .reloadAnimation {
 	position: relative;
 	float: right;
 
 /*	display: none;*/
 }
 
-#sidebar .publisher[dir="rtl"] .name {
+.sidebar .publisher[dir="rtl"] .name {
 	float: right;
 	text-align: right;
  }
 
-#sidebar .publisher[dir="rtl"] .badge {
+.sidebar .publisher[dir="rtl"] .badge {
 	float: left;
  }
 
-#sidebar .publisher[dir="rtl"] .reloadAnimation {
+.sidebar .publisher[dir="rtl"] .reloadAnimation {
 	float: left;
 
 /*	display: none;*/
 }
 
 
-#sidebar .publisher .badge.installed {
+.sidebar .publisher .badge.installed {
 	color: black;
-	background-color: #97BF0D;
+	background-color: #666;
 }
 
-#sidebar #bottom {
+.sidebar #bottom {
 	position: absolute;
 	padding: 20px;
 	bottom: 0px;
 }
+
+#subscriptions {
+	left: 200px;
+	width: 200px;
+	background-color: #444;
+}
+
+#subscriptions.sidebar .publisher.selected {
+	background-color: #222;
+}
+
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
@@ -242,7 +263,7 @@ input[type=button].important,input[type=submit].important,.button.important {
 	/*display: none;*/
 	position:absolute;
 
-	left: 200px;
+	left: 400px;
 	top: 0;
 	bottom: 0;
 	right: 0px;
@@ -368,7 +389,7 @@ input[type=button].important,input[type=submit].important,.button.important {
 	color: black;
 }
 
-.fontLabel {
+.label {
 	background-color: lightgray;
 	border-radius:8px; -moz-border-radius:8px; -webkit-border-radius:8px; -khtml-border-radius:8px;
 	margin-left: 5px;
@@ -382,22 +403,27 @@ input[type=button].important,input[type=submit].important,.button.important {
 	transition: background-color .2s;
 }
 
-.fontLabel.free {
+.label.free {
 	background-color: #D4EBF4;
 	color: #009EE0;
 }
 
-.fontLabel.beta {
+.label.installedFonts {
+	background-color: #97BF0D;
+	color: black;
+}
+
+.label.beta {
 	background-color: #F4D9CB;
 	color: #F17022;
 }
 
-.fontLabel.var {
+.label.var {
 	background-color: #F4DBB3;
 	color: #CC8D27;
 }
 
-#main .publisher .font.hover .fontLabel {
+#main .publisher .font.hover .label {
 	background-color: #FFF;
 }
 

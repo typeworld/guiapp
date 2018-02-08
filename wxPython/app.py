@@ -5,7 +5,7 @@ from threading import Thread
 import wx.html2
 from locales import *
 import sys
-import urllib
+import urllib, time
 
 from ynlib.files import ReadFromFile
 from ynlib.strings import kashidas, kashidaSentence
@@ -14,6 +14,12 @@ from typeWorld.client import APIClient, AppKitNSUserDefaults
 
 APPNAME = 'Type.World'
 APPVERSION = 0.1
+
+if not '.app/Contents' in os.path.dirname(__file__):
+	DESIGNTIME = True
+else:
+	DESIGNTIME = False
+
 
 import AppKit
 #from AppKit import NSDockTilePlugIn
@@ -169,33 +175,33 @@ class AppFrame(wx.Frame):
 			# self.html.RunScript(js)
 
 
+		if not DESIGNTIME:
+			# Your Qt QApplication instance
+			QT_APP = self
+			# URL to Appcast.xml, eg. https://yourserver.com/Appcast.xml
+			APPCAST_URL = 'https://type.world/downloads/guiapp/appcast.xml'
+			# Path to Sparkle's "Sparkle.framework" inside your app bundle
 
-		# Your Qt QApplication instance
-		QT_APP = self
-		# URL to Appcast.xml, eg. https://yourserver.com/Appcast.xml
-		APPCAST_URL = 'https://type.world/downloads/guiapp/appcast.xml'
-		# Path to Sparkle's "Sparkle.framework" inside your app bundle
+			if '.app' in os.path.dirname(__file__):
+				SPARKLE_PATH = os.path.join(os.path.dirname(__file__), '..', 'Frameworks', 'Sparkle.framework')
+			else:
+				SPARKLE_PATH = '/Users/yanone/Code/Sparkle/Sparkle.framework'
 
-		if '.app' in os.path.dirname(__file__):
-			SPARKLE_PATH = os.path.join(os.path.dirname(__file__), '..', 'Frameworks', 'Sparkle.framework')
-		else:
-			SPARKLE_PATH = '/Users/yanone/Code/Sparkle/Sparkle.framework'
+			from objc import pathForFramework, loadBundle
+			sparkle_path = pathForFramework(SPARKLE_PATH)
+			self.objc_namespace = dict()
+			loadBundle('Sparkle', self.objc_namespace, bundle_path=sparkle_path)
+			def about_to_quit():
+				# See https://github.com/sparkle-project/Sparkle/issues/839
+				self.objc_namespace['NSApplication'].sharedApplication().terminate_(None)
 
-		from objc import pathForFramework, loadBundle
-		sparkle_path = pathForFramework(SPARKLE_PATH)
-		self.objc_namespace = dict()
-		loadBundle('Sparkle', self.objc_namespace, bundle_path=sparkle_path)
-		def about_to_quit():
-			# See https://github.com/sparkle-project/Sparkle/issues/839
-			self.objc_namespace['NSApplication'].sharedApplication().terminate_(None)
-
-#		QT_APP.aboutToQuit.connect(about_to_quit)
-		self.sparkle = self.objc_namespace['SUUpdater'].sharedUpdater()
-		self.sparkle.setAutomaticallyChecksForUpdates_(True)
-#		self.sparkle.setAutomaticallyDownloadsUpdates_(True)
-		NSURL = self.objc_namespace['NSURL']
-		self.sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
-		self.sparkle.checkForUpdatesInBackground()
+	#		QT_APP.aboutToQuit.connect(about_to_quit)
+			self.sparkle = self.objc_namespace['SUUpdater'].sharedUpdater()
+			self.sparkle.setAutomaticallyChecksForUpdates_(True)
+	#		self.sparkle.setAutomaticallyDownloadsUpdates_(True)
+			NSURL = self.objc_namespace['NSURL']
+			self.sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
+			self.sparkle.checkForUpdatesInBackground()
 
 
 
@@ -256,6 +262,9 @@ class AppFrame(wx.Frame):
 		dlg.ShowModal()
 		dlg.Destroy()  
 
+	def onContextMenu(self, x, y, target, ID):
+		print x, y, target, ID
+
 	def onPreferences(self, event):
 		dlg = PreferencesWindow(self)
 		html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'preferences', 'index.html'))
@@ -303,6 +312,7 @@ class AppFrame(wx.Frame):
 
 			self.setSideBarHTML()
 			self.setPublisherHTML(b64ID)
+			self.html.RunScript("hideAddPublisher();")
 
 		else:
 			self.errorMessage(message)
@@ -319,37 +329,84 @@ class AppFrame(wx.Frame):
 	def publisherPreferences(self, i):
 		print 'publisherPreferences', i
 
-	def removeFont(self, canonicalURL, fontID):
+	def removeFont(self, canonicalURL, repoURL, fontID):
 
-		api = self.client.endpoints[canonicalURL].latestVersion()
+		publisher = self.client.endpoints[canonicalURL]
+		repo = publisher.repositories[repoURL]
+		api = repo.latestVersion()
 
-		if self.client.endpoints.has_key(canonicalURL):
-			endpoint = self.client.endpoints[canonicalURL]
-			success, message = endpoint.removeFont(fontID)
-			b64ID = base64.b64encode(canonicalURL).replace("=", "-")
+		success, message = repo.removeFont(fontID)
+		b64ID = base64.b64encode(canonicalURL).replace("=", "-")
 
-			if success:
+		if success:
 
-				# Get font
-				for foundry in api.response.getCommand().foundries:
-					for family in foundry.families:
-						for font in family.fonts:
-							if font.uniqueID == fontID:
-								self.html.RunScript('$("#%s").html("%s");' % (fontID, self.fontHTML(api, font)))
-								break
+			# Get font
+			for foundry in api.response.getCommand().foundries:
+				for family in foundry.families:
+					for font in family.fonts:
+						if font.uniqueID == fontID:
+							self.html.RunScript('$("#%s").html("%s");' % (fontID, self.fontHTML(repo, api, font)))
+							break
 
-				self.setPublisherBadge(b64ID, endpoint.amountInstalledFonts())
-
-			else:
-
-				if type(message) in (str, unicode):
-					self.errorMessage(message)
-				else:
-					self.errorMessage('Server: %s' % message.getText(self.locale()))
+			self.setPublisherBadge(b64ID, publisher.amountInstalledFonts())
+			self.setSubscriptionsHTML(b64ID)
 
 		else:
-			success = False
-			self.errorMessage('The URL %s is unknown.' % (canonicalURL))
+
+			if type(message) in (str, unicode):
+				self.errorMessage(message)
+			else:
+				self.errorMessage('Server: %s' % message.getText(self.locale()))
+
+
+	def installFont(self, canonicalURL, repoURL, fontID, version):
+		self.html.RunScript("$('#%s .installButton').hide();" % fontID)
+		self.html.RunScript("$('#%s .status').show();" % fontID)
+
+		print 'installFont', canonicalURL, repoURL, fontID
+
+		publisher = self.client.endpoints[canonicalURL]
+		repo = publisher.repositories[repoURL]
+		api = repo.latestVersion()
+		b64ID = base64.b64encode(canonicalURL).replace("=", "-")
+
+		success, message = repo.installFont(fontID, version)
+
+		if success:
+
+			# self.html.RunScript("$('#%s .status').hide();" % fontID)
+			# self.html.RunScript("$('#%s .removeButton').show();" % fontID)
+			
+
+
+			# Get font
+			for foundry in api.response.getCommand().foundries:
+				for family in foundry.families:
+					for font in family.fonts:
+						if font.uniqueID == fontID:
+							self.html.RunScript('$("#%s").html("%s");' % (fontID, self.fontHTML(repo, api, font)))
+							break
+
+			self.setPublisherBadge(b64ID, publisher.amountInstalledFonts())
+			self.setSubscriptionsHTML(b64ID)
+			
+
+		else:
+
+			if type(message) in (str, unicode):
+				
+				if message == 'seatAllowanceReached':
+					self.errorMessage('seatAllowanceReached')
+
+				else:
+					self.errorMessage(message)
+			else:
+				self.errorMessage('Server: %s' % message.getText(self.locale()))
+
+		if not success:
+			self.html.RunScript("$('#%s .installButton').show();" % fontID)
+			self.html.RunScript("$('#%s .status').hide();" % fontID)
+
 
 	def reloadPublisher(self, b64ID):
 
@@ -359,7 +416,7 @@ class AppFrame(wx.Frame):
 		ID = base64.b64decode(b64ID.replace('-', '='))
 
 
-		success, message = self.client.endpoints[ID].update()
+		success, message, repo = self.client.endpoints[ID].update()
 
 		if success:
 
@@ -377,92 +434,38 @@ class AppFrame(wx.Frame):
 		self.html.RunScript('$("#sidebar #%s .badges").show();' % b64ID)
 		self.html.RunScript('$("#sidebar #%s .reloadAnimation").hide();' % b64ID)
 
-
-
-	def installFont(self, canonicalURL, fontID, version):
-		self.html.RunScript("$('#%s .installButton').hide();" % fontID)
-		self.html.RunScript("$('#%s .status').show();" % fontID)
-
-
-		publisher = self.client.endpoints[canonicalURL]
-		api = publisher.latestVersion()
-		b64ID = base64.b64encode(canonicalURL).replace("=", "-")
-
-		if self.client.endpoints.has_key(canonicalURL):
-			endpoint = self.client.endpoints[canonicalURL]
-			success, message = endpoint.installFont(fontID, version)
-
-			if success:
-
-				# self.html.RunScript("$('#%s .status').hide();" % fontID)
-				# self.html.RunScript("$('#%s .removeButton').show();" % fontID)
-				
-
-
-				# Get font
-				for foundry in api.response.getCommand().foundries:
-					for family in foundry.families:
-						for font in family.fonts:
-							if font.uniqueID == fontID:
-								self.html.RunScript('$("#%s").html("%s");' % (fontID, self.fontHTML(api, font)))
-								break
-
-				self.setPublisherBadge(b64ID, publisher.amountInstalledFonts())
-				
-
-			else:
-
-				if type(message) in (str, unicode):
-					
-					if message == 'seatAllowanceReached':
-						self.errorMessage('seatAllowanceReached')
-
-					else:
-						self.errorMessage(message)
-				else:
-					self.errorMessage('Server: %s' % message.getText(self.locale()))
-
-		else:
-			success = False
-			self.errorMessage('The URL %s is unknown.' % (canonicalURL))
-
-		if not success:
-			self.html.RunScript("$('#%s .installButton').show();" % fontID)
-			self.html.RunScript("$('#%s .status').hide();" % fontID)
-
-
 	def errorMessage(self, message):
 		dlg = wx.MessageDialog(self, message, '', wx.ICON_ERROR)
 		result = dlg.ShowModal()
 		dlg.Destroy()
 
 
-	def fontHTML(self, api, font):
+	def fontHTML(self, repo, api, font):
 		html = []
 		html.append('<div class="clear">')
 		html.append('<div class="left" style="width: 50%;">')
 		html.append(font.name.getText(self.locale()))
 		if font.free:
-			html.append('<span class="fontLabel free">free</span>')
+			html.append('<span class="label free">free</span>')
 		if font.beta:
-			html.append('<span class="fontLabel beta">beta</span>')
+			html.append('<span class="label beta">beta</span>')
 		if font.variableFont:
-			html.append('<span class="fontLabel var">OTVar</span>')
+			html.append('<span class="label var">OTVar</span>')
 		html.append('</div>') # .left
 		html.append('<div class="left">')
-		installedVersion = api.parent.parent.installedFontVersion(font.uniqueID)
+		installedVersion = repo.installedFontVersion(font.uniqueID)
 		if installedVersion:
 			html.append('#(Installed): %s' % installedVersion)
 		else:
 			html.append('#(Not Installed)')
 		html.append('</div>') # .left
 		html.append('<div class="right installButton" style="display: %s;">' % ('none' if installedVersion else 'block'))
-		html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____)">' % (api.canonicalURL, font.uniqueID, font.getSortedVersions()[-1].number))
+		html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)">' % (api.canonicalURL, repo.url, font.uniqueID, font.getSortedVersions()[-1].number))
 		html.append('#(Install)')
 		html.append('</a>')
 		html.append('</div>') # .right
 		html.append('<div class="right removeButton" style="display: %s;">' % ('block' if installedVersion else 'none'))
-		html.append('<a href="x-python://self.removeFont(____%s____, ____%s____)">' % (api.canonicalURL, font.uniqueID))
+		html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)">' % (api.canonicalURL, repo.url, font.uniqueID))
 		html.append('#(Remove)')
 		html.append('</a>')
 		html.append('</div>') # .right
@@ -479,18 +482,100 @@ class AppFrame(wx.Frame):
 
 		return html
 
+
+	def setActiveSubscription(self, publisherB64ID, subscriptionB64ID):
+
+		publisherID = self.b64decode(publisherB64ID)
+		repositoryID = self.b64decode(subscriptionB64ID)
+
+		self.client.endpoints[publisherID].activeRepository = repositoryID
+		self.client.savePreferences()
+		self.setPublisherHTML(publisherB64ID)
+
+	def getSubscriptionsHTML(self, b64ID):
+		ID = self.b64decode(b64ID)
+
+		print 'setSubscriptionsHTML', ID
+
+		html = []
+		repos = []
+		for key, repo2 in self.client.endpoints[ID].repositories.items():
+
+			amountInstalledFonts = repo2.amountInstalledFonts()
+			selected = key == self.client.endpoints[ID].activeRepository
+
+
+			string = []
+			string.append('<a href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(key)))
+			string.append('<div class="contextmenu subscription" name="%s">' % (self.b64encode(key)))
+			string.append('<div class="publisher clear %s" lang="%s" dir="%s">' % ('selected' if selected else '', 'en', 'ltr'))
+			string.append('<div class="name">')
+			string.append(repo2.latestVersion().response.getCommand().name.getText(self.locale()) or '#(Undefined)')
+			string.append('</div>')
+
+			string.append('<div class="badges">')
+			string.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
+			string.append('%s' % amountInstalledFonts)
+			string.append('</div>')
+			string.append('</div>')
+			string.append('</div>')
+			string.append('</div>')
+			string.append('</a>')
+
+			html.append(''.join(string))
+
+
+			html.append('''<script>
+
+$( document ).ready(function() {
+
+	$("#subscriptions .publisher").hover(function() {
+		$( this ).addClass( "hover" );
+	  }, function() {
+		$( this ).removeClass( "hover" );
+	  }
+	);
+
+
+});
+
+
+</script>''')
+
+
+		html.append(', '.join(repos))
+
+
+		# Print HTML
+		html = ''.join(html)
+		html = html.replace('"', '\'')
+		html = html.replace('\n', '')
+		html = self.localizeString(html)
+
+		return html
+
+	def setSubscriptionsHTML(self, b64ID):
+
+		html = self.getSubscriptionsHTML(b64ID)
+
+		js = '$("#subscriptions #content").html("' + html + '");'
+		self.html.RunScript(js)
+
+
 	def setPublisherHTML(self, b64ID):
 
 #		print b64ID
 
-		ID = base64.b64decode(b64ID.replace('-', '='))
+		ID = self.b64decode(b64ID)
 
 		if self.client.preferences:
 			self.client.preferences.set('currentPublisher', b64ID)
 
 		html = []
 
-		api = self.client.endpoints[ID].latestVersion()
+		repo = self.client.endpoints[ID].active()
+		api = repo.latestVersion()
+
 
 		name, locale = api.name.getTextAndLocale(locale = self.locale())
 		logo = False
@@ -499,7 +584,7 @@ class AppFrame(wx.Frame):
 		html.append('<div class="head" style="height: 15px; background-color: white;">')
 		# Preferences
 		html.append('<div class="buttons clear">')
-		html.append('<div class="left">#(Publisher): %s</div>' % (name))
+		html.append('<div class="left">#(Publisher): <b>%s</b></div>' % (name))
 		html.append('<div class="right"><a class="warningButton" href="x-python://self.removePublisher(____%s____)">#(Remove)</a></div>' % (b64ID))
 		html.append('<div class="right"><a href="x-python://self.publisherPreferences(____%s____)">#(Preferences)</a></div>' % b64ID)
 		html.append('<div class="right"><a class="reloadPublisherButton">#(Reload)</a></div>')
@@ -551,7 +636,7 @@ class AppFrame(wx.Frame):
 				for font in family.fonts:
 					html.append('<div class="font" id="%s">' % font.uniqueID)
 
-					html.append(self.fontHTML(api, font))
+					html.append(self.fontHTML(repo, api, font))
 
 					html.append('</div>') # .font
 
@@ -631,9 +716,15 @@ $( document ).ready(function() {
 		# Set Sidebar Focus
 		self.html.RunScript("$('#sidebar .publisher').removeClass('selected');")
 		self.html.RunScript("$('#sidebar #%s').addClass('selected');" % b64ID)
+		self.setSubscriptionsHTML(b64ID)
 		self.html.RunScript("showMain();")
 
 
+	def b64encode(self, string):
+		return base64.b64encode(string).replace('=', '-')
+
+	def b64decode(self, string):
+		return base64.b64decode(string.replace('-', '='))
 
 	def setSideBarHTML(self):
 		# Set publishers
@@ -661,7 +752,8 @@ $( document ).ready(function() {
 			installedFonts = publisher.amountInstalledFonts()
 			html.append(u'''
 <a href="x-python://self.setPublisherHTML(____%s____)">
-	<div id="%s" class="publisher clear" lang="%s" dir="%s">
+	<div class="contextmenu publisher" name="%s">
+	<div id="%s" class="clear" lang="%s" dir="%s">
 		<div class="name">
 		%s
 		</div>
@@ -674,7 +766,8 @@ $( document ).ready(function() {
 			</div>
 		</div>
 	</div>
-</a>''' % (b64ID, b64ID, language, direction, name, 'block' if installedFonts else 'none', installedFonts or ''))
+	</div>
+</a>''' % (b64ID, b64ID, b64ID, language, direction, name, 'block' if installedFonts else 'none', installedFonts or ''))
 
 
 		html.append('''<script>
@@ -689,6 +782,8 @@ $( document ).ready(function() {
 	);
 
 });
+
+
 
 </script>''')
 
@@ -714,6 +809,12 @@ $( document ).ready(function() {
 			self.justAddedPublisher = None
 
 		self.fullyLoaded = True
+		self.log('Hello')
+
+	def log(self, message):
+
+		from AppKit import NSLog
+		NSLog('Type.World App: %s' % message)
 
 	def setBadgeLabel(self, label):
 		u'''\

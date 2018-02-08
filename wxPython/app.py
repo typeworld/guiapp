@@ -504,11 +504,9 @@ class AppFrame(wx.Frame):
 			amountInstalledFonts = repo2.amountInstalledFonts()
 			selected = key == self.client.endpoints[ID].activeRepository
 
-
 			string = []
 			string.append('<a href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(key)))
-			string.append('<div class="contextmenu subscription" name="%s">' % (self.b64encode(key)))
-			string.append('<div class="publisher clear %s" lang="%s" dir="%s">' % ('selected' if selected else '', 'en', 'ltr'))
+			string.append('<div class="contextmenu subscription publisher clear %s" lang="%s" dir="%s" id="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(key)))
 			string.append('<div class="name">')
 			string.append(repo2.latestVersion().response.getCommand().name.getText(self.locale()) or '#(Undefined)')
 			string.append('</div>')
@@ -516,7 +514,6 @@ class AppFrame(wx.Frame):
 			string.append('<div class="badges">')
 			string.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
 			string.append('%s' % amountInstalledFonts)
-			string.append('</div>')
 			string.append('</div>')
 			string.append('</div>')
 			string.append('</div>')
@@ -580,17 +577,17 @@ $( document ).ready(function() {
 		name, locale = api.name.getTextAndLocale(locale = self.locale())
 		logo = False
 
-		html.append('<div class="publisher">')
-		html.append('<div class="head" style="height: 15px; background-color: white;">')
-		# Preferences
-		html.append('<div class="buttons clear">')
-		html.append('<div class="left">#(Publisher): <b>%s</b></div>' % (name))
-		html.append('<div class="right"><a class="warningButton" href="x-python://self.removePublisher(____%s____)">#(Remove)</a></div>' % (b64ID))
-		html.append('<div class="right"><a href="x-python://self.publisherPreferences(____%s____)">#(Preferences)</a></div>' % b64ID)
-		html.append('<div class="right"><a class="reloadPublisherButton">#(Reload)</a></div>')
-		html.append('</div>') # .buttons
-		html.append('</div>') # .head
-		html.append('</div>') # .publisher
+		# html.append('<div class="publisher">')
+		# html.append('<div class="head" style="height: 15px; background-color: white;">')
+		# # Preferences
+		# html.append('<div class="buttons clear">')
+		# html.append('<div class="left">#(Publisher): <b>%s</b></div>' % (name))
+		# html.append('<div class="right"><a class="warningButton" href="x-python://self.removePublisher(____%s____)">#(Remove)</a></div>' % (b64ID))
+		# html.append('<div class="right"><a href="x-python://self.publisherPreferences(____%s____)">#(Preferences)</a></div>' % b64ID)
+		# html.append('<div class="right"><a class="reloadPublisherButton">#(Reload)</a></div>')
+		# html.append('</div>') # .buttons
+		# html.append('</div>') # .head
+		# html.append('</div>') # .publisher
 
 		html.append('<div class="publisher" id="%s">' % (b64ID))
 
@@ -752,8 +749,7 @@ $( document ).ready(function() {
 			installedFonts = publisher.amountInstalledFonts()
 			html.append(u'''
 <a href="x-python://self.setPublisherHTML(____%s____)">
-	<div class="contextmenu publisher" name="%s">
-	<div id="%s" class="clear" lang="%s" dir="%s">
+	<div id="%s" class="contextmenu publisher clear" lang="%s" dir="%s">
 		<div class="name">
 		%s
 		</div>
@@ -766,8 +762,7 @@ $( document ).ready(function() {
 			</div>
 		</div>
 	</div>
-	</div>
-</a>''' % (b64ID, b64ID, b64ID, language, direction, name, 'block' if installedFonts else 'none', installedFonts or ''))
+</a>''' % (b64ID, b64ID, language, direction, name, 'block' if installedFonts else 'none', installedFonts or ''))
 
 
 		html.append('''<script>
@@ -780,6 +775,7 @@ $( document ).ready(function() {
 		$( this ).removeClass( "hover" );
 	  }
 	);
+
 
 });
 

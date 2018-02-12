@@ -30,7 +30,7 @@
 <body class="clear">
 
 <div id="addPublisher">
-	<h1>#(Add Publisher)</h1>
+	<h1>#(Add Subscription)</h1>
 	<form action="JavaScript:python('self.addPublisher(____' + $('#url').val() + '____)');">
 		<input type="text" id="url" name="url" placeholder="http://">
 		<input type="submit" value="#(Add)">
@@ -51,7 +51,7 @@
 		</div>
 
 		<div id="bottom">
-			<a onclick="showAddPublisher();" title="Hello World">+ #(Add Publisher)</a>
+			<a onclick="showAddPublisher();" title="Hello World">+ #(Add Subscription)</a>
 		</div>
 
 	</div>
@@ -82,6 +82,25 @@
 			<a onclick="showAddPublisher();">#(WelcomeMessage)</a>
 		</div>
 	</div>
+
+	<div id="about" class="centerOuter">
+		<div id="text" class="centerInner">
+			<p style="text-align: center; margin-bottom: 20px;">
+				<img src="file://##htmlroot##/biglogo.svg" style="width: 200px;"><br />
+			</p>
+			<p>
+			Type.World is a not-for-profit project currently developed by type designer and multi media artist <a href="https://yanone.de">Yanone</a>.<br />
+			All code is open source, and is therefore open for discussion and contributions.<br />
+			<br />
+			A discussion about the project can be found at <a href="http://typedrawers.com/discussion/2431/proposal-for-font-distribution-installation-app">Typedrawers</a>.<br />
+			The code is hosted on <a href="http://github.com/typeWorld/">Github</a>.<br />
+			<br />
+			Please visit the project on <a href="https://type.world">type.world</a>
+			</p>
+
+		</div>
+	</div>
+
 </div>
 
 

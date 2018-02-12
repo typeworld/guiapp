@@ -15,6 +15,28 @@ function contextmenu(evt) {
 	python('self.onContextMenu(____' + evt.pageX + '____, ____' + evt.pageY + '____, ____' + $(evt.target).closest('.contextmenu').attr('class') + '____, ____' + $(evt.target).closest('.contextmenu').attr('id') + '____)')
 }
 
+function reloadPublisher(b64ID) {
+	$("#sidebar #" + b64ID + " .badges").hide();
+	$("#sidebar #" + b64ID + " .reloadAnimation").show();
+	python('self.reloadPublisher(None, ____' + b64ID + '____)');
+}
+
+function reloadSubscription(b64ID) {
+	// $("#sidebar #" + b64ID + " .badges").hide();
+	// $("#sidebar #" + b64ID + " .reloadAnimation").show();
+	python('self.reloadSubscription(None, ____' + b64ID + '____)');
+}
+
+function finishReloadPublisher(b64ID) {
+	$("#sidebar #" + b64ID + " .badges").show();
+	$("#sidebar #" + b64ID + " .reloadAnimation").hide();
+}
+
+function finishReloadSubscription(b64ID) {
+	// $("#sidebar #" + b64ID + " .badges").show();
+	// $("#sidebar #" + b64ID + " .reloadAnimation").hide();
+}
+
 keypressFunctions = [];
 
 function registerKeypress(key, method) {
@@ -100,6 +122,15 @@ function hideMain() {
 	$('#main').slideUp();
 }
 
+function showAbout() {
+	$('#about').slideDown();
+	registerKeypress(27, function(){ hideAbout(); });
+}
+
+function hideAbout() {
+	$('#about').slideUp();
+	unregisterKeypress(27);
+}
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////// */
 

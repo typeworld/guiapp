@@ -30,7 +30,6 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 10pt;
     margin: none;
-
 }
 
 a {
@@ -289,10 +288,13 @@ input[type=button].important,input[type=submit].important,.button.important {
 
 #main .publisher .head .logo {
 	float: left;
+	margin-right: 15px;
 }
 
 #main .publisher .head .names {
 	float: left;
+	position: relative;
+	top: -4px;
 }
 
 #main .publisher .head .names .name {
@@ -331,6 +333,10 @@ input[type=button].important,input[type=submit].important,.button.important {
 
 /* ////////////// FAMILY ////////////// */
 
+#main .publisher .family {
+	margin-bottom: 20px;
+}
+
 #main .publisher .family .title {
 	padding-left: 25px;
 	padding-right: 25px;
@@ -341,9 +347,10 @@ input[type=button].important,input[type=submit].important,.button.important {
 }
 
 #main .publisher .family .name {
-	font-weight: bold;
+	font-size: 24px;
+/*	font-weight: bold;
 	color: #F17022;
-}
+*/}
 
 #main .publisher .family .title.selected .name {
 	color: white;
@@ -469,3 +476,35 @@ input[type=button].important,input[type=submit].important,.button.important {
 
 }
 
+#about {
+
+	display: none;
+	position:absolute;
+
+/*	padding: 50px;
+*/
+	left: 0px;
+	top: 0;
+	bottom: 0;
+	right: 0px;
+
+    height: 100%;
+    background-color: #EDEBDD;
+
+    overflow-y: scroll;
+
+    font-size: 12pt;
+    line-height: 18pt;
+
+	text-align: center;
+}
+
+#about #text {
+	display: inline-block;
+	width: 500px;
+	text-align: left;
+}
+
+#about a {
+	color: #259CD3;
+}

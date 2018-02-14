@@ -37,6 +37,8 @@ function finishReloadSubscription(b64ID) {
 	// $("#sidebar #" + b64ID + " .reloadAnimation").hide();
 }
 
+
+
 keypressFunctions = [];
 
 function registerKeypress(key, method) {

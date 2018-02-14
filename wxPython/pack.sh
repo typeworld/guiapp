@@ -18,6 +18,7 @@ spctl --assess --verbose ~/Code/TypeWorldApp/dist/Type.World.app
 codesign --verify --deep --strict --verbose=2 ~/Code/TypeWorldApp/dist/Type.World.app
 
 # DMG
+rm ~/Code/TypeWorldApp/dmg/TypeWorldApp.`cat ~/Code/TypeWorldApp/build/version`.dmg
 hdiutil create -size 100m -fs HFS+ -srcfolder ~/Code/TypeWorldApp/dist -volname "Type.World App" ~/Code/TypeWorldApp/dmg/TypeWorldApp.`cat ~/Code/TypeWorldApp/build/version`.dmg
 
 # Sparkle

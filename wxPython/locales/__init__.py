@@ -2,70 +2,10 @@
 
 import re, os
 import json
+import localization
+#content = json.load(open(os.path.join(os.path.dirname(__file__), 'localization.json'), 'r'))
 
-content = json.load(open(os.path.join(os.path.dirname(__file__), 'content.json'), 'r'))
-
-
-# content = {
-# 	'Add': {
-# 		'de': u'Hinzufügen',
-# 		},
-# 	'Cancel': {
-# 		'de': u'Abbrechen',
-# 		},
-# 	'About': {
-# 		'de': u'Über',
-# 		},
-# 	'Preferences': {
-# 		'de': u'Einstellungen',
-# 		},
-# 	'Foundries': {
-# 		'de': u'Foundrys',
-# 		},
-# 	'Publisher': {
-# 		'de': u'Verlag',
-# 		},
-# 	'Publishers': {
-# 		'de': u'Verlage',
-# 		},
-# 	'Add Publisher': {
-# 		'de': u'Verlag hinzufügen',
-# 		},
-# 	'Reload': {
-# 		'de': u'Neu laden',
-# 		},
-# 	'Remove': {
-# 		'de': u'Entfernen',
-# 		},
-# 	'Install': {
-# 		'de': u'Installieren',
-# 		},
-# 	'Installed': {
-# 		'de': u'Installiert',
-# 		},
-# 	'Installing': {
-# 		'de': u'Installiere',
-# 		},
-# 	'Install All': {
-# 		'de': u'Alle installieren',
-# 		},
-# 	'Not Installed': {
-# 		'de': u'Nicht installiert',
-# 		},
-# 	'Remove': {
-# 		'de': u'Entfernen',
-# 		},
-# 	'Removing': {
-# 		'de': u'Entferne',
-# 		},
-# 	'Remove All': {
-# 		'de': u'Alle entfernen',
-# 		},
-# 	'WelcomeMessage': {
-# 		'en': u'Welcome to Type.World.<br />Click here to add a publisher.',
-# 		'de': u'Willkommen bei Type.World.<br />Klicke hier, um einen Verlag hinzuzufügen.',
-# 		},
-# }
+content = json.loads(localization.localization.replace("\n", "\\n"))
 
 
 def makeHTML(string, html):

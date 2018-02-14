@@ -4,7 +4,7 @@ import wx, os, webbrowser, urllib, base64, plistlib
 from threading import Thread
 import threading
 import wx.html2
-from locales import *
+from locales import makeHTML, localizeString, localize
 import sys
 import urllib, time
 from functools import partial
@@ -13,6 +13,8 @@ from ynlib.files import ReadFromFile
 from ynlib.strings import kashidas, kashidaSentence
 
 from typeWorld.client import APIClient, AppKitNSUserDefaults
+
+from AppKit import NSScreen
 
 APPNAME = 'Type.World'
 APPVERSION = '0.1.1'
@@ -24,28 +26,28 @@ else:
 	DESIGNTIME = False
 
 if not DESIGNTIME:
-	plist = plistlib.readPlist(os.path.join(os.path.dirname(__file__), '..', '..', 'Info.plist'))
+	plist = plistlib.readPlist(os.path.join(os.path.dirname(__file__), '..', 'Info.plist'))
 	APPVERSION = plist['CFBundleShortVersionString']
-
-import AppKit
-#from AppKit import NSDockTilePlugIn
-
-class NSDockTilePlugIn(AppKit.NSObject):
-
-	def setDockTile_(self, dockTile):
-		dockTile.setBadgeLabel_(str(3))
-
 
 
 class AppFrame(wx.Frame):
 	def __init__(self, parent):        
 
-		self.client = APIClient(preferences = AppKitNSUserDefaults('world.type.clientapp'))
+
+		self.client = APIClient(preferences = AppKitNSUserDefaults('world.type.clientapp' if DESIGNTIME else None))
 		self.justAddedPublisher = None
 		self.fullyLoaded = False
 
 		if self.client.preferences.get('sizeMainWindow'):
+
 			size = tuple(self.client.preferences.get('sizeMainWindow'))
+
+			screenSize = NSScreen.mainScreen().frame().size
+			if size[0] > screenSize.width:
+				size[0] = screenSize.width - 50
+			if size[1] > screenSize.height:
+				size[1] = screenSize.height - 50
+
 		else:
 			size=(1000,700)
 		super(AppFrame, self).__init__(parent, size = size)
@@ -107,10 +109,8 @@ class AppFrame(wx.Frame):
 
 
 		self.Bind(wx.EVT_SIZE, self.onResize, self)
+		self.Bind(wx.EVT_ACTIVATE, self.onActivate, self)
 
-		from AppKit import NSApp
-		self.nsapp = NSApp()
-		self._dockTile = self.nsapp.dockTile()
 
 
 		# self.Bind(wx.EVT_ACTIVATE, self.onActivate)
@@ -183,9 +183,6 @@ class AppFrame(wx.Frame):
 
 
 
-	def orderedPublishers(self):
-		return [self.client.endpoints[x] for x in self.client.endpoints.keys()]
-
 
 	def publishersNames(self):
 		# Build list, sort it
@@ -216,6 +213,23 @@ class AppFrame(wx.Frame):
 #		self.objc_namespace['NSApplication'].sharedApplication().terminate_(None)
 
 		self.Destroy()
+
+	def onActivate(self, event):
+
+		size = list(self.GetSize())
+
+		resize = False
+		screenSize = NSScreen.mainScreen().frame().size
+		if size[0] > screenSize.width:
+			size[0] = screenSize.width - 50
+			resize = True
+		if size[1] > screenSize.height:
+			size[1] = screenSize.height - 50
+			resize = True
+
+		if resize:
+			self.SetSize(size)
+
 
 	def onResize(self, event):
 		# Make title bar transparent
@@ -272,8 +286,15 @@ class AppFrame(wx.Frame):
 
 	def addPublisher(self, url):
 
+
+		url = url.replace('typeworldjson//', 'typeworldjson://')
 		url = url.replace('http//', 'http://')
 		url = url.replace('https//', 'https://')
+
+
+		# fremove URI
+		url = url.replace('typeworldjson://', '')
+
 
 		print 'addPublisher', url
 
@@ -289,6 +310,7 @@ class AppFrame(wx.Frame):
 
 		else:
 			self.errorMessage(message)
+
 
 	def removePublisher(self, evt, b64ID):
 
@@ -401,13 +423,13 @@ class AppFrame(wx.Frame):
 
 	def installFont(self, b64publisherURL, b64subscriptionURL, b64fontID, version):
 
+
 		publisherURL = self.b64decode(b64publisherURL)
 		subscriptionURL = self.b64decode(b64subscriptionURL)
 		fontID = self.b64decode(b64fontID)
 
-		self.html.RunScript("$('#%s .installButton').hide();" % fontID)
-		self.html.RunScript("$('#%s .status').show();" % fontID)
-
+		self.html.RunScript("$('#%s .installButton').hide();" % b64fontID)
+		self.html.RunScript("$('#%s .status').show();" % b64fontID)
 
 		print 'installFont', publisherURL, subscriptionURL, fontID
 
@@ -429,7 +451,6 @@ class AppFrame(wx.Frame):
 			# self.html.RunScript("$('#%s .status').hide();" % fontID)
 			# self.html.RunScript("$('#%s .removeButton').show();" % fontID)
 			
-
 
 			# Get font
 			for foundry in api.response.getCommand().foundries:
@@ -456,8 +477,10 @@ class AppFrame(wx.Frame):
 				self.errorMessage('Server: %s' % message.getText(self.locale()))
 
 		if not success:
-			self.html.RunScript("$('#%s .installButton').show();" % fontID)
-			self.html.RunScript("$('#%s .status').hide();" % fontID)
+			self.html.RunScript("$('#%s .installButton').show();" % b64fontID)
+			self.html.RunScript("$('#%s .status').hide();" % b64fontID)
+
+
 
 
 	def onContextMenu(self, x, y, target, ID):
@@ -600,20 +623,38 @@ class AppFrame(wx.Frame):
 		else:
 			html.append('#(Not Installed)')
 		html.append('</div>') # .left
-		html.append('<div class="right installButton" style="display: %s;">' % ('none' if installedVersion else 'block'))
-		html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)">' % (self.b64encode(api.canonicalURL), self.b64encode(repo.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+		html.append('<div class="installButton right" style="display: %s;">' % ('none' if installedVersion else 'block'))
+		html.append('<a class="install" alt="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)">' % (self.b64encode(api.canonicalURL), self.b64encode(repo.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+#		html.append('''<a href="JavaScript:installFont('%s', '%s', '%s', '%s')">''' % (self.b64encode(api.canonicalURL), self.b64encode(repo.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
 		html.append('#(Install)')
 		html.append('</a>')
 		html.append('</div>') # .right
 		html.append('<div class="right removeButton" style="display: %s;">' % ('block' if installedVersion else 'none'))
-		html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)">' % (self.b64encode(api.canonicalURL), self.b64encode(repo.url), self.b64encode(font.uniqueID)))
+		html.append('<a class="remove" alt="x-python://self.removeFont(____%s____, ____%s____, ____%s____)">' % (self.b64encode(api.canonicalURL), self.b64encode(repo.url), self.b64encode(font.uniqueID)))
 		html.append('#(Remove)')
 		html.append('</a>')
 		html.append('</div>') # .right
-		html.append('<div class="right status">')
-		html.append('#(Installing)...')
+		html.append('<div class="status right">')
+		html.append('...')
 		html.append('</div>') # .right
 		html.append('</div>') # .clear
+
+		html.append('''<script> 	
+
+	$(".font .installButton").click(function() {
+		$(this).hide();
+		$(this).siblings('.status').show();
+		window.location.href = $(this).closest('.font').find('a.install').attr('alt');
+	});
+ 
+	$(".font .removeButton").click(function() {
+		$(this).hide();
+		$(this).siblings('.status').show();
+		window.location.href = $(this).closest('.font').find('a.remove').attr('alt');
+	});
+
+ </script>''')
+
 
 		# Print HTML
 		html = ''.join(html)
@@ -759,7 +800,7 @@ $( document ).ready(function() {
 				html.append(family.name.getText(self.locale()))
 				html.append('</div>') # .left.name
 				html.append('<div class="right">')
-				html.append('<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____)">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID)))
+				html.append('<a class="removeAllFonts" alt="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____)">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID)))
 				html.append('#(Remove All)')
 				html.append('</a>')
 				html.append('</div>') # .right
@@ -769,7 +810,7 @@ $( document ).ready(function() {
 				html.append('</a>')
 				html.append('</div>') # .right
 				html.append('</div>') # .clear
-				html.append('</div>') # .head
+				html.append('</div>') # .title
 
 				for font in family.fonts:
 					html.append('<div class="font" id="%s">' % self.b64encode(font.uniqueID))
@@ -780,11 +821,24 @@ $( document ).ready(function() {
 
 				html.append('</div>') # .family
 
+				html.append('''<script>
+	$(".family a.removeAllFonts").click(function() {
+		i = 0;
+		$(this).closest('.family').children('.font').each(function(index, el) {
+			i++;
+			
+			div = $(el).find('a.remove').closest('div.removeButton');
+			if (div.is(':visible')) {
+				div.siblings('.status').show();
+				div.hide();
+			}
+		});
+		window.location.href = $(this).attr('alt'); 
+	});
+
+</script>''')
 
 			html.append('</div>') # .families
-
-
-
 
 
 
@@ -947,9 +1001,9 @@ $( document ).ready(function() {
 
 		self.fullyLoaded = True
 
-		# if self.client.preferences.get('currentPublisher'):
-		# 	self.html.RunScript('$("#welcome").hide();')
-		# 	self.setPublisherHTML(self.client.preferences.get('currentPublisher'))
+		if self.client.preferences.get('currentPublisher'):
+			self.html.RunScript('$("#welcome").hide();')
+			self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
 
 
 	def log(self, message):
@@ -1013,10 +1067,17 @@ class MyApp(wx.App):
 			else:
 				self.frame.justAddedPublisher = url
 
+			# from AppKit import NSApplicationActivateAllWindows
+			# self.frame.nsapp.activateWithOptions_(NSApplicationActivateAllWindows)
+
 	def OnInit(self):
 		frame = AppFrame(None)
 		self.frame = frame
 		
+		from AppKit import NSApp
+		self.frame.nsapp = NSApp()
+		self.frame._dockTile = self.frame.nsapp.dockTile()
+
 
 		html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'index.html'))
 

@@ -10,6 +10,6 @@ python setup.py py2app
 cp -R ~/Code/Sparkle/Sparkle.framework ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/
 
 # Move app to archive folder
-mv ~/Code/TypeWorldApp/dist/Type.World.app ~/Code/TypeWorldApp/apps/Type.World.`cat ~/Code/TypeWorldApp/build/version`.app
+cp -R ~/Code/TypeWorldApp/dist/Type.World.app ~/Code/TypeWorldApp/apps/Type.World.`cat ~/Code/TypeWorldApp/build/version`.app
 
 exit 0

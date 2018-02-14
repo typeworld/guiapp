@@ -5,7 +5,7 @@ DELTASFORVERSIONS = 5
 
 
 import os, glob, time, markdown
-from ynlib.files import WriteToFile
+from ynlib.files import WriteToFile, ReadFromFile
 from ynlib.system import Execute
 
 version = Execute('cat ~/Code/TypeWorldApp/build/version')
@@ -75,7 +75,7 @@ for file in glob.glob("*"):
 		if os.path.exists(md_path):
 			notes = Execute('cat ' + md_path)
 			if notes:
-				lines.append('\t<description><![CDATA[' + markdown.markdown(Execute('cat ' + md_path)) + ']]></description>')
+				lines.append('\t<description><![CDATA[' + markdown.markdown(ReadFromFile(md_path)) + ']]></description>')
 
 		lines.append('\t<pubDate>' + time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(os.path.getctime(path))) + '</pubDate>')
 		lines.append('\t<sparkle:minimumSystemVersion>10.7</sparkle:minimumSystemVersion>')

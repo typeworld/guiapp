@@ -11,6 +11,10 @@ function linkout(url) {
     window.location.href = url;
 }
 
+function setPreference(key, value) {
+    python('self.client.preferences.set(____' + key + '____, ____' + value + '____)');
+}
+
 function contextmenu(evt) {
 	python('self.onContextMenu(____' + evt.pageX + '____, ____' + evt.pageY + '____, ____' + $(evt.target).closest('.contextmenu').attr('class') + '____, ____' + $(evt.target).closest('.contextmenu').attr('id') + '____)')
 }
@@ -37,6 +41,79 @@ function finishReloadSubscription(b64ID) {
 	// $("#sidebar #" + b64ID + " .reloadAnimation").hide();
 }
 
+function installFont(publisherID, subscriptionID, fontID, version) {
+
+	debug(version);
+
+	installButton = $("#" + fontID + ".font").find('a.install').closest('.installButton');
+	statusButton = $("#" + fontID + ".font").find('a.status').closest('.statusButton');
+	removeButton = $("#" + fontID + ".font").find('a.remove').closest('.removeButton');
+
+	installButton.hide();
+	removeButton.hide();
+	statusButton.show();
+
+	setTimeout(function() { 
+		python('self.installFont(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + fontID + '____, ____' + version + '____)'); 
+	}, 100);
+}
+
+function removeFont(publisherID, subscriptionID, fontID) {
+
+	installButton = $("#" + fontID + ".font").find('a.install').closest('.installButton');
+	statusButton = $("#" + fontID + ".font").find('a.status').closest('.statusButton');
+	removeButton = $("#" + fontID + ".font").find('a.remove').closest('.removeButton');
+
+	installButton.hide();
+	removeButton.hide();
+	statusButton.show();
+
+	setTimeout(function() { 
+		python('self.removeFont(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + fontID + '____)'); 
+	}, 100);
+}
+
+function installAllFonts(publisherID, subscriptionID, familyID) {
+
+	family = $("#" + familyID + ".family");
+
+	i = 0;
+	family.children('.font').each(function(index, el) {
+		i++;
+		
+		div = $(el).find('a.install').closest('div.installButton');
+		if (div.is(':visible')) {
+			div.siblings('.statusButton').show();
+			div.hide();
+		}
+	});
+
+	setTimeout(function() { 
+		python('self.installAllFonts(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + familyID + '____)'); 
+	}, 100);
+
+}
+
+function removeAllFonts(publisherID, subscriptionID, familyID) {
+
+	family = $("#" + familyID + ".family");
+
+	i = 0;
+	family.children('.font').each(function(index, el) {
+		i++;
+		
+		div = $(el).find('a.remove').closest('div.removeButton');
+		if (div.is(':visible')) {
+			div.siblings('.statusButton').show();
+			div.hide();
+		}
+	});
+
+	setTimeout(function() { 
+		python('self.removeAllFonts(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + familyID + '____)'); 
+	}, 100);
+
+}
 
 
 keypressFunctions = [];
@@ -50,6 +127,8 @@ function unregisterKeypress(key) {
 }
 
 $( document ).ready(function() {
+
+
 
 	$(document).bind("contextmenu",function(evt){
 		contextmenu(evt);
@@ -106,13 +185,9 @@ $( document ).ready(function() {
 function showAddPublisher() {
 	$('#addPublisher #url').val(null);
 	$('#addPublisher').slideDown();
-	registerKeypress(27, function(){ hideAddPublisher(); });
+	registerKeypress(27, function(){ hidePanel(); });
 	$('#addPublisher #url').focus();
-}
-
-function hideAddPublisher() {
-	unregisterKeypress(27);
-	$('#addPublisher').slideUp();
+	python('self.panelVisible = True')
 }
 
 function showMain() {
@@ -126,12 +201,23 @@ function hideMain() {
 
 function showAbout() {
 	$('#about').slideDown();
-	registerKeypress(27, function(){ hideAbout(); });
+	registerKeypress(27, function(){ hidePanel(); });
+	python('self.panelVisible = True')
 }
 
-function hideAbout() {
+function showPreferences() {
+	$('#preferences').slideDown();
+	registerKeypress(27, function(){ hidePanel(); });
+	python('self.panelVisible = True')
+}
+
+function hidePanel() {
+	$('#addPublisher').slideUp();
+	$('#preferences').slideUp();
 	$('#about').slideUp();
+	python('self.panelVisible = False');
 	unregisterKeypress(27);
+	
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////// */

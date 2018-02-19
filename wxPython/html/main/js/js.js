@@ -43,7 +43,7 @@ function finishReloadSubscription(b64ID) {
 
 function installFont(publisherID, subscriptionID, fontID, version) {
 
-	debug(version);
+	debug('Calling JS installFont()');
 
 	installButton = $("#" + fontID + ".font").find('a.install').closest('.installButton');
 	statusButton = $("#" + fontID + ".font").find('a.status').closest('.statusButton');
@@ -53,9 +53,9 @@ function installFont(publisherID, subscriptionID, fontID, version) {
 	removeButton.hide();
 	statusButton.show();
 
-	setTimeout(function() { 
+//	setTimeout(function() { 
 		python('self.installFont(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + fontID + '____, ____' + version + '____)'); 
-	}, 100);
+//	}, 100);
 }
 
 function removeFont(publisherID, subscriptionID, fontID) {
@@ -68,9 +68,9 @@ function removeFont(publisherID, subscriptionID, fontID) {
 	removeButton.hide();
 	statusButton.show();
 
-	setTimeout(function() { 
+//	setTimeout(function() { 
 		python('self.removeFont(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + fontID + '____)'); 
-	}, 100);
+//	}, 100);
 }
 
 function installAllFonts(publisherID, subscriptionID, familyID) {
@@ -88,9 +88,9 @@ function installAllFonts(publisherID, subscriptionID, familyID) {
 		}
 	});
 
-	setTimeout(function() { 
+//	setTimeout(function() { 
 		python('self.installAllFonts(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + familyID + '____)'); 
-	}, 100);
+//	}, 100);
 
 }
 
@@ -109,9 +109,9 @@ function removeAllFonts(publisherID, subscriptionID, familyID) {
 		}
 	});
 
-	setTimeout(function() { 
+//	setTimeout(function() { 
 		python('self.removeAllFonts(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + familyID + '____)'); 
-	}, 100);
+//	}, 100);
 
 }
 

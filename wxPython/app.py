@@ -322,8 +322,7 @@ class AppFrame(wx.Frame):
 		url = url.replace('http//', 'http://')
 		url = url.replace('https//', 'https://')
 
-
-		# fremove URI
+		# remove URI
 		url = url.replace('typeworldjson://', '')
 
 
@@ -340,7 +339,14 @@ class AppFrame(wx.Frame):
 			self.html.RunScript("hidePanel();")
 
 		else:
+
+
 			self.errorMessage(message)
+
+		self.html.RunScript('$("#addSubscriptionFormSubmitButton").show();')
+		self.html.RunScript('$("#addSubscriptionFormCancelButton").show();')
+		self.html.RunScript('$("#addSubscriptionFormSubmitAnimation").hide();')
+
 
 
 	def removePublisher(self, evt, b64ID):
@@ -393,7 +399,7 @@ class AppFrame(wx.Frame):
 
 	def removeAllFonts(self, b64publisherURL, b64subscriptionURL, b64familyID):
 
-		print b64publisherURL
+#		print b64publisherURL
 
 		publisherURL = self.b64decode(b64publisherURL)
 		subscriptionURL = self.b64decode(b64subscriptionURL)
@@ -419,7 +425,7 @@ class AppFrame(wx.Frame):
 
 	def installAllFonts(self, b64publisherURL, b64subscriptionURL, b64familyID):
 
-		print b64publisherURL
+#		print b64publisherURL
 
 		publisherURL = self.b64decode(b64publisherURL)
 		subscriptionURL = self.b64decode(b64subscriptionURL)
@@ -465,6 +471,7 @@ class AppFrame(wx.Frame):
 
 		# Check if font is already installed
 		if subscription.installedFontVersion(fontID):
+			print 'Removing old version %s' % version
 			success, message = subscription.removeFont(fontID)
 
 			if not success:
@@ -571,32 +578,6 @@ class AppFrame(wx.Frame):
 	def installFontFromMenu(self, event, subscription, fontID, version):
 
 		self.html.RunScript('installFont("%s", "%s", "%s", "%s");' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(fontID), version))
-
-	def installFontVersion(self, event, subscription, fontID, version):
-
-
-
-
-		if subscription.installedFontVersion(fontID) != version:
-
-			if subscription.installedFontVersion(fontID):
-				subscription.removeFont(fontID)
-
-			success, message = subscription.installFont(fontID, version)
-
-			if not success:
-				if type(message) in (str, unicode):
-					
-					if message == 'seatAllowanceReached':
-						self.errorMessage('seatAllowanceReached')
-
-					else:
-						self.errorMessage(message)
-				else:
-					self.errorMessage('Server: %s' % message.getText(self.locale()))
-
-			self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
-			self.setPublisherBadge(self.b64encode(subscription.parent.canonicalURL), subscription.parent.amountInstalledFonts())
 
 
 	def reloadSubscriptionJavaScript(self, evt, b64ID):
@@ -708,7 +689,6 @@ class AppFrame(wx.Frame):
 		html.append('</div>') # .left
 		html.append('<div class="installButton right" style="display: %s;">' % ('none' if installedVersion else 'block'))
 		html.append('<a class="install" publisherid="%s" subscriptionid="%s" fontid="%s" version="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
-#		html.append('''<a href="JavaScript:installFont('%s', '%s', '%s', '%s')">''' % (self.b64encode(api.canonicalURL), self.b64encode(repo.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
 		html.append('#(Install)')
 		html.append('</a>')
 		html.append('</div>') # .right
@@ -718,7 +698,7 @@ class AppFrame(wx.Frame):
 		html.append('</a>')
 		html.append('</div>') # .right
 		html.append('<div class="statusButton right">')
-		html.append('<a class="status">...</a>')
+		html.append('<a class="status"><img src="file://##htmlroot##/loading.svg" style="height: 13px; position: relative; top: 2px;"></a>')
 		html.append('</div>') # .right
 		html.append('</div>') # .clear
 
@@ -743,6 +723,7 @@ $( document ).ready(function() {
 		html = html.replace('"', '\'')
 		html = html.replace('\n', '')
 		html = self.localizeString(html)
+		html = self.replaceHTML(html)
 
 		return html
 
@@ -760,7 +741,7 @@ $( document ).ready(function() {
 	def getSubscriptionsHTML(self, b64ID):
 		ID = self.b64decode(b64ID)
 
-		print 'setSubscriptionsHTML', ID
+#		print 'setSubscriptionsHTML', ID
 
 		html = []
 		repos = []
@@ -839,7 +820,7 @@ $( document ).ready(function() {
 		publisher = self.client.publisher(ID)
 		subscription = publisher.currentSubscription()
 		api = subscription.latestVersion()
-		print api
+#		print api
 
 		name, locale = api.name.getTextAndLocale(locale = self.locale())
 

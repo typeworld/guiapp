@@ -79,7 +79,7 @@ input, textarea, select {
 }
 
 
-input[type=button],input[type=submit],.button {
+input[type=button],input[type=submit],a.button {
 	width: auto;
 	padding-top: 6px;
 	padding-bottom: 6px;
@@ -94,10 +94,14 @@ input[type=button],input[type=submit],.button {
 	border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -khtml-border-radius:4px;
 	-webkit-appearance: none;
 	font-family: inherit;
-	color: #FFF;
+	color: #FFF !important;
 	display: inline-block;
 }
 
+a.button {
+	padding-top: 3px;
+	padding-bottom: 4px;
+}
 input[type=button]+input[type=button], input[type=button]+input[type=submit], input[type=button]+.button,
 input[type=submit]+input[type=submit], input[type=submit]+input[type=button], input[type=submit]+.button,
 .button+.button, .button+input[type=button], .button+input[type=submit],

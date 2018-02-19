@@ -37,12 +37,39 @@
 	</div>
 	<div class="inner">
 		<h1>#(Add Subscription)</h1>
-		<form action="JavaScript:python('self.addPublisher(____' + $('#url').val() + '____)');">
-			<input type="text" id="url" name="url" placeholder="http://">
-			<input type="submit" value="#(Add)">
-			<input type="button" value="#(Cancel)" onclick="hidePanel();" class="secondary">
+		<form id="addSubscriptionForm" action="destination.html">
+			<input type="text" id="url" name="url" placeholder="https:// or typeworldjson://">
+			<a class="button" id="addSubscriptionFormSubmitButton">#(Add)</a>
+			<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img id="animation" src="file://##htmlroot##/loading.svg" style="height: 13px;"></a>
+			<input type="button" value="#(Cancel)" onclick="hidePanel();" class="secondary" id="addSubscriptionFormCancelButton">
 		</form>
 	</div>
+	<script>
+		$( document ).ready(function() {
+
+			$("#addSubscriptionForm").submit(function(event) {
+
+				event.preventDefault();
+				$("#addSubscriptionFormSubmitButton").click();
+
+
+			});
+
+			$("#addSubscriptionFormSubmitButton").click(function() {
+
+				$("#addSubscriptionFormSubmitButton").hide();
+				$("#addSubscriptionFormCancelButton").hide();
+				$("#addSubscriptionFormSubmitAnimation").show();
+
+				setTimeout(function() { 
+					python('self.addPublisher(____' + $('#addSubscriptionForm #url').val() + '____)')
+				}, 100);
+
+				
+
+			});
+		});
+	</script>
 
 <!-- python('self.addPublisher(\'' + $('#addPublisher #url').val() + '\')'); -->
 </div>

@@ -60,6 +60,9 @@ h1 {
 	margin-bottom: 10px;
 }
 
+p + h1, p + h2, p + h3, p + h4, p + h5, p + h6 {
+	margin-top: 20px;
+}
 
 input, textarea, select {
 /*	font-family: 'Nitti Light', 'Andale Mono', monospace;
@@ -78,6 +81,9 @@ input, textarea, select {
 	border: none;
 }
 
+select {
+	width: inherit;
+}
 
 input[type=button],input[type=submit],a.button {
 	width: auto;

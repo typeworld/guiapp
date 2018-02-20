@@ -71,6 +71,8 @@ class AppFrame(wx.Frame):
 			self.client.preferences.set('localizationType', 'systemLocale')
 		if not self.client.preferences.get('customLocaleChoice'):
 			self.client.preferences.set('customLocaleChoice', self.systemLocale())
+		if not self.client.preferences.get('reloadSubscriptionsInterval'):
+			self.client.preferences.set('reloadSubscriptionsInterval', 1 * 24 * 60 * 60) # one day
 
 		### Menus
 		menuBar = wx.MenuBar()
@@ -257,7 +259,7 @@ class AppFrame(wx.Frame):
 
 		html = []
 
-		html.append('<h1>App Localization</h1>')
+		html.append('<h3>App Localization</h3>')
 		html.append('<div>')
 		html.append('<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Locale (%s)</label></span>' % ('checked' if self.client.preferences.get('localizationType') == 'systemLocale' else '', self.systemLocale()))
 		html.append('<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>')
@@ -272,6 +274,22 @@ class AppFrame(wx.Frame):
 		html.append('<script>$("#preferences #customLocaleChoice").click(function() {setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());});</script>')
 		html.append('</div>')
 
+		html.append('<p></p>')
+
+		html.append('<h3>Update Interval</h3>')
+		html.append('<div>')
+		html.append('<select id="updateIntervalChoice" style="">')
+		for code, name in (
+			(-1, '#(Manually)'),
+			(1 * 60 * 60, '#(Hourly)'),
+			(24 * 60 * 60, '#(Daily)'),
+			(7 * 24 * 60 * 60, '#(Weekly)'),
+			(30 * 24 * 60 * 60, '#(Monthly)'),
+		):
+			html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(self.client.preferences.get('reloadSubscriptionsInterval')) else '', name))
+		html.append('</select>')
+		html.append('<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
+		html.append('</div>')
 
 
 
@@ -672,6 +690,29 @@ class AppFrame(wx.Frame):
 
 
 		print 'Done'
+
+	def reloadSubscriptions(self):
+
+		print 'self.reloadSubscriptions()'
+
+		# Preference is set to check automatically
+		if int(self.client.preferences.get('reloadSubscriptionsInterval')) != -1:
+
+			# Has never been checked, set to long time ago
+			if not self.client.preferences.get('reloadSubscriptionsLastPerformed'):
+				self.client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()) - int(self.client.preferences.get('reloadSubscriptionsInterval')) - 10)
+
+			# See if we should check now
+			if int(self.client.preferences.get('reloadSubscriptionsLastPerformed')) > int(time.time()) - int(self.client.preferences.get('reloadSubscriptionsInterval')):
+				print 'Automatically reloading subscriptions...'
+
+				for publisher in self.client.publishers():
+					for subscription in publisher.subscriptions():
+						self.reloadSubscription(None, self.b64encode(subscription.url))
+
+			# Set to now
+			self.client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
+
 
 	def reloadSubscription(self, evt, b64ID):
 
@@ -1161,6 +1202,8 @@ $( document ).ready(function() {
 		if self.client.preferences.get('currentPublisher'):
 			self.html.RunScript('$("#welcome").hide();')
 			self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
+
+#		self.reloadSubscriptions()
 
 
 	def log(self, message):

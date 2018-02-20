@@ -147,6 +147,21 @@ function unregisterKeypress(key) {
 $( document ).ready(function() {
 
 
+	// Automatically reload subscriptions
+	reloadSubscriptions = function(immediately) {
+		if (immediately) {
+			python('self.reloadSubscriptions()');
+			reloadSubscriptions();
+		}
+		else {
+			setTimeout(function () {
+				python('self.reloadSubscriptions()');
+				reloadSubscriptions();
+			}, 1000 * 60); // every minute
+		}
+	};
+	setTimeout(function () { reloadSubscriptions(true); }, 2000); // First load after 2 seconds
+
 
 	$(document).bind("contextmenu",function(evt){
 		contextmenu(evt);

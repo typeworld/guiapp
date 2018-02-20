@@ -355,6 +355,7 @@ input[type=radio] {
 #main .publisher .family .title {
 	padding-top: 5px;
 	padding-bottom: 5px;
+	margin-bottom: 3px;
 }
 
 #main .publisher .family .name {
@@ -367,6 +368,78 @@ input[type=radio] {
 	color: white;
 }
 
+/* ////////////// SECTION ////////////// */
+
+#main .publisher .family .section {
+	margin-bottom: 0px;
+
+	padding-left: 25px;
+	padding-right: 25px;
+	padding-top: 5px;
+	padding-bottom: 8px;
+	margin-left: -25px;
+	margin-right: -25px;
+}
+
+#main .publisher .family .section .title {
+	padding-top: 5px;
+	padding-bottom: 5px;
+
+	height: 15px;
+
+	margin-right: -5px;
+
+	font-size: 75%;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+    padding: 5px;
+    padding-bottom: 8px;
+/*    padding-left: 20px;
+    padding-right: 20px;
+*/    color: #999;
+}
+
+.section .installButtons {
+	display: none;
+}
+
+.section.hover .title .installButtons {
+	display: block;
+}
+
+.section.hover .more {
+	display: none;
+}
+
+
+.section .button {
+	margin: inherit;
+	padding: inherit;
+	text-transform: none;
+	color: white;
+	font-size: 12px;
+	letter-spacing: 0px;
+
+	padding-top: 3px;
+	padding-left: 6px;
+	padding-right: 6px;
+	padding-bottom: 4px;
+	margin-top: -4px;
+	margin-bottom: -4px;
+	margin-left: 0px;
+	margin-right: -4px;
+
+	position: relative;
+	top: -1px;
+}
+
+.section .button.installButton {
+	background-color: #97BF19;
+}
+
+.section .button.removeButton {
+	background-color: #E22122;
+}
 
 /* ////////////// FONT ////////////// */
 
@@ -378,25 +451,38 @@ input[type=radio] {
 	margin-left: -25px;
 	margin-right: -25px;
 
-	transition: background-color .2s;
+/*	transition: background-color .2s; */
 }
 
-#main .publisher .font.hover, #main .publisher .family.hover {
-	background-color: #EEE;
+#main .publisher .font.hover, #main .publisher .section.hover {
+	background-color: #F7F7F7;
 }
 
 #main .publisher .font.selected, #main .publisher .family .title.selected {
 	background-color: #F17022;
 }
 
-#main .publisher .font .installButton {
+.font .installButtons {
 	display: none;
 }
-#main .publisher .font .removeButton {
+
+.font .notInstalled {
+	color: #C6C7C8;
+	font-style: italic;
+
+
+}
+
+.font .status {
 	display: none;
 }
-#main .publisher .font .statusButton {
+
+.font.hoverOverFont .more {
 	display: none;
+}
+
+.font.hoverOverFont .installButtons {
+	display: block;
 }
 
 #main .publisher a:hover {
@@ -418,7 +504,7 @@ input[type=radio] {
 	position: relative;
 	top: -1px;
 
-	transition: background-color .2s;
+/*	transition: background-color .2s; */
 }
 
 .label.free {

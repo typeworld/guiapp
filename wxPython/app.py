@@ -13,6 +13,7 @@ from ynlib.files import ReadFromFile
 from ynlib.strings import kashidas, kashidaSentence
 
 from typeWorld.client import APIClient, AppKitNSUserDefaults
+import typeWorld.base
 
 from AppKit import NSScreen, NSLocale
 
@@ -370,86 +371,86 @@ class AppFrame(wx.Frame):
 	def publisherPreferences(self, i):
 		print 'publisherPreferences', i
 
-	def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
 
-		publisherURL = self.b64decode(b64publisherURL)
-		subscriptionURL = self.b64decode(b64subscriptionURL)
-		fontID = self.b64decode(b64fontID)
+	def installAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64setName, formatName):
 
-		publisher = self.client.publisher(publisherURL)
-		subscription = publisher.subscription(subscriptionURL)
-		api = subscription.latestVersion()
+		jsFonts = []
 
-		success, message = subscription.removeFont(fontID)
-
-		if success:
-
-			self.setPublisherBadge(self.b64encode(subscription.parent.canonicalURL), subscription.parent.amountInstalledFonts())
-			self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
-
+		publisherID = self.b64decode(b64publisherID)
+		subscriptionID = self.b64decode(b64subscriptionID)
+		familyID = self.b64decode(b64familyID)
+		if b64setName:
+			setName = self.b64decode(b64setName)
 		else:
+			setName = None
+		publisher = self.client.publisher(publisherID)
+		subscription = publisher.subscription(subscriptionID)
+		family = subscription.familyByID(familyID)
 
-			if type(message) in (str, unicode):
-				self.errorMessage(message)
-			else:
-				self.errorMessage('Server: %s' % message.getText(self.locale()))
+		for font in family.fonts():
+			if font.setName.getText(self.locale) == setName and font.format == formatName:
+				if not subscription.installedFontVersion(font.uniqueID):
+					jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
 
-			self.html.RunScript("$('#%s .statusButton').hide();" % b64fontID)
-			self.html.RunScript("$('#%s .removeButton').show();" % b64fontID)
+		call = 'installFonts(Array(' + ','.join(jsFonts) + '), true);'
+		self.html.RunScript(call)
 
-	def removeAllFonts(self, b64publisherURL, b64subscriptionURL, b64familyID):
 
-#		print b64publisherURL
+	def removeAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64setName, formatName):
 
-		publisherURL = self.b64decode(b64publisherURL)
-		subscriptionURL = self.b64decode(b64subscriptionURL)
+		jsFonts = []
+
+		publisherID = self.b64decode(b64publisherID)
+		subscriptionID = self.b64decode(b64subscriptionID)
 		familyID = self.b64decode(b64familyID)
+		if b64setName:
+			setName = self.b64decode(b64setName)
+		else:
+			setName = None
+		publisher = self.client.publisher(publisherID)
+		subscription = publisher.subscription(subscriptionID)
+		family = subscription.familyByID(familyID)
 
-		publisher = self.client.publisher(publisherURL)
-		subscription = publisher.subscription(subscriptionURL)
-		api = subscription.latestVersion()
+		for font in family.fonts():
+			if font.setName.getText(self.locale) == setName and font.format == formatName:
+				if subscription.installedFontVersion(font.uniqueID):
+					jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
 
-		for foundry in api.response.getCommand().foundries: 
-			for family in foundry.families:
-				if family.uniqueID == familyID:
-					for font in family.fonts:
-
-						# Check if font is already installed
-						if subscription.installedFontVersion(font.uniqueID):
-							self.removeFont(b64publisherURL, b64subscriptionURL, self.b64encode(font.uniqueID))
-
-					break
-		self.setPublisherBadge(self.b64encode(publisherURL), publisher.amountInstalledFonts())
-		self.setSubscriptionsHTML(self.b64encode(publisherURL))
+		call = 'removeFonts(Array(' + ','.join(jsFonts) + '), true);'
+		self.html.RunScript(call)
 
 
-	def installAllFonts(self, b64publisherURL, b64subscriptionURL, b64familyID):
+	def installFonts(self, fonts):
 
-#		print b64publisherURL
+		for b64publisherURL, b64subscriptionURL, b64fontID, version in fonts:
 
-		publisherURL = self.b64decode(b64publisherURL)
-		subscriptionURL = self.b64decode(b64subscriptionURL)
-		familyID = self.b64decode(b64familyID)
+			publisherURL = self.b64decode(b64publisherURL)
+			subscriptionURL = self.b64decode(b64subscriptionURL)
+			fontID = self.b64decode(b64fontID)
 
+			publisher = self.client.publisher(publisherURL)
+			subscription = publisher.subscription(subscriptionURL)
 
-		publisher = self.client.publisher(publisherURL)
-		subscription = publisher.subscription(subscriptionURL)
-		api = subscription.latestVersion()
+			self.installFont(b64publisherURL, b64subscriptionURL, b64fontID, version)
+			self.setPublisherBadge(b64publisherURL, subscription.parent.amountInstalledFonts())
 
-		for foundry in api.response.getCommand().foundries: 
-			for family in foundry.families:
+		self.setPublisherHTML(b64publisherURL)
 
-				if family.uniqueID.encode('utf-8') == familyID:
-					for font in family.fonts:
+	def removeFonts(self, fonts):
 
-						# Check if font is already installed
-						if not subscription.installedFontVersion(font.uniqueID):
-							self.installFont(b64publisherURL, b64subscriptionURL, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number)
+		for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
 
-					break
-		self.setPublisherBadge(self.b64encode(publisherURL), publisher.amountInstalledFonts())
-		self.setSubscriptionsHTML(self.b64encode(publisherURL))
+			publisherURL = self.b64decode(b64publisherURL)
+			subscriptionURL = self.b64decode(b64subscriptionURL)
+			fontID = self.b64decode(b64fontID)
 
+			publisher = self.client.publisher(publisherURL)
+			subscription = publisher.subscription(subscriptionURL)
+
+			self.removeFont(b64publisherURL, b64subscriptionURL, b64fontID)
+			self.setPublisherBadge(b64publisherURL, subscription.parent.amountInstalledFonts())
+
+		self.setPublisherHTML(b64publisherURL)
 
 
 	def installFont(self, b64publisherURL, b64subscriptionURL, b64fontID, version):
@@ -485,8 +486,7 @@ class AppFrame(wx.Frame):
 
 		if success:
 
-			self.setPublisherBadge(self.b64encode(subscription.parent.canonicalURL), subscription.parent.amountInstalledFonts())
-			self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
+			pass
 			
 		else:
 
@@ -500,19 +500,51 @@ class AppFrame(wx.Frame):
 			else:
 				self.errorMessage('Server: %s' % message.getText(self.locale()))
 
-			self.html.RunScript("$('#%s .statusButton').hide();" % b64fontID)
-			self.html.RunScript("$('#%s .installButton').show();" % b64fontID)
+			# self.html.RunScript("$('#%s .statusButton').hide();" % b64fontID)
+			# self.html.RunScript("$('#%s .installButton').show();" % b64fontID)
 
+
+	def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
+
+		publisherURL = self.b64decode(b64publisherURL)
+		subscriptionURL = self.b64decode(b64subscriptionURL)
+		fontID = self.b64decode(b64fontID)
+
+		publisher = self.client.publisher(publisherURL)
+		subscription = publisher.subscription(subscriptionURL)
+		api = subscription.latestVersion()
+
+		success, message = subscription.removeFont(fontID)
+
+		if success:
+
+			pass
+			# self.setPublisherBadge(self.b64encode(subscription.parent.canonicalURL), subscription.parent.amountInstalledFonts())
+			# self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
+
+		else:
+
+			if type(message) in (str, unicode):
+				self.errorMessage(message)
+			else:
+				self.errorMessage('Server: %s' % message.getText(self.locale()))
+
+			# self.html.RunScript("$('#%s .statusButton').hide();" % b64fontID)
+			# self.html.RunScript("$('#%s .removeButton').show();" % b64fontID)
 
 
 	def onContextMenu(self, x, y, target, b64ID):
 		print x, y, target, b64ID#, self.b64decode(ID)
 
+		x = max(0, int(x) - 70)
 
 		if 'contextmenu publisher' in target:
 
-
 			menu = wx.Menu()
+
+			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Show in Finder)'))
+			menu.Append(item)
+			menu.Bind(wx.EVT_MENU, partial(self.showPublisherInFinder, b64ID = b64ID), item)
 
 			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Reload)'))
 			menu.Append(item)
@@ -552,6 +584,12 @@ class AppFrame(wx.Frame):
 							for font in family.fonts:
 								if font.uniqueID == fontID:
 
+
+									if subscription.installedFontVersion(fontID):
+										item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Show in Finder)'))
+										menu.Append(item)
+										menu.Bind(wx.EVT_MENU, partial(self.showFontInFinder, subscription = subscription, fontID = fontID), item)
+
 									# create a submenu
 									subMenu = wx.Menu()
 									menu.AppendMenu(wx.NewId(), self.localizeString('#(Install Version)'), subMenu)
@@ -576,9 +614,7 @@ class AppFrame(wx.Frame):
 									break
 
 	def installFontFromMenu(self, event, subscription, fontID, version):
-
-		self.html.RunScript('installFont("%s", "%s", "%s", "%s");' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(fontID), version))
-
+		self.html.RunScript("installFonts(Array(Array('%s', '%s', '%s', '%s')), true);" % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(fontID), version))
 
 	def reloadSubscriptionJavaScript(self, evt, b64ID):
 		print 'reloadSubscriptionJavaScript', b64ID
@@ -587,6 +623,23 @@ class AppFrame(wx.Frame):
 	def reloadPublisherJavaScript(self, evt, b64ID):
 		print 'reloadPublisherJavaScript', b64ID
 		self.html.RunScript('reloadPublisher("%s");' % (b64ID))
+
+	def showPublisherInFinder(self, evt, b64ID):
+		
+		publisher = self.client.publisher(self.b64decode(b64ID))
+		path = publisher.path()
+
+		import subprocess
+		subprocess.call(["open", "-R", path])
+
+	def showFontInFinder(self, evt, subscription, fontID):
+		font = subscription.fontByID(fontID)
+		version = subscription.installedFontVersion(fontID)
+		path = font.path(version, folder = None)
+
+		import subprocess
+		subprocess.call(["open", "-R", path])
+
 
 	def reloadPublisher(self, evt, b64ID):
 
@@ -670,53 +723,6 @@ class AppFrame(wx.Frame):
 		subscription = font.parent.parent.parent
 
 		html = []
-		html.append('<div class="clear">')
-		html.append('<div class="left" style="width: 50%;">')
-		html.append(font.name.getText(self.locale()))
-		if font.free:
-			html.append('<span class="label free">free</span>')
-		if font.beta:
-			html.append('<span class="label beta">beta</span>')
-		if font.variableFont:
-			html.append('<span class="label var">OTVar</span>')
-		html.append('</div>') # .left
-		html.append('<div class="left">')
-		installedVersion = subscription.installedFontVersion(font.uniqueID)
-		if installedVersion:
-			html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getSortedVersions()[-1].number else 'olderVersion', installedVersion))
-		else:
-			html.append('<span class="notInstalled">#(Not Installed)</span>')
-		html.append('</div>') # .left
-		html.append('<div class="installButton right" style="display: %s;">' % ('none' if installedVersion else 'block'))
-		html.append('<a class="install" publisherid="%s" subscriptionid="%s" fontid="%s" version="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
-		html.append('#(Install)')
-		html.append('</a>')
-		html.append('</div>') # .right
-		html.append('<div class="right removeButton" style="display: %s;">' % ('block' if installedVersion else 'none'))
-		html.append('<a class="remove" publisherid="%s" subscriptionid="%s" fontid="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
-		html.append('#(Remove)')
-		html.append('</a>')
-		html.append('</div>') # .right
-		html.append('<div class="statusButton right">')
-		html.append('<a class="status"><img src="file://##htmlroot##/loading.svg" style="height: 13px; position: relative; top: 2px;"></a>')
-		html.append('</div>') # .right
-		html.append('</div>') # .clear
-
-		html.append('''<script>
-$( document ).ready(function() {
-
-	$(".font .installButton").click(function() {
-		fontLink = $(this).closest('.font').find('a.install');
-		installFont(fontLink.attr('publisherid'), fontLink.attr('subscriptionid'), fontLink.attr('fontid'), fontLink.attr('version'));
-	}); 
- 
-	$(".font .removeButton").click(function() {
-		fontLink = $(this).closest('.font').find('a.remove');
-		removeFont(fontLink.attr('publisherid'), fontLink.attr('subscriptionid'), fontLink.attr('fontid'));
-	}); 
-
-});
-</script>''')
 
 		# Print HTML
 		html = ''.join(html)
@@ -862,43 +868,113 @@ $( document ).ready(function() {
 				html.append('<div class="left name">')
 				html.append(family.name.getText(self.locale()))
 				html.append('</div>') # .left.name
-				html.append('<div class="right">')
-				html.append('<a class="removeAllFonts" publisherid="%s" subscriptionid="%s" familyid="%s">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID)))
-				html.append('#(Remove All)')
-				html.append('</a>')
-				html.append('</div>') # .right
-				html.append('<div class="right">')
-				html.append('<a class="installAllFonts" publisherid="%s" subscriptionid="%s" familyid="%s">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID)))
-				html.append('#(Install All)')
-				html.append('</a>')
-				html.append('</div>') # .right
 				html.append('</div>') # .clear
 				html.append('</div>') # .title
 
-				for font in family.fonts():
-					html.append('<div class="contextmenu font" id="%s">' % self.b64encode(font.uniqueID))
 
-					html.append(self.fontHTML(font))
+				for setName in family.setNames(self.locale()):
+					for formatName in family.formatsForSetName(setName, self.locale()):
 
-					html.append('</div>') # .font
+						fonts = []
+						amountInstalled = 0
+						for font in family.fonts():
+							if font.setName.getText(self.locale()) == setName and font.format == formatName:
+								fonts.append(font)
+								if subscription.installedFontVersion(font.uniqueID):
+									amountInstalled += 1
+
+						completeSetName = ''
+						if setName:
+							completeSetName = setName + ', '
+						completeSetName += typeWorld.base.FILEEXTENSIONNAMES[formatName]
+
+						print amountInstalled
+
+						html.append('<div class="section" id="%s">' % completeSetName)
+
+						html.append('<div class="title clear">')
+						html.append('<div class="left">%s</div>' % completeSetName)
+
+						if len(fonts) > 1:
+
+							html.append('<div class="more right">')
+							html.append('<img src="file://##htmlroot##/more_darker.svg" style="height: 8px; position: relative; top: 0px;">')
+							html.append('</div>')
+
+							html.append('<div class="installButtons right">')
+							html.append('<div class="clear">')
+
+							if amountInstalled > 0:
+								html.append('<div class="remove installButton right">')
+								html.append('<a class="removeAllFonts removeButton button " publisherid="%s" subscriptionid="%s" familyid="%s" setname="%s" formatname="%s">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+								html.append(u'✕ #(Remove All)')
+								html.append('</a>')
+								html.append('</div>') # .installButton
+
+							if amountInstalled < len(fonts):
+								html.append('<div class="install installButton right">')
+								html.append('<a class="installAllFonts installButton button" publisherid="%s" subscriptionid="%s" familyid="%s" setname="%s" formatname="%s">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+								html.append(u'✓ #(Install All)')
+								html.append('</a>')
+								html.append('</div>') # .installButton
+							html.append('</div>') # .clear
+							html.append('</div>') # .installButtons
+						html.append('</div>') # .title
+
+						for font in fonts:
+							html.append('<div class="contextmenu font" id="%s">' % self.b64encode(font.uniqueID))
+							html.append('<div class="clear">')
+
+							html.append('<div class="left" style="width: 50%;">')
+							html.append(font.name.getText(self.locale()))
+							if font.free:
+								html.append('<span class="label free">free</span>')
+							if font.beta:
+								html.append('<span class="label beta">beta</span>')
+							if font.variableFont:
+								html.append('<span class="label var">OTVar</span>')
+							html.append('</div>') # .left
+							html.append('<div class="left">')
+							installedVersion = subscription.installedFontVersion(font.uniqueID)
+							if installedVersion:
+								html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getSortedVersions()[-1].number else 'olderVersion', installedVersion))
+							else:
+								html.append('<span class="notInstalled">#(Not Installed)</span>')
+							html.append('</div>') # .left
+
+							if font.purpose == 'desktop':
+								html.append('<div class="installButtons right">')
+								html.append('<div class="clear">')
+								html.append('<div class="installButton install right" style="display: %s;">' % ('none' if installedVersion else 'block'))
+								html.append('<a class="installButton button" publisherid="%s" subscriptionid="%s" fontid="%s" version="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+								html.append(u'✓ #(Install)')
+								html.append('</a>')
+								html.append('</div>') # .right
+								html.append('<div class="installButton remove right" style="display: %s;">' % ('block' if installedVersion else 'none'))
+								html.append('<a class="removeButton button" publisherid="%s" subscriptionid="%s" fontid="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
+								html.append(u'✕ #(Remove)')
+								html.append('</a>')
+								html.append('</div>') # .right
+								html.append('</div>') # .clear
+								html.append('</div>') # .installButtons
+								html.append('<div class="right">')
+								html.append('<a class="status">')
+								html.append('''<img src="file://##htmlroot##/loading.svg" style="height: 13px; position: relative; top: 2px;">''')
+								html.append('</a>')
+								html.append('<div>')
+								html.append('<a class="more">')
+								html.append('''<img src="file://##htmlroot##/more_lighter.svg" style="height: 8px; position: relative; top: 0px;">''')
+								html.append('</a>')
+								html.append('</div>')
+								html.append('</div>') # .right
+
+							html.append('</div>') # .clear
+							html.append('</div>') # .font
+
+						html.append('</div>') # .section
 
 				html.append('</div>') # .family
 
-				html.append('''<script> 	
-
-
-
-	$(".family a.removeAllFonts").click(function() {
-		removeAllFonts($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('familyid')); 
-	});
-
-	$(".family a.installAllFonts").click(function() {
-		installAllFonts($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('familyid')); 
-	});
-
-
-
-</script>''')
 
 			html.append('</div>') # .families
 
@@ -916,24 +992,42 @@ $( document ).ready(function() {
 
 
 
+		html.append('''<script> 	
 
 
-		html.append('''<script>
+	$(".font a.installButton").click(function() {
+		installFonts(Array(Array($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('fontid'), $(this).attr('version'))));
+	}); 
+ 
+	$(".font a.removeButton").click(function() {
+		removeFonts(Array(Array($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('fontid'))));
+	}); 
+
+	$(".family a.removeAllFonts").click(function() {
+		removeAllFonts($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('familyid'), $(this).attr('setname'), $(this).attr('formatname')); 
+	});
+
+	$(".family a.installAllFonts").click(function() {
+		installAllFonts($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('familyid'), $(this).attr('setname'), $(this).attr('formatname')); 
+	});
 
 
-	$("#main .family .title").hover(function() {
-		$( this ).closest(".family").addClass( "hover" );
-		$( this ).closest(".family").children(".font").addClass( "hover" );
+	$("#main .section .title").hover(function() {
+		$( this ).closest(".section").addClass( "hover" );
+		$( this ).closest(".section").children(".font").addClass("hover");
+
 	  }, function() {
-		$( this ).closest(".family").removeClass( "hover" );
-		$( this ).closest(".family").children(".font").removeClass( "hover" );
+		$( this ).closest(".section").removeClass( "hover" );
+		$( this ).closest(".section").children(".font").removeClass("hover");
 	  }
 	);
 
 	$("#main .font").hover(function() {
 		$( this ).addClass( "hover" );
+		$( this ).addClass( "hoverOverFont" );
 	  }, function() {
 		$( this ).removeClass( "hover" );
+		$( this ).removeClass( "hoverOverFont" );
 	  }
 	);
 
@@ -958,18 +1052,12 @@ $( document ).ready(function() {
 
 
 
-
-
-
-
-
-
-
 		# Print HTML
 		html = ''.join(html)
 		html = html.replace('"', '\'')
 		html = html.replace('\n', '')
 		html = self.localizeString(html)
+		html = self.replaceHTML(html)
 #		print html
 		js = '$("#main").html("' + html + '");'
 		self.html.RunScript(js)

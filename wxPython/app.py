@@ -703,15 +703,17 @@ class AppFrame(wx.Frame):
 				self.client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()) - int(self.client.preferences.get('reloadSubscriptionsInterval')) - 10)
 
 			# See if we should check now
-			if int(self.client.preferences.get('reloadSubscriptionsLastPerformed')) > int(time.time()) - int(self.client.preferences.get('reloadSubscriptionsInterval')):
+			if int(self.client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(self.client.preferences.get('reloadSubscriptionsInterval')):
 				print 'Automatically reloading subscriptions...'
 
 				for publisher in self.client.publishers():
 					for subscription in publisher.subscriptions():
 						self.reloadSubscription(None, self.b64encode(subscription.url))
 
-			# Set to now
-			self.client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
+				self.errorMessage('Reloaded subscriptions')
+
+				# Set to now
+				self.client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
 
 
 	def reloadSubscription(self, evt, b64ID):
@@ -938,11 +940,11 @@ $( document ).ready(function() {
 
 						if len(fonts) > 1:
 
-							html.append('<div class="more right">')
+							html.append('<div class="more right" style="padding-top: 5px;">')
 							html.append('<img src="file://##htmlroot##/more_darker.svg" style="height: 8px; position: relative; top: 0px;">')
 							html.append('</div>')
 
-							html.append('<div class="installButtons right">')
+							html.append('<div class="installButtons right" style="padding-top: 5px;">')
 							html.append('<div class="clear">')
 
 							if amountInstalled > 0:

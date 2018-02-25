@@ -534,7 +534,7 @@ input[type=radio] {
 }
 
 #main .publisher .font.hover .label {
-	background-color: #FFF;
+/*	background-color: #FFF; */
 }
 
 /* *** font versions *** */
@@ -545,19 +545,19 @@ input[type=radio] {
 }
 
 #main .publisher .font.hover .label.installedVersion.latestVersion {
-	background-color: white;
+/*	background-color: white;
 	color: #97BF19;
-}
+*/}
 
 .label.installedVersion.olderVersion {
-	background-color: #F7AE22;
+/*	background-color: #F7AE22;
 	color: white;
-}
+*/}
 
 #main .publisher .font.hover .label.installedVersion.olderVersion {
-	background-color: white;
+/*	background-color: white;
 	color: #F7AE22;
-}
+*/}
 
 
 
@@ -708,13 +708,18 @@ input[type=radio] {
 
 	text-align: center;
 	font-size: 36pt;
-	color: #BBB;
+
+	transition: color .5s;
+	color: #999;
 
 	z-index: 25;
+
+
 }
 
 #atomButton a:hover {
 	color: #FFF;
+	transition: color .5s;
 }
 
 #atomButton a:active {

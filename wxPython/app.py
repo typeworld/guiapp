@@ -881,7 +881,7 @@ $( document ).ready(function() {
 			html.append('<div class="head" style="height: %spx; background-color: %s;">' % (110 if foundry.logo else 70, '#' + foundry.backgroundColor if foundry.backgroundColor else 'none'))
 
 			if foundry.logo:
-				success, logo = self.client.resourceByURL(foundry.logo, b64 = True)
+				success, logo = self.client.resourceByURL(foundry.logo, binary = True)
 				if success:
 					html.append('<div class="logo">')
 					html.append('<img src="data:image/svg+xml;base64,%s" style="width: 100px; height: 100px;" />' % logo)
@@ -1130,17 +1130,18 @@ $( document ).ready(function() {
 
 			b64ID = base64.b64encode(publisher.canonicalURL).replace('=', '-')
 
-			name, language = publisher.subscriptions()[0].latestVersion().name.getTextAndLocale(locale = self.locale())
+			if publisher.subscriptions():
+				name, language = publisher.subscriptions()[0].latestVersion().name.getTextAndLocale(locale = self.locale())
 
-			if language in (u'ar', u'he'):
-				direction = 'rtl'
-				if language in (u'ar'):
-					name = kashidaSentence(name, 20)
-			else:
-				direction = 'ltr'
+				if language in (u'ar', u'he'):
+					direction = 'rtl'
+					if language in (u'ar'):
+						name = kashidaSentence(name, 20)
+				else:
+					direction = 'ltr'
 
-			installedFonts = publisher.amountInstalledFonts()
-			html.append(u'''
+				installedFonts = publisher.amountInstalledFonts()
+				html.append(u'''
 <a href="x-python://self.setPublisherHTML(____%s____)">
 	<div id="%s" class="contextmenu publisher clear" lang="%s" dir="%s">
 		<div class="name">

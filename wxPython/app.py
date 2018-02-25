@@ -552,7 +552,7 @@ class AppFrame(wx.Frame):
 
 
 	def onContextMenu(self, x, y, target, b64ID):
-		print x, y, target, b64ID#, self.b64decode(ID)
+		print x, y, target, b64ID, self.b64decode(b64ID)
 
 		x = max(0, int(x) - 70)
 
@@ -730,7 +730,9 @@ class AppFrame(wx.Frame):
 		ID = self.b64decode(b64ID)
 
 		for publisher in self.client.publishers():
-			if publisher.subscription(ID):
+
+			if publisher.subscription(ID) and publisher.subscription(ID).exists:
+				print publisher, 'has subscription', publisher.subscription(ID)
 				success, message = publisher.subscription(ID).update()
 				break
 

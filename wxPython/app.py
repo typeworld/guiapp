@@ -13,7 +13,7 @@ from ynlib.files import ReadFromFile
 from ynlib.strings import kashidas, kashidaSentence
 
 from typeWorld.client import APIClient, AppKitNSUserDefaults
-import typeWorld.base
+import typeWorld.api.base
 
 from AppKit import NSScreen, NSLocale
 
@@ -718,10 +718,6 @@ class AppFrame(wx.Frame):
 
 	def reloadSubscription(self, evt, b64ID):
 
-		# processThread = threading.Thread(target=self.reloadPublisherShowAnimation, args=(evt, b64ID));
-		# processThread.start()
-
-
 		print 'reloadSubscription', b64ID
 
 		success = False
@@ -931,7 +927,7 @@ $( document ).ready(function() {
 						completeSetName = ''
 						if setName:
 							completeSetName = setName + ', '
-						completeSetName += typeWorld.base.FILEEXTENSIONNAMES[formatName]
+						completeSetName += typeWorld.api.base.FILEEXTENSIONNAMES[formatName]
 
 						print amountInstalled
 

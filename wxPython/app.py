@@ -12,7 +12,7 @@ from functools import partial
 from ynlib.files import ReadFromFile
 from ynlib.strings import kashidas, kashidaSentence
 
-from typeWorld.client import APIClient, AppKitNSUserDefaults
+from typeWorldClient import APIClient, AppKitNSUserDefaults
 import typeWorld.api.base
 
 from AppKit import NSScreen, NSLocale

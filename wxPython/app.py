@@ -337,42 +337,48 @@ class AppFrame(wx.Frame):
 
 	def addPublisher(self, url):
 
-		url = url.replace('typeworldjson//', 'typeworldjson://')
+		for protocol in typeWorld.base.PROTOCOLS:
+			url = url.replace(protocol + '//', protocol + '://')
 		url = url.replace('http//', 'http://')
 		url = url.replace('https//', 'https://')
 
+		# Check for known protocol
+		known = False
+		for protocol in typeWorld.base.PROTOCOLS:
+			if url.startswith(protocol):
+				known = True
+				break
+		if not known:
+			self.errorMessage('Unknown protocol. Known are: %s' % (typeWorld.base.PROTOCOLS))
+			return
+
 		# remove URI
-		url = url.replace('typeworldjson://', '')
-
-
 		print 'addPublisher', url
 
-		success, message, publisher = self.client.addSubscription(url)
+		if url.startswith('typeworldjson://'):
+			success, message, publisher = self.client.addSubscription(url.replace('typeworldjson://', ''))
 
-		if success:
+			if success:
 
-			b64ID = self.b64encode(publisher.canonicalURL)
+				b64ID = self.b64encode(publisher.canonicalURL)
 
-			self.setSideBarHTML()
-			self.setPublisherHTML(b64ID)
-			self.html.RunScript("hidePanel();")
+				self.setSideBarHTML()
+				self.setPublisherHTML(b64ID)
+				self.html.RunScript("hidePanel();")
 
-		else:
+			else:
 
-
-			self.errorMessage(message)
+				self.errorMessage(message)
 
 		self.html.RunScript('$("#addSubscriptionFormSubmitButton").show();')
 		self.html.RunScript('$("#addSubscriptionFormCancelButton").show();')
 		self.html.RunScript('$("#addSubscriptionFormSubmitAnimation").hide();')
 
 
-
 	def removePublisher(self, evt, b64ID):
 
 		publisher = self.client.publisher(self.b64decode(b64ID))
 		publisher.delete()
-		self.client.preferences.set('currentPublisher', None)
 		self.setSideBarHTML()
 		self.html.RunScript("hideMain();")
 
@@ -710,7 +716,7 @@ class AppFrame(wx.Frame):
 					for subscription in publisher.subscriptions():
 						self.reloadSubscription(None, self.b64encode(subscription.url))
 
-				self.errorMessage('Reloaded subscriptions')
+				self.log('Automatically reloaded subscriptions')
 
 				# Set to now
 				self.client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
@@ -881,7 +887,7 @@ $( document ).ready(function() {
 			html.append('<div class="head" style="height: %spx; background-color: %s;">' % (110 if foundry.logo else 70, '#' + foundry.backgroundColor if foundry.backgroundColor else 'none'))
 
 			if foundry.logo:
-				success, logo = self.client.resourceByURL(foundry.logo, binary = True)
+				success, logo = subscription.resourceByURL(foundry.logo, binary = True)
 				if success:
 					html.append('<div class="logo">')
 					html.append('<img src="data:image/svg+xml;base64,%s" style="width: 100px; height: 100px;" />' % logo)

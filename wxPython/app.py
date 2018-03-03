@@ -206,9 +206,6 @@ class AppFrame(wx.Frame):
 	def onCheckForUpdates(self, event):
 		self.sparkle.checkForUpdates_(None)
 
-	def onActivate(self, event):
-		self.errorMessage('Activated: %s' % sys.argv)
-
 	def onClose(self, event):
 		if self.panelVisible:
 			self.html.RunScript('hidePanel();')
@@ -233,6 +230,9 @@ class AppFrame(wx.Frame):
 
 		if resize:
 			self.SetSize(size)
+
+		if self.client.preferences.get('currentPublisher'):
+			self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
 
 
 	def onResize(self, event):
@@ -337,19 +337,19 @@ class AppFrame(wx.Frame):
 
 	def addPublisher(self, url):
 
-		for protocol in typeWorld.base.PROTOCOLS:
+		for protocol in typeWorld.api.base.PROTOCOLS:
 			url = url.replace(protocol + '//', protocol + '://')
 		url = url.replace('http//', 'http://')
 		url = url.replace('https//', 'https://')
 
 		# Check for known protocol
 		known = False
-		for protocol in typeWorld.base.PROTOCOLS:
+		for protocol in typeWorld.api.base.PROTOCOLS:
 			if url.startswith(protocol):
 				known = True
 				break
 		if not known:
-			self.errorMessage('Unknown protocol. Known are: %s' % (typeWorld.base.PROTOCOLS))
+			self.errorMessage('Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS))
 			return
 
 		# remove URI

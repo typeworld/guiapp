@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import wx, os, webbrowser, urllib, base64, plistlib
+import wx, os, webbrowser, urllib, base64, plistlib, json
 from threading import Thread
 import threading
 import wx.html2
@@ -36,6 +36,25 @@ class AppFrame(wx.Frame):
 
 
 		self.client = APIClient(preferences = AppKitNSUserDefaults('world.type.clientapp' if DESIGNTIME else None))
+
+
+		### Preferences
+		self.changePreferences()
+		if not self.client.preferences.get('appVersion'):
+			self.client.preferences.set('appVersion', APPVERSION)
+		if not self.client.preferences.get('localizationType'):
+			self.client.preferences.set('localizationType', 'systemLocale')
+		if not self.client.preferences.get('customLocaleChoice'):
+			self.client.preferences.set('customLocaleChoice', self.systemLocale())
+		if not self.client.preferences.get('reloadSubscriptionsInterval'):
+			self.client.preferences.set('reloadSubscriptionsInterval', 1 * 24 * 60 * 60) # one day
+
+
+
+
+
+
+
 		self.justAddedPublisher = None
 		self.fullyLoaded = False
 		self.panelVisible = False
@@ -66,13 +85,7 @@ class AppFrame(wx.Frame):
 		sizer.Add(self.html, 1, wx.EXPAND)
 		self.SetSizer(sizer)
 
-		### Preferences
-		if not self.client.preferences.get('localizationType'):
-			self.client.preferences.set('localizationType', 'systemLocale')
-		if not self.client.preferences.get('customLocaleChoice'):
-			self.client.preferences.set('customLocaleChoice', self.systemLocale())
-		if not self.client.preferences.get('reloadSubscriptionsInterval'):
-			self.client.preferences.set('reloadSubscriptionsInterval', 1 * 24 * 60 * 60) # one day
+
 
 		### Menus
 		menuBar = wx.MenuBar()
@@ -189,6 +202,66 @@ class AppFrame(wx.Frame):
 			NSURL = self.objc_namespace['NSURL']
 			self.sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
 			self.sparkle.checkForUpdatesInBackground()
+
+
+	def changePreferences(self):
+
+		# Has no version information
+		if not self.client.preferences.get('appVersion'):
+
+			self.log('Changing preferences from no version to version %s' % APPVERSION)
+
+			# A few general keys
+			for key in ['sizeMainWindow', 'anonymousAppID', 'currentPublisher', 'customLocaleChoice', 'localizationType']:
+				if self.client.preferences.get(key) and type(self.client.preferences.get(key)) == unicode:
+					self.client.preferences.set(key, json.loads(self.client.preferences.get(key)))
+					self.log('Translated content of "%s"' % key)
+
+
+			# Translate 'publishers'
+			if self.client.preferences.get('publishers'):
+				self.client.preferences.set('publishers', json.loads(self.client.preferences.get('publishers')))
+				self.log('Translated "publishers"')
+				self.client.preferences.remove('publishers')
+				self.log('Deleted "%s"' % ('publishers'))
+
+			# Go through each publisher
+			if self.client.preferences.get('publishers'):
+				for publisherURL in self.client.preferences.get('publishers'):
+					publisher = json.loads(self.client.preferences.get(publisherURL))
+					publisher['type'] = 'JSON'
+					self.client.preferences.set('publisher(%s)' % publisherURL, publisher)
+					self.log('Translated "%s" to "publisher(%s)"' % (publisherURL, publisherURL))
+					self.client.preferences.remove(publisherURL)
+					self.log('Deleted "%s"' % (publisherURL))
+
+					# Go through subscriptions
+					if self.client.preferences.get('publisher(%s)' % publisherURL).has_key('subscriptions'):
+						for subscriptionURL in self.client.preferences.get('publisher(%s)' % publisherURL)['subscriptions']:
+
+							_json = json.loads(self.client.preferences.get(subscriptionURL))
+
+							self.client.preferences.set('subscription(%s)' % subscriptionURL, json.loads(self.client.preferences.get(subscriptionURL)))
+							self.log('Translated "%s" to "subscription(%s)"' % (subscriptionURL, subscriptionURL))
+							self.client.preferences.remove(subscriptionURL)
+							self.log('Deleted "%s"' % (subscriptionURL))
+
+							# Versions
+							subscription = self.client.preferences.get('subscription(%s)' % subscriptionURL)
+							_json['versions'] = [json.dumps(x) for x in _json['versions']]
+							subscription['versions'] = _json['versions']
+							self.client.preferences.set('subscription(%s)' % subscriptionURL, subscription)
+							self.log('Translated JSON back of "subscription(%s)[versions]"' % subscriptionURL)
+
+
+			# Delete resources
+			for key in self.client.preferences.dictionary().keys():
+				if key.startswith('resource('):
+					self.client.preferences.remove(key)
+					self.log('Deleted "%s"' % (key))
+
+
+				
 
 
 
@@ -350,25 +423,27 @@ class AppFrame(wx.Frame):
 				break
 		if not known:
 			self.errorMessage('Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS))
+			self.html.RunScript('$("#addSubscriptionFormSubmitButton").show();')
+			self.html.RunScript('$("#addSubscriptionFormCancelButton").show();')
+			self.html.RunScript('$("#addSubscriptionFormSubmitAnimation").hide();')
 			return
 
 		# remove URI
 		print 'addPublisher', url
 
-		if url.startswith('typeworldjson://'):
-			success, message, publisher = self.client.addSubscription(url.replace('typeworldjson://', ''))
+		success, message, publisher = self.client.addSubscription(url)
 
-			if success:
+		if success:
 
-				b64ID = self.b64encode(publisher.canonicalURL)
+			b64ID = self.b64encode(publisher.canonicalURL)
 
-				self.setSideBarHTML()
-				self.setPublisherHTML(b64ID)
-				self.html.RunScript("hidePanel();")
+			self.setSideBarHTML()
+			self.setPublisherHTML(b64ID)
+			self.html.RunScript("hidePanel();")
 
-			else:
+		else:
 
-				self.errorMessage(message)
+			self.errorMessage(message)
 
 		self.html.RunScript('$("#addSubscriptionFormSubmitButton").show();')
 		self.html.RunScript('$("#addSubscriptionFormCancelButton").show();')
@@ -603,9 +678,9 @@ class AppFrame(wx.Frame):
 
 			for publisher in self.client.publishers():
 				for subscription in publisher.subscriptions():
-					for foundry in subscription.latestVersion().response.getCommand().foundries:
-						for family in foundry.families:
-							for font in family.fonts:
+					for foundry in subscription.foundries():
+						for family in foundry.families():
+							for font in family.fonts():
 								if font.uniqueID == fontID:
 
 
@@ -652,6 +727,9 @@ class AppFrame(wx.Frame):
 		
 		publisher = self.client.publisher(self.b64decode(b64ID))
 		path = publisher.path()
+
+		if not os.path.exists(path):
+			os.makedirs(path)
 
 		import subprocess
 		subprocess.call(["open", "-R", path])
@@ -808,7 +886,7 @@ class AppFrame(wx.Frame):
 			string.append('<a href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
 			string.append('<div class="contextmenu subscription publisher clear %s" lang="%s" dir="%s" id="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url)))
 			string.append('<div class="name">')
-			string.append(subscription.latestVersion().response.getCommand().name.getText(self.locale()) or '#(Undefined)')
+			string.append(subscription.name())
 			string.append('</div>')
 
 			string.append('<div class="badges">')
@@ -875,7 +953,6 @@ $( document ).ready(function() {
 		api = subscription.latestVersion()
 #		print api
 
-		name, locale = api.name.getTextAndLocale(locale = self.locale())
 
 
 		html.append('<div class="publisher" id="%s">' % (b64ID))
@@ -887,10 +964,10 @@ $( document ).ready(function() {
 			html.append('<div class="head" style="height: %spx; background-color: %s;">' % (110 if foundry.logo else 70, '#' + foundry.backgroundColor if foundry.backgroundColor else 'none'))
 
 			if foundry.logo:
-				success, logo = subscription.resourceByURL(foundry.logo, binary = True)
+				success, logo, mimeType = subscription.resourceByURL(foundry.logo, binary = True)
 				if success:
 					html.append('<div class="logo">')
-					html.append('<img src="data:image/svg+xml;base64,%s" style="width: 100px; height: 100px;" />' % logo)
+					html.append('<img src="data:%s;base64,%s" style="width: 100px; height: 100px;" />' % (mimeType, logo))
 					html.append('</div>') # publisher
 
 			html.append('<div class="names centerOuter"><div class="centerInner">')
@@ -993,7 +1070,7 @@ $( document ).ready(function() {
 								html.append('<div class="installButtons right">')
 								html.append('<div class="clear">')
 								html.append('<div class="installButton install right" style="display: %s;">' % ('none' if installedVersion else 'block'))
-								html.append('<a class="installButton button" publisherid="%s" subscriptionid="%s" fontid="%s" version="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+								html.append('<a class="installButton button" publisherid="%s" subscriptionid="%s" fontid="%s" version="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number if font.getSortedVersions() else ''))
 								html.append(u'✓ #(Install)')
 								html.append('</a>')
 								html.append('</div>') # .right
@@ -1137,7 +1214,8 @@ $( document ).ready(function() {
 			b64ID = base64.b64encode(publisher.canonicalURL).replace('=', '-')
 
 			if publisher.subscriptions():
-				name, language = publisher.subscriptions()[0].latestVersion().name.getTextAndLocale(locale = self.locale())
+				name, language = publisher.name(locale = self.locale())
+
 
 				if language in (u'ar', u'he'):
 					direction = 'rtl'

@@ -77,7 +77,7 @@ for file in glob.glob("*"):
 			if notes:
 				lines.append('\t<description><![CDATA[' + markdown.markdown(ReadFromFile(md_path)) + ']]></description>')
 
-		lines.append('\t<pubDate>' + time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(os.path.getctime(path))) + '</pubDate>')
+		lines.append('\t<pubDate>' + time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(os.path.getmtime(path))) + '</pubDate>')
 		lines.append('\t<sparkle:minimumSystemVersion>10.7</sparkle:minimumSystemVersion>')
 		lines.append('\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;version=' + version + '" sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" length="' + length + '" sparkle:dsaSignature="' + dsa + '" type="application/octet-stream" />')
 

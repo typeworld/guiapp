@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import wx, os, webbrowser, urllib, base64, plistlib, json
+
+import wx, os, webbrowser, urllib, base64, plistlib, json, datetime
 from threading import Thread
 import threading
 import wx.html2
@@ -212,18 +213,11 @@ class AppFrame(wx.Frame):
 			self.log('Changing preferences from no version to version %s' % APPVERSION)
 
 			# A few general keys
-			for key in ['sizeMainWindow', 'anonymousAppID', 'currentPublisher', 'customLocaleChoice', 'localizationType']:
+			for key in ['sizeMainWindow', 'anonymousAppID', 'currentPublisher', 'customLocaleChoice', 'localizationType', 'publishers']:
 				if self.client.preferences.get(key) and type(self.client.preferences.get(key)) == unicode:
+					self.log('Translating content of "%s"' % key)
 					self.client.preferences.set(key, json.loads(self.client.preferences.get(key)))
-					self.log('Translated content of "%s"' % key)
 
-
-			# Translate 'publishers'
-			if self.client.preferences.get('publishers'):
-				self.client.preferences.set('publishers', json.loads(self.client.preferences.get('publishers')))
-				self.log('Translated "publishers"')
-				self.client.preferences.remove('publishers')
-				self.log('Deleted "%s"' % ('publishers'))
 
 			# Go through each publisher
 			if self.client.preferences.get('publishers'):
@@ -332,26 +326,11 @@ class AppFrame(wx.Frame):
 
 		html = []
 
-		html.append('<h3>App Localization</h3>')
-		html.append('<div>')
-		html.append('<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Locale (%s)</label></span>' % ('checked' if self.client.preferences.get('localizationType') == 'systemLocale' else '', self.systemLocale()))
-		html.append('<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>')
-		html.append('<br />')
-		html.append('<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Locale (choose below). Requires restart to take full effect.</label></span>' % ('checked' if self.client.preferences.get('localizationType') == 'customLocale' else ''))
-		html.append('<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>')
-		html.append('<br />')
-		html.append('<select id="customLocaleChoice" style="">')
-		for code, name in locales.locales:
-			html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if code == self.client.preferences.get('customLocaleChoice') else '', name))
-		html.append('</select>')
-		html.append('<script>$("#preferences #customLocaleChoice").click(function() {setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());});</script>')
-		html.append('</div>')
-
-		html.append('<p></p>')
-
-		html.append('<h3>Update Interval</h3>')
-		html.append('<div>')
-		html.append('<select id="updateIntervalChoice" style="">')
+		# Update Interval
+		html.append(u'<h2>#(Update Interval)</h2>')
+		html.append(u'<p>#(UpdateIntervalExplanation)</p>')
+		html.append(u'<p>')
+		html.append(u'<select id="updateIntervalChoice" style="">')
 		for code, name in (
 			(-1, '#(Manually)'),
 			(1 * 60 * 60, '#(Hourly)'),
@@ -359,15 +338,40 @@ class AppFrame(wx.Frame):
 			(7 * 24 * 60 * 60, '#(Weekly)'),
 			(30 * 24 * 60 * 60, '#(Monthly)'),
 		):
-			html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(self.client.preferences.get('reloadSubscriptionsInterval')) else '', name))
-		html.append('</select>')
-		html.append('<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
-		html.append('</div>')
+			html.append(u'<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(self.client.preferences.get('reloadSubscriptionsInterval')) else '', name))
+		html.append(u'</select>')
+		html.append(u'<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
+		html.append(u'</p>')
+
+		html.append(u'<p></p>')
+
+		# Localoization
+		systemLocale = self.systemLocale()
+		for code, name in locales.locales:
+			if code == systemLocale:
+				systemLocale = name
+				break
+		html.append(u'<h2>App Localization</h2>')
+		html.append(u'<p>')
+		html.append(u'<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Locale (%s)</label></span>' % ('checked' if self.client.preferences.get('localizationType') == 'systemLocale' else '', systemLocale))
+		html.append(u'<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>')
+		html.append(u'<br />')
+		html.append(u'<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Locale (choose below). Requires restart to take full effect.</label></span>' % ('checked' if self.client.preferences.get('localizationType') == 'customLocale' else ''))
+		html.append(u'<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>')
+		html.append(u'<br />')
+		html.append(u'<select id="customLocaleChoice" style="">')
+		for code, name in locales.locales:
+			html.append(u'<option value="%s" %s>%s</option>' % (code, u'selected' if code == self.client.preferences.get('customLocaleChoice') else u'', name.decode('utf-8')))
+		html.append(u'</select>')
+		html.append(u'<script>$("#preferences #customLocaleChoice").click(function() {setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());});</script>')
+		html.append(u'</p>')
+
+
 
 
 
 		# Print HTML
-		html = ''.join(html)
+		html = u''.join(html)
 		html = html.replace('"', '\'')
 		html = html.replace('\n', '')
 		html = self.localizeString(html)
@@ -408,7 +412,7 @@ class AppFrame(wx.Frame):
 		self.html.RunScript('showAddPublisher();')
 		
 
-	def addPublisher(self, url):
+	def addPublisher(self, url, username = None, password = None):
 
 		for protocol in typeWorld.api.base.PROTOCOLS:
 			url = url.replace(protocol + '//', protocol + '://')
@@ -431,7 +435,7 @@ class AppFrame(wx.Frame):
 		# remove URI
 		print 'addPublisher', url
 
-		success, message, publisher = self.client.addSubscription(url)
+		success, message, publisher = self.client.addSubscription(url, username, password)
 
 		if success:
 
@@ -453,19 +457,40 @@ class AppFrame(wx.Frame):
 	def removePublisher(self, evt, b64ID):
 
 		publisher = self.client.publisher(self.b64decode(b64ID))
-		publisher.delete()
-		self.setSideBarHTML()
-		self.html.RunScript("hideMain();")
+
+		dlg = wx.MessageDialog(self, 'Are you sure?', 'Remove publisher %s' % (publisher.name(self.locale())[0]), wx.YES_NO | wx.ICON_QUESTION)
+		result = dlg.ShowModal() == wx.ID_YES
+		dlg.Destroy()
+		
+		if result:
+
+			publisher.delete()
+			self.setSideBarHTML()
+			self.html.RunScript("hideMain();")
 
 	def removeSubscription(self, evt, b64ID):
 
-		for publisher in self.client.publishers():
-			for subscription in publisher.subscriptions():
-				if subscription.url == self.b64decode(b64ID):
-					subscription.delete()
+		
+			for publisher in self.client.publishers():
+				for subscription in publisher.subscriptions():
+					if subscription.url == self.b64decode(b64ID):
 
-		self.html.RunScript("hideMain();")
-		self.setSideBarHTML()
+
+						dlg = wx.MessageDialog(self, 'Are you sure?', 'Remove subscription %s' % (subscription.name(self.locale())), wx.YES_NO | wx.ICON_QUESTION)
+						result = dlg.ShowModal() == wx.ID_YES
+						dlg.Destroy()
+						
+						if result:
+
+
+							subscription.delete()
+
+							if publisher.get('subscriptions'):
+								self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
+							else:
+								self.html.RunScript("hideMain();")
+								self.setSideBarHTML()
+
 
 	def publisherPreferences(self, i):
 		print 'publisherPreferences', i
@@ -633,7 +658,7 @@ class AppFrame(wx.Frame):
 
 
 	def onContextMenu(self, x, y, target, b64ID):
-		print x, y, target, b64ID, self.b64decode(b64ID)
+#		print x, y, target, b64ID, self.b64decode(b64ID)
 
 		x = max(0, int(x) - 70)
 
@@ -641,13 +666,19 @@ class AppFrame(wx.Frame):
 
 			menu = wx.Menu()
 
+			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Reload)'))
+			menu.Append(item)
+			menu.Bind(wx.EVT_MENU, partial(self.reloadPublisherJavaScript, b64ID = b64ID), item)
+
 			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Show in Finder)'))
 			menu.Append(item)
 			menu.Bind(wx.EVT_MENU, partial(self.showPublisherInFinder, b64ID = b64ID), item)
 
-			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Reload)'))
+			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Preferences)'))
 			menu.Append(item)
-			menu.Bind(wx.EVT_MENU, partial(self.reloadPublisherJavaScript, b64ID = b64ID), item)
+			menu.Bind(wx.EVT_MENU, partial(self.showPublisherPreferences, b64ID = b64ID), item)
+
+			menu.AppendSeparator()
 
 			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Remove)'))
 			menu.Append(item)
@@ -664,9 +695,12 @@ class AppFrame(wx.Frame):
 			menu.Append(item)
 			menu.Bind(wx.EVT_MENU, partial(self.reloadSubscriptionJavaScript, b64ID = b64ID), item)
 
+			menu.AppendSeparator()
+
 			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Remove)'))
 			menu.Append(item)
 			menu.Bind(wx.EVT_MENU, partial(self.removeSubscription, b64ID = b64ID), item)
+
 
 			self.PopupMenu(menu, wx.Point(int(x), int(y)))
 			menu.Destroy()
@@ -712,8 +746,60 @@ class AppFrame(wx.Frame):
 
 									break
 
+		else:
+
+			menu = wx.Menu()
+
+			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Preferences)'))
+			menu.Append(item)
+			menu.Bind(wx.EVT_MENU, self.onPreferences, item)
+
+			self.PopupMenu(menu, wx.Point(int(x), int(y)))
+			menu.Destroy()
+
+
 	def installFontFromMenu(self, event, subscription, fontID, version):
 		self.html.RunScript("installFonts(Array(Array('%s', '%s', '%s', '%s')), true);" % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(fontID), version))
+
+	def showPublisherPreferences(self, event, b64ID):
+
+		for publisher in self.client.publishers():
+			if publisher.exists and publisher.canonicalURL == self.b64decode(b64ID):
+
+
+				html = []
+
+				# Rate limits
+				limits, responses = publisher.readGitHubResponse('https://api.github.com/rate_limit')
+				limits = json.loads(limits)
+
+				html.append('<h2>%s (%s)</h2>' % (publisher.name(self.locale())[0], publisher.get('type')))
+				if publisher.get('type') == 'GitHub':
+					html.append('<p>')
+					html.append('#(Username)<br />')
+					html.append('<input type="text" id="username" value="%s">' % (publisher.get('username') or ''))
+					html.append('#(Password)<br />')
+					html.append('<input type="password" id="password" value="%s">' % (publisher.getPassword(publisher.get('username')) if publisher.get('username') else ''))
+					html.append('</p>')
+					html.append('<p>')
+					html.append('#(GitHubRequestLimitExplanation)<br />')
+					html.append(self.localizeString('#(GitHubRequestLimitRemainderExplanation)').replace('%requests%', str(limits['rate']['remaining'])).replace('%time%', datetime.datetime.fromtimestamp(limits['rate']['reset']).strftime('%Y-%m-%d %H:%M:%S')))
+					html.append('</p>')
+					html.append('<script>$("#publisherPreferences #username").blur(function() { setPublisherPreference("%s", "username", $("#publisherPreferences #username").val());});</script>' % (b64ID))
+					html.append('<script>$("#publisherPreferences #password").blur(function() { if ($("#publisherPreferences #username").val()) { setPublisherPassword("%s", $("#publisherPreferences #username").val(), $("#publisherPreferences #password").val()); }});</script>' % (b64ID))
+
+
+
+				# Print HTML
+				html = ''.join(html)
+				html = html.replace('"', '\'')
+				html = html.replace('\n', '')
+				html = self.localizeString(html)
+		#		print html
+				js = '$("#publisherPreferences .inner").html("' + html + '");'
+				self.html.RunScript(js)
+
+				self.html.RunScript('showPublisherPreferences();')
 
 	def reloadSubscriptionJavaScript(self, evt, b64ID):
 		print 'reloadSubscriptionJavaScript', b64ID
@@ -886,7 +972,7 @@ class AppFrame(wx.Frame):
 			string.append('<a href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
 			string.append('<div class="contextmenu subscription publisher clear %s" lang="%s" dir="%s" id="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url)))
 			string.append('<div class="name">')
-			string.append(subscription.name())
+			string.append(subscription.name(locale=self.locale()))
 			string.append('</div>')
 
 			string.append('<div class="badges">')
@@ -1229,7 +1315,7 @@ $( document ).ready(function() {
 <a href="x-python://self.setPublisherHTML(____%s____)">
 	<div id="%s" class="contextmenu publisher clear" lang="%s" dir="%s">
 		<div class="name">
-		%s
+		%s %s
 		</div>
 		<div class="reloadAnimation" style="display: none;">
 		↺
@@ -1240,7 +1326,7 @@ $( document ).ready(function() {
 			</div>
 		</div>
 	</div>
-</a>''' % (b64ID, b64ID, language, direction, name, 'block' if installedFonts else 'none', installedFonts or ''))
+</a>''' % (b64ID, b64ID, language, direction, name, '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px; width:16px; height:16px;">' if publisher.get('type') == 'GitHub' else '', 'block' if installedFonts else 'none', installedFonts or ''))
 
 
 		html.append('''<script>
@@ -1266,6 +1352,7 @@ $( document ).ready(function() {
 		html = ''.join(html)
 		html = html.replace('"', '\'')
 		html = html.replace('\n', '')
+		html = self.replaceHTML(html)
 #		print html
 		js = '$("#publishers").html("' + html + '");'
 		self.html.RunScript(js)
@@ -1353,19 +1440,14 @@ $( document ).ready(function() {
 
 class MyApp(wx.App):
 	def MacOpenURL(self, url):
-		if url.startswith('typeworldjson://'):
-			url = url.replace('typeworldjson://', '')
-			
-			if self.frame.fullyLoaded:
-				self.frame.addPublisher(url)
-			else:
-				self.frame.justAddedPublisher = url
+		
+		if self.frame.fullyLoaded:
+			self.frame.addPublisher(url)
+		else:
+			self.frame.justAddedPublisher = url
 
-			self.frame.Show()
+		self.frame.Show()
 
-
-			# from AppKit import NSApplicationActivateAllWindows
-			# self.frame.nsapp.activateWithOptions_(NSApplicationActivateAllWindows)
 
 	def OnInit(self):
 		frame = AppFrame(None)
@@ -1385,6 +1467,7 @@ class MyApp(wx.App):
 		html = html.replace('##atom.js##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'atom.js'))))
 		html = html.replace('##css##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'index.css'))))
 		html = html.replace('##jqueryuicss##', str(ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'jquery-ui.css'))))
+		html = html.replace('APPVERSION', APPVERSION)
 
 		html = frame.localizeString(html, html = True)
 		html = frame.replaceHTML(html)

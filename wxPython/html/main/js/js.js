@@ -15,6 +15,14 @@ function setPreference(key, value) {
     python('self.client.preferences.set(____' + key + '____, ____' + value + '____)');
 }
 
+function setPublisherPreference(b64ID, key, value) {
+    python('self.client.publisher(self.b64decode(____' + b64ID + '____)).set(____' + key + '____, ____' + value + '____)');
+}
+
+function setPublisherPassword(b64ID, username, password) {
+    python('self.client.publisher(self.b64decode(____' + b64ID + '____)).setPassword(____' + username + '____, ____' + password + '____)');
+}
+
 function contextmenu(evt) {
 	python('self.onContextMenu(____' + evt.pageX + '____, ____' + evt.pageY + '____, ____' + $(evt.target).closest('.contextmenu').attr('class') + '____, ____' + $(evt.target).closest('.contextmenu').attr('id') + '____)')
 }
@@ -217,6 +225,8 @@ $( document ).ready(function() {
 
 function showAddPublisher() {
 	$('#addPublisher #url').val(null);
+	$('#addPublisher #authenticationCheckBox').hide();
+
 	$('#addPublisher').slideDown();
 	registerKeypress(27, function(){ hidePanel(); });
 	$('#addPublisher #url').focus();
@@ -227,6 +237,7 @@ function showMain() {
 	$('#welcome').slideUp();
 	$('#main').slideDown();
 }
+
 function hideMain() {
 	$('#welcome').slideDown();
 	$('#main').slideUp();
@@ -244,9 +255,17 @@ function showPreferences() {
 	python('self.panelVisible = True')
 }
 
+function showPublisherPreferences() {
+	$('#publisherPreferences').slideDown();
+	registerKeypress(27, function(){ hidePanel(); });
+	python('self.panelVisible = True')
+}
+
 function hidePanel() {
 	$('#addPublisher').slideUp();
 	$('#preferences').slideUp();
+	$('#publisherPreferences').slideUp();
+	$('#subscriptionPreferences').slideUp();
 	$('#about').slideUp();
 	python('self.panelVisible = False');
 	unregisterKeypress(27);

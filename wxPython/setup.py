@@ -15,10 +15,10 @@ DATA_FILES = []
 OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
            'iconfile': 'icon/tw.icns',
            'plist': Plist,
-           'includes': ['ynlib', 'wx', 'os', 'webbrowser', 'urllib', 'base64', 'threading'],
+           'includes': ['ynlib', 'wx', 'os', 'webbrowser', 'urllib', 'base64', 'threading', 'keyring'],
            'frameworks': ['Python.framework'],
            'resources': ['html', 'locales', '/Users/yanone/Code/dsa_pub.pem'],
-           'packages': ['./AppBadge.docktileplugin'],
+           'packages': ['./AppBadge.docktileplugin', 'certifi'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {
@@ -29,7 +29,7 @@ OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into 
                 'NSHumanReadableCopyright': '@ Yanone 2018', #optional
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default
                 'NSDockTilePlugIn': '@executable_path/../Resources/lib/python2.7/AppBadge.docktileplugin.py',
-                'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World JSON Protocol', 'CFBundleURLSchemes': ['typeworldjson']}],
+                'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World Font Installation Protocols', 'CFBundleURLSchemes': ['typeworldjson', 'typeworldgithub']}],
 
                 # Sparkle
                 'SUFeedURL': 'https://type.world/downloads/guiapp/appcast.xml',

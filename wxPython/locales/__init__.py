@@ -42,5 +42,5 @@ def localizeString(source, languages = ['en'], html = False):
 
 
 if __name__ == '__main__':
-	print localizeString('#(Many) #(Foundries) ,,,', ['de'])
-	print localize('Add', ['de'])
+	print localizeString('#(Remove X)', ['en'])
+#	print localize('Add', ['de'])

@@ -318,7 +318,40 @@ class AppFrame(wx.Frame):
 
 
 	def onAbout(self, event):
+
+		html = []
+
+		html.append(u'<p style="text-align: center; margin-bottom: 20px;">')
+		html.append(u'<img src="file://##htmlroot##/biglogo.svg" style="width: 200px;"><br />')
+		html.append(u'</p>')
+		html.append(u'<p>')
+		html.append(u'#(AboutText)')
+		html.append(u'</p>')
+		html.append(u'<p>')
+		html.append(u'#(Anonymous App ID): %s<br />' % self.client.preferences.get('anonymousAppID'))
+		html.append(u'#(Version) %s<br />' % APPVERSION)
+		html.append(u'#(Version History) #(on) <a href="https://type.world/app">type.world/app</a>')
+		html.append(u'</p>')
+		# html.append(u'<p>')
+		# html.append(u'<a class="button" onclick="python('self.sparkle.checkForUpdates_(None)');">#(Check for Updates)</a>')
+		# html.append(u'</p>')
+
+
+		# Print HTML
+		html = u''.join(html)
+		html = self.replaceHTML(html)
+		html = self.localizeString(html, html = True)
+		html = html.replace('"', '\'')
+		html = html.replace('\n', '')
+		print html
+		js = '$("#about .inner").html("' + html + '");'
+		self.html.RunScript(js)
+
+
 		self.html.RunScript('showAbout();')
+
+
+
 
 	def onPreferences(self, event):
 
@@ -457,7 +490,7 @@ class AppFrame(wx.Frame):
 
 		publisher = self.client.publisher(self.b64decode(b64ID))
 
-		dlg = wx.MessageDialog(self, 'Are you sure?', 'Remove publisher %s' % (publisher.name(self.locale())[0]), wx.YES_NO | wx.ICON_QUESTION)
+		dlg = wx.MessageDialog(self, self.localizeString('#(Are you sure)'), self.localizeString('#(Remove X)').replace('%name%', self.localizeString(publisher.name(self.locale())[0])), wx.YES_NO | wx.ICON_QUESTION)
 		result = dlg.ShowModal() == wx.ID_YES
 		dlg.Destroy()
 		
@@ -475,7 +508,7 @@ class AppFrame(wx.Frame):
 					if subscription.url == self.b64decode(b64ID):
 
 
-						dlg = wx.MessageDialog(self, 'Are you sure?', 'Remove subscription %s' % (subscription.name(self.locale())), wx.YES_NO | wx.ICON_QUESTION)
+						dlg = wx.MessageDialog(self, self.localizeString('#(Are you sure)'), self.localizeString('#(Remove X)').replace('%name%', self.localizeString(subscription.name(self.locale()))), wx.YES_NO | wx.ICON_QUESTION)
 						result = dlg.ShowModal() == wx.ID_YES
 						dlg.Destroy()
 						

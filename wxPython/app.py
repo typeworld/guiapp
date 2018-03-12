@@ -19,7 +19,7 @@ import typeWorld.api.base
 from AppKit import NSScreen, NSLocale
 
 APPNAME = 'Type.World'
-APPVERSION = '0.1.2'
+APPVERSION = '0.1.3'
 
 
 if not '.app/Contents' in os.path.dirname(__file__):
@@ -128,7 +128,6 @@ class AppFrame(wx.Frame):
 		self.SetMenuBar(menuBar)
 
 		self.CentreOnScreen()
-#		self.ShowWithEffect()
 		self.Show()
 
 

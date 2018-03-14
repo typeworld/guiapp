@@ -272,6 +272,15 @@ function hidePanel() {
 	
 }
 
+function showCenterMessage(html) {
+	$('#centerMessage').html(html);
+	$('#centerMessageWrapper').fadeIn();
+}
+
+function hideCenterMessage() {
+	$('#centerMessageWrapper').fadeOut();
+}
+
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////// */
 
 

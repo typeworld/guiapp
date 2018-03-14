@@ -1407,7 +1407,6 @@ $( document ).ready(function() {
 			self.html.RunScript('$("#welcome").hide();')
 			self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
 
-#		self.reloadSubscriptions()
 
 
 	def log(self, message):

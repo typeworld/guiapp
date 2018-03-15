@@ -30,13 +30,19 @@ function contextmenu(evt) {
 function reloadPublisher(b64ID) {
 	$("#sidebar #" + b64ID + " .badges").hide();
 	$("#sidebar #" + b64ID + " .reloadAnimation").show();
-	python('self.reloadPublisher(None, ____' + b64ID + '____)');
+	setTimeout(function () { 
+		python('self.reloadPublisher(None, ____' + b64ID + '____)');
+	}, 250);
 }
 
 function reloadSubscription(b64ID) {
-	// $("#sidebar #" + b64ID + " .badges").hide();
-	// $("#sidebar #" + b64ID + " .reloadAnimation").show();
-	python('self.reloadSubscription(None, ____' + b64ID + '____)');
+	$("#subscriptions #" + b64ID + " .badges").hide();
+	$("#subscriptions #" + b64ID + " .reloadAnimation").show();
+	setTimeout(function () { 
+		python('self.reloadSubscription(None, ____' + b64ID + '____)');
+	}, 250);
+
+	
 }
 
 function finishReloadPublisher(b64ID) {
@@ -45,8 +51,8 @@ function finishReloadPublisher(b64ID) {
 }
 
 function finishReloadSubscription(b64ID) {
-	// $("#sidebar #" + b64ID + " .badges").show();
-	// $("#sidebar #" + b64ID + " .reloadAnimation").hide();
+	// $("#subscriptions #" + b64ID + " .badges").show();
+	// $("#subscriptions #" + b64ID + " .reloadAnimation").hide();
 }
 
 function resetFontAppearance(fontID) {

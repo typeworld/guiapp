@@ -1017,7 +1017,9 @@ class AppFrame(wx.Frame):
 			string.append('<div class="name">')
 			string.append(subscription.name(locale=self.locale()))
 			string.append('</div>')
-
+			string.append('<div class="reloadAnimation" style="display: none;">')
+			string.append(u'↺')
+			string.append('</div>')
 			string.append('<div class="badges">')
 			string.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
 			string.append('%s' % amountInstalledFonts)

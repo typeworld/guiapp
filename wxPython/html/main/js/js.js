@@ -274,11 +274,21 @@ function hidePanel() {
 
 function showCenterMessage(html) {
 	$('#centerMessage').html(html);
-	$('#centerMessageWrapper').fadeIn();
+	$('#centerMessageWrapper').fadeIn(1000);
 }
 
 function hideCenterMessage() {
 	$('#centerMessageWrapper').fadeOut();
+}
+
+function addPublisher(url, username, password, caption) {
+	
+	showCenterMessage(caption);
+	setTimeout(function () { 
+		python('self.addPublisher(____' + url + '____, ____' + username + '____, ____' + password + '____)');
+	}, 1100);
+	
+
 }
 
 /* ///////////////////////////////////////////////////////////////////////////////////////////////////// */

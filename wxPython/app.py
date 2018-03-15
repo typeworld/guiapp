@@ -60,6 +60,8 @@ class AppFrame(wx.Frame):
 		self.fullyLoaded = False
 		self.panelVisible = False
 
+
+
 		# Window Size
 		minSize = [1000, 700]
 		if self.client.preferences.get('sizeMainWindow'):
@@ -442,7 +444,12 @@ class AppFrame(wx.Frame):
 
 	def showAddPublisher(self, evt):
 		self.html.RunScript('showAddPublisher();')
-		
+
+	def addPublisherJavaScript(self, url, username = None, password = None):
+
+		self.log('addPublisherJavaScript(%s, %s, %s)' % (url, username, password))
+		self.html.RunScript('addPublisher("%s", "%s", "%s", "%s");' % (url, username or '', password or '', self.localizeString('#(Loading Subscription)')))
+
 
 	def addPublisher(self, url, username = None, password = None):
 
@@ -462,6 +469,8 @@ class AppFrame(wx.Frame):
 			self.html.RunScript('$("#addSubscriptionFormSubmitButton").show();')
 			self.html.RunScript('$("#addSubscriptionFormCancelButton").show();')
 			self.html.RunScript('$("#addSubscriptionFormSubmitAnimation").hide();')
+
+			self.html.RunScript('hideCenterMessage();')
 			return
 
 		# remove URI
@@ -484,6 +493,8 @@ class AppFrame(wx.Frame):
 		self.html.RunScript('$("#addSubscriptionFormSubmitButton").show();')
 		self.html.RunScript('$("#addSubscriptionFormCancelButton").show();')
 		self.html.RunScript('$("#addSubscriptionFormSubmitAnimation").hide();')
+
+		self.html.RunScript('hideCenterMessage();')
 
 
 	def removePublisher(self, evt, b64ID):
@@ -1394,11 +1405,13 @@ $( document ).ready(function() {
 
 	def onLoad(self, event):
 
+		self.log('MyApp.frame.onLoad()')
+
 		self.setSideBarHTML()
 
 		# Open drawer for newly added publisher
 		if self.justAddedPublisher:
-			self.addPublisher(self.justAddedPublisher)
+			self.addPublisherJavaScript(self.justAddedPublisher)
 			self.justAddedPublisher = None
 
 		self.fullyLoaded = True
@@ -1472,8 +1485,10 @@ $( document ).ready(function() {
 class MyApp(wx.App):
 	def MacOpenURL(self, url):
 		
+		self.frame.log('MyApp.MacOpenURL(%s)' % url)
+
 		if self.frame.fullyLoaded:
-			self.frame.addPublisher(url)
+			self.frame.addPublisherJavaScript(url)
 		else:
 			self.frame.justAddedPublisher = url
 
@@ -1481,8 +1496,13 @@ class MyApp(wx.App):
 
 
 	def OnInit(self):
+
+
+
 		frame = AppFrame(None)
 		self.frame = frame
+
+		self.frame.log('MyApp.OnInit()')
 		
 		from AppKit import NSApp
 		self.frame.nsapp = NSApp()

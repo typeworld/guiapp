@@ -91,7 +91,8 @@
 				$("#addSubscriptionFormSubmitAnimation").show();
 
 				setTimeout(function() { 
-					python('self.addPublisher(____' + $('#addSubscriptionForm #url').val() + '____, ____' + $('#addSubscriptionForm #username').val() + '____, ____' + $('#addSubscriptionForm #password').val() + '____)')
+					addPublisher($('#addSubscriptionForm #url').val(), $('#addSubscriptionForm #username').val(), $('#addSubscriptionForm #password').val());
+					
 				}, 100);
 
 				

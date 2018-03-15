@@ -28,19 +28,19 @@ function contextmenu(evt) {
 }
 
 function reloadPublisher(b64ID) {
-	$("#sidebar #" + b64ID + " .badges").hide();
-	$("#sidebar #" + b64ID + " .reloadAnimation").show();
+	// $("#sidebar #" + b64ID + " .badges").hide();
+	// $("#sidebar #" + b64ID + " .reloadAnimation").show();
 	setTimeout(function () { 
 		python('self.reloadPublisher(None, ____' + b64ID + '____)');
-	}, 250);
+	}, 100);
 }
 
 function reloadSubscription(b64ID) {
-	$("#subscriptions #" + b64ID + " .badges").hide();
-	$("#subscriptions #" + b64ID + " .reloadAnimation").show();
+	// $("#subscriptions #" + b64ID + " .badges").hide();
+	// $("#subscriptions #" + b64ID + " .reloadAnimation").show();
 	setTimeout(function () { 
 		python('self.reloadSubscription(None, ____' + b64ID + '____)');
-	}, 250);
+	}, 100);
 
 	
 }
@@ -278,9 +278,14 @@ function hidePanel() {
 	
 }
 
-function showCenterMessage(html) {
+function showCenterMessage(html, completeFunction) {
 	$('#centerMessage').html(html);
-	$('#centerMessageWrapper').fadeIn(1000);
+	$('#centerMessageWrapper').show();
+	if (completeFunction) {
+		setTimeout(function () { 
+			completeFunction;
+		}, 100);
+	}
 }
 
 function hideCenterMessage() {

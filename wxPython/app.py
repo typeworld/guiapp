@@ -846,11 +846,11 @@ class AppFrame(wx.Frame):
 
 	def reloadSubscriptionJavaScript(self, evt, b64ID):
 		print 'reloadSubscriptionJavaScript', b64ID
-		self.html.RunScript('reloadSubscription("%s");' % (b64ID))
+		self.html.RunScript('showCenterMessage("%s", reloadSubscription("%s"));' % (self.localize('Reloading Subscription'), b64ID))
 
 	def reloadPublisherJavaScript(self, evt, b64ID):
 		print 'reloadPublisherJavaScript', b64ID
-		self.html.RunScript('reloadPublisher("%s");' % (b64ID))
+		self.html.RunScript('showCenterMessage("%s", reloadPublisher("%s"));' % (self.localize('Reloading Publisher'), b64ID))
 
 	def showPublisherInFinder(self, evt, b64ID):
 		
@@ -900,6 +900,7 @@ class AppFrame(wx.Frame):
 
 
 		self.html.RunScript('finishReloadPublisher("%s");' % (b64ID))
+		self.html.RunScript('hideCenterMessage();')
 
 
 		print 'Done'
@@ -962,6 +963,7 @@ class AppFrame(wx.Frame):
 
 
 		self.html.RunScript('finishReloadSubscription("%s");' % (b64ID))
+		self.html.RunScript('hideCenterMessage();')
 
 
 		print 'Done'

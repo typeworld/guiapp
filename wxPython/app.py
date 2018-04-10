@@ -713,9 +713,17 @@ class AppFrame(wx.Frame):
 
 			menu = wx.Menu()
 
-			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Reload)'))
+			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update All Subscriptions)'))
 			menu.Append(item)
 			menu.Bind(wx.EVT_MENU, partial(self.reloadPublisherJavaScript, b64ID = b64ID), item)
+
+			for publisher in self.client.publishers():
+				if publisher.canonicalURL == self.b64decode(b64ID):
+					if publisher.amountOutdatedFonts():
+						item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update All Fonts)'))
+						menu.Append(item)
+						menu.Bind(wx.EVT_MENU, partial(self.updateAllFonts, publisherB64ID = b64ID, subscriptionB64ID = None), item)
+					break
 
 			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Show in Finder)'))
 			menu.Append(item)
@@ -738,9 +746,18 @@ class AppFrame(wx.Frame):
 		elif 'contextmenu subscription' in target:
 			menu = wx.Menu()
 
-			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Reload)'))
+			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update Subscription)'))
 			menu.Append(item)
 			menu.Bind(wx.EVT_MENU, partial(self.reloadSubscriptionJavaScript, b64ID = b64ID), item)
+
+			for publisher in self.client.publishers():
+				for subscription in publisher.subscriptions():
+					if subscription.url == self.b64decode(b64ID):
+						if publisher.amountOutdatedFonts():
+							item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update All Fonts)'))
+							menu.Append(item)
+							menu.Bind(wx.EVT_MENU, partial(self.updateAllFonts, publisherB64ID = None, subscriptionB64ID = b64ID), item)
+						break
 
 			menu.AppendSeparator()
 
@@ -874,6 +891,11 @@ class AppFrame(wx.Frame):
 
 		import subprocess
 		subprocess.call(["open", "-R", path])
+
+
+	def updateAllFonts(self, evt, publisherB64ID, subscriptionB64ID):
+		pass
+		# TODO
 
 
 	def reloadPublisher(self, evt, b64ID):

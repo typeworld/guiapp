@@ -253,15 +253,21 @@ input[type=radio],input[type=checkbox] {
 	float: left;
 }
 
-.sidebar .badge {
+
+.sidebar .badges {
 	position: relative;
+	border-radius: 5px;
+	float: right;
+	overflow: hidden;
+/*	border: 1px solid white;
+
+*/}
+
+.sidebar .badge {
 	padding: 3px;
 	padding-left: 6px;
 	padding-right: 6px;
-	border-radius: 5px;
 	float: right;
-
-/*	display: none;*/
 }
 
 .sidebar .reloadAnimation {
@@ -290,6 +296,11 @@ input[type=radio],input[type=checkbox] {
 .sidebar .publisher .badge.installed {
 	color: black;
 	background-color: #666;
+}
+
+.sidebar .publisher .badge.outdated {
+	color: black;
+	background-color: #EC7029;
 }
 
 .sidebar #bottom {
@@ -590,7 +601,7 @@ input[type=radio],input[type=checkbox] {
 */}
 
 .label.installedVersion.olderVersion {
-	background-color: #F7AE22;
+	background-color: #EC7029;
 	color: white;
 }
 

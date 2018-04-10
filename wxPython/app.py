@@ -599,7 +599,9 @@ class AppFrame(wx.Frame):
 			subscription = publisher.subscription(subscriptionURL)
 
 			self.installFont(b64publisherURL, b64subscriptionURL, b64fontID, version)
-			self.setPublisherBadge(b64publisherURL, subscription.parent.amountInstalledFonts())
+			self.setPublisherInstalledFontBadge(b64publisherURL, subscription.parent.amountInstalledFonts())
+			self.setPublisherOutdatedFontBadge(b64publisherURL, subscription.parent.amountOutdatedFonts())
+			self.setBadges()
 
 		self.setPublisherHTML(b64publisherURL)
 
@@ -615,7 +617,9 @@ class AppFrame(wx.Frame):
 			subscription = publisher.subscription(subscriptionURL)
 
 			self.removeFont(b64publisherURL, b64subscriptionURL, b64fontID)
-			self.setPublisherBadge(b64publisherURL, subscription.parent.amountInstalledFonts())
+			self.setPublisherInstalledFontBadge(b64publisherURL, subscription.parent.amountInstalledFonts())
+			self.setPublisherOutdatedFontBadge(b64publisherURL, subscription.parent.amountOutdatedFonts())
+			self.setBadges()
 
 		self.setPublisherHTML(b64publisherURL)
 
@@ -686,7 +690,7 @@ class AppFrame(wx.Frame):
 		if success:
 
 			pass
-			# self.setPublisherBadge(self.b64encode(subscription.parent.canonicalURL), subscription.parent.amountInstalledFonts())
+			# self.setPublisherInstalledFontBadge(self.b64encode(subscription.parent.canonicalURL), subscription.parent.amountInstalledFonts())
 			# self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
 
 		else:
@@ -1011,6 +1015,7 @@ class AppFrame(wx.Frame):
 		for subscription in publisher.subscriptions():
 
 			amountInstalledFonts = subscription.amountInstalledFonts()
+			amountOutdatedFonts = subscription.amountOutdatedFonts()
 			selected = subscription == publisher.currentSubscription()
 
 			string = []
@@ -1022,7 +1027,10 @@ class AppFrame(wx.Frame):
 			string.append('<div class="reloadAnimation" style="display: none;">')
 			string.append(u'↺')
 			string.append('</div>')
-			string.append('<div class="badges">')
+			string.append('<div class="badges clear">')
+			string.append('<div class="badge outdated" style="display: %s;">' % ('block' if amountOutdatedFonts else 'none'))
+			string.append('%s' % amountOutdatedFonts)
+			string.append('</div>')
 			string.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
 			string.append('%s' % amountInstalledFonts)
 			string.append('</div>')
@@ -1358,6 +1366,7 @@ $( document ).ready(function() {
 					direction = 'ltr'
 
 				installedFonts = publisher.amountInstalledFonts()
+				outdatedFonts = publisher.amountOutdatedFonts()
 				html.append(u'''
 <a href="x-python://self.setPublisherHTML(____%s____)">
 	<div id="%s" class="contextmenu publisher clear" lang="%s" dir="%s">
@@ -1367,13 +1376,16 @@ $( document ).ready(function() {
 		<div class="reloadAnimation" style="display: none;">
 		↺
 		</div>
-		<div class="badges">
+		<div class="badges clear">
+			<div class="badge outdated" style="display: %s;">
+			%s
+			</div>
 			<div class="badge installed" style="display: %s;">
 			%s
 			</div>
 		</div>
 	</div>
-</a>''' % (b64ID, b64ID, language, direction, name, '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px; width:16px; height:16px;">' if publisher.get('type') == 'GitHub' else '', 'block' if installedFonts else 'none', installedFonts or ''))
+</a>''' % (b64ID, b64ID, language, direction, name, '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px; width:16px; height:16px;">' if publisher.get('type') == 'GitHub' else '', 'block' if outdatedFonts else 'none', outdatedFonts or '', 'block' if installedFonts else 'none', installedFonts or ''))
 
 
 		html.append('''<script>
@@ -1423,6 +1435,7 @@ $( document ).ready(function() {
 		if self.client.preferences.get('currentPublisher'):
 			self.html.RunScript('$("#welcome").hide();')
 			self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
+		self.setBadges()
 
 
 
@@ -1471,15 +1484,26 @@ $( document ).ready(function() {
 				self._locale = [self.systemLocale(), 'en']
 		return self._locale
 
-	def setPublisherBadge(self, b64ID, string):
+	def setBadges(self):
+		amount = 0
+		for publisher in self.client.publishers():
+			amount += publisher.amountOutdatedFonts()
+		if amount > 0:
+			self.setBadgeLabel(str(amount))
+		else:
+			self.setBadgeLabel('')
+
+	def setPublisherInstalledFontBadge(self, b64ID, string):
 		if string:
 			self.html.RunScript('$("#sidebar #%s .badge.installed").show(); $("#sidebar #%s .badge.installed").html("%s");' % (b64ID, b64ID, string))
 		else:
 			self.html.RunScript('$("#sidebar #%s .badge.installed").hide();' % b64ID)
-		# if string:
-		# 	self.html.RunScript('$("#sidebar #%s .badge.installed").fadeOut(200, function() { $("#sidebar #%s .badge.installed").html("%s"); $("#sidebar #%s .badge.installed").fadeIn(200); });' % (b64ID, b64ID, string, b64ID))
-		# else:
-		# 	self.html.RunScript('$("#sidebar #%s .badge.installed").fadeOut(200);' % b64ID)
+
+	def setPublisherOutdatedFontBadge(self, b64ID, string):
+		if string:
+			self.html.RunScript('$("#sidebar #%s .badge.outdated").show(); $("#sidebar #%s .badge.outdated").html("%s");' % (b64ID, b64ID, string))
+		else:
+			self.html.RunScript('$("#sidebar #%s .badge.outdated").hide();' % b64ID)
 
 	def debug(self, string):
 		print string

@@ -556,7 +556,7 @@ class AppFrame(wx.Frame):
 
 		for font in family.fonts():
 			if font.setName.getText(self.locale) == setName and font.format == formatName:
-				if not subscription.installedFontVersion(font.uniqueID):
+				if not font.installedVersion():
 					jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
 
 		call = 'installFonts(Array(' + ','.join(jsFonts) + '), true);'
@@ -580,7 +580,7 @@ class AppFrame(wx.Frame):
 
 		for font in family.fonts():
 			if font.setName.getText(self.locale) == setName and font.format == formatName:
-				if subscription.installedFontVersion(font.uniqueID):
+				if font.installedVersion():
 					jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
 
 		call = 'removeFonts(Array(' + ','.join(jsFonts) + '), true);'
@@ -765,7 +765,7 @@ class AppFrame(wx.Frame):
 								if font.uniqueID == fontID:
 
 
-									if subscription.installedFontVersion(fontID):
+									if font.installedVersion():
 										item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Show in Finder)'))
 										menu.Append(item)
 										menu.Bind(wx.EVT_MENU, partial(self.showFontInFinder, subscription = subscription, fontID = fontID), item)
@@ -776,7 +776,7 @@ class AppFrame(wx.Frame):
 
 									for version in font.getSortedVersions():
 
-										if subscription.installedFontVersion(fontID) == version.number:
+										if font.installedVersion() == version.number:
 											installVersionsSubmenu = subMenu.Append(wx.NewId(), str(version.number), "", wx.ITEM_RADIO)
 										else:
 											installVersionsSubmenu = subMenu.Append(wx.NewId(), str(version.number))
@@ -1145,7 +1145,7 @@ $( document ).ready(function() {
 						for font in family.fonts():
 							if font.setName.getText(self.locale()) == setName and font.format == formatName:
 								fonts.append(font)
-								if subscription.installedFontVersion(font.uniqueID):
+								if font.installedVersion():
 									amountInstalled += 1
 
 						completeSetName = ''
@@ -1200,7 +1200,7 @@ $( document ).ready(function() {
 								html.append('<span class="label var">OTVar</span>')
 							html.append('</div>') # .left
 							html.append('<div class="left">')
-							installedVersion = subscription.installedFontVersion(font.uniqueID)
+							installedVersion = font.installedVersion()
 							if installedVersion:
 								html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getSortedVersions()[-1].number else 'olderVersion', installedVersion))
 							else:

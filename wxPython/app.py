@@ -899,8 +899,40 @@ class AppFrame(wx.Frame):
 
 
 	def updateAllFonts(self, evt, publisherB64ID, subscriptionB64ID):
-		pass
-		# TODO
+
+		fonts = []
+
+		if publisherB64ID:
+			publisher = self.client.publisher(self.b64decode(publisherB64ID))
+			for subscription in publisher.subscriptions():
+				subscriptionB64ID = self.b64encode(subscription.url)
+				for foundry in subscription.foundries():
+					for family in foundry.families():
+						for font in family.fonts():
+							if font.isOutdated():
+								fonts.append("Array('%s', '%s', '%s', '%s')" % (publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+
+		elif subscriptionB64ID:
+			
+			for publisher in self.client.publishers():
+				for subscription in publisher.subscriptions():
+					if subscription.url == self.b64decode(subscriptionB64ID):
+						publisherB64ID = self.b64encode(publisher.canonicalURL)
+						break
+
+			for foundry in subscription.foundries():
+				for family in foundry.families():
+					for font in family.fonts():
+						if font.isOutdated():
+							fonts.append("Array('%s', '%s', '%s', '%s')" % (publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+
+		if fonts:
+			call = 'removeFonts(Array(' + ','.join(fonts) + '), true);'
+			self.html.RunScript(call)
+			call = 'installFonts(Array(' + ','.join(fonts) + '), true);'
+			self.html.RunScript(call)
+
+
 
 
 	def reloadPublisher(self, evt, b64ID):

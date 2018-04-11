@@ -711,27 +711,30 @@ class AppFrame(wx.Frame):
 
 		if 'contextmenu publisher' in target:
 
+			for publisher in self.client.publishers():
+				if publisher.canonicalURL == self.b64decode(b64ID):
+					break
+
 			menu = wx.Menu()
 
 			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update All Subscriptions)'))
 			menu.Append(item)
 			menu.Bind(wx.EVT_MENU, partial(self.reloadPublisherJavaScript, b64ID = b64ID), item)
 
-			for publisher in self.client.publishers():
-				if publisher.canonicalURL == self.b64decode(b64ID):
-					if publisher.amountOutdatedFonts():
-						item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update All Fonts)'))
-						menu.Append(item)
-						menu.Bind(wx.EVT_MENU, partial(self.updateAllFonts, publisherB64ID = b64ID, subscriptionB64ID = None), item)
-					break
+			if publisher.amountOutdatedFonts():
+				item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update All Fonts)'))
+				menu.Append(item)
+				menu.Bind(wx.EVT_MENU, partial(self.updateAllFonts, publisherB64ID = b64ID, subscriptionB64ID = None), item)
+
 
 			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Show in Finder)'))
 			menu.Append(item)
 			menu.Bind(wx.EVT_MENU, partial(self.showPublisherInFinder, b64ID = b64ID), item)
 
-			item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Preferences)'))
-			menu.Append(item)
-			menu.Bind(wx.EVT_MENU, partial(self.showPublisherPreferences, b64ID = b64ID), item)
+			if publisher.get('type') == 'GitHub':
+				item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Preferences)'))
+				menu.Append(item)
+				menu.Bind(wx.EVT_MENU, partial(self.showPublisherPreferences, b64ID = b64ID), item)
 
 			menu.AppendSeparator()
 
@@ -833,12 +836,14 @@ class AppFrame(wx.Frame):
 
 				html = []
 
-				# Rate limits
-				limits, responses = publisher.readGitHubResponse('https://api.github.com/rate_limit')
-				limits = json.loads(limits)
 
 				html.append('<h2>%s (%s)</h2>' % (publisher.name(self.locale())[0], publisher.get('type')))
 				if publisher.get('type') == 'GitHub':
+
+					# Rate limits
+					limits, responses = publisher.readGitHubResponse('https://api.github.com/rate_limit')
+					limits = json.loads(limits)
+
 					html.append('<p>')
 					html.append('#(Username)<br />')
 					html.append('<input type="text" id="username" value="%s">' % (publisher.get('username') or ''))

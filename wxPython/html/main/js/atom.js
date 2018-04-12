@@ -156,9 +156,9 @@ $(document).ready(function() {
 
 	factor = 1.0;
 
-	e = new Ellipse(ctx, 1, 2.5 / factor, '#8D6822', '#F8B334'); // yellow
-	f = new Ellipse(ctx, 2, 3 / factor, '#5B7712', '#97BF0D'); // green
-	g = new Ellipse(ctx, 3, 4 / factor, '#006089', '#009EE0'); // blue
+	e = new Ellipse(ctx, 1, 2.5 / factor, '#555', '#F8B334'); // yellow
+	f = new Ellipse(ctx, 2, 3 / factor, '#555', '#97BF0D'); // green
+	g = new Ellipse(ctx, 3, 4 / factor, '#555', '#009EE0'); // blue
 
 
 	ctx.scale(150.0 / 500.0, 150.0 / 500.0);

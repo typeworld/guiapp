@@ -22,6 +22,20 @@ APPNAME = 'Type.World'
 APPVERSION = '0.1.3'
 
 
+# from AppKit import NSDockTilePlugIn
+
+
+
+# class AppBadge(NSDockTilePlugIn):
+
+# 	def setDockTile_(self, dockTile):
+
+# 		if dockTile:
+# 			dockTile.setBadgeLabel_('X')
+
+
+
+
 if not '.app/Contents' in os.path.dirname(__file__):
 	DESIGNTIME = True
 else:
@@ -593,14 +607,13 @@ class AppFrame(wx.Frame):
 
 			publisherURL = self.b64decode(b64publisherURL)
 			subscriptionURL = self.b64decode(b64subscriptionURL)
-			fontID = self.b64decode(b64fontID)
+#			fontID = self.b64decode(b64fontID)
 
 			publisher = self.client.publisher(publisherURL)
-			subscription = publisher.subscription(subscriptionURL)
+#			subscription = publisher.subscription(subscriptionURL)
 
 			self.installFont(b64publisherURL, b64subscriptionURL, b64fontID, version)
-			self.setPublisherInstalledFontBadge(b64publisherURL, subscription.parent.amountInstalledFonts())
-			self.setPublisherOutdatedFontBadge(b64publisherURL, subscription.parent.amountOutdatedFonts())
+			self.setSideBarHTML()
 			self.setBadges()
 
 		self.setPublisherHTML(b64publisherURL)
@@ -611,14 +624,13 @@ class AppFrame(wx.Frame):
 
 			publisherURL = self.b64decode(b64publisherURL)
 			subscriptionURL = self.b64decode(b64subscriptionURL)
-			fontID = self.b64decode(b64fontID)
+#			fontID = self.b64decode(b64fontID)
 
 			publisher = self.client.publisher(publisherURL)
-			subscription = publisher.subscription(subscriptionURL)
+#			subscription = publisher.subscription(subscriptionURL)
 
 			self.removeFont(b64publisherURL, b64subscriptionURL, b64fontID)
-			self.setPublisherInstalledFontBadge(b64publisherURL, subscription.parent.amountInstalledFonts())
-			self.setPublisherOutdatedFontBadge(b64publisherURL, subscription.parent.amountOutdatedFonts())
+			self.setSideBarHTML()
 			self.setBadges()
 
 		self.setPublisherHTML(b64publisherURL)
@@ -638,8 +650,8 @@ class AppFrame(wx.Frame):
 
 		publisher = self.client.publisher(publisherURL)
 		subscription = publisher.subscription(subscriptionURL)
-		api = subscription.latestVersion()
-		b64ID = self.b64encode(publisherURL)
+#		api = subscription.latestVersion()
+#		b64ID = self.b64encode(publisherURL)
 
 		# Check if font is already installed
 		if subscription.installedFontVersion(fontID):
@@ -950,7 +962,6 @@ class AppFrame(wx.Frame):
 
 		if success:
 
-			self.setSubscriptionsHTML(b64ID)
 			self.setPublisherHTML(b64ID)
 			
 		else:
@@ -1013,7 +1024,6 @@ class AppFrame(wx.Frame):
 
 		if success:
 
-			self.setSubscriptionsHTML(self.b64encode(publisher.canonicalURL))
 			self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
 			
 		else:
@@ -1063,79 +1073,6 @@ class AppFrame(wx.Frame):
 		self.setPublisherHTML(publisherB64ID)
 
 
-	def getSubscriptionsHTML(self, b64ID):
-		ID = self.b64decode(b64ID)
-
-#		print 'setSubscriptionsHTML', ID
-
-		html = []
-		repos = []
-		publisher = self.client.publisher(ID)
-		for subscription in publisher.subscriptions():
-
-			amountInstalledFonts = subscription.amountInstalledFonts()
-			amountOutdatedFonts = subscription.amountOutdatedFonts()
-			selected = subscription == publisher.currentSubscription()
-
-			string = []
-			string.append('<a href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
-			string.append('<div class="contextmenu subscription publisher clear %s" lang="%s" dir="%s" id="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url)))
-			string.append('<div class="name">')
-			string.append(subscription.name(locale=self.locale()))
-			string.append('</div>')
-			string.append('<div class="reloadAnimation" style="display: none;">')
-			string.append(u'↺')
-			string.append('</div>')
-			string.append('<div class="badges clear">')
-			string.append('<div class="badge outdated" style="display: %s;">' % ('block' if amountOutdatedFonts else 'none'))
-			string.append('%s' % amountOutdatedFonts)
-			string.append('</div>')
-			string.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
-			string.append('%s' % amountInstalledFonts)
-			string.append('</div>')
-			string.append('</div>')
-			string.append('</div>')
-			string.append('</a>')
-
-			html.append(''.join(string))
-
-
-			html.append('''<script>
-
-$( document ).ready(function() {
-
-	$("#subscriptions .publisher").hover(function() {
-		$( this ).addClass( "hover" );
-	  }, function() {
-		$( this ).removeClass( "hover" );
-	  }
-	);
-
-
-});
-
-
-</script>''')
-
-
-		html.append(', '.join(repos))
-
-
-		# Print HTML
-		html = ''.join(html)
-		html = html.replace('"', '\'')
-		html = html.replace('\n', '')
-		html = self.localizeString(html)
-
-		return html
-
-	def setSubscriptionsHTML(self, b64ID):
-
-		html = self.getSubscriptionsHTML(b64ID)
-
-		js = '$("#subscriptions #content").html("' + html + '");'
-		self.html.RunScript(js)
-
 
 	def setPublisherHTML(self, b64ID):
 
@@ -1150,7 +1087,7 @@ $( document ).ready(function() {
 
 		publisher = self.client.publisher(ID)
 		subscription = publisher.currentSubscription()
-		api = subscription.latestVersion()
+#		api = subscription.latestVersion()
 #		print api
 
 
@@ -1389,7 +1326,6 @@ $( document ).ready(function() {
 		# Set Sidebar Focus
 		self.html.RunScript("$('#sidebar .publisher').removeClass('selected');")
 		self.html.RunScript("$('#sidebar #%s').addClass('selected');" % b64ID)
-		self.setSubscriptionsHTML(b64ID)
 		self.html.RunScript("showMain();")
 
 
@@ -1426,30 +1362,87 @@ $( document ).ready(function() {
 
 				installedFonts = publisher.amountInstalledFonts()
 				outdatedFonts = publisher.amountOutdatedFonts()
-				html.append(u'''
-<a href="x-python://self.setPublisherHTML(____%s____)">
-	<div id="%s" class="contextmenu publisher clear" lang="%s" dir="%s">
-		<div class="name">
-		%s %s
-		</div>
-		<div class="reloadAnimation" style="display: none;">
-		↺
-		</div>
-		<div class="badges clear">
-			<div class="badge outdated" style="display: %s;">
-			%s
-			</div>
-			<div class="badge installed" style="display: %s;">
-			%s
-			</div>
-		</div>
-	</div>
-</a>''' % (b64ID, b64ID, language, direction, name, '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px; width:16px; height:16px;">' if publisher.get('type') == 'GitHub' else '', 'block' if outdatedFonts else 'none', outdatedFonts or '', 'block' if installedFonts else 'none', installedFonts or ''))
+
+				html.append('<div class="publisherWrapper">')
+				html.append(u'<a class="publisher" href="x-python://self.setPublisherHTML(____%s____)">' % (b64ID))
+				html.append(u'<div id="%s" class="contextmenu publisher line clear" lang="%s" dir="%s">' % (b64ID, language, direction))
+				html.append(u'<div class="name">')
+				html.append(u'%s %s' % (name, '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px; width:16px; height:16px;">' if publisher.get('type') == 'GitHub' else ''))
+				html.append(u'</div>')
+				html.append(u'<div class="reloadAnimation" style="display: none;">')
+				html.append(u'↺')
+				html.append(u'</div>')
+				html.append(u'<div class="badges clear">')
+				html.append(u'<div class="badge outdated" style="display: %s;">' % ('block' if outdatedFonts else 'none'))
+				html.append(u'%s' % (outdatedFonts or ''))
+				html.append(u'</div>')
+				html.append(u'<div class="badge installed" style="display: %s;">' % ('block' if installedFonts else 'none'))
+				html.append(u'%s' % (installedFonts or ''))
+				html.append(u'</div>')
+				html.append(u'</div>')
+				html.append(u'</div>') # publisher
+				html.append(u'</a>')
+
+				html.append('<div class="subscriptions" style="display: %s;">' % ('block' if self.client.preferences.get('currentPublisher') == publisher.canonicalURL else 'none'))
+				if len(publisher.subscriptions()) > 1:
+					html.append('<div class="margin top"></div>')
+					for subscription in publisher.subscriptions():
+
+						amountInstalledFonts = subscription.amountInstalledFonts()
+						amountOutdatedFonts = subscription.amountOutdatedFonts()
+						selected = subscription == publisher.currentSubscription()
+
+						html.append('<div>')
+						html.append('<a class="subscription" href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
+						html.append('<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url)))
+						html.append('<div class="name">')
+						html.append(subscription.name(locale=self.locale()))
+						html.append('</div>')
+						html.append('<div class="reloadAnimation" style="display: none;">')
+						html.append(u'↺')
+						html.append('</div>')
+						html.append('<div class="badges clear">')
+						html.append('<div class="badge outdated" style="display: %s;">' % ('block' if amountOutdatedFonts else 'none'))
+						html.append('%s' % amountOutdatedFonts)
+						html.append('</div>')
+						html.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
+						html.append('%s' % amountInstalledFonts)
+						html.append('</div>')
+						html.append('</div>')
+						html.append('</div>') # subscription
+						html.append('</a>')
+						html.append('</div>')
+					html.append('<div class="margin bottom"></div>')
+				html.append('</div>')
+
+				html.append(u'</div>') # .publisherWrapper
+
 
 
 		html.append('''<script>
 
+
+	$("#sidebar a.publisher").click(function() {
+
+		$("#sidebar div.subscriptions").slideUp();
+		$(this).parent().children("div.subscriptions").slideDown();
+
+		$("#sidebar div.publisher.line").removeClass('selected');
+		$(this).parent().children("div.line").addClass('selected');
+
+	});
+
+	$("#sidebar a.subscription").click(function() {
+		$("#sidebar div.subscription.line").removeClass('selected');
+		$(this).parent().find("div.line").addClass('selected');
+		debug('div.subscription.line');
+
+	});
+
 $( document ).ready(function() {
+
+
+
 
 	$("#sidebar .publisher").hover(function() {
 		$( this ).addClass( "hover" );
@@ -1552,17 +1545,17 @@ $( document ).ready(function() {
 		else:
 			self.setBadgeLabel('')
 
-	def setPublisherInstalledFontBadge(self, b64ID, string):
-		if string:
-			self.html.RunScript('$("#sidebar #%s .badge.installed").show(); $("#sidebar #%s .badge.installed").html("%s");' % (b64ID, b64ID, string))
-		else:
-			self.html.RunScript('$("#sidebar #%s .badge.installed").hide();' % b64ID)
+	# def setPublisherInstalledFontBadge(self, b64ID, string):
+	# 	if string:
+	# 		self.html.RunScript('$("#sidebar #%s .badge.installed").show(); $("#sidebar #%s .badge.installed").html("%s");' % (b64ID, b64ID, string))
+	# 	else:
+	# 		self.html.RunScript('$("#sidebar #%s .badge.installed").hide();' % b64ID)
 
-	def setPublisherOutdatedFontBadge(self, b64ID, string):
-		if string:
-			self.html.RunScript('$("#sidebar #%s .badge.outdated").show(); $("#sidebar #%s .badge.outdated").html("%s");' % (b64ID, b64ID, string))
-		else:
-			self.html.RunScript('$("#sidebar #%s .badge.outdated").hide();' % b64ID)
+	# def setPublisherOutdatedFontBadge(self, b64ID, string):
+	# 	if string:
+	# 		self.html.RunScript('$("#sidebar #%s .badge.outdated").show(); $("#sidebar #%s .badge.outdated").html("%s");' % (b64ID, b64ID, string))
+	# 	else:
+	# 		self.html.RunScript('$("#sidebar #%s .badge.outdated").hide();' % b64ID)
 
 	def debug(self, string):
 		print string

@@ -203,7 +203,7 @@ input[type=radio],input[type=checkbox] {
 	position:absolute;
     background-color: #333;
     color: #DDD;
-    width: 200px;
+    width: 300px;
 /*    height: 100%;
 */
     top: 0;
@@ -229,30 +229,56 @@ input[type=radio],input[type=checkbox] {
 
 
 
-.sidebar .publisher {
+.sidebar .line {
     padding: 13px;
     padding-top: 4px;
     padding-bottom: 4px;
 
 }
 
-.sidebar .publisher.hover {
-	background-color: rgba(0, 0, 0, .1);
+.sidebar .line.hover {
+	background-color: rgba(0, 0, 0, .15);
 }
 
-.sidebar .publisher.selected {
-	background-color: black;
+.sidebar .publisher.line.selected {
+	background-color: rgba(0, 0, 0, 1);
 }
 
-.sidebar .publisher .name {
+.sidebar .subscription.line.selected {
+	background-color: rgba(0, 0, 0, .2);
+}
+
+.sidebar .line .name {
 	position: relative;
 	padding: 3px;
 	padding-left: 0px;
 	padding-right: 0px;
-
 	float: left;
 }
 
+.sidebar .subscription.line .name {
+	color: #999;
+}
+
+
+.sidebar .publisherWrapper .subscriptions {
+	background-color: rgba(0, 0, 0, .1);
+}
+
+.sidebar .publisherWrapper .subscriptions div.margin {
+	height: 10px;
+	z-index: 100;
+}
+
+.sidebar .publisherWrapper .subscriptions div.margin.top {
+	background: linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, 0));
+	margin-bottom: -10px;
+}
+
+.sidebar .publisherWrapper .subscriptions div.margin.bottom {
+	background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .3));
+	margin-top: -10px;
+}
 
 .sidebar .badges {
 	position: relative;
@@ -277,30 +303,40 @@ input[type=radio],input[type=checkbox] {
 /*	display: none;*/
 }
 
-.sidebar .publisher[dir="rtl"] .name {
+.sidebar .line[dir="rtl"] .name {
 	float: right;
 	text-align: right;
  }
 
-.sidebar .publisher[dir="rtl"] .badge {
+.sidebar .line[dir="rtl"] .badge {
 	float: left;
  }
 
-.sidebar .publisher[dir="rtl"] .reloadAnimation {
+.sidebar .line[dir="rtl"] .reloadAnimation {
 	float: left;
 
 /*	display: none;*/
 }
 
 
-.sidebar .publisher .badge.installed {
+.sidebar .line .badge.installed {
 	color: black;
 	background-color: #666;
 }
 
-.sidebar .publisher .badge.outdated {
+.sidebar .subscription.line .badge.installed {
+	color: black;
+	background-color: #444;
+}
+
+.sidebar .line .badge.outdated {
 	color: black;
 	background-color: #EC7029;
+}
+
+.sidebar .subscription.line .badge.outdated {
+	color: black;
+	background-color: #8C5337;
 }
 
 .sidebar #bottom {
@@ -315,7 +351,7 @@ input[type=radio],input[type=checkbox] {
 	background-color: #444;
 }
 
-#subscriptions.sidebar .publisher.selected {
+#subscriptions.sidebar .line.selected {
 	background-color: #222;
 }
 
@@ -327,7 +363,7 @@ input[type=radio],input[type=checkbox] {
 	/*display: none;*/
 	position:absolute;
 
-	left: 400px;
+	left: 300px;
 	top: 0;
 	bottom: 0;
 	right: 0px;
@@ -729,7 +765,7 @@ input[type=radio],input[type=checkbox] {
 */
 	position: absolute;
 	bottom: 50px;
-	left: 125px;
+	left: 75px;
 
 /*	background-color: #222;*/
 
@@ -743,7 +779,7 @@ input[type=radio],input[type=checkbox] {
 
 	position: absolute;
 	bottom: 50px;
-	left: 125px;
+	left: 75px;
 
 	z-index: 15;
 }
@@ -755,7 +791,7 @@ input[type=radio],input[type=checkbox] {
 
 	position: absolute;
 	bottom: 55px;
-	left: 125px;
+	left: 75px;
 
 	text-align: center;
 	font-size: 36pt;

@@ -160,7 +160,6 @@ function unregisterKeypress(key) {
 
 $( document ).ready(function() {
 
-
 	// Automatically reload subscriptions
 	reloadSubscriptions = function(immediately) {
 		if (immediately) {
@@ -176,17 +175,10 @@ $( document ).ready(function() {
 	};
 	setTimeout(function () { reloadSubscriptions(true); }, 2000); // First load after 2 seconds
 
-
 	$(document).bind("contextmenu",function(evt){
 		contextmenu(evt);
 		evt.preventDefault();
     	return false;
-	});
-
-	$("#sidebar .publisher").click(function() {
-		$("#sidebar .publisher").removeClass('selected');
-		$(this).addClass('selected');
-		python('self.setPublisherHTML(\'' + $(this).attr('id') + '\')'); 
 	});
 
 

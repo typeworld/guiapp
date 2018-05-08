@@ -11,6 +11,6 @@ json = GetHTTP('https://type.world/downloadLocalization?appID=world.type.guiapp'
 WriteToFile(os.path.join(os.path.dirname(__file__), 'locales', 'localization.py'), ("localization = '%s'" % json))
 
 
-print json
+print(json)
 
-print 'Updated localization'
+print('Updated localization')

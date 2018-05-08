@@ -11,7 +11,7 @@ from ynlib.system import Execute
 version = Execute('cat ~/Code/TypeWorldApp/build/version')
 
 # Delete files that are older than half a year, and delete appcast.xml
-print 'Deleting old builds...'
+print('Deleting old builds...')
 Execute('rm ~/Code/TypeWorldApp/dmg/appcast.xml')
 Execute('find ~/Code/TypeWorldApp/dmg/* -type f -mtime +30 -delete')
 
@@ -27,26 +27,26 @@ for file in glob.glob("*"):
 	version = file.replace('Type.World.', '').replace('.app', '')
 	versions.append(version)
 # Sort descending
-versions.sort(key=lambda s: map(int, s.split('.')), reverse=True)
+versions.sort(key=lambda s: list(map(int, s.split('.'))), reverse=True)
 for version in versions[1:DELTASFORVERSIONS+1]:
 	
 	deltaPath = os.path.expanduser("~/Code/TypeWorldApp/dmg/TypeWorldApp.%s-%s.delta" % (versions[0], version))
 	if not os.path.exists(deltaPath):
-		print 'Create delta between %s and %s' % (versions[0], version)
+		print('Create delta between %s and %s' % (versions[0], version))
 		Execute('~/Code/Sparkle/bin/BinaryDelta create ~/Code/TypeWorldApp/apps/Type.World.%s.app ~/Code/TypeWorldApp/apps/Type.World.%s.app %s' % (version, versions[0], deltaPath))
 
 # Sign all files that are unsigned (don't have an equivalent .dsa in ../dsa)
-print 'Signing new files...'
+print('Signing new files...')
 os.chdir(os.path.expanduser("~/Code/TypeWorldApp/dmg"))
 for file in glob.glob("*"):
 	if not 'appcast.xml' in file:
 
 		# no signature
 		if not os.path.exists(os.path.expanduser("~/Code/TypeWorldApp/dsa/" + file + '.dsa')):
-			print 'Signing', file
+			print('Signing', file)
 			dsa = Execute('~/Code/Sparkle/bin/sign_update ~/Code/TypeWorldApp/dmg/%s ~/Code/dsa_priv.pem' % file)
 			dsa = dsa.replace(' ', '').replace('\n', '')
-			print dsa
+			print(dsa)
 			WriteToFile(os.path.expanduser("~/Code/TypeWorldApp/dsa/" + file + '.dsa'), dsa)
 
 

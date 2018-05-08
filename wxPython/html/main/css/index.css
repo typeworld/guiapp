@@ -248,6 +248,17 @@ input[type=radio],input[type=checkbox] {
 	background-color: rgba(0, 0, 0, .2);
 }
 
+.sidebar .publisher.line.single.selected {
+	border-left: 3px solid #259CD3;
+	padding-left: 10px;
+}
+
+.sidebar .subscription.line.selected {
+	border-left: 3px solid #259CD3;
+	padding-left: 10px;
+}
+
+
 .sidebar .line .name {
 	position: relative;
 	padding: 3px;
@@ -258,6 +269,7 @@ input[type=radio],input[type=checkbox] {
 
 .sidebar .subscription.line .name {
 	color: #999;
+	padding-left: 9px;
 }
 
 
@@ -268,6 +280,7 @@ input[type=radio],input[type=checkbox] {
 .sidebar .publisherWrapper .subscriptions div.margin {
 	height: 10px;
 	z-index: 100;
+	pointer-events: none;
 }
 
 .sidebar .publisherWrapper .subscriptions div.margin.top {
@@ -693,7 +706,7 @@ input[type=radio],input[type=checkbox] {
 	/*display: none;*/
 	position:absolute;
 
-	left: 200px;
+	left: 300px;
 	top: 0;
 	bottom: 0;
 	right: 0px;

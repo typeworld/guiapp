@@ -1,12 +1,6 @@
 from setuptools import setup
 import os
 
-# A custom plist for letting it associate with all files.
-Plist = dict(CFBundleDocumentTypes= [dict(CFBundleTypeExtensions=["*"],
-                                          #CFBundleTypeName="kUTTypeText", # this should be text files, but I'm not sure the details.
-                                          CFBundleTypeRole="Editor"),
-                                    ]
-             )
 
 version = '0.1.3'
 
@@ -14,11 +8,10 @@ APP = ['app.py']
 DATA_FILES = []
 OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
            'iconfile': 'icon/tw.icns',
-           'plist': Plist,
            'includes': ['ynlib', 'wx', 'os', 'webbrowser', 'urllib', 'base64', 'threading', 'keyring'],
            'frameworks': ['Python.framework'],
-           'resources': ['html', 'locales', '/Users/yanone/Code/dsa_pub.pem'],
-           'packages': ['./AppBadge.docktileplugin', 'certifi'],
+            'resources': ['html', 'locales', '/Users/yanone/Code/dsa_pub.pem'], #, 'appbadge.docktileplugin'
+           'packages': ['certifi'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {
@@ -28,7 +21,8 @@ OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into 
                 'CFBundleIdentifier':'world.type.guiapp', #optional
                 'NSHumanReadableCopyright': '@ Yanone 2018', #optional
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default
-                'NSDockTilePlugIn': '@executable_path/../Resources/lib/python2.7/AppBadge.docktileplugin.py',
+#                'NSDockTilePlugIn': '@executable_path/../Resources/lib/python2.7/AppBadge.docktileplugin.py',
+                'NSDockTilePlugIn': 'appbadge.docktileplugin',
                 'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World Font Installation Protocols', 'CFBundleURLSchemes': ['typeworldjson', 'typeworldgithub']}],
 
                 # Sparkle

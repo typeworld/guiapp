@@ -2,7 +2,7 @@
 
 import re, os
 import json
-import localization
+from . import localization
 #content = json.load(open(os.path.join(os.path.dirname(__file__), 'localization.json'), 'r'))
 
 content = json.loads(localization.localization.replace('\n', '\\n'))
@@ -16,22 +16,22 @@ def makeHTML(string, html):
 	return string
 
 def localize(key, languages = ['en'], html = False):
-	u'''\
+	'''\
 	Return localized version of key, if found. Otherwise try English, if found.u
 	'''
 
 	string = None
-	if content.has_key(key):
+	if key in content:
 		for language in languages:
-			if content[key].has_key(language):
+			if language in content[key]:
 				return makeHTML(content[key][language], html)
-			elif content[key].has_key('en'):
+			elif 'en' in content[key]:
 				return makeHTML(content[key]['en'], html)
 
 	return makeHTML(key, html)
 
 def localizeString(source, languages = ['en'], html = False):
-	u'''\
+	'''\
 	Replace all occurrences of $(key) with their localized content
 	'''
 
@@ -42,5 +42,5 @@ def localizeString(source, languages = ['en'], html = False):
 
 
 if __name__ == '__main__':
-	print localizeString('#(Remove X)', ['en'])
+	print((localizeString('#(Remove X)', ['en'])))
 #	print localize('Add', ['de'])

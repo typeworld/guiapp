@@ -69,7 +69,7 @@ class AppFrame(wx.Frame):
 
 
 
-        self.thread = threading.current_thread()
+
 
 
 
@@ -191,7 +191,7 @@ class AppFrame(wx.Frame):
             #w.setTitleVisibility_(0)
             #w.setMovableByWindowBackground_(True)
             # js = '$("#sidebar").css("padding-top", "18px");'
-            # self.javaScript(js)
+            # self.html.RunScript(js)
 
 
         if not DESIGNTIME:
@@ -221,11 +221,6 @@ class AppFrame(wx.Frame):
             NSURL = self.objc_namespace['NSURL']
             self.sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
             self.sparkle.checkForUpdatesInBackground()
-
-
-    def javaScript(self, script):
-        if threading.current_thread() == self.thread:
-            self.html.RunScript(script)
 
 
     def changePreferences(self):
@@ -298,7 +293,7 @@ class AppFrame(wx.Frame):
 
     def onClose(self, event):
         if self.panelVisible:
-            self.javaScript('hidePanel();')
+            self.html.RunScript('hidePanel();')
         else:
             self.Destroy()
 
@@ -371,10 +366,10 @@ class AppFrame(wx.Frame):
             html = html.replace('\n', '')
 #           print html
             js = '$("#about .inner").html("' + html + '");'
-            self.javaScript(js)
+            self.html.RunScript(js)
 
 
-            self.javaScript('showAbout();')
+            self.html.RunScript('showAbout();')
 
         except:
             self.log(traceback.format_exc())
@@ -437,9 +432,9 @@ class AppFrame(wx.Frame):
         html = self.localizeString(html)
 #       print html
         js = '$("#preferences .inner").html("' + html + '");'
-        self.javaScript(js)
+        self.html.RunScript(js)
 
-        self.javaScript('showPreferences();')
+        self.html.RunScript('showPreferences();')
 
 
     def onNavigate(self, evt):
@@ -469,12 +464,12 @@ class AppFrame(wx.Frame):
 
 
     def showAddPublisher(self, evt):
-        self.javaScript('showAddPublisher();')
+        self.html.RunScript('showAddPublisher();')
 
     def addPublisherJavaScript(self, url, username = None, password = None):
 
         self.log('addPublisherJavaScript(%s, %s, %s)' % (url, username, password))
-        self.javaScript('addPublisher("%s", "%s", "%s", "%s");' % (url, username or '', password or '', self.localizeString('#(Loading Subscription)')))
+        self.html.RunScript('addPublisher("%s", "%s", "%s", "%s");' % (url, username or '', password or '', self.localizeString('#(Loading Subscription)')))
 
 
     def addPublisher(self, url, username = None, password = None):
@@ -492,11 +487,11 @@ class AppFrame(wx.Frame):
                 break
         if not known:
             self.errorMessage('Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS))
-            self.javaScript('$("#addSubscriptionFormSubmitButton").show();')
-            self.javaScript('$("#addSubscriptionFormCancelButton").show();')
-            self.javaScript('$("#addSubscriptionFormSubmitAnimation").hide();')
+            self.html.RunScript('$("#addSubscriptionFormSubmitButton").show();')
+            self.html.RunScript('$("#addSubscriptionFormCancelButton").show();')
+            self.html.RunScript('$("#addSubscriptionFormSubmitAnimation").hide();')
 
-            self.javaScript('hideCenterMessage();')
+            self.html.RunScript('hideCenterMessage();')
             return
 
         # remove URI
@@ -510,17 +505,17 @@ class AppFrame(wx.Frame):
 
             self.setSideBarHTML()
             self.setPublisherHTML(b64ID)
-            self.javaScript("hidePanel();")
+            self.html.RunScript("hidePanel();")
 
         else:
 
             self.errorMessage(message)
 
-        self.javaScript('$("#addSubscriptionFormSubmitButton").show();')
-        self.javaScript('$("#addSubscriptionFormCancelButton").show();')
-        self.javaScript('$("#addSubscriptionFormSubmitAnimation").hide();')
+        self.html.RunScript('$("#addSubscriptionFormSubmitButton").show();')
+        self.html.RunScript('$("#addSubscriptionFormCancelButton").show();')
+        self.html.RunScript('$("#addSubscriptionFormSubmitAnimation").hide();')
 
-        self.javaScript('hideCenterMessage();')
+        self.html.RunScript('hideCenterMessage();')
 
 
     def removePublisher(self, evt, b64ID):
@@ -535,7 +530,7 @@ class AppFrame(wx.Frame):
 
             publisher.delete()
             self.setSideBarHTML()
-            self.javaScript("hideMain();")
+            self.html.RunScript("hideMain();")
 
     def removeSubscription(self, evt, b64ID):
 
@@ -556,7 +551,7 @@ class AppFrame(wx.Frame):
                         if publisher.subscription():
                             self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
                         else:
-                            self.javaScript("hideMain();")
+                            self.html.RunScript("hideMain();")
         self.setSideBarHTML()
 
 
@@ -585,7 +580,7 @@ class AppFrame(wx.Frame):
                     jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
 
         call = 'installFonts(Array(' + ','.join(jsFonts) + '), true);'
-        self.javaScript(call)
+        self.html.RunScript(call)
 
 
     def removeAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64setName, formatName):
@@ -609,7 +604,7 @@ class AppFrame(wx.Frame):
                     jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
 
         call = 'removeFonts(Array(' + ','.join(jsFonts) + '), true);'
-        self.javaScript(call)
+        self.html.RunScript(call)
 
 
     def installFonts(self, fonts):
@@ -654,8 +649,8 @@ class AppFrame(wx.Frame):
         subscriptionURL = self.b64decode(b64subscriptionURL)
         fontID = self.b64decode(b64fontID)
 
-        # self.javaScript("$('#%s .installButton').hide();" % b64fontID)
-        # self.javaScript("$('#%s .status').show();" % b64fontID)
+        # self.html.RunScript("$('#%s .installButton').hide();" % b64fontID)
+        # self.html.RunScript("$('#%s .status').show();" % b64fontID)
 
         print(('installFont', publisherURL, subscriptionURL, fontID))
 
@@ -694,8 +689,8 @@ class AppFrame(wx.Frame):
             else:
                 self.errorMessage('Server: %s' % message.getText(self.locale()))
 
-            # self.javaScript("$('#%s .statusButton').hide();" % b64fontID)
-            # self.javaScript("$('#%s .installButton').show();" % b64fontID)
+            # self.html.RunScript("$('#%s .statusButton').hide();" % b64fontID)
+            # self.html.RunScript("$('#%s .installButton').show();" % b64fontID)
 
 
     def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
@@ -723,8 +718,8 @@ class AppFrame(wx.Frame):
             else:
                 self.errorMessage('Server: %s' % message.getText(self.locale()))
 
-            # self.javaScript("$('#%s .statusButton').hide();" % b64fontID)
-            # self.javaScript("$('#%s .removeButton').show();" % b64fontID)
+            # self.html.RunScript("$('#%s .statusButton').hide();" % b64fontID)
+            # self.html.RunScript("$('#%s .removeButton').show();" % b64fontID)
 
 
     def onContextMenu(self, x, y, target, b64ID):
@@ -849,7 +844,7 @@ class AppFrame(wx.Frame):
 
 
     def installFontFromMenu(self, event, subscription, fontID, version):
-        self.javaScript("installFonts(Array(Array('%s', '%s', '%s', '%s')), true);" % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(fontID), version))
+        self.html.RunScript("installFonts(Array(Array('%s', '%s', '%s', '%s')), true);" % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(fontID), version))
 
     def showPublisherPreferences(self, event, b64ID):
 
@@ -889,17 +884,17 @@ class AppFrame(wx.Frame):
                 html = self.localizeString(html)
         #       print html
                 js = '$("#publisherPreferences .inner").html("' + html + '");'
-                self.javaScript(js)
+                self.html.RunScript(js)
 
-                self.javaScript('showPublisherPreferences();')
+                self.html.RunScript('showPublisherPreferences();')
 
     def reloadSubscriptionJavaScript(self, evt, b64ID):
         print(('reloadSubscriptionJavaScript', b64ID))
-        self.javaScript('showCenterMessage("%s", reloadSubscription("%s"));' % (self.localize('Reloading Subscription'), b64ID))
+        self.html.RunScript('showCenterMessage("%s", reloadSubscription("%s"));' % (self.localize('Reloading Subscription'), b64ID))
 
     def reloadPublisherJavaScript(self, evt, b64ID):
         print(('reloadPublisherJavaScript', b64ID))
-        self.javaScript('showCenterMessage("%s", reloadPublisher("%s"));' % (self.localize('Reloading Publisher'), b64ID))
+        self.html.RunScript('showCenterMessage("%s", reloadPublisher("%s"));' % (self.localize('Reloading Publisher'), b64ID))
 
     def showPublisherInFinder(self, evt, b64ID):
         
@@ -951,9 +946,9 @@ class AppFrame(wx.Frame):
 
         if fonts:
             call = 'removeFonts(Array(' + ','.join(fonts) + '), true);'
-            self.javaScript(call)
+            self.html.RunScript(call)
             call = 'installFonts(Array(' + ','.join(fonts) + '), true);'
-            self.javaScript(call)
+            self.html.RunScript(call)
 
 
 
@@ -984,8 +979,8 @@ class AppFrame(wx.Frame):
                 self.errorMessage('Server: %s' % message.getText(self.locale()))
 
 
-        self.javaScript('finishReloadPublisher("%s");' % (b64ID))
-        self.javaScript('hideCenterMessage();')
+        self.html.RunScript('finishReloadPublisher("%s");' % (b64ID))
+        self.html.RunScript('hideCenterMessage();')
 
 
         print('Done')
@@ -1046,8 +1041,8 @@ class AppFrame(wx.Frame):
                 self.errorMessage('Server: %s' % message.getText(self.locale()))
 
 
-        self.javaScript('finishReloadSubscription("%s");' % (b64ID))
-        self.javaScript('hideCenterMessage();')
+        self.html.RunScript('finishReloadSubscription("%s");' % (b64ID))
+        self.html.RunScript('hideCenterMessage();')
 
 
         print('Done')
@@ -1332,12 +1327,12 @@ class AppFrame(wx.Frame):
         html = self.replaceHTML(html)
 #       print html
         js = '$("#main").html("' + html + '");'
-        self.javaScript(js)
+        self.html.RunScript(js)
 
         # Set Sidebar Focus
-        self.javaScript("$('#sidebar .publisher').removeClass('selected');")
-        self.javaScript("$('#sidebar #%s').addClass('selected');" % b64ID)
-        self.javaScript("showMain();")
+        self.html.RunScript("$('#sidebar .publisher').removeClass('selected');")
+        self.html.RunScript("$('#sidebar #%s').addClass('selected');" % b64ID)
+        self.html.RunScript("showMain();")
 
     def b64encode(self, string):
 
@@ -1488,7 +1483,7 @@ $( document ).ready(function() {
         html = self.replaceHTML(html)
 #       print html
         js = '$("#publishers").html("' + html + '");'
-        self.javaScript(js)
+        self.html.RunScript(js)
 
 
 
@@ -1507,7 +1502,7 @@ $( document ).ready(function() {
         self.fullyLoaded = True
 
         if self.client.preferences.get('currentPublisher'):
-            self.javaScript('$("#welcome").hide();')
+            self.html.RunScript('$("#welcome").hide();')
             self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
         self.setBadges()
 
@@ -1569,15 +1564,15 @@ $( document ).ready(function() {
 
     # def setPublisherInstalledFontBadge(self, b64ID, string):
     #   if string:
-    #       self.javaScript('$("#sidebar #%s .badge.installed").show(); $("#sidebar #%s .badge.installed").html("%s");' % (b64ID, b64ID, string))
+    #       self.html.RunScript('$("#sidebar #%s .badge.installed").show(); $("#sidebar #%s .badge.installed").html("%s");' % (b64ID, b64ID, string))
     #   else:
-    #       self.javaScript('$("#sidebar #%s .badge.installed").hide();' % b64ID)
+    #       self.html.RunScript('$("#sidebar #%s .badge.installed").hide();' % b64ID)
 
     # def setPublisherOutdatedFontBadge(self, b64ID, string):
     #   if string:
-    #       self.javaScript('$("#sidebar #%s .badge.outdated").show(); $("#sidebar #%s .badge.outdated").html("%s");' % (b64ID, b64ID, string))
+    #       self.html.RunScript('$("#sidebar #%s .badge.outdated").show(); $("#sidebar #%s .badge.outdated").html("%s");' % (b64ID, b64ID, string))
     #   else:
-    #       self.javaScript('$("#sidebar #%s .badge.outdated").hide();' % b64ID)
+    #       self.html.RunScript('$("#sidebar #%s .badge.outdated").hide();' % b64ID)
 
     def debug(self, string):
         print(string)

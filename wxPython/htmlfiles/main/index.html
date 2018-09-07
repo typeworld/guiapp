@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Type.World</title>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<script type="text/javascript" src="file://##htmlroot##/main/js/jquery-3.2.1.min.js"></script> 
+<script type="text/javascript" src="file://##htmlroot##/main/js/js.js"></script> 
+<script type="text/javascript" src="file://##htmlroot##/main/js/splitcubicatt.js"></script> 
+<script type="text/javascript" src="file://##htmlroot##/main/js/atom.js"></script> 
+
+
+<link rel="stylesheet" href="file://##htmlroot##/main/css/index.css">
+
+
+
+
+
+</head>
+
+<body class="clear">
+
+<div id="centerMessageWrapper">
+	<div id="centerMessage">#(Loading Subscription)</div>
+</div>
+
+<div id="addPublisher" class="panel">
+	<div class="closePanelButton">
+		<a onclick="hidePanel();">✕</a>
+	</div>
+	<div class="inner">
+		<h2>#(Add Subscription)</h2>
+
+		<p>
+			#(ManuallyAddSubscriptionExplanation)
+		</p>
+		<p>
+		</p>
+
+		<form id="addSubscriptionForm" action="destination.html">
+			<p>
+				#(Subscription URL)<br />
+				<input type="text" id="url" name="url" placeholder="typeworldjson:// #(or) typeworldgithub://">
+				<script>$('#addPublisher #url').keyup(function(){ if ($('#addPublisher #url').val().startsWith("typeworldgithub://")) { $('#addPublisher #authenticationCheckBox').slideDown(); } else { $('#addPublisher #authenticationCheckBox').slideUp(); } });</script>
+			</p>
+			<div id="authenticationCheckBox" style="display: none;">
+				<p>
+					<span style="width: 20px;"><input type="checkbox" id="usePassword"><label for="usePassword">#(Use Authentication)</label></span>
+					<script>$('#addPublisher #usePassword').click(function(){ debug($('#addPublisher #usePassword').val()); if ($('#addPublisher #usePassword').is(":checked")) { $('#addPublisher #authentication').slideDown(); } else { $('#addPublisher #authentication').slideUp(); } });</script>
+				</p>
+			</div>
+			<div id="authentication" style="display: none;">
+				<p>
+				#(Username)<br />
+				<input type="text" id="username">
+				#(Password)<br />
+				<input type="password" id="password">
+				</p>
+				<p>
+				#(GitHubRequestLimitExplanation)
+				</p>
+			</div>
+			</p>
+			<p style="margin-top: 10px;">
+				<a class="button" id="addSubscriptionFormSubmitButton">#(Add)</a>
+				<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img id="animation" src="file://##htmlroot##/loading.svg" style="height: 13px;"></a>
+				<input type="button" value="#(Cancel)" onclick="hidePanel();" class="secondary" id="addSubscriptionFormCancelButton">
+			</p>
+		</form>
+	</div>
+	<script>
+		$( document ).ready(function() {
+
+			$("#addSubscriptionForm").submit(function(event) {
+
+				event.preventDefault();
+				$("#addSubscriptionFormSubmitButton").click();
+
+
+			});
+
+			$("#addSubscriptionFormSubmitButton").click(function() {
+
+				$("#addSubscriptionFormSubmitButton").hide();
+				$("#addSubscriptionFormCancelButton").hide();
+				$("#addSubscriptionFormSubmitAnimation").show();
+
+				setTimeout(function() { 
+					addPublisher($('#addSubscriptionForm #url').val(), $('#addSubscriptionForm #username').val(), $('#addSubscriptionForm #password').val());
+					
+				}, 100);
+
+				
+
+			});
+		});
+	</script>
+
+<!-- python('self.addPublisher(\'' + $('#addPublisher #url').val() + '\')'); -->
+</div>
+
+<div class="wrapper">
+	<div id="sidebar" class="sidebar">
+		<div class="headline">
+		#(Publishers)
+		</div>
+		<div id="publishers">
+
+
+		</div>
+
+<!-- 		<div id="bottom">
+			<a onclick="showAddPublisher();" title="Hello World">+ #(Add Subscription)</a>
+		</div>
+ -->
+	</div>
+
+</div>
+
+<!--
+<div class="wrapper">
+	<div id="subscriptions" class="sidebar">
+		<div class="headline">
+		#(Subscriptions)
+		</div>
+		<div id="content">
+
+
+		</div>
+
+	</div>
+</div>
+-->
+
+<div class="wrapper">
+	<div id="main">
+	</div>
+
+	<div id="welcome" class="centerOuter">
+		<div class="centerInner" style="text-align: center;">
+			<img src="file://##htmlroot##/biglogo.svg" style="width: 400px;"><br />
+			#(WelcomeMessage)
+		</div>
+	</div>
+
+	<div id="about" class="panel">
+		<div class="closePanelButton">
+			<a onclick="hidePanel();">✕</a>
+		</div>
+		<div class="centerOuter">
+			<div id="text" class="centerInner inner" style="margin-top: -20px;">
+			</div>
+		</div>
+	</div>
+
+	<div id="subscriptionPreferences" class="panel">
+		<div class="closePanelButton">
+			<a onclick="hidePanel();">✕</a>
+		</div>
+		<div class="centerOuter">
+			<div class="centerInner inner">
+				
+			</div>
+		</div>
+	</div>
+
+	<div id="publisherPreferences" class="panel">
+		<div class="closePanelButton">
+			<a onclick="hidePanel();">✕</a>
+		</div>
+		<div class="centerOuter">
+			<div class="centerInner inner">
+				
+			</div>
+		</div>
+	</div>
+
+	<div id="preferences" class="panel">
+		<div class="closePanelButton">
+			<a onclick="hidePanel();">✕</a>
+		</div>
+		<div class="centerOuter">
+			<div class="centerInner inner">
+				
+			</div>
+		</div>
+	</div>
+
+
+
+</div>
+
+
+<img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground">
+<canvas id="atom" width="150" height="150"></canvas>
+<div id="atomButton" class="centerOuter"><div class="centerInner"><a onclick="showAddPublisher();">+</a></div></div>
+
+
+</body>
+</html>

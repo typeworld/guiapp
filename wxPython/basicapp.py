@@ -11,97 +11,36 @@ import sys
 import urllib.request, urllib.parse, urllib.error, time
 from functools import partial
 
-import platform
-WIN = platform.system() == 'Windows'
-MAC = platform.system() == 'Darwin'
+print((sys.version))
 
 from ynlib.files import ReadFromFile, WriteToFile
 from ynlib.strings import kashidas, kashidaSentence
-from ynlib.web import GetHTTP
 
 from typeWorldClient import APIClient, JSON, AppKitNSUserDefaults
 import typeWorld.api.base
 
 
-try:
-    __file__ = os.path.abspath(__file__)
-
-except:
-    __file__ = sys.executable
-
-
-import ctypes, sys
-
-def is_admin():
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
-        return False
 
 APPNAME = 'Type.World'
 APPVERSION = '0.1.3'
 
-if not '.app/Contents' in os.path.dirname(__file__) or not 'app.py' in __file__:
+WIN = False
+MAC = False
+import platform
+if platform.system() == 'Windows':
+    WIN = True
+else:
+    MAC = True
+
+PORT = None 
+
+
+
+
+if not '.app/Contents' in os.path.dirname(__file__):
     DESIGNTIME = True
-    RUNTIME = False
 else:
     DESIGNTIME = False
-    RUNTIME = True
-
-print('DESIGNTIME', DESIGNTIME)
-print('RUNTIME', RUNTIME)
-
-## Windows:
-## Register Custom Protocol Handlers in the Registry. Later, this should be moved into the installer.
-
-if WIN and RUNTIME:
-    import winreg as wreg
-    for handler in ['typeworldjson', 'typeworldgithub']:
-        key = wreg.CreateKey(wreg.HKEY_CLASSES_ROOT, handler)
-        wreg.SetValueEx(key, None, 0, wreg.REG_SZ, 'URL:%s' % handler)
-        wreg.SetValueEx(key, 'URL Protocol', 0, wreg.REG_SZ, '')
-        key = wreg.CreateKey(key, 'shell\\open\\command')
-        wreg.SetValueEx(key, None, 0, wreg.REG_SZ, '"%s" "%%1"' % os.path.join(os.path.dirname(__file__), 'URL Opening Agent', 'TypeWorld Subscription Opener.exe'))
-
-## Windows:
-## Create lockfile to prevent second opening of the app
-
-
-# if WIN:
-
-    # try:
-    #     import pywinauto
-    #     app = pywinauto.Application().connect(path=__file__)
-    #     app.top_window().set_focus()
-    #     sys.exit()
-    # except:
-    #     pass
-
-
-if WIN:
-
-    # Write our own PID to the lockfile so the agent script can find it
-    lockFilePath = os.path.join(os.path.dirname(__file__), 'pid.txt')
-    lockFile = open(lockFilePath, 'w')
-    lockFile.write(str(os.getpid()))
-    lockFile.close()
-
-
-
-
-
-
-
-# class AppBadge(NSDockTilePlugIn):
-
-#   def setDockTile_(self, dockTile):
-
-#       if dockTile:
-#           dockTile.setBadgeLabel_('X')
-
-
-
-
 
 if not DESIGNTIME:
     plist = plistlib.readPlist(os.path.join(os.path.dirname(__file__), '..', 'Info.plist'))
@@ -162,7 +101,7 @@ class AppFrame(wx.Frame):
         super(AppFrame, self).__init__(parent, size = size)
         self.SetMinSize(minSize)
 
-        self.Title = '%s %s%s' % (APPNAME, APPVERSION, ' ADMIN' if is_admin else '')
+        self.Title = '%s %s' % (APPNAME, APPVERSION)
 
         self.html = wx.html2.WebView.New(self)
         self.Bind(wx.html2.EVT_WEBVIEW_NAVIGATING, self.onNavigating, self.html)
@@ -180,14 +119,14 @@ class AppFrame(wx.Frame):
 
         # Exit
         menu = wx.Menu()
+        m_exit = menu.Append(wx.ID_EXIT, "%s\tCtrl-X" % (self.localize('Exit')))
+        self.Bind(wx.EVT_MENU, self.onQuit, m_exit)
         m_opensubscription = menu.Append(wx.ID_OPEN, "%s\tCtrl-O" % (self.localize('Add Subscription')))
         self.Bind(wx.EVT_MENU, self.showAddPublisher, m_opensubscription)
         m_CheckForUpdates = menu.Append(wx.NewId(), "%s..." % (self.localize('Check for Updates')))
         self.Bind(wx.EVT_MENU, self.onCheckForUpdates, m_CheckForUpdates)
         m_closewindow = menu.Append(wx.ID_CLOSE, "%s\tCtrl-W" % (self.localize('Close Window')))
         self.Bind(wx.EVT_MENU, self.onClose, m_closewindow)
-        m_exit = menu.Append(wx.ID_EXIT, "%s\tCtrl-X" % (self.localize('Exit')))
-        self.Bind(wx.EVT_MENU, self.onQuit, m_exit)
 
 
         menuBar.Append(menu, "&%s" % (self.localize('File')))
@@ -294,23 +233,21 @@ class AppFrame(wx.Frame):
 
 
     def javaScript(self, script):
-#        print()
+        print()
         if self.fullyLoaded:
             if threading.current_thread() == self.thread:
-#                print('JavaScript Executed:')
-#                print(str(script.encode())[:100], '...')
+                print('JavaScript Executed:')
+                print(str(script.encode())[:100], '...')
                 self.html.RunScript(script)
             else:
-                pass
-#                print('JavaScript called from another thread:')
-#                print(str(script.encode())[:100], '...')
+                print('JavaScript called from another thread:')
+                print(str(script.encode())[:100], '...')
 
 
 
         else:
-            pass
-#            print('JavaScript Execution: Page not fully loaded:')
-#            print(str(script.encode())[:100], '...')
+            print('JavaScript Execution: Page not fully loaded:')
+            print(str(script.encode())[:100], '...')
 
 
     def changePreferences(self):
@@ -388,16 +325,12 @@ class AppFrame(wx.Frame):
             self.Destroy()
 
     def onQuit(self, event):
-        if WIN:
-            global lock
-            lock.release()
+        stop_server()
         self.Destroy()
 
     def onActivate(self, event):
 
         resize = False
-
-        self.SetTitle(str(sys.argv))
 
 
         if MAC:
@@ -413,17 +346,11 @@ class AppFrame(wx.Frame):
                 size[1] = screenSize.height - 50
                 resize = True
 
-        if WIN:
-            print('User is admin:', is_admin())
-
         if resize:
             self.SetSize(size)
 
         if self.client.preferences.get('currentPublisher'):
             self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
-
-        if WIN:
-            self.checkForURLInFile()
 
 
     def onResize(self, event):
@@ -455,7 +382,7 @@ class AppFrame(wx.Frame):
             html.append('#(AboutText)')
             html.append('</p>')
             html.append('<p>')
-            html.append('#(Anonymous App ID): %s<br />' % self.client.anonymousAppID())
+            html.append('#(Anonymous App ID): %s<br />' % self.client.preferences.get('anonymousAppID'))
             html.append('#(Version) %s<br />' % APPVERSION)
             html.append('#(Version History) #(on) <a href="https://type.world/app">type.world/app</a>')
             html.append('</p>')
@@ -470,7 +397,7 @@ class AppFrame(wx.Frame):
             html = self.localizeString(html, html = True)
             html = html.replace('"', '\'')
             html = html.replace('\n', '')
-#            print(html)
+#           print html
             js = '$("#about .inner").html("' + html + '");'
             self.javaScript(js)
 
@@ -548,12 +475,9 @@ class AppFrame(wx.Frame):
         if uri.startswith('x-python://'):
             code = uri.split("x-python://")[1]
             code = urllib.parse.unquote(code)
-            if code.endswith('/'):
-                code = code[:-1]
             code = code.replace('http//', 'http://')
             code = code.replace('https//', 'https://')
             code = code.replace('____', '\'')
-            print('Python code:', code)
             exec(code)
             evt.Veto()
         elif uri.startswith('http://') or uri.startswith('https://'):
@@ -579,7 +503,6 @@ class AppFrame(wx.Frame):
 
 
     def showAddPublisher(self, evt):
-        print('showAddPublisher()')
         self.javaScript('showAddPublisher();')
 
     def addPublisherJavaScript(self, url, username = None, password = None):
@@ -622,8 +545,6 @@ class AppFrame(wx.Frame):
             self.setSideBarHTML()
             self.setPublisherHTML(b64ID)
             self.javaScript("hidePanel();")
-
-
 
         else:
 
@@ -1624,24 +1545,55 @@ $( document ).ready(function() {
             self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
         self.setBadges()
 
-
-        if WIN:
-            self.checkForURLInFile()
-
-    def checkForURLInFile(self):
-
-        openURLFilePath = os.path.join(os.path.dirname(__file__), 'url.txt')
-
-        if os.path.exists(openURLFilePath):
-            urlFile = open(openURLFilePath, 'r')
-            URL = urlFile.read().strip()
-            urlFile.close()
+        self.javaScript("""
 
 
-            self.addPublisherJavaScript(URL)
 
-            os.remove(openURLFilePath)
+function detectIE() {
+  var ua = window.navigator.userAgent;
 
+  // Test values; Uncomment to check result …
+
+  // IE 10
+  // ua = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
+  
+  // IE 11
+  // ua = 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko';
+  
+  // Edge 12 (Spartan)
+  // ua = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 Edge/12.0';
+  
+  // Edge 13
+  // ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586';
+
+  var msie = ua.indexOf('MSIE ');
+  if (msie > 0) {
+    // IE 10 or older => return version number
+    return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+  }
+
+  var trident = ua.indexOf('Trident/');
+  if (trident > 0) {
+    // IE 11 => return version number
+    var rv = ua.indexOf('rv:');
+    return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+  }
+
+  var edge = ua.indexOf('Edge/');
+  if (edge > 0) {
+    // Edge (IE 12+) => return version number
+    return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+  }
+
+  // other browser
+  return false;
+}
+
+
+
+
+
+            """)
 
 
     def log(self, message):
@@ -1670,14 +1622,12 @@ $( document ).ready(function() {
 
     def replaceHTML(self, html):
 
-        path = os.path.join(os.path.dirname(__file__), 'htmlfiles')
+        path = os.path.join(os.path.dirname(__file__), 'html')
         if WIN:
             path = path.replace('\\', '/')
             if path.startswith('//'):
                 path = path[2:]
-            # path = path.replace('Mac/', 'mac/')
-
-        print(path)
+            path = path.replace('file://Mac/', 'file://mac/')
 
         html = html.replace('##htmlroot##', path)
         return html
@@ -1688,6 +1638,13 @@ $( document ).ready(function() {
             return str(NSLocale.autoupdatingCurrentLocale().localeIdentifier().split('_')[0])
         else:
             return 'en'
+
+    def loadURL(self, urlPart):
+        
+        url = 'http://127.0.0.1:%s%s' % (self.port, urlPart)
+        print(url)
+        self.html.LoadURL(url)
+
 
     def locale(self):
         '''\
@@ -1730,7 +1687,78 @@ $( document ).ready(function() {
 
 
 
-class MyApp(wx.App):
+
+from flask import Flask
+flask = Flask(__name__)
+ 
+@flask.route("/")
+def hello():
+
+    global app
+
+    html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'index.html'))
+
+    html = html.replace('##jquery##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'jquery-1.12.4.js')))
+    html = html.replace('##jqueryui##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'jquery-ui.js')))
+    html = html.replace('##jqueryui##', '')
+
+    html = html.replace('##js.js##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'js.js')))
+    html = html.replace('##cubic.js##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'splitcubicatt.js')))
+    html = html.replace('##atom.js##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'js', 'atom.js')))
+    html = html.replace('##css##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'index.css')))
+    html = html.replace('##jqueryuicss##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'html', 'main', 'css', 'jquery-ui.css')))
+    html = html.replace('APPVERSION', APPVERSION)
+
+    html = app.frame.localizeString(html, html = True)
+    html = app.frame.replaceHTML(html)
+
+    return html
+
+
+
+
+
+from werkzeug.serving import make_server
+
+class ServerThread(threading.Thread):
+
+    def __init__(self, flask, app):
+        threading.Thread.__init__(self)
+
+
+        for i in range(1024, 10000):
+            try:
+                self.srv = make_server('127.0.0.1', i, flask)
+                app.frame.port = i
+                break
+            except:
+                pass
+
+        print('app.frame.port', app.frame.port)
+
+        self.ctx = flask.app_context()
+        self.ctx.push()
+
+    def run(self):
+        self.srv.serve_forever()
+
+    def shutdown(self):
+        self.srv.shutdown()
+
+def start_server(app):
+    global server
+    server = ServerThread(flask, app)
+    server.start()
+
+def stop_server():
+    global server
+    server.shutdown()
+
+
+
+
+
+class MyApp1(wx.App):
     def MacOpenURL(self, url):
         
         self.frame.log('MyApp.MacOpenURL(%s)' % url)
@@ -1758,52 +1786,29 @@ class MyApp(wx.App):
             self.frame._dockTile = self.frame.nsapp.dockTile()
 
 
-        html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'index.html'))
 
-        html = html.replace('##jquery##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'jquery-1.12.4.js')))
-#        html = html.replace('##jqueryui##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'jquery-ui.js')))
-        html = html.replace('##jqueryui##', '')
-
-        html = html.replace('##js.js##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'js.js')))
-        html = html.replace('##cubic.js##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'splitcubicatt.js')))
-        html = html.replace('##atom.js##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'atom.js')))
-        html = html.replace('##css##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'css', 'index.css')))
-#        html = html.replace('##jqueryuicss##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'css', 'jquery-ui.css')))
-        html = html.replace('APPVERSION', APPVERSION)
-
-        html = frame.localizeString(html, html = True)
-        html = frame.replaceHTML(html)
-
-        if WIN:
-            import winreg as wreg
-            current_file = __file__
-            key = wreg.CreateKey(wreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION")
-            wreg.SetValueEx(key, current_file, 0, wreg.REG_DWORD, 11001)
-
-        # memoryfs = wx.MemoryFSHandler()
-        # wx.FileSystem.AddHandler(memoryfs)
-        # wx.MemoryFSHandler.AddFileWithMimeType("index.htm", html, 'text/html')
-        # frame.html.RegisterHandler(wx.html2.WebViewFSHandler("memory"))
-
-#        frame.html.SetPage(html, os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main'))
-        # frame.html.SetPage(html, '')
-        # frame.html.Reload()
-
-        filename = os.path.join(os.path.dirname(__file__), 'app.html')
-        print('app.html:', filename)
-        print('__file__:', __file__)
-        WriteToFile(filename, html)
-        frame.html.LoadURL("file://%s" % filename)
-
-
-
-        frame.Show()
-        frame.CentreOnScreen()
 
         return True
 
 
-app = MyApp()
-app.MainLoop()
+
+MyApp1
 
 
+
+if __name__ == '__main__':
+
+    global app
+
+    app = MyApp1()
+
+
+    start_server(app)
+
+    app.MainLoop()
+
+
+    app.frame.loadURL("/")
+
+
+    app.frame.Show()

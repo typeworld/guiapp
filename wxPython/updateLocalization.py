@@ -4,7 +4,9 @@ import os
 from ynlib.web import GetHTTP
 from ynlib.files import WriteToFile
 
-json = GetHTTP('https://type.world/downloadLocalization?appID=world.type.guiapp')
+json = GetHTTP('https://type.world/downloadLocalization?appID=world.type.guiapp').decode()
+print(type(json))
+
 
 
 

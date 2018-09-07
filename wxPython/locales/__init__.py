@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import re, os
+import re, os#, markdown
 import json
 from . import localization
 #content = json.load(open(os.path.join(os.path.dirname(__file__), 'localization.json'), 'r'))
@@ -13,6 +13,7 @@ locales = (('ab', 'Abkhazian'), ('aa', 'Afar'), ('af', 'Afrikaans'), ('ak', 'Aka
 def makeHTML(string, html):
 	if html:
 		string = string.replace('\n', '<br />')
+#		string = markdown.markdown(string)
 	return string
 
 def localize(key, languages = ['en'], html = False):

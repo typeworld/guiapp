@@ -3,36 +3,26 @@
 <head>
   <title>Type.World</title>
    <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<!-- <script type="text/javascript" src="./js/jquery-3.2.1.min.js"></script> 
-<script type="text/javascript" src="./js/js.js"></script>
- --><link rel="stylesheet" href="./css/index.css">
-
-
-<script>
-
-##jquery##
-##jqueryui##
-##js.js##
-##cubic.js##
-##atom.js##
+<script type="text/javascript" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/jquery-3.2.1.min.js"></script> 
+<script type="text/javascript" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/js.js"></script> 
+<script type="text/javascript" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/splitcubicatt.js"></script> 
+<script type="text/javascript" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/atom.js"></script> 
 
 
-</script>
+<link rel="stylesheet" href="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/css/index.css">
 
-<style>
 
-##css##
-##jqueryuicss##
 
-</style>
+
 
 </head>
 
 <body class="clear">
 
 <div id="centerMessageWrapper">
-	<div id="centerMessage">#(Loading Subscription)</div>
+	<div id="centerMessage">Lade Abonnement</div>
 </div>
 
 <div id="addPublisher" class="panel">
@@ -40,35 +30,42 @@
 		<a onclick="hidePanel();">✕</a>
 	</div>
 	<div class="inner">
-		<h2>#(Add Subscription)</h2>
+		<h2>Abonnement hinzufügen</h2>
+
+		<p>
+			Falls Du einen Link zu einem Schriften-Abonnement per E-Mail oder anderweitig erhalten hast, kannst Du ihn kopieren und hier einfügen. <br />Links sollten mit <em>typeworldjson://</em> oder <em>typeworldgithub://</em> beginnen.
+		</p>
+		<p>
+		</p>
+
 		<form id="addSubscriptionForm" action="destination.html">
 			<p>
-				#(Subscription URL)<br />
-				<input type="text" id="url" name="url" placeholder="typeworldjson:// #(or) typeworldgithub://">
+				Abonnement-URL<br />
+				<input type="text" id="url" name="url" placeholder="typeworldjson:// oder typeworldgithub://">
 				<script>$('#addPublisher #url').keyup(function(){ if ($('#addPublisher #url').val().startsWith("typeworldgithub://")) { $('#addPublisher #authenticationCheckBox').slideDown(); } else { $('#addPublisher #authenticationCheckBox').slideUp(); } });</script>
 			</p>
 			<div id="authenticationCheckBox" style="display: none;">
 				<p>
-					<span style="width: 20px;"><input type="checkbox" id="usePassword"><label for="usePassword">#(Use Authentication)</label></span>
+					<span style="width: 20px;"><input type="checkbox" id="usePassword"><label for="usePassword">Nutzer authentifizieren</label></span>
 					<script>$('#addPublisher #usePassword').click(function(){ debug($('#addPublisher #usePassword').val()); if ($('#addPublisher #usePassword').is(":checked")) { $('#addPublisher #authentication').slideDown(); } else { $('#addPublisher #authentication').slideUp(); } });</script>
 				</p>
 			</div>
 			<div id="authentication" style="display: none;">
 				<p>
-				#(Username)<br />
+				Nutzername<br />
 				<input type="text" id="username">
-				#(Password)<br />
+				Passwort<br />
 				<input type="password" id="password">
 				</p>
 				<p>
-				#(GitHubRequestLimitExplanation)
+				Abgesehen vom Zutritt in private Respositories erlaubt GitHub 5000 Anfragen pro Stunde für authorisierte Nutzer, jedoch nur 60 pro Stunde für unauthorisierte Anfragen.
 				</p>
 			</div>
 			</p>
 			<p style="margin-top: 10px;">
-				<a class="button" id="addSubscriptionFormSubmitButton">#(Add)</a>
-				<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img id="animation" src="file://##htmlroot##/loading.svg" style="height: 13px;"></a>
-				<input type="button" value="#(Cancel)" onclick="hidePanel();" class="secondary" id="addSubscriptionFormCancelButton">
+				<a class="button" id="addSubscriptionFormSubmitButton">Hinzufügen</a>
+				<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img id="animation" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/loading.svg" style="height: 13px;"></a>
+				<input type="button" value="Abbrechen" onclick="hidePanel();" class="secondary" id="addSubscriptionFormCancelButton">
 			</p>
 		</form>
 	</div>
@@ -106,7 +103,7 @@
 <div class="wrapper">
 	<div id="sidebar" class="sidebar">
 		<div class="headline">
-		#(Publishers)
+		Verlage
 		</div>
 		<div id="publishers">
 
@@ -114,7 +111,7 @@
 		</div>
 
 <!-- 		<div id="bottom">
-			<a onclick="showAddPublisher();" title="Hello World">+ #(Add Subscription)</a>
+			<a onclick="showAddPublisher();" title="Hello World">+ Abonnement hinzufügen</a>
 		</div>
  -->
 	</div>
@@ -125,7 +122,7 @@
 <div class="wrapper">
 	<div id="subscriptions" class="sidebar">
 		<div class="headline">
-		#(Subscriptions)
+		Abonnements
 		</div>
 		<div id="content">
 
@@ -142,8 +139,8 @@
 
 	<div id="welcome" class="centerOuter">
 		<div class="centerInner" style="text-align: center;">
-			<img src="file://##htmlroot##/biglogo.svg" style="width: 400px;"><br />
-			#(WelcomeMessage)
+			<img src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/biglogo.svg" style="width: 400px;"><br />
+			Willkommen bei Type.World,<br />dem Ein-Klick-Font-Installierer.
 		</div>
 	</div>
 
@@ -195,11 +192,9 @@
 </div>
 
 
-<img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground">
+<img src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/iconbackground.svg" id="atomBackground">
 <canvas id="atom" width="150" height="150"></canvas>
 <div id="atomButton" class="centerOuter"><div class="centerInner"><a onclick="showAddPublisher();">+</a></div></div>
-
-
 
 
 </body>

@@ -5,7 +5,7 @@ rm -rf ~/Code/TypeWorldApp/dist
 
 
 # Build
-python3 setup.py py2app
+python3 setup_mac.py py2app
 
 # Copy Sparkle over
 cp -R ~/Code/Sparkle-1.19.0/Sparkle.framework ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/

@@ -1,4 +1,5 @@
 
+
 function python(code) {
     window.location.href = "x-python://" + code;
 }
@@ -194,21 +195,6 @@ $( document ).ready(function() {
 	});
 
 
-
-	// $("#sidebar .publisher").hover(function() {
-	//     $( this ).addClass( "hover" );
-	//   }, function() {
-	//     $( this ).removeClass( "hover" );
-	//   }
-	// );
-
-	// $("#main .font").hover(function() {
-	//     $( this ).addClass( "hover" );
-	//   }, function() {
-	//     $( this ).removeClass( "hover" );
-	//   }
-	// );
-
 	$(document).on("keyup", function( event ) {
 		for(var key in keypressFunctions) {
 		    if(keypressFunctions.hasOwnProperty(key)) {
@@ -299,7 +285,7 @@ function addPublisher(url, username, password, caption) {
 
 // JQUERY
 
-	$( function() {
-	    $( document ).tooltip();
-	  } );
+	// $( function() {
+	//     $( document ).tooltip();
+	//   } );
 

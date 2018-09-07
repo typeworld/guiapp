@@ -191,6 +191,8 @@ input[type=radio],input[type=checkbox] {
 .wrapper {
 
     overflow: hidden;
+    -ms-overflow-style: none;
+
     height: 100%;
 }
 ::-webkit-scrollbar {
@@ -298,6 +300,7 @@ input[type=radio],input[type=checkbox] {
 	border-radius: 5px;
 	float: right;
 	overflow: hidden;
+	-ms-overflow-style: none;
 /*	border: 1px solid white;
 
 */}

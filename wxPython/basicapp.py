@@ -616,7 +616,7 @@ class AppFrame(wx.Frame):
         for font in family.fonts():
             if font.setName.getText(self.locale) == setName and font.format == formatName:
                 if not font.installedVersion():
-                    jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+                    jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getVersions()[-1].number))
 
         call = 'installFonts(Array(' + ','.join(jsFonts) + '), true);'
         self.javaScript(call)
@@ -640,7 +640,7 @@ class AppFrame(wx.Frame):
         for font in family.fonts():
             if font.setName.getText(self.locale) == setName and font.format == formatName:
                 if font.installedVersion():
-                    jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+                    jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getVersions()[-1].number))
 
         call = 'removeFonts(Array(' + ','.join(jsFonts) + '), true);'
         self.javaScript(call)
@@ -851,7 +851,7 @@ class AppFrame(wx.Frame):
                                     subMenu = wx.Menu()
                                     menu.AppendMenu(wx.NewId(), self.localizeString('#(Install Version)'), subMenu)
 
-                                    for version in font.getSortedVersions():
+                                    for version in font.getVersions():
 
                                         if font.installedVersion() == version.number:
                                             installVersionsSubmenu = subMenu.Append(wx.NewId(), str(version.number), "", wx.ITEM_RADIO)
@@ -967,7 +967,7 @@ class AppFrame(wx.Frame):
                     for family in foundry.families():
                         for font in family.fonts():
                             if font.isOutdated():
-                                fonts.append("Array('%s', '%s', '%s', '%s')" % (publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+                                fonts.append("Array('%s', '%s', '%s', '%s')" % (publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number))
 
         elif subscriptionB64ID:
             
@@ -981,7 +981,7 @@ class AppFrame(wx.Frame):
                 for family in foundry.families():
                     for font in family.fonts():
                         if font.isOutdated():
-                            fonts.append("Array('%s', '%s', '%s', '%s')" % (publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number))
+                            fonts.append("Array('%s', '%s', '%s', '%s')" % (publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number))
 
         if fonts:
             call = 'removeFonts(Array(' + ','.join(fonts) + '), true);'
@@ -1243,7 +1243,7 @@ class AppFrame(wx.Frame):
                             html.append('<div class="left">')
                             installedVersion = font.installedVersion()
                             if installedVersion:
-                                html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getSortedVersions()[-1].number else 'olderVersion', installedVersion))
+                                html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getVersions()[-1].number else 'olderVersion', installedVersion))
                             else:
                                 html.append('<span class="notInstalled">#(Not Installed)</span>')
                             html.append('</div>') # .left
@@ -1252,7 +1252,7 @@ class AppFrame(wx.Frame):
                                 html.append('<div class="installButtons right">')
                                 html.append('<div class="clear">')
                                 html.append('<div class="installButton install right" style="display: %s;">' % ('none' if installedVersion else 'block'))
-                                html.append('<a class="installButton button" publisherid="%s" subscriptionid="%s" fontid="%s" version="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getSortedVersions()[-1].number if font.getSortedVersions() else ''))
+                                html.append('<a class="installButton button" publisherid="%s" subscriptionid="%s" fontid="%s" version="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getVersions()[-1].number if font.getVersions() else ''))
                                 html.append('✓ #(Install)')
                                 html.append('</a>')
                                 html.append('</div>') # .right

@@ -1873,7 +1873,7 @@ class MyApp(wx.App):
         return True
 
 
-app = MyApp(redirect = DEBUG, filename = None)
+app = MyApp(redirect = DEBUG and WIN, filename = None)
 app.MainLoop()
 
 

@@ -1,4 +1,4 @@
-import sys
+import sys, os
 from cx_Freeze import setup, Executable
 
 
@@ -8,17 +8,19 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
+baseFolder = os.path.dirname(__file__)
+
 setup(  name = "Type.World",
         version = "0.1.3",
         description = "Type.World – One Click Font-Installer",
         options = {"build_exe": {
-          'include_files': ['htmlfiles/'],
+          'include_files': [os.path.join(baseFolder, 'htmlfiles')],
           'excludes': [],
           'packages': [],
           'optimize': 2,
           'build_exe': 'Z:\\Code\\TypeWorldApp\\Windows\\Main'
         }},
-        executables = [Executable("app.py", base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld.exe', icon='icon\\tw.ico')])
+        executables = [Executable(os.path.join(baseFolder, "app.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld.exe', icon='icon\\tw.ico')])
 
 setup(  name = "Type.World Subscription Opener",
         version = "0.1.3",

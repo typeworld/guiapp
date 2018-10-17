@@ -40,6 +40,9 @@ def is_admin():
 
 APPNAME = 'Type.World'
 APPVERSION = '0.1.3'
+DEBUG = True
+
+
 
 if not '.app/Contents' in os.path.dirname(__file__) or not 'app.py' in __file__:
     DESIGNTIME = True
@@ -50,6 +53,8 @@ else:
 
 print('DESIGNTIME', DESIGNTIME)
 print('RUNTIME', RUNTIME)
+
+
 
 ## Windows:
 ## Register Custom Protocol Handlers in the Registry. Later, this should be moved into the installer.
@@ -388,9 +393,6 @@ class AppFrame(wx.Frame):
             self.Destroy()
 
     def onQuit(self, event):
-        if WIN:
-            global lock
-            lock.release()
         self.Destroy()
 
     def onActivate(self, event):
@@ -742,6 +744,36 @@ class AppFrame(wx.Frame):
 
         self.setPublisherHTML(b64publisherURL)
 
+
+    def installFont(self, b64publisherURL, b64subscriptionURL, b64fontID, version):
+
+        publisherURL = self.b64decode(b64publisherURL)
+        subscriptionURL = self.b64decode(b64subscriptionURL)
+        fontID = self.b64decode(b64fontID)
+
+        publisher = self.client.publisher(publisherURL)
+        subscription = publisher.subscription(subscriptionURL)
+        api = subscription.latestVersion()
+
+        success, message = subscription.installFont(fontID, version)
+
+        if success:
+
+            pass
+            # self.setPublisherInstalledFontBadge(self.b64encode(subscription.parent.canonicalURL), subscription.parent.amountInstalledFonts())
+            # self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
+
+        else:
+
+            if type(message) in (str, str):
+                self.errorMessage(message)
+            else:
+                self.errorMessage('Server: %s' % message.getText(self.locale()))
+
+            # self.javaScript("$('#%s .statusButton').hide();" % b64fontID)
+            # self.javaScript("$('#%s .removeButton').show();" % b64fontID)
+
+
     def removeFonts(self, fonts):
 
         for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
@@ -838,6 +870,8 @@ class AppFrame(wx.Frame):
 
             # self.javaScript("$('#%s .statusButton').hide();" % b64fontID)
             # self.javaScript("$('#%s .removeButton').show();" % b64fontID)
+
+
 
 
     def onContextMenu(self, x, y, target, b64ID):
@@ -1730,6 +1764,30 @@ $( document ).ready(function() {
 
 
 
+class DebugWindow(wx.Frame):
+    def __init__(self, parent, ID, title):
+        wx.Frame.__init__(self, parent, ID, title,wx.DefaultPosition,
+                            wx.Size(500,300))
+        
+        # ------ Area for the text output of pressing button
+        textarea = wx.TextCtrl(self, -1,
+                                size=(500,300))
+        self.text = textarea
+
+
+class Logger(object):
+    def __init__(self, window):
+        self.terminal = sys.stdout
+        self.window = window
+
+    def write(self, message):
+
+        message = message + '\r\n'
+        self.terminal.write(message)
+        self.window.text.AppendText(message)
+
+
+
 class MyApp(wx.App):
     def MacOpenURL(self, url):
         
@@ -1800,10 +1858,22 @@ class MyApp(wx.App):
         frame.Show()
         frame.CentreOnScreen()
 
+
+        # if WIN and DEBUG:
+
+        #     self.debugWindow = DebugWindow(None, -1, "Debug")
+        #     self.debugWindow.Show(True)
+
+        #     sys.stdout = Logger(self.debugWindow)
+
+
+
+
+
         return True
 
 
-app = MyApp()
+app = MyApp(redirect = DEBUG, filename = None)
 app.MainLoop()
 
 

@@ -399,7 +399,7 @@ class AppFrame(wx.Frame):
 
         resize = False
 
-        self.SetTitle(str(sys.argv))
+        # self.SetTitle(str(sys.argv))
 
 
         if MAC:

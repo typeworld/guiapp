@@ -43,7 +43,6 @@ APPVERSION = '0.1.3'
 DEBUG = True
 
 
-
 if not '.app/Contents' in os.path.dirname(__file__) or not 'app.py' in __file__:
     DESIGNTIME = True
     RUNTIME = False
@@ -68,31 +67,117 @@ if WIN and RUNTIME:
         key = wreg.CreateKey(key, 'shell\\open\\command')
         wreg.SetValueEx(key, None, 0, wreg.REG_SZ, '"%s" "%%1"' % os.path.join(os.path.dirname(__file__), 'URL Opening Agent', 'TypeWorld Subscription Opener.exe'))
 
+
+import sys, os, traceback, types
+
+def isUserAdmin():
+
+    if os.name == 'nt':
+        import ctypes
+        # WARNING: requires Windows XP SP2 or higher!
+        try:
+            return ctypes.windll.shell32.IsUserAnAdmin()
+        except:
+            traceback.print_exc()
+            print("Admin check failed, assuming not an admin.")
+            return False
+    elif os.name == 'posix':
+        # Check for root on Posix
+        return os.getuid() == 0
+    else:
+        raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
+
+def runAsAdmin(cmdLine=None, wait=True):
+
+    if os.name != 'nt':
+        raise RuntimeError("This function is only implemented on Windows.")
+
+    import win32api, win32con, win32event, win32process
+    from win32com.shell.shell import ShellExecuteEx
+    from win32com.shell import shellcon
+
+    python_exe = sys.executable
+
+    if cmdLine is None:
+        cmdLine = [python_exe] + sys.argv
+    elif type(cmdLine) not in (types.TupleType,types.ListType):
+        raise ValueError("cmdLine is not a sequence.")
+    cmd = '"%s"' % (cmdLine[0],)
+    # XXX TODO: isn't there a function or something we can call to massage command line params?
+    params = " ".join(['"%s"' % (x,) for x in cmdLine[1:]])
+    cmdDir = ''
+    showCmd = win32con.SW_SHOWNORMAL
+    #showCmd = win32con.SW_HIDE
+    lpVerb = 'runas'  # causes UAC elevation prompt.
+
+    # print "Running", cmd, params
+
+    # ShellExecute() doesn't seem to allow us to fetch the PID or handle
+    # of the process, so we can't get anything useful from it. Therefore
+    # the more complex ShellExecuteEx() must be used.
+
+    # procHandle = win32api.ShellExecute(0, lpVerb, cmd, params, cmdDir, showCmd)
+
+    procInfo = ShellExecuteEx(nShow=showCmd,
+                              fMask=shellcon.SEE_MASK_NOCLOSEPROCESS,
+                              lpVerb=lpVerb,
+                              lpFile=cmd,
+                              lpParameters=params)
+
+    if wait:
+        procHandle = procInfo['hProcess']    
+        obj = win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
+        rc = win32process.GetExitCodeProcess(procHandle)
+        #print "Process handle %s returned code %s" % (procHandle, rc)
+    else:
+        rc = None
+
+    return rc
+
+
 ## Windows:
 ## Create lockfile to prevent second opening of the app
 
-
-# if WIN:
-
-    # try:
-    #     import pywinauto
-    #     app = pywinauto.Application().connect(path=__file__)
-    #     app.top_window().set_focus()
-    #     sys.exit()
-    # except:
-    #     pass
-
-
 if WIN:
 
-    # Write our own PID to the lockfile so the agent script can find it
+    mutex = None
     lockFilePath = os.path.join(os.path.dirname(__file__), 'pid.txt')
+
+    try:
+        import win32event, win32api, winerror
+    except ImportError:
+        print("No win32all available")
+    else:
+        mutex = win32event.CreateMutex(None, 1, 'world.type.guiapp')
+        lasterror = win32api.GetLastError()
+        if lasterror == winerror.ERROR_ALREADY_EXISTS:
+            mutex = None
+
+            # See if we can find the PID in the file system
+            if os.path.exists(lockFilePath):
+                lockFile = open(lockFilePath, 'r')
+                PID = int(lockFile.read().strip())
+                lockFile.close()
+
+                # Another PID already exists. See if we can activate it, then exit()
+                from pywinauto import Application
+                try:
+                    app = Application().connect(process = PID)
+                    app.top_window().set_focus()
+
+                # That didn't work. Let's execute the main app directly (with elevated privileges)
+                except:
+
+                    pass
+
+
+
+            sys.exit(1)
+
+    # Write new PID
     lockFile = open(lockFilePath, 'w')
     lockFile.write(str(os.getpid()))
     lockFile.close()
-
-
-
 
 
 
@@ -387,15 +472,25 @@ class AppFrame(wx.Frame):
         self.sparkle.checkForUpdates_(None)
 
     def onClose(self, event):
+
+        if WIN and os.path.exists(lockFilePath):
+            os.remove(lockFilePath)
+
         if self.panelVisible:
             self.javaScript('hidePanel();')
         else:
             self.Destroy()
 
     def onQuit(self, event):
+
+        if WIN and os.path.exists(lockFilePath):
+            os.remove(lockFilePath)
+
         self.Destroy()
 
     def onActivate(self, event):
+
+        self.log('onActivate()')
 
         resize = False
 
@@ -424,7 +519,7 @@ class AppFrame(wx.Frame):
         if self.client.preferences.get('currentPublisher'):
             self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
 
-        if WIN:
+        if WIN and self.fullyLoaded:
             self.checkForURLInFile()
 
 
@@ -591,6 +686,8 @@ class AppFrame(wx.Frame):
 
 
     def addPublisher(self, url, username = None, password = None):
+
+        self.log('addPublisher(%s, %s, %s)' % (url, username, password))
 
         for protocol in typeWorld.api.base.PROTOCOLS:
             url = url.replace(protocol + '//', protocol + '://')
@@ -1642,10 +1739,13 @@ $( document ).ready(function() {
 
     def onLoad(self, event):
 
+        print('onLoad()')
+
         self.log('MyApp.frame.onLoad()')
         self.fullyLoaded = True
 
         self.setSideBarHTML()
+
 
         # Open drawer for newly added publisher
         if self.justAddedPublisher:
@@ -1658,9 +1758,12 @@ $( document ).ready(function() {
             self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
         self.setBadges()
 
+#        self.onActivate(None)
 
         if WIN:
             self.checkForURLInFile()
+
+
 
     def checkForURLInFile(self):
 
@@ -1668,13 +1771,27 @@ $( document ).ready(function() {
 
         if os.path.exists(openURLFilePath):
             urlFile = open(openURLFilePath, 'r')
-            URL = urlFile.read().strip()
+            url = urlFile.read().strip()
             urlFile.close()
 
 
-            self.addPublisherJavaScript(URL)
+            if self.fullyLoaded:
+
+                # Workaround: When opening the app for the first time (on Windows), the JavaScript doesn't respond to the calls
+                if WIN:
+                    self.addPublisher(url)
+                else:
+                    self.addPublisherJavaScript(url)
+            else:
+
+                self.justAddedPublisher = url
+
 
             os.remove(openURLFilePath)
+
+            print('checkForURLInFile() done: %s' % url)
+
+        return True
 
 
 
@@ -1682,6 +1799,8 @@ $( document ).ready(function() {
         if MAC:
             from AppKit import NSLog
             NSLog('Type.World App: %s' % message)
+        else:
+            print(message)
 
     def setBadgeLabel(self, label):
         '''\
@@ -1854,20 +1973,19 @@ class MyApp(wx.App):
         frame.html.LoadURL("file://%s" % filename)
 
 
+        # if os.path.exists(openURLFilePath):
+        #     urlFile = open(openURLFilePath, 'r')
+        #     URL = urlFile.read().strip()
+        #     urlFile.close()
+        #     frame.justAddedPublisher = URL
+
+
 
         frame.Show()
         frame.CentreOnScreen()
 
-
-        # if WIN and DEBUG:
-
-        #     self.debugWindow = DebugWindow(None, -1, "Debug")
-        #     self.debugWindow.Show(True)
-
-        #     sys.stdout = Logger(self.debugWindow)
-
-
-
+        # if WIN:
+        #     self.frame.checkForURLInFile()
 
 
         return True

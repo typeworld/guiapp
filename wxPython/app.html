@@ -5,13 +5,14 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<script type="text/javascript" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/jquery-3.2.1.min.js"></script> 
-<script type="text/javascript" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/js.js"></script> 
-<script type="text/javascript" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/splitcubicatt.js"></script> 
-<script type="text/javascript" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/atom.js"></script> 
+<script type="text/javascript" src="file://Z:/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/jquery-3.2.1.min.js"></script> 
+
+<script type="text/javascript" src="file://Z:/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/js.js"></script> 
+<script type="text/javascript" src="file://Z:/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/splitcubicatt.js"></script> 
+<script type="text/javascript" src="file://Z:/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/js/atom.js"></script> 
 
 
-<link rel="stylesheet" href="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/css/index.css">
+<link rel="stylesheet" href="file://Z:/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/css/index.css">
 
 
 
@@ -25,7 +26,7 @@
 	<div id="centerMessage">Lade Abonnement</div>
 </div>
 
-<div id="addPublisher" class="panel">
+<div id="addSubscription" class="panel">
 	<div class="closePanelButton">
 		<a onclick="hidePanel();">✕</a>
 	</div>
@@ -42,12 +43,12 @@
 			<p>
 				Abonnement-URL<br />
 				<input type="text" id="url" name="url" placeholder="typeworldjson:// oder typeworldgithub://">
-				<script>$('#addPublisher #url').keyup(function(){ if ($('#addPublisher #url').val().startsWith("typeworldgithub://")) { $('#addPublisher #authenticationCheckBox').slideDown(); } else { $('#addPublisher #authenticationCheckBox').slideUp(); } });</script>
+				<script>$('#addSubscription #url').keyup(function(){ if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });</script>
 			</p>
 			<div id="authenticationCheckBox" style="display: none;">
 				<p>
 					<span style="width: 20px;"><input type="checkbox" id="usePassword"><label for="usePassword">Nutzer authentifizieren</label></span>
-					<script>$('#addPublisher #usePassword').click(function(){ debug($('#addPublisher #usePassword').val()); if ($('#addPublisher #usePassword').is(":checked")) { $('#addPublisher #authentication').slideDown(); } else { $('#addPublisher #authentication').slideUp(); } });</script>
+					<script>$('#addSubscription #usePassword').click(function(){ debug($('#addSubscription #usePassword').val()); if ($('#addSubscription #usePassword').is(":checked")) { $('#addSubscription #authentication').slideDown(); } else { $('#addSubscription #authentication').slideUp(); } });</script>
 				</p>
 			</div>
 			<div id="authentication" style="display: none;">
@@ -64,7 +65,7 @@
 			</p>
 			<p style="margin-top: 10px;">
 				<a class="button" id="addSubscriptionFormSubmitButton">Hinzufügen</a>
-				<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img id="animation" src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/loading.svg" style="height: 13px;"></a>
+				<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img id="animation" src="file://Z:/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/loading.gif" style="height: 13px;"></a>
 				<input type="button" value="Abbrechen" onclick="hidePanel();" class="secondary" id="addSubscriptionFormCancelButton">
 			</p>
 		</form>
@@ -86,18 +87,12 @@
 				$("#addSubscriptionFormCancelButton").hide();
 				$("#addSubscriptionFormSubmitAnimation").show();
 
-				setTimeout(function() { 
-					addPublisher($('#addSubscriptionForm #url').val(), $('#addSubscriptionForm #username').val(), $('#addSubscriptionForm #password').val());
-					
-				}, 100);
-
+				python('self.addSubscriptionViaDialog(____' + $('#addSubscriptionForm #url').val() + '____, ____' +  $('#addSubscriptionForm #username').val() + '____, ____' + $('#addSubscriptionForm #password').val() + '____)');
 				
-
 			});
 		});
 	</script>
 
-<!-- python('self.addPublisher(\'' + $('#addPublisher #url').val() + '\')'); -->
 </div>
 
 <div class="wrapper">
@@ -109,11 +104,6 @@
 
 
 		</div>
-
-<!-- 		<div id="bottom">
-			<a onclick="showAddPublisher();" title="Hello World">+ Abonnement hinzufügen</a>
-		</div>
- -->
 	</div>
 
 </div>
@@ -139,7 +129,7 @@
 
 	<div id="welcome" class="centerOuter">
 		<div class="centerInner" style="text-align: center;">
-			<img src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/biglogo.svg" style="width: 400px;"><br />
+			<img src="file://Z:/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/biglogo.svg" style="width: 400px;"><br />
 			Willkommen bei Type.World,<br />dem Ein-Klick-Font-Installierer.
 		</div>
 	</div>
@@ -192,9 +182,9 @@
 </div>
 
 
-<img src="file:///Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/iconbackground.svg" id="atomBackground">
+<img src="file://Z:/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles/main/iconbackground.svg" id="atomBackground">
 <canvas id="atom" width="150" height="150"></canvas>
-<div id="atomButton" class="centerOuter"><div class="centerInner"><a onclick="showAddPublisher();">+</a></div></div>
+<div id="atomButton" class="centerOuter"><div class="centerInner"><a onclick="showAddSubscription();">+</a></div></div>
 
 
 </body>

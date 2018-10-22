@@ -5,7 +5,7 @@ rm -rf ~/Code/TypeWorldApp/dist
 
 
 # Build
-python3 setup_mac.py py2app
+python3 setup.py py2app
 
 # Copy Sparkle over
 cp -R ~/Code/Sparkle-1.19.0/Sparkle.framework ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/
@@ -14,6 +14,6 @@ cp -R ~/Code/Sparkle-1.19.0/Sparkle.framework ~/Code/TypeWorldApp/dist/Type.Worl
 # cp -R /Users/yanone/Code/py/git/typeWorld/guiapp/appbadge/dist/appbadge.docktileplugin ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/
 
 # Move app to archive folder
-cp -R ~/Code/TypeWorldApp/dist/Type.World.app ~/Code/TypeWorldApp/apps/Type.World.`cat ~/Code/TypeWorldApp/build/version`.app
+cp -R ~/Code/TypeWorldApp/dist/Type.World.app ~/Code/TypeWorldApp/apps/Type.World.`cat /Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt`.app
 
 exit 0

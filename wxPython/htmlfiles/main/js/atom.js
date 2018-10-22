@@ -1,9 +1,7 @@
 
 
 
-
-var Ellipse = class {
-	constructor(ctx, tAdjust, speed, color, pointColor) {
+function Ellipse(ctx, tAdjust, speed, color, pointColor) {
 		this.ctx = ctx;
 		this.speed = speed;
 		this.color = color;
@@ -16,7 +14,7 @@ var Ellipse = class {
 		this.p4 = Array(0, 100);
 	}
 
-	drawQuadrant(q) {
+	Ellipse.prototype.drawQuadrant = function(q) {
 
 		if (q == 1) {
 			var px = 1;
@@ -49,7 +47,7 @@ var Ellipse = class {
 	}
 
 
-	draw() {
+	Ellipse.prototype.draw = function() {
 
 
 		this.drawQuadrant(1);
@@ -61,7 +59,7 @@ var Ellipse = class {
 	}
 
 
-	drawPoint(t) {
+	Ellipse.prototype.drawPoint = function(t) {
 
 
 
@@ -108,7 +106,7 @@ var Ellipse = class {
 
 
 	}
-}
+
 	
 var timeout;
 var keyFrame, fps, factor, c, ctx, e, f, g;

@@ -1,4 +1,15 @@
 
+window.onerror = function (msg, url, lineNo, columnNo, error) {
+ 
+ 	debug('JavaScript error:');
+ 	debug('Msg: ' + msg);
+ 	debug('url: ' + url);
+ 	debug('lineNo: ' + lineNo);
+ 	debug('columnNo: ' + columnNo);
+ 	debug('error: ' + error);
+
+  return false;
+}
 
 function python(code) {
     window.location.href = "x-python://" + code;
@@ -58,93 +69,6 @@ function finishReloadSubscription(b64ID) {
 
 function resetFontAppearance(fontID) {
 	$("#" + fontID + ".font").find('a.status').hide();
-}
-
-function installAllFonts(publisherID, subscriptionID, familyID, setName, formatName) {
-	python('self.installAllFonts(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + familyID + '____, ____' + setName + '____, ____' + formatName + '____)');
-}
-
-function removeAllFonts(publisherID, subscriptionID, familyID, setName, formatName) {
-	python('self.removeAllFonts(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + familyID + '____, ____' + setName + '____, ____' + formatName + '____)');
-}
-
-function installFonts(fonts, fromMenu) {
-
-	var pythonFontList = Array();
-
-	fonts.forEach(function(font) {
-
-		publisherID = font[0];
-		subscriptionID = font[1];
-		fontID = font[2];
-		version = font[3];
-
-
-		$("#" + fontID + ".font").find('a.installButton').hide();
-		$("#" + fontID + ".font").find('a.removeButton').hide();
-		$("#" + fontID + ".font").find('a.status').show();
-		$("#" + fontID + ".font").find('a.more').hide();
-
-		pythonFontList.push('[____' + publisherID + '____, ____' + subscriptionID + '____, ____' + fontID + '____, ____' + version + '____]');
-
-
-	});
-
-	call = '[' + pythonFontList.join(', ') + ']';
-
-	if (fromMenu) {
-		setTimeout(function() { 
-			python('self.installFonts(' + call + ')');
-		}, 100);
-	}
-	else {
-		python('self.installFonts(' + call + ')');
-	}
-}
-
-function removeFonts(fonts, fromMenu) {
-
-	var pythonFontList = Array();
-
-	fonts.forEach(function(font) {
-
-		publisherID = font[0];
-		subscriptionID = font[1];
-		fontID = font[2];
-
-
-		$("#" + fontID + ".font").find('a.removeButton').hide();
-		$("#" + fontID + ".font").find('a.status').show();
-
-		pythonFontList.push('[____' + publisherID + '____, ____' + subscriptionID + '____, ____' + fontID + '____]');
-
-
-	});
-
-	call = '[' + pythonFontList.join(', ') + ']';
-	if (fromMenu) {
-		setTimeout(function() { 
-			python('self.removeFonts(' + call + ')');
-		}, 100);
-	}
-	else {
-		python('self.removeFonts(' + call + ')');
-	}
-}
-
-function removeFont(publisherID, subscriptionID, fontID) {
-
-	installButton = $("#" + fontID + ".font").find('a.install').closest('.installButton');
-	statusButton = $("#" + fontID + ".font").find('a.status').closest('.statusButton');
-	removeButton = $("#" + fontID + ".font").find('a.remove').closest('.removeButton');
-
-	installButton.hide();
-	removeButton.hide();
-	statusButton.show();
-
-//	setTimeout(function() { 
-		python('self.removeFont(____' + publisherID + '____, ____' + subscriptionID + '____, ____' + fontID + '____)'); 
-//	}, 100);
 }
 
 
@@ -207,13 +131,13 @@ $( document ).ready(function() {
 
 });
 
-function showAddPublisher() {
-	$('#addPublisher #url').val(null);
-	$('#addPublisher #authenticationCheckBox').hide();
+function showAddSubscription() {
+	$('#addSubscription #url').val(null);
+	$('#addSubscription #authenticationCheckBox').hide();
 
-	$('#addPublisher').slideDown();
+	$('#addSubscription').slideDown();
 	registerKeypress(27, function(){ hidePanel(); });
-	$('#addPublisher #url').focus();
+	$('#addSubscription #url').focus();
 	python('self.panelVisible = True')
 }
 
@@ -246,7 +170,7 @@ function showPublisherPreferences() {
 }
 
 function hidePanel() {
-	$('#addPublisher').slideUp();
+	$('#addSubscription').slideUp();
 	$('#preferences').slideUp();
 	$('#publisherPreferences').slideUp();
 	$('#subscriptionPreferences').slideUp();
@@ -270,11 +194,11 @@ function hideCenterMessage() {
 	$('#centerMessageWrapper').fadeOut();
 }
 
-function addPublisher(url, username, password, caption) {
+function addSubscription(url, username, password, caption) {
 	
 	showCenterMessage(caption);
 	setTimeout(function () { 
-		python('self.addPublisher(____' + url + '____, ____' + username + '____, ____' + password + '____)');
+		python('self.addSubscription(____' + url + '____, ____' + username + '____, ____' + password + '____)');
 	}, 1100);
 	
 
@@ -288,4 +212,6 @@ function addPublisher(url, username, password, caption) {
 	// $( function() {
 	//     $( document ).tooltip();
 	//   } );
+
+
 

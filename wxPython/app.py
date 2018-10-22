@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-import wx, os, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback
+import wx, os, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, ctypes
 from threading import Thread
 import threading
 import wx.html2
@@ -10,10 +10,12 @@ import locales
 import sys
 import urllib.request, urllib.parse, urllib.error, time
 from functools import partial
+from wx.lib.delayedresult import startWorker
 
 import platform
 WIN = platform.system() == 'Windows'
 MAC = platform.system() == 'Darwin'
+
 
 from ynlib.files import ReadFromFile, WriteToFile
 from ynlib.strings import kashidas, kashidaSentence
@@ -23,36 +25,29 @@ from typeWorldClient import APIClient, JSON, AppKitNSUserDefaults
 import typeWorld.api.base
 
 
+# Adjust __file__ for Windows executable
 try:
     __file__ = os.path.abspath(__file__)
 
 except:
     __file__ = sys.executable
+    sys._MEIPASS = os.path.join(os.path.dirname(__file__), 'lib', 'pywinsparkle', 'libs', 'x64')
 
-
-import ctypes, sys
-
-def is_admin():
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except:
-        return False
 
 APPNAME = 'Type.World'
-APPVERSION = '0.1.3'
+APPVERSION = 'n/a'
 DEBUG = True
 
-
-if not '.app/Contents' in os.path.dirname(__file__) or not 'app.py' in __file__:
-    DESIGNTIME = True
-    RUNTIME = False
-else:
+if not 'app.py' in __file__:
     DESIGNTIME = False
     RUNTIME = True
+else:
+    DESIGNTIME = True
+    RUNTIME = False
 
-print('DESIGNTIME', DESIGNTIME)
-print('RUNTIME', RUNTIME)
 
+if WIN:
+    from pywinsparkle import pywinsparkle
 
 
 ## Windows:
@@ -69,70 +64,6 @@ if WIN and RUNTIME:
 
 
 import sys, os, traceback, types
-
-def isUserAdmin():
-
-    if os.name == 'nt':
-        import ctypes
-        # WARNING: requires Windows XP SP2 or higher!
-        try:
-            return ctypes.windll.shell32.IsUserAnAdmin()
-        except:
-            traceback.print_exc()
-            print("Admin check failed, assuming not an admin.")
-            return False
-    elif os.name == 'posix':
-        # Check for root on Posix
-        return os.getuid() == 0
-    else:
-        raise RuntimeError("Unsupported operating system for this module: %s" % (os.name,))
-
-def runAsAdmin(cmdLine=None, wait=True):
-
-    if os.name != 'nt':
-        raise RuntimeError("This function is only implemented on Windows.")
-
-    import win32api, win32con, win32event, win32process
-    from win32com.shell.shell import ShellExecuteEx
-    from win32com.shell import shellcon
-
-    python_exe = sys.executable
-
-    if cmdLine is None:
-        cmdLine = [python_exe] + sys.argv
-    elif type(cmdLine) not in (types.TupleType,types.ListType):
-        raise ValueError("cmdLine is not a sequence.")
-    cmd = '"%s"' % (cmdLine[0],)
-    # XXX TODO: isn't there a function or something we can call to massage command line params?
-    params = " ".join(['"%s"' % (x,) for x in cmdLine[1:]])
-    cmdDir = ''
-    showCmd = win32con.SW_SHOWNORMAL
-    #showCmd = win32con.SW_HIDE
-    lpVerb = 'runas'  # causes UAC elevation prompt.
-
-    # print "Running", cmd, params
-
-    # ShellExecute() doesn't seem to allow us to fetch the PID or handle
-    # of the process, so we can't get anything useful from it. Therefore
-    # the more complex ShellExecuteEx() must be used.
-
-    # procHandle = win32api.ShellExecute(0, lpVerb, cmd, params, cmdDir, showCmd)
-
-    procInfo = ShellExecuteEx(nShow=showCmd,
-                              fMask=shellcon.SEE_MASK_NOCLOSEPROCESS,
-                              lpVerb=lpVerb,
-                              lpFile=cmd,
-                              lpParameters=params)
-
-    if wait:
-        procHandle = procInfo['hProcess']    
-        obj = win32event.WaitForSingleObject(procHandle, win32event.INFINITE)
-        rc = win32process.GetExitCodeProcess(procHandle)
-        #print "Process handle %s returned code %s" % (procHandle, rc)
-    else:
-        rc = None
-
-    return rc
 
 
 ## Windows:
@@ -165,9 +96,7 @@ if WIN:
                     app = Application().connect(process = PID)
                     app.top_window().set_focus()
 
-                # That didn't work. Let's execute the main app directly (with elevated privileges)
                 except:
-
                     pass
 
 
@@ -181,21 +110,60 @@ if WIN:
 
 
 
+# Read app version number
 
-# class AppBadge(NSDockTilePlugIn):
+def getFileProperties(fname):
+    """
+    Read all properties of the given file return them as a dictionary.
+    """
+    import win32api
 
-#   def setDockTile_(self, dockTile):
+    propNames = ('Comments', 'InternalName', 'ProductName',
+        'CompanyName', 'LegalCopyright', 'ProductVersion',
+        'FileDescription', 'LegalTrademarks', 'PrivateBuild',
+        'FileVersion', 'OriginalFilename', 'SpecialBuild')
 
-#       if dockTile:
-#           dockTile.setBadgeLabel_('X')
+    props = {'FixedFileInfo': None, 'StringFileInfo': None, 'FileVersion': None}
 
+    try:
+        # backslash as parm returns dictionary of numeric info corresponding to VS_FIXEDFILEINFO struc
+        fixedInfo = win32api.GetFileVersionInfo(fname, '\\')
+        props['FixedFileInfo'] = fixedInfo
+        props['FileVersion'] = "%d.%d.%d.%d" % (fixedInfo['FileVersionMS'] / 65536,
+                fixedInfo['FileVersionMS'] % 65536, fixedInfo['FileVersionLS'] / 65536,
+                fixedInfo['FileVersionLS'] % 65536)
 
+        # \VarFileInfo\Translation returns list of available (language, codepage)
+        # pairs that can be used to retreive string info. We are using only the first pair.
+        lang, codepage = win32api.GetFileVersionInfo(fname, '\\VarFileInfo\\Translation')[0]
 
+        # any other must be of the form \StringfileInfo\%04X%04X\parm_name, middle
+        # two are language/codepage pair returned from above
 
+        strInfo = {}
+        for propName in propNames:
+            strInfoPath = u'\\StringFileInfo\\%04X%04X\\%s' % (lang, codepage, propName)
+            ## print str_info
+            strInfo[propName] = win32api.GetFileVersionInfo(fname, strInfoPath)
 
-if not DESIGNTIME:
-    plist = plistlib.readPlist(os.path.join(os.path.dirname(__file__), '..', 'Info.plist'))
-    APPVERSION = plist['CFBundleShortVersionString']
+        props['StringFileInfo'] = strInfo
+    except:
+        pass
+
+    return props
+
+if DESIGNTIME:
+    APPVERSION = open(os.path.join(os.path.dirname(__file__), '..', 'currentVersion.txt'), 'r').read().strip()
+
+elif RUNTIME:
+
+    if MAC:
+        plist = plistlib.readPlist(os.path.join(os.path.dirname(__file__), '..', 'Info.plist'))
+        APPVERSION = plist['CFBundleShortVersionString']
+
+    elif WIN:
+        APPVERSION = getFileProperties(__file__)['StringFileInfo']['ProductVersion']
+
 
 
 class AppFrame(wx.Frame):
@@ -252,7 +220,7 @@ class AppFrame(wx.Frame):
         super(AppFrame, self).__init__(parent, size = size)
         self.SetMinSize(minSize)
 
-        self.Title = '%s %s%s' % (APPNAME, APPVERSION, ' ADMIN' if is_admin else '')
+        self.Title = '%s %s' % (APPNAME, APPVERSION)
 
         self.html = wx.html2.WebView.New(self)
         self.Bind(wx.html2.EVT_WEBVIEW_NAVIGATING, self.onNavigating, self.html)
@@ -271,7 +239,7 @@ class AppFrame(wx.Frame):
         # Exit
         menu = wx.Menu()
         m_opensubscription = menu.Append(wx.ID_OPEN, "%s\tCtrl-O" % (self.localize('Add Subscription')))
-        self.Bind(wx.EVT_MENU, self.showAddPublisher, m_opensubscription)
+        self.Bind(wx.EVT_MENU, self.showAddSubscription, m_opensubscription)
         m_CheckForUpdates = menu.Append(wx.NewId(), "%s..." % (self.localize('Check for Updates')))
         self.Bind(wx.EVT_MENU, self.onCheckForUpdates, m_CheckForUpdates)
         m_closewindow = menu.Append(wx.ID_CLOSE, "%s\tCtrl-W" % (self.localize('Close Window')))
@@ -314,47 +282,10 @@ class AppFrame(wx.Frame):
         self.Bind(wx.EVT_ACTIVATE, self.onActivate, self)
 
 
-        # self.Bind(wx.EVT_ACTIVATE, self.onActivate)
-
-        # if wx.Platform == '__WXMAC__':
-        #   w = self.nsapp.mainWindow()
-
-        #   from AppKit import NSFullSizeContentViewWindowMask, NSWindowTitleHidden, NSBorderlessWindowMask, NSResizableWindowMask, NSTitledWindowMask, NSFullSizeContentViewWindowMask, NSWindowStyleMaskFullSizeContentView
-
-#           w.setStyleMask_(NSFullSizeContentViewWindowMask)
-
-            # 0: NSWindowStyleMaskTitled
-            # 1: NSWindowStyleMaskClosable
-            # 2: NSWindowStyleMaskMiniaturizable
-            # 3: NSWindowStyleMaskResizable
-            # 8: NSWindowStyleMaskTexturedBackground
-            # 12: NSWindowStyleMaskUnifiedTitleAndToolbar
-            # 14: NSWindowStyleMaskFullScreen
-            # 15: NSWindowStyleMaskFullSizeContentView
-            # 4: NSWindowStyleMaskUtilityWindow
-            # 6: NSWindowStyleMaskDocModalWindow
-            # 7: NSWindowStyleMaskNonactivatingPanel
-            # 13: NSWindowStyleMaskHUDWindow
 
 
-            # w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3)
-            # w.setTitlebarAppearsTransparent_(True)
-            # w.setTitleVisibility_(NSWindowTitleHidden)
 
-
-#           w.setTitle_(' ')
-
-
-#           w.setStyleMask_(NSBorderlessWindowMask)
-            #w.setTitlebarAppearsTransparent_(1)
-#           w.setIsMovable_(True)
-            #w.setTitleVisibility_(0)
-            #w.setMovableByWindowBackground_(True)
-            # js = '$("#sidebar").css("padding-top", "18px");'
-            # self.javaScript(js)
-
-
-        if not DESIGNTIME:
+        if MAC and RUNTIME:
             # Your Qt QApplication instance
             QT_APP = self
             # URL to Appcast.xml, eg. https://yourserver.com/Appcast.xml
@@ -381,6 +312,9 @@ class AppFrame(wx.Frame):
             NSURL = self.objc_namespace['NSURL']
             self.sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
             self.sparkle.checkForUpdatesInBackground()
+
+        if WIN:
+            self.setup_pywinsparkle()
 
 
     def javaScript(self, script):
@@ -469,7 +403,10 @@ class AppFrame(wx.Frame):
 
 
     def onCheckForUpdates(self, event):
-        self.sparkle.checkForUpdates_(None)
+        if MAC:
+            self.sparkle.checkForUpdates_(None)
+        elif WIN:
+            pywinsparkle.win_sparkle_check_update_with_ui()
 
     def onClose(self, event):
 
@@ -485,6 +422,9 @@ class AppFrame(wx.Frame):
 
         if WIN and os.path.exists(lockFilePath):
             os.remove(lockFilePath)
+
+        if WIN:
+            pywinsparkle.win_sparkle_cleanup()
 
         self.Destroy()
 
@@ -509,9 +449,6 @@ class AppFrame(wx.Frame):
             if size[1] > screenSize.height:
                 size[1] = screenSize.height - 50
                 resize = True
-
-        if WIN:
-            print('User is admin:', is_admin())
 
         if resize:
             self.SetSize(size)
@@ -650,6 +587,7 @@ class AppFrame(wx.Frame):
             code = code.replace('http//', 'http://')
             code = code.replace('https//', 'https://')
             code = code.replace('____', '\'')
+            code = code.replace("'", '\'')
             print('Python code:', code)
             exec(code)
             evt.Veto()
@@ -675,19 +613,20 @@ class AppFrame(wx.Frame):
 #       raise Exception(evt.GetString())
 
 
-    def showAddPublisher(self, evt):
-        print('showAddPublisher()')
-        self.javaScript('showAddPublisher();')
-
-    def addPublisherJavaScript(self, url, username = None, password = None):
-
-        self.log('addPublisherJavaScript(%s, %s, %s)' % (url, username, password))
-        self.javaScript('addPublisher("%s", "%s", "%s", "%s");' % (url, username or '', password or '', self.localizeString('#(Loading Subscription)')))
+    def showAddSubscription(self, evt):
+        print('showAddSubscription()')
+        self.javaScript('showAddSubscription();')
 
 
-    def addPublisher(self, url, username = None, password = None):
+    def addSubscription(self, url, username = None, password = None):
 
-        self.log('addPublisher(%s, %s, %s)' % (url, username, password))
+        self.javaScript("showCenterMessage('%s');" % self.localizeString('#(Loading Subscription)'))
+        startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
+
+
+    def addSubscriptionViaDialog(self, url, username = None, password = None):
+
+        self.log('addSubscription(%s, %s, %s)' % (url, username, password))
 
         for protocol in typeWorld.api.base.PROTOCOLS:
             url = url.replace(protocol + '//', protocol + '://')
@@ -700,19 +639,35 @@ class AppFrame(wx.Frame):
             if url.startswith(protocol):
                 known = True
                 break
+
         if not known:
             self.errorMessage('Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS))
+
+            # Reset Form
             self.javaScript('$("#addSubscriptionFormSubmitButton").show();')
             self.javaScript('$("#addSubscriptionFormCancelButton").show();')
             self.javaScript('$("#addSubscriptionFormSubmitAnimation").hide();')
 
             self.javaScript('hideCenterMessage();')
+
             return
 
         # remove URI
-        print(('addPublisher', url))
+        print(('addSubscription', url))
+
+        startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
+
+
+
+    def addSubscription_worker(self, url, username, password):
 
         success, message, publisher = self.client.addSubscription(url, username, password)
+        return success, message, publisher
+
+
+    def addSubscription_consumer(self, delayedResult):
+
+        success, message, publisher = delayedResult.get()
 
         if success:
 
@@ -722,12 +677,11 @@ class AppFrame(wx.Frame):
             self.setPublisherHTML(b64ID)
             self.javaScript("hidePanel();")
 
-
-
         else:
 
             self.errorMessage(message)
 
+        # Reset Form
         self.javaScript('$("#addSubscriptionFormSubmitButton").show();')
         self.javaScript('$("#addSubscriptionFormCancelButton").show();')
         self.javaScript('$("#addSubscriptionFormSubmitAnimation").hide();')
@@ -778,7 +732,7 @@ class AppFrame(wx.Frame):
 
     def installAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64setName, formatName):
 
-        jsFonts = []
+        fonts = []
 
         publisherID = self.b64decode(b64publisherID)
         subscriptionID = self.b64decode(b64subscriptionID)
@@ -794,15 +748,14 @@ class AppFrame(wx.Frame):
         for font in family.fonts():
             if font.setName.getText(self.locale) == setName and font.format == formatName:
                 if not font.installedVersion():
-                    jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getVersions()[-1].number))
+                    fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
 
-        call = 'installFonts(Array(' + ','.join(jsFonts) + '), true);'
-        self.javaScript(call)
+        self.installFonts(fonts)
 
 
     def removeAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64setName, formatName):
 
-        jsFonts = []
+        fonts = []
 
         publisherID = self.b64decode(b64publisherID)
         subscriptionID = self.b64decode(b64subscriptionID)
@@ -818,47 +771,78 @@ class AppFrame(wx.Frame):
         for font in family.fonts():
             if font.setName.getText(self.locale) == setName and font.format == formatName:
                 if font.installedVersion():
-                    jsFonts.append("Array('%s', '%s', '%s', '%s')" % (b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getVersions()[-1].number))
+                    fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID)])
 
-        call = 'removeFonts(Array(' + ','.join(jsFonts) + '), true);'
-        self.javaScript(call)
+        self.removeFonts(fonts)
+
+
+
+    def installFontFromMenu(self, event, b64publisherURL, b64subscriptionURL, b64fontID, version):
+
+        self.log('installFontFromMenu()')
+
+        self.installFont(b64publisherURL, b64subscriptionURL, b64fontID, version)
+
+
+    def installFont(self, b64publisherURL, b64subscriptionURL, b64fontID, version):
+
+        self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
+        self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
+        self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
+        self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
+
+        startWorker(self.installFonts_consumer, self.installFonts_worker, wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID, version]]]))
 
 
     def installFonts(self, fonts):
 
         for b64publisherURL, b64subscriptionURL, b64fontID, version in fonts:
 
+            self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
+            self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
+            self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
+            self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
+
+        startWorker(self.installFonts_consumer, self.installFonts_worker, wargs=([fonts]))
+
+
+
+    def installFonts_worker(self, fonts):
+
+        self.log(fonts)
+
+        for b64publisherURL, b64subscriptionURL, b64fontID, version in fonts:
+
             publisherURL = self.b64decode(b64publisherURL)
             subscriptionURL = self.b64decode(b64subscriptionURL)
-#           fontID = self.b64decode(b64fontID)
+            fontID = self.b64decode(b64fontID)
 
             publisher = self.client.publisher(publisherURL)
-#           subscription = publisher.subscription(subscriptionURL)
+            subscription = publisher.subscription(subscriptionURL)
+            api = subscription.latestVersion()
 
-            self.installFont(b64publisherURL, b64subscriptionURL, b64fontID, version)
-            self.setSideBarHTML()
-            self.setBadges()
+            # Remove other installed versions
+            if subscription.installedFontVersion(fontID) != version:
+                success, message = subscription.removeFont(fontID)
+                if success == False:
+                    return success, message, b64publisherURL
 
-        self.setPublisherHTML(b64publisherURL)
+            # Install new font
+            success, message = subscription.installFont(fontID, version)
+
+            if success == False:
+                return success, message, b64publisherURL
+
+        return True, None, b64publisherURL
 
 
-    def installFont(self, b64publisherURL, b64subscriptionURL, b64fontID, version):
+    def installFonts_consumer(self, delayedResult):
 
-        publisherURL = self.b64decode(b64publisherURL)
-        subscriptionURL = self.b64decode(b64subscriptionURL)
-        fontID = self.b64decode(b64fontID)
-
-        publisher = self.client.publisher(publisherURL)
-        subscription = publisher.subscription(subscriptionURL)
-        api = subscription.latestVersion()
-
-        success, message = subscription.installFont(fontID, version)
+        success, message, b64publisherURL = delayedResult.get()
 
         if success:
 
             pass
-            # self.setPublisherInstalledFontBadge(self.b64encode(subscription.parent.canonicalURL), subscription.parent.amountInstalledFonts())
-            # self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
 
         else:
 
@@ -867,96 +851,91 @@ class AppFrame(wx.Frame):
             else:
                 self.errorMessage('Server: %s' % message.getText(self.locale()))
 
-            # self.javaScript("$('#%s .statusButton').hide();" % b64fontID)
-            # self.javaScript("$('#%s .removeButton').show();" % b64fontID)
+        self.setSideBarHTML()
+        self.setBadges()
+        self.setPublisherHTML(b64publisherURL)
 
+
+    def updateAllFonts(self, evt, publisherB64ID, subscriptionB64ID):
+
+        fonts = []
+
+        if publisherB64ID:
+            publisher = self.client.publisher(self.b64decode(publisherB64ID))
+            for subscription in publisher.subscriptions():
+                subscriptionB64ID = self.b64encode(subscription.url)
+                for foundry in subscription.foundries():
+                    for family in foundry.families():
+                        for font in family.fonts():
+                            if font.isOutdated():
+                                fonts.append([publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
+
+        elif subscriptionB64ID:
+            
+            for publisher in self.client.publishers():
+                for subscription in publisher.subscriptions():
+                    if subscription.url == self.b64decode(subscriptionB64ID):
+                        publisherB64ID = self.b64encode(publisher.canonicalURL)
+                        break
+
+            for foundry in subscription.foundries():
+                for family in foundry.families():
+                    for font in family.fonts():
+                        if font.isOutdated():
+                            fonts.append([publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
+
+        self.installFonts(fonts)
+
+
+    def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
+
+        self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
+        self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
+        self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
+        self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
+
+        startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID]]]))
 
     def removeFonts(self, fonts):
 
         for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
 
+            self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
+            self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
+            self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
+            self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
+
+        startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([fonts]))
+
+
+    def removeFonts_worker(self, fonts):
+
+        for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
+
             publisherURL = self.b64decode(b64publisherURL)
             subscriptionURL = self.b64decode(b64subscriptionURL)
-#           fontID = self.b64decode(b64fontID)
+            fontID = self.b64decode(b64fontID)
 
             publisher = self.client.publisher(publisherURL)
-#           subscription = publisher.subscription(subscriptionURL)
+            subscription = publisher.subscription(subscriptionURL)
+            api = subscription.latestVersion()
 
-            self.removeFont(b64publisherURL, b64subscriptionURL, b64fontID)
-            self.setSideBarHTML()
-            self.setBadges()
-
-        self.setPublisherHTML(b64publisherURL)
-
-
-    
-
-
-        publisherURL = self.b64decode(b64publisherURL)
-        subscriptionURL = self.b64decode(b64subscriptionURL)
-        fontID = self.b64decode(b64fontID)
-
-        # self.javaScript("$('#%s .installButton').hide();" % b64fontID)
-        # self.javaScript("$('#%s .status').show();" % b64fontID)
-
-        print(('installFont', publisherURL, subscriptionURL, fontID))
-
-        publisher = self.client.publisher(publisherURL)
-        subscription = publisher.subscription(subscriptionURL)
-#       api = subscription.latestVersion()
-#       b64ID = self.b64encode(publisherURL)
-
-        # Check if font is already installed
-        if subscription.installedFontVersion(fontID):
-            print(('Removing old version %s' % version))
             success, message = subscription.removeFont(fontID)
 
-            if not success:
-                self.errorMessage(message)
-
-            else:
-                success, message = subscription.installFont(fontID, version)
-
-        else:
-            success, message = subscription.installFont(fontID, version)
-
-        if success:
-
-            pass
-            
-        else:
-
-            if type(message) in (str, str):
-                
-                if message == 'seatAllowanceReached':
-                    self.errorMessage('seatAllowanceReached')
-
-                else:
-                    self.errorMessage(message)
-            else:
-                self.errorMessage('Server: %s' % message.getText(self.locale()))
-
-            # self.javaScript("$('#%s .statusButton').hide();" % b64fontID)
-            # self.javaScript("$('#%s .installButton').show();" % b64fontID)
+            if success == False:
+                return success, message, b64publisherURL
 
 
-    def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
+        return True, None, b64publisherURL
 
-        publisherURL = self.b64decode(b64publisherURL)
-        subscriptionURL = self.b64decode(b64subscriptionURL)
-        fontID = self.b64decode(b64fontID)
 
-        publisher = self.client.publisher(publisherURL)
-        subscription = publisher.subscription(subscriptionURL)
-        api = subscription.latestVersion()
+    def removeFonts_consumer(self, delayedResult):
 
-        success, message = subscription.removeFont(fontID)
+        success, message, b64publisherURL = delayedResult.get()
 
         if success:
 
             pass
-            # self.setPublisherInstalledFontBadge(self.b64encode(subscription.parent.canonicalURL), subscription.parent.amountInstalledFonts())
-            # self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
 
         else:
 
@@ -965,10 +944,9 @@ class AppFrame(wx.Frame):
             else:
                 self.errorMessage('Server: %s' % message.getText(self.locale()))
 
-            # self.javaScript("$('#%s .statusButton').hide();" % b64fontID)
-            # self.javaScript("$('#%s .removeButton').show();" % b64fontID)
-
-
+        self.setSideBarHTML()
+        self.setBadges()
+        self.setPublisherHTML(b64publisherURL)
 
 
     def onContextMenu(self, x, y, target, b64ID):
@@ -1051,11 +1029,10 @@ class AppFrame(wx.Frame):
                             for font in family.fonts():
                                 if font.uniqueID == fontID:
 
-
                                     if font.installedVersion():
                                         item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Show in Finder)'))
-                                        menu.Append(item)
                                         menu.Bind(wx.EVT_MENU, partial(self.showFontInFinder, subscription = subscription, fontID = fontID), item)
+                                        menu.Append(item)
 
                                     # create a submenu
                                     subMenu = wx.Menu()
@@ -1064,16 +1041,20 @@ class AppFrame(wx.Frame):
                                     for version in font.getVersions():
 
                                         if font.installedVersion() == version.number:
-                                            installVersionsSubmenu = subMenu.Append(wx.NewId(), str(version.number), "", wx.ITEM_RADIO)
+                                            item = wx.MenuItem(subMenu, wx.NewId(), str(version.number), "", wx.ITEM_RADIO)
+
                                         else:
-                                            installVersionsSubmenu = subMenu.Append(wx.NewId(), str(version.number))
+                                            item = wx.MenuItem(subMenu, wx.NewId(), str(version.number))
 
-                                        subMenu.Bind(wx.EVT_MENU, partial(self.installFontFromMenu, subscription = subscription, fontID = fontID, version = version.number), installVersionsSubmenu)
+                                        if WIN:
+                                            installHere = menu
+                                        else:
+                                            installHere = subMenu
+                                        installHere.Bind(wx.EVT_MENU, partial(self.installFontFromMenu, b64publisherURL = self.b64encode(publisher.canonicalURL), b64subscriptionURL = self.b64encode(subscription.url), b64fontID = b64ID, version = version.number), item)
+                                        subMenu.Append(item)
 
-                                        # item = wx.MenuItem(subMenu, wx.NewId(), version.number)
-                                        # subMenu.Append(item)
-                                        #menu.Bind(wx.EVT_MENU, partial(self.reloadSubscriptionJavaScript, b64ID = b64ID), item)
 
+#    def installFontFromMenu(self, event, b64publisherURL, b64subscriptionURL, b64fontID, version):
 
                                     self.PopupMenu(menu, wx.Point(int(x), int(y)))
                                     menu.Destroy()
@@ -1092,8 +1073,6 @@ class AppFrame(wx.Frame):
             menu.Destroy()
 
 
-    def installFontFromMenu(self, event, subscription, fontID, version):
-        self.javaScript("installFonts(Array(Array('%s', '%s', '%s', '%s')), true);" % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(fontID), version))
 
     def showPublisherPreferences(self, event, b64ID):
 
@@ -1163,42 +1142,6 @@ class AppFrame(wx.Frame):
 
         import subprocess
         subprocess.call(["open", "-R", path])
-
-
-    def updateAllFonts(self, evt, publisherB64ID, subscriptionB64ID):
-
-        fonts = []
-
-        if publisherB64ID:
-            publisher = self.client.publisher(self.b64decode(publisherB64ID))
-            for subscription in publisher.subscriptions():
-                subscriptionB64ID = self.b64encode(subscription.url)
-                for foundry in subscription.foundries():
-                    for family in foundry.families():
-                        for font in family.fonts():
-                            if font.isOutdated():
-                                fonts.append("Array('%s', '%s', '%s', '%s')" % (publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number))
-
-        elif subscriptionB64ID:
-            
-            for publisher in self.client.publishers():
-                for subscription in publisher.subscriptions():
-                    if subscription.url == self.b64decode(subscriptionB64ID):
-                        publisherB64ID = self.b64encode(publisher.canonicalURL)
-                        break
-
-            for foundry in subscription.foundries():
-                for family in foundry.families():
-                    for font in family.fonts():
-                        if font.isOutdated():
-                            fonts.append("Array('%s', '%s', '%s', '%s')" % (publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number))
-
-        if fonts:
-            call = 'removeFonts(Array(' + ','.join(fonts) + '), true);'
-            self.javaScript(call)
-            call = 'installFonts(Array(' + ','.join(fonts) + '), true);'
-            self.javaScript(call)
-
 
 
 
@@ -1420,21 +1363,23 @@ class AppFrame(wx.Frame):
                             html.append('<div class="installButtons right" style="padding-top: 5px;">')
                             html.append('<div class="clear">')
 
+                            if amountInstalled < len(fonts):
+                                html.append('<div class="install installButton right">')
+                                html.append('<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+                                html.append('✓ #(Install All)')
+                                html.append('</a>')
+                                html.append('</div>') # .installButton
+
                             if amountInstalled > 0:
                                 html.append('<div class="remove installButton right">')
-                                html.append('<a class="removeAllFonts removeButton button " publisherid="%s" subscriptionid="%s" familyid="%s" setname="%s" formatname="%s">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+                                html.append('<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
                                 html.append('✕ #(Remove All)')
                                 html.append('</a>')
                                 html.append('</div>') # .installButton
 
-                            if amountInstalled < len(fonts):
-                                html.append('<div class="install installButton right">')
-                                html.append('<a class="installAllFonts installButton button" publisherid="%s" subscriptionid="%s" familyid="%s" setname="%s" formatname="%s">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
-                                html.append('✓ #(Install All)')
-                                html.append('</a>')
-                                html.append('</div>') # .installButton
                             html.append('</div>') # .clear
                             html.append('</div>') # .installButtons
+
                         html.append('</div>') # .title
 
                         for font in fonts:
@@ -1462,12 +1407,12 @@ class AppFrame(wx.Frame):
                                 html.append('<div class="installButtons right">')
                                 html.append('<div class="clear">')
                                 html.append('<div class="installButton install right" style="display: %s;">' % ('none' if installedVersion else 'block'))
-                                html.append('<a class="installButton button" publisherid="%s" subscriptionid="%s" fontid="%s" version="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getVersions()[-1].number if font.getVersions() else ''))
+                                html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getVersions()[-1].number if font.getVersions() else ''))
                                 html.append('✓ #(Install)')
                                 html.append('</a>')
                                 html.append('</div>') # .right
                                 html.append('<div class="installButton remove right" style="display: %s;">' % ('block' if installedVersion else 'none'))
-                                html.append('<a class="removeButton button" publisherid="%s" subscriptionid="%s" fontid="%s">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
+                                html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
                                 html.append('✕ #(Remove)')
                                 html.append('</a>')
                                 html.append('</div>') # .right
@@ -1475,7 +1420,7 @@ class AppFrame(wx.Frame):
                                 html.append('</div>') # .installButtons
                                 html.append('<div class="right">')
                                 html.append('<a class="status">')
-                                html.append('''<img src="file://##htmlroot##/loading.svg" style="height: 13px; position: relative; top: 2px;">''')
+                                html.append('''<img src="file://##htmlroot##/loading.gif" style="height: 13px; position: relative; top: 2px;">''')
                                 html.append('</a>')
                                 html.append('<div>')
                                 html.append('<a class="more">')
@@ -1506,26 +1451,7 @@ class AppFrame(wx.Frame):
 
         html.append('</div>') # .publisher
 
-
-
         html.append('''<script>     
-
-
-    $(".font a.installButton").click(function() {
-        installFonts(Array(Array($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('fontid'), $(this).attr('version'))));
-    }); 
- 
-    $(".font a.removeButton").click(function() {
-        removeFonts(Array(Array($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('fontid'))));
-    }); 
-
-    $(".family a.removeAllFonts").click(function() {
-        removeAllFonts($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('familyid'), $(this).attr('setname'), $(this).attr('formatname')); 
-    });
-
-    $(".family a.installAllFonts").click(function() {
-        installAllFonts($(this).attr('publisherid'), $(this).attr('subscriptionid'), $(this).attr('familyid'), $(this).attr('setname'), $(this).attr('formatname')); 
-    });
 
 
     $("#main .section .title").hover(function() {
@@ -1749,7 +1675,7 @@ $( document ).ready(function() {
 
         # Open drawer for newly added publisher
         if self.justAddedPublisher:
-            self.addPublisherJavaScript(self.justAddedPublisher)
+            self.addSubscription(self.justAddedPublisher)
             self.justAddedPublisher = None
 
 
@@ -1776,12 +1702,7 @@ $( document ).ready(function() {
 
 
             if self.fullyLoaded:
-
-                # Workaround: When opening the app for the first time (on Windows), the JavaScript doesn't respond to the calls
-                if WIN:
-                    self.addPublisher(url)
-                else:
-                    self.addPublisherJavaScript(url)
+                self.addSubscription(url)
             else:
 
                 self.justAddedPublisher = url
@@ -1883,6 +1804,61 @@ $( document ).ready(function() {
 
 
 
+
+    def pywinsparkle_no_update_found(self):
+        """ when no update has been found, close the updater"""
+        print("No update found")
+        print("Setting flag to shutdown PassagesUpdater")
+
+
+    def pywinsparkle_found_update(self):
+        """ log that an update was found """
+        print("New Update Available")
+
+
+    def pywinsparkle_encountered_error(self):
+        print("An error occurred")
+
+
+    def pywinsparkle_update_cancelled(self):
+        """ when the update was cancelled, close the updater"""
+        print("Update was cancelled")
+        print("Setting flag to shutdown PassagesUpdater")
+
+
+    def pywinsparkle_shutdown(self):
+        """ The installer is being launched signal the updater to shutdown """
+
+        # actually shutdown the app here
+        print("Safe to shutdown before installing")
+
+
+    def setup_pywinsparkle(self):
+
+        # register callbacks
+        pywinsparkle.win_sparkle_set_did_find_update_callback(self.pywinsparkle_found_update)
+        pywinsparkle.win_sparkle_set_error_callback(self.pywinsparkle_encountered_error)
+        pywinsparkle.win_sparkle_set_update_cancelled_callback(self.pywinsparkle_update_cancelled)
+        pywinsparkle.win_sparkle_set_did_not_find_update_callback(self.pywinsparkle_no_update_found)
+        pywinsparkle.win_sparkle_set_shutdown_request_callback(self.pywinsparkle_shutdown)
+
+        # set application details
+        update_url = "https://type.world/downloads/guiapp/appcast_windows.xml"
+        pywinsparkle.win_sparkle_set_appcast_url(update_url)
+        pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
+
+        # initialize
+        pywinsparkle.win_sparkle_init()
+
+        # # check for updates
+        # pywinsparkle.win_sparkle_check_update_with_ui()
+
+        # # alternatively you could check for updates in the
+        # # background silently
+        # pywinsparkle.win_sparkle_check_update_without_ui()
+
+
+
 class DebugWindow(wx.Frame):
     def __init__(self, parent, ID, title):
         wx.Frame.__init__(self, parent, ID, title,wx.DefaultPosition,
@@ -1913,7 +1889,7 @@ class MyApp(wx.App):
         self.frame.log('MyApp.MacOpenURL(%s)' % url)
 
         if self.frame.fullyLoaded:
-            self.frame.addPublisherJavaScript(url)
+            self.frame.addSubscription(url)
         else:
             self.frame.justAddedPublisher = url
 
@@ -1937,14 +1913,6 @@ class MyApp(wx.App):
 
         html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'index.html'))
 
-        html = html.replace('##jquery##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'jquery-1.12.4.js')))
-#        html = html.replace('##jqueryui##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'jquery-ui.js')))
-        html = html.replace('##jqueryui##', '')
-
-        html = html.replace('##js.js##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'js.js')))
-        html = html.replace('##cubic.js##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'splitcubicatt.js')))
-        html = html.replace('##atom.js##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'js', 'atom.js')))
-        html = html.replace('##css##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'css', 'index.css')))
 #        html = html.replace('##jqueryuicss##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'css', 'jquery-ui.css')))
         html = html.replace('APPVERSION', APPVERSION)
 
@@ -1984,14 +1952,11 @@ class MyApp(wx.App):
         frame.Show()
         frame.CentreOnScreen()
 
-        # if WIN:
-        #     self.frame.checkForURLInFile()
-
 
         return True
 
 
-app = MyApp(redirect = DEBUG and WIN, filename = None)
+app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = None)
 app.MainLoop()
 
 

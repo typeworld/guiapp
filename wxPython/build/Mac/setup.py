@@ -1,10 +1,9 @@
 from setuptools import setup
 import os
 
+version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 'r').read().strip()
 
-version = '0.1.3'
-
-APP = ['app.py']
+APP = ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/app.py']
 DATA_FILES = []
 OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
            'iconfile': 'icon/tw.icns',
@@ -51,4 +50,3 @@ setup(
 )
 
 
-os.system('echo "%s" > %s/Code/TypeWorldApp/build/version' % (OPTIONS['plist']['CFBundleShortVersionString'], os.path.expanduser('~')))

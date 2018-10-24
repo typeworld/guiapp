@@ -12,29 +12,37 @@ except:
     __file__ = sys.executable
 
 
-# See if we can find the PID in the file system
-lockFilePath = os.path.join(os.path.dirname(__file__), '..', 'pid.txt')
-
-openURLFilePath = os.path.join(os.path.dirname(__file__), '..', 'url.txt')
+from appdirs import user_data_dir
+openURLFilePath = os.path.join(user_data_dir('Type.World', 'Type.World'), 'url.txt')
 urlFile = open(openURLFilePath, 'w')
 urlFile.write(str(sys.argv[-1]))
 urlFile.close()
 
 
-if os.path.exists(lockFilePath):
-    lockFile = open(lockFilePath, 'r')
-    PID = int(lockFile.read().strip())
-    lockFile.close()
+def PID():
+    import psutil
+    PROCNAME = "TypeWorld.exe"
+    for proc in psutil.process_iter():
+        if proc.name() == PROCNAME and proc.pid != os.getpid():
+            return proc.pid
+
+pid = PID()
+
+if pid:
 
     # Another PID already exists. See if we can activate it, then exit()
-    from pywinauto import Application
     try:
-
-        app = Application().connect(process = PID)
-        app.top_window().set_focus()
+        import win32com.client
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shell.AppActivate(pid)
 
     # That didn't work. Let's execute the main app directly (with elevated privileges)
     except:
         exe = os.path.join(os.path.dirname(__file__), '..', 'TypeWorld.exe')
         ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, '', None, 1)
+
+
+else:
+    exe = os.path.join(os.path.dirname(__file__), '..', 'TypeWorld.exe')
+    ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, '', None, 1)
 

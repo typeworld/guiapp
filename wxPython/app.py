@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
 import wx, os, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, ctypes
 from threading import Thread
 import threading
@@ -36,7 +35,7 @@ except:
 
 APPNAME = 'Type.World'
 APPVERSION = 'n/a'
-DEBUG = True
+DEBUG = False
 
 if not 'app.py' in __file__:
     DESIGNTIME = False
@@ -48,6 +47,12 @@ else:
 
 if WIN:
     from pywinsparkle import pywinsparkle
+
+
+
+
+
+
 
 
 ## Windows:
@@ -67,47 +72,30 @@ import sys, os, traceback, types
 
 
 ## Windows:
-## Create lockfile to prevent second opening of the app
+## Open other app instance if open
+
+def PID():
+    import psutil
+    PROCNAME = "TypeWorld.exe"
+    for proc in psutil.process_iter():
+        if proc.name() == PROCNAME and proc.pid != os.getpid():
+            return proc.pid
 
 if WIN:
 
-    mutex = None
-    lockFilePath = os.path.join(os.path.dirname(__file__), 'pid.txt')
+    pid = PID()
 
-    try:
-        import win32event, win32api, winerror
-    except ImportError:
-        print("No win32all available")
-    else:
-        mutex = win32event.CreateMutex(None, 1, 'world.type.guiapp')
-        lasterror = win32api.GetLastError()
-        if lasterror == winerror.ERROR_ALREADY_EXISTS:
-            mutex = None
+    if pid:
 
-            # See if we can find the PID in the file system
-            if os.path.exists(lockFilePath):
-                lockFile = open(lockFilePath, 'r')
-                PID = int(lockFile.read().strip())
-                lockFile.close()
+        from pywinauto import Application
+        try:
+            app = Application().connect(process = pid)
+            app.top_window().set_focus()
 
-                # Another PID already exists. See if we can activate it, then exit()
-                from pywinauto import Application
-                try:
-                    app = Application().connect(process = PID)
-                    app.top_window().set_focus()
+        except:
+            pass
 
-                except:
-                    pass
-
-
-
-            sys.exit(1)
-
-    # Write new PID
-    lockFile = open(lockFilePath, 'w')
-    lockFile.write(str(os.getpid()))
-    lockFile.close()
-
+        sys.exit(1)
 
 
 # Read app version number
@@ -169,11 +157,11 @@ elif RUNTIME:
 class AppFrame(wx.Frame):
     def __init__(self, parent):        
 
-        if platform.system() == 'Windows':
-            prefs = JSON(os.path.join(os.path.dirname(__file__), 'preferences.json'))
+        if WIN:
+            from appdirs import user_data_dir
+            prefs = JSON(os.path.join(user_data_dir('Type.World', 'Type.World'), 'preferences.json'))
         else:
             prefs = AppKitNSUserDefaults('world.type.clientapp' if DESIGNTIME else None)
-
 
         self.client = APIClient(preferences = prefs)
 
@@ -316,6 +304,21 @@ class AppFrame(wx.Frame):
         if WIN:
             self.setup_pywinsparkle()
 
+        # try:
+        #     from ctypes import OleDLL
+        #     # Turn on high-DPI awareness to make sure rendering is sharp on big
+        #     # monitors with font scaling enabled.
+        #     OleDLL('shcore').SetProcessDpiAwareness(1)
+        # except AttributeError:
+        #     # We're on a non-Windows box.
+        #     pass
+        # except OSError:
+        #     # exc.winerror is often E_ACCESSDENIED (-2147024891/0x80070005).
+        #     # This occurs after the first run, when the parameter is reset in the
+        #     # executable's manifest and then subsequent calls raise this exception
+        #     # See last paragraph of Remarks at
+        #     # https://msdn.microsoft.com/en-us/library/dn302122(v=vs.85).aspx
+        #     pass
 
     def javaScript(self, script):
 #        print()
@@ -410,8 +413,6 @@ class AppFrame(wx.Frame):
 
     def onClose(self, event):
 
-        if WIN and os.path.exists(lockFilePath):
-            os.remove(lockFilePath)
 
         if self.panelVisible:
             self.javaScript('hidePanel();')
@@ -420,8 +421,6 @@ class AppFrame(wx.Frame):
 
     def onQuit(self, event):
 
-        if WIN and os.path.exists(lockFilePath):
-            os.remove(lockFilePath)
 
         if WIN:
             pywinsparkle.win_sparkle_cleanup()
@@ -456,7 +455,7 @@ class AppFrame(wx.Frame):
         if self.client.preferences.get('currentPublisher'):
             self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
 
-        if WIN and self.fullyLoaded:
+        if WIN:
             self.checkForURLInFile()
 
 
@@ -619,6 +618,13 @@ class AppFrame(wx.Frame):
 
 
     def addSubscription(self, url, username = None, password = None):
+
+        for publisher in self.client.publishers():
+            for subscription in publisher.subscriptions():
+                print (subscription.url, url)
+                if subscription.url == self.client.addAttributeToURL(url.replace('typeworldjson://', ''), 'command', 'installableFonts'):
+                    self.setActiveSubscription(self.b64encode(publisher.canonicalURL), self.b64encode(subscription.url))
+                    return
 
         self.javaScript("showCenterMessage('%s');" % self.localizeString('#(Loading Subscription)'))
         startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
@@ -1245,6 +1251,11 @@ class AppFrame(wx.Frame):
         dlg.Destroy()
 
 
+    def message(self, message):
+        dlg = wx.MessageDialog(self, message, '')
+        result = dlg.ShowModal()
+        dlg.Destroy()
+
     def fontHTML(self, font):
 
         subscription = font.parent.parent.parent
@@ -1684,8 +1695,6 @@ $( document ).ready(function() {
             self.setPublisherHTML(self.b64encode(self.client.preferences.get('currentPublisher')))
         self.setBadges()
 
-#        self.onActivate(None)
-
         if WIN:
             self.checkForURLInFile()
 
@@ -1693,7 +1702,8 @@ $( document ).ready(function() {
 
     def checkForURLInFile(self):
 
-        openURLFilePath = os.path.join(os.path.dirname(__file__), 'url.txt')
+        from appdirs import user_data_dir
+        openURLFilePath = os.path.join(user_data_dir('Type.World', 'Type.World'), 'url.txt')
 
         if os.path.exists(openURLFilePath):
             urlFile = open(openURLFilePath, 'r')
@@ -1858,6 +1868,35 @@ $( document ).ready(function() {
         # pywinsparkle.win_sparkle_check_update_without_ui()
 
 
+    def startPipeListener(self):
+        startWorker(self.pipeListener_consumer, self.pipeListener_worker)
+        
+
+    def pipeListener_worker(self):
+
+        import wpipe
+
+        self.pserver = wpipe.Server('mypipe', wpipe.Mode.Slave)
+        while True:
+            for client in self.pserver:
+                while client.canread():
+                    rawmsg = client.read()
+                    client.write(b'hallo')
+                    self.pserver.shutdown()
+                    return rawmsg
+
+
+    def pipeListener_consumer(self, delayedResult):
+
+        message = delayedResult.get()
+
+        self.message(message)
+
+        self.startPipeListener()
+
+
+
+
 
 class DebugWindow(wx.Frame):
     def __init__(self, parent, ID, title):
@@ -1899,6 +1938,13 @@ class MyApp(wx.App):
     def OnInit(self):
 
 
+        if WIN:
+            import winreg as wreg
+            current_file = __file__
+            key = wreg.CreateKey(wreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION")
+            wreg.SetValueEx(key, current_file, 0, wreg.REG_DWORD, 11001)
+
+
 
         frame = AppFrame(None)
         self.frame = frame
@@ -1919,11 +1965,6 @@ class MyApp(wx.App):
         html = frame.localizeString(html, html = True)
         html = frame.replaceHTML(html)
 
-        if WIN:
-            import winreg as wreg
-            current_file = __file__
-            key = wreg.CreateKey(wreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION")
-            wreg.SetValueEx(key, current_file, 0, wreg.REG_DWORD, 11001)
 
         # memoryfs = wx.MemoryFSHandler()
         # wx.FileSystem.AddHandler(memoryfs)
@@ -1936,9 +1977,10 @@ class MyApp(wx.App):
 
         filename = os.path.join(os.path.dirname(__file__), 'app.html')
         print('app.html:', filename)
-        print('__file__:', __file__)
         WriteToFile(filename, html)
         frame.html.LoadURL("file://%s" % filename)
+        print('__file__:', __file__)
+
 
 
         # if os.path.exists(openURLFilePath):
@@ -1951,6 +1993,11 @@ class MyApp(wx.App):
 
         frame.Show()
         frame.CentreOnScreen()
+
+
+
+        # if WIN:
+        #     frame.startPipeListener()
 
 
         return True

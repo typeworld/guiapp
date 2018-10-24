@@ -6,10 +6,10 @@ version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 
 APP = ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/app.py']
 DATA_FILES = []
 OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
-           'iconfile': 'icon/tw.icns',
+           'iconfile': '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/tw.icns',
            'includes': ['ynlib', 'wx', 'os', 'webbrowser', 'urllib', 'base64', 'threading', 'keyring'],
            'frameworks': ['Python.framework'],
-            'resources': ['html', 'locales', '/Users/yanone/Code/dsa_pub.pem'], #, 'appbadge.docktileplugin'
+            'resources': ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', '/Users/yanone/Code/dsa_pub.pem'], #, 'appbadge.docktileplugin'
            'packages': ['certifi'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
@@ -32,14 +32,14 @@ OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into 
                 },
            'strip': True,
 #           'debug-skip-macholib': True,
-           'optimize': 2,
+           'optimize': 1,
 #			'semi_standalone': False,
 #			'no-chdir': True,
            }
 
 
 
-os.system('rm -rf ~/Code/TypeWorldApp/apps/Type.World.%s.app' % version)
+os.system('rm -rf ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version)
 
 
 setup(

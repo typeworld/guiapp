@@ -59,7 +59,7 @@ for OS in ('windows', 'mac'):
 	lines.append('<title>Type.World</title>\n')
 
 	os.chdir(os.path.expanduser("~/Code/TypeWorldApp/dmg"))
-	for file in glob.glob("*"):
+	for file in reversed(sorted(glob.glob("*"))):
 
 		if OS == 'mac' and '.dmg' in file or OS == 'windows' and '.exe' in file:
 
@@ -90,7 +90,7 @@ for OS in ('windows', 'mac'):
 				lines.append('\t<sparkle:minimumSystemVersion>10.7</sparkle:minimumSystemVersion>')
 
 			if OS == 'windows':
-				sparkleOS = ' sparkle:installerArguments="/SILENT /SP- /NOICONS" '
+				sparkleOS = ' sparkle:installerArguments="/SILENT /SP- /NOICONS" sparkle:os="windows" '
 			else:
 				sparkleOS = ''
 

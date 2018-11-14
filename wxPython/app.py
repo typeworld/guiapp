@@ -1,12 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import wx, os, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, ctypes
+
+import os, sys
+
+# Adjust __file__ for Windows executable
+try:
+    __file__ = os.path.abspath(__file__)
+
+except:
+    __file__ = sys.executable
+
+sys.path.insert(0, os.path.dirname(__file__))
+
+
+import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, ctypes, semver
 from threading import Thread
 import threading
 import wx.html2
 import locales
-import sys
 import urllib.request, urllib.parse, urllib.error, time
 from functools import partial
 from wx.lib.delayedresult import startWorker
@@ -17,41 +29,39 @@ MAC = platform.system() == 'Darwin'
 
 
 from ynlib.files import ReadFromFile, WriteToFile
-from ynlib.strings import kashidas, kashidaSentence
+from ynlib.strings import *
 from ynlib.web import GetHTTP
 
 from typeWorldClient import APIClient, JSON, AppKitNSUserDefaults
 import typeWorld.api.base
 
 
-# Adjust __file__ for Windows executable
-try:
-    __file__ = os.path.abspath(__file__)
-
-except:
-    __file__ = sys.executable
-    sys._MEIPASS = os.path.join(os.path.dirname(__file__), 'lib', 'pywinsparkle', 'libs', 'x64')
+print ('__file__', __file__)
+print ('sys.executable ', sys.executable )
 
 
 APPNAME = 'Type.World'
 APPVERSION = 'n/a'
 DEBUG = False
+BUILDSTAGE = 'alpha'
 
-if not 'app.py' in __file__:
+
+# Mac executable
+if 'app.py' in __file__ and '/Contents/MacOS/python' in sys.executable:
     DESIGNTIME = False
     RUNTIME = True
+
+elif not 'app.py' in __file__:
+    DESIGNTIME = False
+    RUNTIME = True
+
 else:
     DESIGNTIME = True
     RUNTIME = False
 
-
 if WIN:
+    sys._MEIPASS = os.path.join(os.path.dirname(__file__), 'lib', 'pywinsparkle', 'libs', 'x64')
     from pywinsparkle import pywinsparkle
-
-
-
-
-
 
 
 
@@ -146,28 +156,60 @@ if DESIGNTIME:
 elif RUNTIME:
 
     if MAC:
-        plist = plistlib.readPlist(os.path.join(os.path.dirname(__file__), '..', 'Info.plist'))
-        APPVERSION = plist['CFBundleShortVersionString']
+        try:
+            plist = plistlib.readPlist(os.path.join(os.path.dirname(__file__), '..', 'Info.plist'))
+            APPVERSION = plist['CFBundleShortVersionString']
+        except:
+            pass
 
     elif WIN:
-        APPVERSION = getFileProperties(__file__)['StringFileInfo']['ProductVersion']
+        APPVERSION = getFileProperties(__file__)['StringFileInfo']['ProductVersion'].strip()
 
+        if len(APPVERSION.split('.')) == 4:
+            APPVERSION = '.'.join(APPVERSION.split('.')[0:-1])
+
+        APPVERSION += '-' + BUILDSTAGE
+
+if WIN:
+    from appdirs import user_data_dir
+    prefDir = user_data_dir('Type.World', 'Type.World')
+elif MAC:
+    prefDir = os.path.expanduser('~/Library/Preferences/')
 
 
 class AppFrame(wx.Frame):
     def __init__(self, parent):        
 
         if WIN:
-            from appdirs import user_data_dir
-            prefs = JSON(os.path.join(user_data_dir('Type.World', 'Type.World'), 'preferences.json'))
+            prefFile = os.path.join(prefDir, 'preferences.json')
+            prefs = JSON(prefFile)
+            print('Preferences at %s' % prefFile)
         else:
             prefs = AppKitNSUserDefaults('world.type.clientapp' if DESIGNTIME else None)
 
         self.client = APIClient(preferences = prefs)
+        self.messages = []
 
 
         ### Preferences
-        self.changePreferences()
+        message = self.changePreferences()
+        if message:
+            self.messages.append(message)
+
+
+        # Version adjustments
+
+        # TODO: Remove these for future versions
+        # 0.1.4
+        if self.client.preferences.get('appVersion') != APPVERSION and APPVERSION == '0.1.4-alpha' and semver.compare("0.1.4-alpha", self.client.preferences.get('appVersion')) == 1:
+
+            if self.client.publishers():
+                for publisher in self.client.publishers():
+                    publisher.delete()
+
+                self.messages.append('Due to a change in the subscription security and login infrastructure, all subscriptions were removed. The API endpoints need to be adjusted and subscriptions re-added following the new guidelines. See https://type.world/app/ for the release notes.')
+
+
         if not self.client.preferences.get('appVersion'):
             self.client.preferences.set('appVersion', APPVERSION)
         if not self.client.preferences.get('localizationType'):
@@ -177,10 +219,11 @@ class AppFrame(wx.Frame):
         if not self.client.preferences.get('reloadSubscriptionsInterval'):
             self.client.preferences.set('reloadSubscriptionsInterval', 1 * 24 * 60 * 60) # one day
 
+        self.client.preferences.set('appVersion', APPVERSION)
+
 
 
         self.thread = threading.current_thread()
-
 
 
         self.justAddedPublisher = None
@@ -226,13 +269,17 @@ class AppFrame(wx.Frame):
 
         # Exit
         menu = wx.Menu()
-        m_opensubscription = menu.Append(wx.ID_OPEN, "%s\tCtrl-O" % (self.localize('Add Subscription')))
+        m_opensubscription = menu.Append(wx.ID_OPEN, "%s%s" % (self.localize('Add Subscription'), '\tCtrl+O' if MAC else ''))#\tCtrl-O
         self.Bind(wx.EVT_MENU, self.showAddSubscription, m_opensubscription)
+#        m_opensubscription.SetAccel(wx.AcceleratorEntry(wx.ACCEL_CTRL,  ord('o')))
+
+
         m_CheckForUpdates = menu.Append(wx.NewId(), "%s..." % (self.localize('Check for Updates')))
         self.Bind(wx.EVT_MENU, self.onCheckForUpdates, m_CheckForUpdates)
-        m_closewindow = menu.Append(wx.ID_CLOSE, "%s\tCtrl-W" % (self.localize('Close Window')))
-        self.Bind(wx.EVT_MENU, self.onClose, m_closewindow)
-        m_exit = menu.Append(wx.ID_EXIT, "%s\tCtrl-X" % (self.localize('Exit')))
+        if MAC:
+            m_closewindow = menu.Append(wx.ID_CLOSE, "%s\tCtrl+W" % (self.localize('Close Window')))
+            self.Bind(wx.EVT_MENU, self.onClose, m_closewindow)
+        m_exit = menu.Append(wx.ID_EXIT, "%s\t%s" % (self.localize('Exit'), 'Ctrl-Q' if MAC else 'Alt-F4'))
         self.Bind(wx.EVT_MENU, self.onQuit, m_exit)
 
 
@@ -243,17 +290,28 @@ class AppFrame(wx.Frame):
         #   wx.ID_COPY = wx.NewId()
         #   wx.ID_PASTE = wx.NewId()
         editMenu = wx.Menu()
-        editMenu.Append(wx.ID_SELECTALL, "%s\tCTRL+A" % (self.localize('Select All')))
-        editMenu.Append(wx.ID_COPY, "%s\tCTRL+C" % (self.localize('Copy')))
-        editMenu.Append(wx.ID_CUT, "%s\tCTRL+X" % (self.localize('Cut')))
-        editMenu.Append(wx.ID_PASTE, "%s\tCTRL+V" % (self.localize('Paste')))
+        editMenu.Append(wx.ID_UNDO, "%s\tCtrl-Z" % (self.localize('Undo')))
+        editMenu.AppendSeparator()
+        editMenu.Append(wx.ID_SELECTALL, "%s\tCtrl-A" % (self.localize('Select All')))
+        editMenu.Append(wx.ID_COPY, "%s\tCtrl-C" % (self.localize('Copy')))
+        editMenu.Append(wx.ID_CUT, "%s\tCtrl-X" % (self.localize('Cut')))
+        editMenu.Append(wx.ID_PASTE, "%s\tCtrl-V" % (self.localize('Paste')))
+
+        if WIN:
+            editMenu.AppendSeparator()
+            m_prefs = editMenu.Append(wx.ID_PREFERENCES, "&%s\tCtrl-I" % (self.localize('Preferences')))
+            self.Bind(wx.EVT_MENU, self.onPreferences, m_prefs)
+
+
+
         menuBar.Append(editMenu, "&%s" % (self.localize('Edit')))
 
         menu = wx.Menu()
         m_about = menu.Append(wx.ID_ABOUT, "&%s %s" % (self.localize('About'), APPNAME))
         self.Bind(wx.EVT_MENU, self.onAbout, m_about)
-        m_prefs = menu.Append(wx.ID_PREFERENCES, "&%s\tCtrl-," % (self.localize('Preferences')))
-        self.Bind(wx.EVT_MENU, self.onPreferences, m_prefs)        
+        if MAC:
+            m_prefs = menu.Append(wx.ID_PREFERENCES, "&%s\tCtrl-," % (self.localize('Preferences')))
+            self.Bind(wx.EVT_MENU, self.onPreferences, m_prefs)        
 
         # menuBar.Append(menu, "Type.World")
         menuBar.Append(menu, "&%s" % (self.localize('Help')))
@@ -320,6 +378,11 @@ class AppFrame(wx.Frame):
         #     # https://msdn.microsoft.com/en-us/library/dn302122(v=vs.85).aspx
         #     pass
 
+
+
+
+
+
     def javaScript(self, script):
 #        print()
         if self.fullyLoaded:
@@ -342,7 +405,7 @@ class AppFrame(wx.Frame):
 
     def changePreferences(self):
 
-        # Has no version information
+        # Has no version information == 0.1.3
         if not self.client.preferences.get('appVersion'):
 
             self.log('Changing preferences from no version to version %s' % APPVERSION)
@@ -390,6 +453,8 @@ class AppFrame(wx.Frame):
                     self.log('Deleted "%s"' % (key))
 
 
+
+
                 
 
 
@@ -420,7 +485,6 @@ class AppFrame(wx.Frame):
             self.Destroy()
 
     def onQuit(self, event):
-
 
         if WIN:
             pywinsparkle.win_sparkle_cleanup()
@@ -477,41 +541,35 @@ class AppFrame(wx.Frame):
 
     def onAbout(self, event):
 
-        try:
+        html = []
 
-            html = []
-
-            html.append('<p style="text-align: center; margin-bottom: 20px;">')
-            html.append('<img src="file://##htmlroot##/biglogo.svg" style="width: 200px;"><br />')
-            html.append('</p>')
-            html.append('<p>')
-            html.append('#(AboutText)')
-            html.append('</p>')
-            html.append('<p>')
-            html.append('#(Anonymous App ID): %s<br />' % self.client.anonymousAppID())
-            html.append('#(Version) %s<br />' % APPVERSION)
-            html.append('#(Version History) #(on) <a href="https://type.world/app">type.world/app</a>')
-            html.append('</p>')
-            # html.append(u'<p>')
-            # html.append(u'<a class="button" onclick="python('self.sparkle.checkForUpdates_(None)');">#(Check for Updates)</a>')
-            # html.append(u'</p>')
+        html.append('<p style="text-align: center; margin-bottom: 20px;">')
+        html.append('<img src="file://##htmlroot##/biglogo.svg" style="width: 200px;"><br />')
+        html.append('</p>')
+        html.append('<p>')
+        html.append('#(AboutText)')
+        html.append('</p>')
+        html.append('<p>')
+        html.append('#(Anonymous App ID): %s<br />' % self.client.anonymousAppID())
+        html.append('#(Version) %s<br />' % APPVERSION)
+        html.append('#(Version History) #(on) <a href="https://type.world/app">type.world/app</a>')
+        html.append('</p>')
+        # html.append(u'<p>')
+        # html.append(u'<a class="button" onclick="python('self.sparkle.checkForUpdates_(None)');">#(Check for Updates)</a>')
+        # html.append(u'</p>')
 
 
-            # Print HTML
-            html = ''.join(html)
-            html = self.replaceHTML(html)
-            html = self.localizeString(html, html = True)
-            html = html.replace('"', '\'')
-            html = html.replace('\n', '')
-#            print(html)
-            js = '$("#about .inner").html("' + html + '");'
-            self.javaScript(js)
+        # Print HTML
+        html = ''.join(html)
+        html = self.replaceHTML(html)
+        html = self.localizeString(html, html = True)
+        html = html.replace('"', '\'')
+        html = html.replace('\n', '')
+        js = '$("#about .inner").html("' + html + '");'
+        self.javaScript(js)
 
+        self.javaScript('showAbout();')
 
-            self.javaScript('showAbout();')
-
-        except:
-            self.log(traceback.format_exc())
 
 
 
@@ -527,6 +585,7 @@ class AppFrame(wx.Frame):
         html.append('<select id="updateIntervalChoice" style="">')
         for code, name in (
             (-1, '#(Manually)'),
+#            (1 * 60, '#(Minutely)'),
             (1 * 60 * 60, '#(Hourly)'),
             (24 * 60 * 60, '#(Daily)'),
             (7 * 24 * 60 * 60, '#(Weekly)'),
@@ -535,7 +594,7 @@ class AppFrame(wx.Frame):
             html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(self.client.preferences.get('reloadSubscriptionsInterval')) else '', name))
         html.append('</select>')
         html.append('<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
-        html.append('</p>')
+        html.append('<br />#(Last Check): %s</p>' % NaturalRelativeWeekdayTimeAndDate(self.client.preferences.get('reloadSubscriptionsLastPerformed'), locale = self.locale()[0]))
 
         html.append('<p></p>')
 
@@ -553,14 +612,15 @@ class AppFrame(wx.Frame):
         html.append('<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Locale (choose below). Requires restart to take full effect.</label></span>' % ('checked' if self.client.preferences.get('localizationType') == 'customLocale' else ''))
         html.append('<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>')
         html.append('<br />')
-        html.append('<select id="customLocaleChoice" style="">')
+        html.append('<select id="customLocaleChoice" style="" onchange="">')
         for code, name in locales.locales:
             html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if code == self.client.preferences.get('customLocaleChoice') else '', name))
         html.append('</select>')
-        html.append('<script>$("#preferences #customLocaleChoice").click(function() {setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());});</script>')
+        html.append('''<script>$("#preferences #customLocaleChoice").click(function() {
+            setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());
+            $("#preferences #customLocale").click();
+        });</script>''')
         html.append('</p>')
-
-
 
 
 
@@ -613,7 +673,6 @@ class AppFrame(wx.Frame):
 
 
     def showAddSubscription(self, evt):
-        print('showAddSubscription()')
         self.javaScript('showAddSubscription();')
 
 
@@ -633,6 +692,11 @@ class AppFrame(wx.Frame):
     def addSubscriptionViaDialog(self, url, username = None, password = None):
 
         self.log('addSubscription(%s, %s, %s)' % (url, username, password))
+        startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
+
+
+
+    def addSubscription_worker(self, url, username, password):
 
         for protocol in typeWorld.api.base.PROTOCOLS:
             url = url.replace(protocol + '//', protocol + '://')
@@ -647,25 +711,7 @@ class AppFrame(wx.Frame):
                 break
 
         if not known:
-            self.errorMessage('Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS))
-
-            # Reset Form
-            self.javaScript('$("#addSubscriptionFormSubmitButton").show();')
-            self.javaScript('$("#addSubscriptionFormCancelButton").show();')
-            self.javaScript('$("#addSubscriptionFormSubmitAnimation").hide();')
-
-            self.javaScript('hideCenterMessage();')
-
-            return
-
-        # remove URI
-        print(('addSubscription', url))
-
-        startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
-
-
-
-    def addSubscription_worker(self, url, username, password):
+            return False, 'Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS), None
 
         success, message, publisher = self.client.addSubscription(url, username, password)
         return success, message, publisher
@@ -970,7 +1016,7 @@ class AppFrame(wx.Frame):
 
             item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update All Subscriptions)'))
             menu.Append(item)
-            menu.Bind(wx.EVT_MENU, partial(self.reloadPublisherJavaScript, b64ID = b64ID), item)
+            menu.Bind(wx.EVT_MENU, partial(self.reloadPublisher, b64ID = b64ID), item)
 
             if publisher.amountOutdatedFonts():
                 item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update All Fonts)'))
@@ -1002,7 +1048,7 @@ class AppFrame(wx.Frame):
 
             item = wx.MenuItem(menu, wx.NewId(), self.localizeString('#(Update Subscription)'))
             menu.Append(item)
-            menu.Bind(wx.EVT_MENU, partial(self.reloadSubscriptionJavaScript, b64ID = b64ID), item)
+            menu.Bind(wx.EVT_MENU, partial(self.reloadSubscription, b64ID = b64ID, subscription = None), item)
 
             for publisher in self.client.publishers():
                 for subscription in publisher.subscriptions():
@@ -1122,13 +1168,6 @@ class AppFrame(wx.Frame):
 
                 self.javaScript('showPublisherPreferences();')
 
-    def reloadSubscriptionJavaScript(self, evt, b64ID):
-        print(('reloadSubscriptionJavaScript', b64ID))
-        self.javaScript('showCenterMessage("%s", reloadSubscription("%s"));' % (self.localize('Reloading Subscription'), b64ID))
-
-    def reloadPublisherJavaScript(self, evt, b64ID):
-        print(('reloadPublisherJavaScript', b64ID))
-        self.javaScript('showCenterMessage("%s", reloadPublisher("%s"));' % (self.localize('Reloading Publisher'), b64ID))
 
     def showPublisherInFinder(self, evt, b64ID):
         
@@ -1153,39 +1192,17 @@ class AppFrame(wx.Frame):
 
     def reloadPublisher(self, evt, b64ID):
 
-        # processThread = threading.Thread(target=self.reloadPublisherShowAnimation, args=(evt, b64ID));
-        # processThread.start()
+        print('reloadPublisher()')
+
+        self.client.prepareUpdate()
+
+        publisher = self.client.publisher(self.b64decode(b64ID))
+        for subscription in publisher.subscriptions():
+            if subscription.exists:
+                self.reloadSubscription(None, None, subscription)
 
 
-        print(('reloadPublisher', b64ID))
-
-
-        ID = self.b64decode(b64ID)
-
-        success, message = self.client.publisher(ID).update()
-
-        if success:
-
-            self.setPublisherHTML(b64ID)
-            
-        else:
-
-            if type(message) in (str, str):
-                
-                self.errorMessage(message)
-            else:
-                self.errorMessage('Server: %s' % message.getText(self.locale()))
-
-
-        self.javaScript('finishReloadPublisher("%s");' % (b64ID))
-        self.javaScript('hideCenterMessage();')
-
-
-        print('Done')
-
-    def reloadSubscriptions(self):
-
-        print('self.reloadSubscriptions()')
+    def autoReloadSubscriptions(self):
 
         # Preference is set to check automatically
         if int(self.client.preferences.get('reloadSubscriptionsInterval')) != -1:
@@ -1196,63 +1213,122 @@ class AppFrame(wx.Frame):
 
             # See if we should check now
             if int(self.client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(self.client.preferences.get('reloadSubscriptionsInterval')):
-                print('Automatically reloading subscriptions...')
+
+                self.log('Automatically reloading subscriptions...')
+
+                self.client.prepareUpdate()
 
                 for publisher in self.client.publishers():
                     for subscription in publisher.subscriptions():
-                        self.reloadSubscription(None, self.b64encode(subscription.url))
-
-                self.log('Automatically reloaded subscriptions')
-
-                # Set to now
-                self.client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
+                        self.reloadSubscription(None, None, subscription)
 
 
-    def reloadSubscription(self, evt, b64ID):
-
-        print(('reloadSubscription', b64ID))
-
-        success = False
-        message = 'Couldnt find subscription.'
-
-        ID = self.b64decode(b64ID)
-
-        for publisher in self.client.publishers():
-
-            if publisher.subscription(ID) and publisher.subscription(ID).exists:
-                print((publisher, 'has subscription', publisher.subscription(ID)))
-                success, message = publisher.subscription(ID).update()
-                break
+    def reloadSubscription(self, evt, b64ID, subscription = None):
 
 
 
-        if success:
-
-            self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
-            
+        if subscription:
+            pass
         else:
 
-            if type(message) in (str, str):
-                
-                self.errorMessage(message)
-            else:
-                self.errorMessage('Server: %s' % message.getText(self.locale()))
+            ID = self.b64decode(b64ID)
+
+            for publisher in self.client.publishers():
+                subscription = publisher.subscription(ID)
+                if subscription and subscription.exists:
+                    break
 
 
-        self.javaScript('finishReloadSubscription("%s");' % (b64ID))
-        self.javaScript('hideCenterMessage();')
+        if subscription:
+
+            b64publisherID = self.b64encode(subscription.parent.canonicalURL)
+            b64subscriptionID = self.b64encode(subscription.url)
+
+            self.log('reloadSubscription(%s, %s, %s)' % (subscription.parent.canonicalURL, subscription.url, subscription.name()))
+
+#            self.javaScript("startAnimation();")
+
+            # Publisher
+            self.javaScript("$('#sidebar #%s.publisher .reloadAnimation').show();" % b64publisherID)
+            self.javaScript("$('#sidebar #%s.publisher .badges').hide();" % b64publisherID)
+
+            # Subscription
+            self.javaScript("$('#sidebar #%s.subscription .reloadAnimation').show();" % b64subscriptionID)
+            self.javaScript("$('#sidebar #%s.subscription .badges').hide();" % b64subscriptionID)
+
+            startWorker(self.reloadSubscription_consumer, self.reloadSubscription_worker, wargs=(subscription, ))
 
 
-        print('Done')
+
+
+    def reloadSubscription_worker(self, subscription):
+
+        success, message = subscription.update()
+        return success, message, subscription
+
+
+    def reloadSubscription_consumer(self, delayedResult):
+        success, message, subscription = delayedResult.get()
+        b64publisherID = self.b64encode(subscription.parent.canonicalURL)
+
+        if success:
+            if self.client.preferences.get('currentPublisher') == subscription.parent.canonicalURL:
+                self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
+            # self.setSideBarHTML()
+            # self.javaScript("$('#sidebar #%s').addClass('selected');" % b64publisherID)
+            # self.javaScript("$('#sidebar #%s').addClass('selected');" % self.b64encode(subscription.url))
+            
+        # Show alert            
+        if subscription.updatingProblem():
+            self.javaScript("$('#sidebar #%s .alert').show();" % b64publisherID)
+            self.javaScript("$('#sidebar #%s .alert ').show();" % self.b64encode(subscription.url))
+        # Hide alert
+        else:
+            self.javaScript("$('#sidebar #%s .alert').hide();" % b64publisherID)
+            self.javaScript("$('#sidebar #%s .alert').hide();" % self.b64encode(subscription.url))
+
+
+        # Subscription
+        self.javaScript("$('#sidebar #%s.subscription .reloadAnimation').hide();" % (self.b64encode(subscription.url)))
+        self.javaScript("$('#sidebar #%s.subscription .badges').show();" % (self.b64encode(subscription.url)))
+
+        if subscription.parent.stillUpdating() == False:
+            # Publisher
+            self.javaScript("$('#sidebar #%s.publisher .reloadAnimation').hide();" % b64publisherID)
+            self.javaScript("$('#sidebar #%s.publisher .badges').show();" % b64publisherID)
+#            self.javaScript("stopAnimation();")
+
+        if self.client.allSubscriptionsUpdated():
+            self.client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
+            self.log('Reset reloadSubscriptionsLastPerformed');
+
+
+    def displayPublisherSidebarAlert(self, b64publisherID):
+        publisher = self.client.publisher(self.b64decode(b64publisherID))
+
+        for message in publisher.updatingProblem():
+            self.errorMessage(message)        
+
+    def displaySubscriptionSidebarAlert(self, b64subscriptionID):
+        subscription = self.client.publisher(self.b64decode(b64subscriptionID))
+        self.errorMessage(subscription.updatingProblem())        
 
     def errorMessage(self, message):
-        dlg = wx.MessageDialog(self, message, '', wx.ICON_ERROR)
+
+        if type(message) == typeWorld.api.base.MultiLanguageText:
+            message = message.getText(locale = self.locale())
+
+        dlg = wx.MessageDialog(self, message or 'No message defined', '', wx.ICON_ERROR)
         result = dlg.ShowModal()
         dlg.Destroy()
 
 
     def message(self, message):
-        dlg = wx.MessageDialog(self, message, '')
+
+        if type(message) == typeWorld.api.base.MultiLanguageText:
+            message = message.getText(locale = self.locale())
+
+        dlg = wx.MessageDialog(self, message or 'No message defined', '')
         result = dlg.ShowModal()
         dlg.Destroy()
 
@@ -1357,8 +1433,6 @@ class AppFrame(wx.Frame):
                         if setName:
                             completeSetName = setName + ', '
                         completeSetName += typeWorld.api.base.FILEEXTENSIONNAMES[formatName]
-
-                        print(amountInstalled)
 
                         html.append('<div class="section" id="%s">' % completeSetName)
 
@@ -1517,13 +1591,15 @@ class AppFrame(wx.Frame):
 
         # Set Sidebar Focus
         self.javaScript("$('#sidebar .publisher').removeClass('selected');")
-        self.javaScript("$('#sidebar #%s').addClass('selected');" % b64ID)
+        self.javaScript("$('#sidebar .subscription').removeClass('selected');")
+        self.javaScript("$('#sidebar #%s.publisher').addClass('selected');" % b64ID)
+        self.javaScript("$('#sidebar #%s.subscription').addClass('selected');" % self.b64encode(subscription.url))
         self.javaScript("showMain();")
 
     def b64encode(self, string):
 
         b = str(string).encode()
-        b64 = base64.b64encode(b)
+        b64 = base64.b32encode(b)
         s = b64.decode()
 
         return s.replace('=', '-')
@@ -1531,7 +1607,7 @@ class AppFrame(wx.Frame):
     def b64decode(self, string):
 
         b = str(string).replace('-', '=').encode()
-        b64 = base64.b64decode(b)
+        b64 = base64.b32decode(b)
         s = b64.decode()
 
         return s
@@ -1562,18 +1638,18 @@ class AppFrame(wx.Frame):
 
                 installedFonts = publisher.amountInstalledFonts()
                 outdatedFonts = publisher.amountOutdatedFonts()
+                selected = self.client.preferences.get('currentPublisher') == publisher.canonicalURL
 
                 _type = 'multiple' if len(publisher.subscriptions()) > 1 else 'single'
-                print(_type)
 
                 html.append('<div class="publisherWrapper">')
-                html.append('<a class="publisher" href="x-python://self.setPublisherHTML(____%s____)">' % (b64ID))
-                html.append('<div id="%s" class="contextmenu publisher line clear %s" lang="%s" dir="%s">' % (b64ID, _type, language, direction))
+#                html.append('<a class="publisher" href="x-python://self.setPublisherHTML(____%s____)">' % b64ID)
+                html.append('<div id="%s" class="contextmenu publisher line clear %s %s" lang="%s" dir="%s">' % (b64ID, _type, 'selected' if selected else '', language, direction))
                 html.append('<div class="name">')
                 html.append('%s %s' % (name, '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px; width:16px; height:16px;">' if publisher.get('type') == 'GitHub' else ''))
                 html.append('</div>')
                 html.append('<div class="reloadAnimation" style="display: none;">')
-                html.append('↺')
+                html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
                 html.append('</div>')
                 html.append('<div class="badges clear">')
                 html.append('<div class="badge outdated" style="display: %s;">' % ('block' if outdatedFonts else 'none'))
@@ -1582,27 +1658,32 @@ class AppFrame(wx.Frame):
                 html.append('<div class="badge installed" style="display: %s;">' % ('block' if installedFonts else 'none'))
                 html.append('%s' % (installedFonts or ''))
                 html.append('</div>')
-                html.append('</div>')
-                html.append('</div>') # publisher
+                html.append('</div>') # .badges
+                html.append('<div class="alert" style="display: none;">')
+                html.append('<a href="x-python://self.displayPublisherSidebarAlert(____%s____)">' % b64ID)
+                html.append('⚠️')
                 html.append('</a>')
+                html.append('</div>') # .alert
+                html.append('</div>') # publisher
+#                html.append('</a>')
 
-                html.append('<div class="subscriptions" style="display: %s;">' % ('block' if self.client.preferences.get('currentPublisher') == publisher.canonicalURL else 'none'))
+                html.append('<div class="subscriptions" style="display: %s;">' % ('block' if selected else 'none'))
                 if len(publisher.subscriptions()) > 1:
                     html.append('<div class="margin top"></div>')
                     for subscription in publisher.subscriptions():
 
                         amountInstalledFonts = subscription.amountInstalledFonts()
                         amountOutdatedFonts = subscription.amountOutdatedFonts()
-                        selected = subscription == publisher.currentSubscription()
+                        selected = subscription.url == publisher.currentSubscription().url
 
                         html.append('<div>')
-                        html.append('<a class="subscription" href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
-                        html.append('<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url)))
+#                        html.append('<a class="subscription" href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
+                        html.append('<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s" publisherID="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url), b64ID))
                         html.append('<div class="name">')
-                        html.append(subscription.name(locale=self.locale()))
+                        html.append(self.localizeString(subscription.name(locale=self.locale())))
                         html.append('</div>')
                         html.append('<div class="reloadAnimation" style="display: none;">')
-                        html.append('↺')
+                        html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
                         html.append('</div>')
                         html.append('<div class="badges clear">')
                         html.append('<div class="badge outdated" style="display: %s;">' % ('block' if amountOutdatedFonts else 'none'))
@@ -1611,9 +1692,14 @@ class AppFrame(wx.Frame):
                         html.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
                         html.append('%s' % amountInstalledFonts)
                         html.append('</div>')
-                        html.append('</div>')
-                        html.append('</div>') # subscription
+                        html.append('</div>') # .badges
+                        html.append('<div class="alert" style="display: none;">')
+                        html.append('<a href="x-python://self.displaySubscriptionSidebarAlert(____%s____)">' % self.b64encode(subscription.url))
+                        html.append('⚠️')
                         html.append('</a>')
+                        html.append('</div>') # .alert
+                        html.append('</div>') # subscription
+#                        html.append('</a>')
                         html.append('</div>')
                     html.append('<div class="margin bottom"></div>')
                 html.append('</div>')
@@ -1621,31 +1707,33 @@ class AppFrame(wx.Frame):
                 html.append('</div>') # .publisherWrapper
 
 
-
+#// :not(.selected)
         html.append('''<script>
 
 
-    $("#sidebar a.publisher:not([selected])").click(function() {
+    $("#sidebar div.publisher").click(function() {
 
         $("#sidebar div.subscriptions").slideUp();
-        $(this).parent().children("div.subscriptions").slideDown();
+        $(this).parent().children(".subscriptions").slideDown();
 
-        $("#sidebar div.publisher.line").removeClass('selected');
-        $(this).parent().children("div.line").addClass('selected');
+        $("#sidebar div.publisher").removeClass('selected');
+        $(this).parent().children(".publisher").addClass('selected');
+
+        python('self.setPublisherHTML(____' + $(this).attr('id') + '____)');
 
     });
 
-    $("#sidebar a.subscription").click(function() {
-        $("#sidebar div.subscription.line").removeClass('selected');
-        $(this).parent().find("div.line").addClass('selected');
-        debug('div.subscription.line');
+    $("#sidebar div.subscription").click(function() {
 
+        python('self.setActiveSubscription(____' + $(this).attr('publisherID') + '____, ____' + $(this).attr('id') + '____)');
+
+    });
+
+
+    $("#sidebar div.publisher .alert").click(function() {
     });
 
 $( document ).ready(function() {
-
-
-
 
     $("#sidebar .publisher").hover(function() {
         $( this ).addClass( "hover" );
@@ -1667,16 +1755,14 @@ $( document ).ready(function() {
         html = html.replace('"', '\'')
         html = html.replace('\n', '')
         html = self.replaceHTML(html)
-#       print html
+#        self.log(html)
         js = '$("#publishers").html("' + html + '");'
+
         self.javaScript(js)
-
-
 
 
     def onLoad(self, event):
 
-        print('onLoad()')
 
         self.log('MyApp.frame.onLoad()')
         self.fullyLoaded = True
@@ -1697,6 +1783,9 @@ $( document ).ready(function() {
 
         if WIN:
             self.checkForURLInFile()
+
+        for message in self.messages:
+            self.message(message)
 
 
 
@@ -1720,7 +1809,6 @@ $( document ).ready(function() {
 
             os.remove(openURLFilePath)
 
-            print('checkForURLInFile() done: %s' % url)
 
         return True
 
@@ -1761,8 +1849,6 @@ $( document ).ready(function() {
                 path = path[2:]
             # path = path.replace('Mac/', 'mac/')
 
-        print(path)
-
         html = html.replace('##htmlroot##', path)
         return html
 
@@ -1770,6 +1856,9 @@ $( document ).ready(function() {
         if MAC:
             from AppKit import NSLocale
             return str(NSLocale.autoupdatingCurrentLocale().localeIdentifier().split('_')[0])
+        elif WIN:
+            import locale
+            return locale.getdefaultlocale()[0].split('_')[0]
         else:
             return 'en'
 
@@ -1810,7 +1899,7 @@ $( document ).ready(function() {
     #       self.javaScript('$("#sidebar #%s .badge.outdated").hide();' % b64ID)
 
     def debug(self, string):
-        print(string)
+        self.log(string)
 
 
 
@@ -1842,7 +1931,6 @@ $( document ).ready(function() {
         # actually shutdown the app here
         print("Safe to shutdown before installing")
 
-
     def setup_pywinsparkle(self):
 
         # register callbacks
@@ -1867,32 +1955,6 @@ $( document ).ready(function() {
         # # background silently
         # pywinsparkle.win_sparkle_check_update_without_ui()
 
-
-    def startPipeListener(self):
-        startWorker(self.pipeListener_consumer, self.pipeListener_worker)
-        
-
-    def pipeListener_worker(self):
-
-        import wpipe
-
-        self.pserver = wpipe.Server('mypipe', wpipe.Mode.Slave)
-        while True:
-            for client in self.pserver:
-                while client.canread():
-                    rawmsg = client.read()
-                    client.write(b'hallo')
-                    self.pserver.shutdown()
-                    return rawmsg
-
-
-    def pipeListener_consumer(self, delayedResult):
-
-        message = delayedResult.get()
-
-        self.message(message)
-
-        self.startPipeListener()
 
 
 
@@ -1975,12 +2037,14 @@ class MyApp(wx.App):
         # frame.html.SetPage(html, '')
         # frame.html.Reload()
 
-        filename = os.path.join(os.path.dirname(__file__), 'app.html')
-        print('app.html:', filename)
+        filename = os.path.join(prefDir, 'world.type.guiapp.app.html')
         WriteToFile(filename, html)
         frame.html.LoadURL("file://%s" % filename)
-        print('__file__:', __file__)
 
+        #TODO: Remove later, old implementation
+        filename = os.path.join(os.path.dirname(__file__), 'app.html')
+        if os.path.exists(filename):
+            os.remove(filename)
 
 
         # if os.path.exists(openURLFilePath):
@@ -1994,10 +2058,6 @@ class MyApp(wx.App):
         frame.Show()
         frame.CentreOnScreen()
 
-
-
-        # if WIN:
-        #     frame.startPipeListener()
 
 
         return True

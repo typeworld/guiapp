@@ -22,7 +22,7 @@ destinationFolder = os.path.join('Z:\\Code\\TypeWorldApp\\apps\\Windows', versio
 
 
 setup(  name = "Type.World",
-        version = version,
+        version = version.split('-')[0],
         description = "Type.World – One Click Font-Installer",
         options = {"build_exe": {
           'include_files': [
@@ -37,7 +37,7 @@ setup(  name = "Type.World",
         executables = [Executable(os.path.join(baseFolder, "app.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico'))])
 
 setup(  name = "Type.World Subscription Opener",
-        version = version,
+        version = version.split('-')[0],
         options = {"build_exe": {
          'optimize': 2,
           'build_exe': os.path.join(destinationFolder, 'URL Opening Agent'),

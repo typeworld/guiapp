@@ -2,11 +2,11 @@
 window.onerror = function (msg, url, lineNo, columnNo, error) {
  
  	debug('JavaScript error:');
- 	debug('Msg: ' + msg);
- 	debug('url: ' + url);
- 	debug('lineNo: ' + lineNo);
- 	debug('columnNo: ' + columnNo);
- 	debug('error: ' + error);
+ 	debug('JavaScript error, Msg: ' + msg.replace("''", "\""));
+ 	debug('JavaScript error, url: ' + url);
+ 	debug('JavaScript error, lineNo: ' + lineNo);
+ 	debug('JavaScript error, columnNo: ' + columnNo);
+ 	debug('JavaScript error, error: ' + error.replace("''", "\""));
 
   return false;
 }
@@ -39,38 +39,9 @@ function contextmenu(evt) {
 	python('self.onContextMenu(____' + evt.pageX + '____, ____' + evt.pageY + '____, ____' + $(evt.target).closest('.contextmenu').attr('class') + '____, ____' + $(evt.target).closest('.contextmenu').attr('id') + '____)')
 }
 
-function reloadPublisher(b64ID) {
-	// $("#sidebar #" + b64ID + " .badges").hide();
-	// $("#sidebar #" + b64ID + " .reloadAnimation").show();
-	setTimeout(function () { 
-		python('self.reloadPublisher(None, ____' + b64ID + '____)');
-	}, 100);
-}
-
-function reloadSubscription(b64ID) {
-	// $("#subscriptions #" + b64ID + " .badges").hide();
-	// $("#subscriptions #" + b64ID + " .reloadAnimation").show();
-	setTimeout(function () { 
-		python('self.reloadSubscription(None, ____' + b64ID + '____)');
-	}, 100);
-
-	
-}
-
-function finishReloadPublisher(b64ID) {
-	$("#sidebar #" + b64ID + " .badges").show();
-	$("#sidebar #" + b64ID + " .reloadAnimation").hide();
-}
-
-function finishReloadSubscription(b64ID) {
-	// $("#subscriptions #" + b64ID + " .badges").show();
-	// $("#subscriptions #" + b64ID + " .reloadAnimation").hide();
-}
-
 function resetFontAppearance(fontID) {
 	$("#" + fontID + ".font").find('a.status').hide();
 }
-
 
 
 keypressFunctions = [];
@@ -86,19 +57,20 @@ function unregisterKeypress(key) {
 $( document ).ready(function() {
 
 	// Automatically reload subscriptions
-	reloadSubscriptions = function(immediately) {
+	autoReloadSubscriptions = function(immediately) {
 		if (immediately) {
-			python('self.reloadSubscriptions()');
-			reloadSubscriptions();
+			python('self.autoReloadSubscriptions()');
+			autoReloadSubscriptions();
 		}
 		else {
 			setTimeout(function () {
-				python('self.reloadSubscriptions()');
-				reloadSubscriptions();
+				python('self.autoReloadSubscriptions()');
+				autoReloadSubscriptions();
 			}, 1000 * 60); // every minute
 		}
 	};
-	setTimeout(function () { reloadSubscriptions(true); }, 2000); // First load after 2 seconds
+
+	setTimeout(function () { autoReloadSubscriptions(true); }, 2000); // First load after 2 seconds
 
 	$(document).bind("contextmenu",function(evt){
 		contextmenu(evt);
@@ -134,6 +106,12 @@ $( document ).ready(function() {
 function showAddSubscription() {
 	$('#addSubscription #url').val(null);
 	$('#addSubscription #authenticationCheckBox').hide();
+
+    // Reset Form
+    $("#addSubscriptionFormSubmitButton").show();
+    $("#addSubscriptionFormCancelButton").show();
+    $("#addSubscriptionFormSubmitAnimation").hide();
+
 
 	$('#addSubscription').slideDown();
 	registerKeypress(27, function(){ hidePanel(); });

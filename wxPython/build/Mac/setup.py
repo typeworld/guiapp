@@ -8,8 +8,9 @@ DATA_FILES = []
 OPTIONS = {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
            'iconfile': '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/tw.icns',
            'includes': ['ynlib', 'wx', 'os', 'webbrowser', 'urllib', 'base64', 'threading', 'keyring'],
+           'excludes': ['locales'],
            'frameworks': ['Python.framework'],
-            'resources': ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', '/Users/yanone/Code/dsa_pub.pem'], #, 'appbadge.docktileplugin'
+           'resources': ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/InternetAccessPolicy.plist', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', '/Users/yanone/Code/dsa_pub.pem'], #, 'appbadge.docktileplugin'
            'packages': ['certifi'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
@@ -50,3 +51,7 @@ setup(
 )
 
 
+# Attention: Hack!
+os.chdir('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.6/lib-dynload/wx/')
+for file in ['libwx_baseu-3.0.0.4.0.dylib', 'libwx_osx_cocoau_core-3.0.0.4.0.dylib', 'libwx_osx_cocoau_webview-3.0.0.4.0.dylib', 'libwx_baseu_net-3.0.0.4.0.dylib']:
+    assert os.system('ln -s ../../../../../Frameworks/%s %s' % (file, file)) == 0

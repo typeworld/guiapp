@@ -9,24 +9,15 @@ version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 
 findSymlinks = 'find -L ~/Code/TypeWorldApp/dist/Type.World.app -type l'
 
 _list = [
-['Unlink site.pyo', 'unlink ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.6/site.pyo'],
 
-['Signing inner components', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu-3.0.0.4.0.dylib'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_core-3.0.0.4.0.dylib'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_webview-3.0.0.4.0.dylib'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu_net-3.0.0.4.0.dylib'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Python.framework/Versions/3.6'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Sparkle.framework/Versions/A'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app/Contents/MacOS/python'],
+# Archive
+['Copy app to archive', 'cp -r ~/Code/TypeWorldApp/dist/Type.World.app /Users/yanone/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version],
 
-['Signing app', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app'],
+# DMG
+#['Create dmg background image', 'tiffutil -cathidpicheck /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/dmgbackground.tiff /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/dmgbackground@2x.tiff -out /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/dmgbackground_final.tiff'],
 
-['Verify signature', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dist/Type.World.app'],
-['Verify signature', 'codesign --verify --deep --strict --verbose=20 ~/Code/TypeWorldApp/dist/Type.World.app', findSymlinks],
-['Verify signature', 'spctl -a -t exec -vvvv ~/Code/TypeWorldApp/dist/Type.World.app', findSymlinks],
-
-['Remove old dmg', 'rm ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version],
-['Create .dmg', 'hdiutil create -size 100m -fs HFS+ -srcfolder ~/Code/TypeWorldApp/dist -volname "Type.World App" ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version],
+['Remove old dmg', 'rm ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, None, [0, 1]],
+['Create .dmg', '/Users/yanone/Library/Python/3.6/bin/dmgbuild -s /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/dmgbuild.py "Type.World App" /Users/yanone/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version],
 ['Sign .dmg', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version],
 ['Verify .dmg', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version],
 ['Create appcast', 'python3 /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/appcast.py'],
@@ -34,11 +25,15 @@ _list = [
 
 for l in _list:
 
+	exitcodes = [0]
+
 	alt = None
 	if len(l) == 2:
 		desc, cmd = l
 	if len(l) == 3:
 		desc, cmd, alt = l
+	if len(l) == 4:
+		desc, cmd, alt, exitcodes = l
 
 
 	print(desc, '...')
@@ -46,7 +41,8 @@ for l in _list:
 	out = Popen(cmd, stderr=STDOUT,stdout=PIPE, shell=True)
 	output, exitcode = out.communicate()[0].decode(), out.returncode
 
-	if exitcode != 0:
+	if not exitcode in exitcodes:
+		print ('Exit code:', exitcode)
 		print(output)
 		print()
 		print(cmd)

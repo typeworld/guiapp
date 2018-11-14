@@ -3,16 +3,19 @@
 import os
 from ynlib.web import GetHTTP
 from ynlib.files import WriteToFile
+import json
 
-json = GetHTTP('https://type.world/downloadLocalization?appID=world.type.guiapp').decode()
-print(type(json))
+j = GetHTTP('https://type.world/downloadLocalization?appID=world.type.guiapp').decode()
+print(type(j))
+
+a = json.loads(j)
+
+path = os.path.join(os.path.dirname(__file__), 'locales', 'localization.json')
+WriteToFile(path, json.dumps(a))
 
 
+print(j)
 
-
-WriteToFile(os.path.join(os.path.dirname(__file__), 'locales', 'localization.py'), ("localization = '%s'" % json))
-
-
-print(json)
+a = json.loads(j)
 
 print('Updated localization')

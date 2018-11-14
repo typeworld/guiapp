@@ -14,8 +14,10 @@ dsaFolder = os.path.expanduser('~/Code/TypeWorldApp/dsa')
 
 
 def getDSA(file):
-	dsa = Execute('~/Code/Sparkle/bin/sign_update %s ~/Code/dsa_priv.pem' % file).decode()
+	path = '~/Code/Sparkle/bin/sign_update %s ~/Code/dsa_priv.pem' % file
+	dsa = Execute(path).decode()
 	dsa = dsa.replace(' ', '').replace('\n', '')
+	print(path)
 	return dsa
 
 
@@ -33,7 +35,8 @@ for OS in ('windows', 'mac'):
 		os.remove(os.path.join(dmgFolder, appcastFilename))
 	Execute('find ~/Code/TypeWorldApp/dmg/* -type f -mtime +30 -delete')
 
-	if OS == 'mac':
+	if False:
+#	if OS == 'mac':
 		# Create deltas
 		os.chdir(os.path.expanduser("~/Code/TypeWorldApp/apps/Mac"))
 		versions = []
@@ -80,9 +83,10 @@ for OS in ('windows', 'mac'):
 			# Release notes
 			md_path = os.path.expanduser("~/Code/TypeWorldApp/changelog/" + version + '.md')
 			if os.path.exists(md_path):
-				notes = Execute('cat ' + md_path)
+				notes = ReadFromFile(md_path)
 				if notes:
-					lines.append('\t<description><![CDATA[' + markdown.markdown(ReadFromFile(md_path)) + ']]></description>')
+					notes += '\n\nPrevious release notes at [https://type.world/app/](https://type.world/app/)'
+					lines.append('\t<description><![CDATA[' + markdown.markdown(notes) + ']]></description>')
 
 			lines.append('\t<pubDate>' + time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(os.path.getmtime(path))) + '</pubDate>')
 			
@@ -90,7 +94,7 @@ for OS in ('windows', 'mac'):
 				lines.append('\t<sparkle:minimumSystemVersion>10.7</sparkle:minimumSystemVersion>')
 
 			if OS == 'windows':
-				sparkleOS = ' sparkle:installerArguments="/SILENT /SP- /NOICONS" sparkle:os="windows" '
+				sparkleOS = ' sparkle:installerArguments="/SILENT /SP- /NOICONS /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS" sparkle:os="windows" '
 			else:
 				sparkleOS = ''
 

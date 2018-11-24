@@ -5,7 +5,7 @@ from ynlib.web import GetHTTP
 from ynlib.files import WriteToFile
 import json
 
-j = GetHTTP('https://type.world/downloadLocalization?appID=world.type.guiapp').decode()
+j = GetHTTP('https://type.world/downloadLocalization?appID=world.type.guiapp,world.type.agent').decode()
 print(type(j))
 
 a = json.loads(j)

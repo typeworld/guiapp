@@ -43,6 +43,17 @@ function resetFontAppearance(fontID) {
 	$("#" + fontID + ".font").find('a.status').hide();
 }
 
+function setCursor(name, timeout) {
+	$('html').css('cursor', 'wait !important');
+	$('*').css('cursor', 'wait !important');
+	$('body').css('cursor', 'wait !important');
+
+	setTimeout(function () {
+		$('html').css('cursor', 'inherit');
+		$('*').css('cursor', 'inherit');
+		$('body').css('cursor', 'inherit');
+	}, timeout);
+}
 
 keypressFunctions = [];
 

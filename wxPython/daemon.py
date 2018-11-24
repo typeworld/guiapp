@@ -2,6 +2,8 @@ import threading, time, sys, os, traceback, ctypes, plistlib
 from threading import Thread
 
 import platform
+import locales
+
 WIN = platform.system() == 'Windows'
 MAC = platform.system() == 'Darwin'
 
@@ -24,8 +26,6 @@ if MAC:
 if WIN:
 	import pystray._util.win32 as win32
 	import win32gui, win32con
-
-
 
 
 import signal
@@ -109,6 +109,14 @@ def log(message):
 log('mainAppPath: %s' % mainAppPath)
 
 log(client)
+
+
+def localize(key, html = False):
+	string = locales.localize('world.type.agent', key, client.locale())
+	if html:
+		string = string.replace('\n', '<br />')
+	return string
+
 
 # Read app version number
 
@@ -202,18 +210,18 @@ def setStatus(amountOutdatedFonts, notification = False):
 
 			if MAC:
 				notification = NSUserNotification.alloc().init()
-				notification.setTitle_('%s font updates available' % amountOutdatedFonts)
-				notification.setInformativeText_('Click to open Type.World app')
+				notification.setTitle_(localize('XFontUpdatesAvailable').replace('%numberOfFonts%', str(amountOutdatedFonts)))
+				notification.setInformativeText_(localize('Click to open Type.World app'))
 				notificationCenter.deliverNotification_(notification)
 
 			if WIN:
 				template = zroya.Template(zroya.TemplateType.ImageAndText4)
-				template.setFirstLine('%s font updates available' % amountOutdatedFonts)
+				template.setFirstLine(localize('XFontUpdatesAvailable').replace('%numberOfFonts%', str(amountOutdatedFonts)))
 				expiration = 24 * 60 * 60 * 1000 # one day
 				if int(client.preferences.get('reloadSubscriptionsInterval')) != -1:
 					expiration = int(client.preferences.get('reloadSubscriptionsInterval')) * 1000
 				template.setExpiration(expiration) # One day
-				template.addAction("Open Type.World App")
+				template.addAction(localize('Open Type.World App'))
 				notificationID = zroya.show(template, on_action=onAction)
 
 	else:
@@ -411,7 +419,7 @@ def quitIcon():
 	closeListenerThread = Thread(target=closeListener)
 	closeListenerThread.start()
 
-	time.sleep(2)
+	time.sleep(1)
 
 	t.stop()
 	t.join()
@@ -426,7 +434,7 @@ def quitIcon():
 	# 	exit()
 
 
-menu = (item('Open Type.World App', openApp, default=True), item('Check for updates now', checkForUpdates))#, pystray.Menu.SEPARATOR, item('Quit', quitIcon))
+menu = (item(localize('Open Type.World App'), openApp, default=True), item(localize('Check for font updates now'), checkForUpdates))#, pystray.Menu.SEPARATOR, item('Quit', quitIcon))
 if MAC:
 	image = NSImage.alloc().initWithContentsOfFile_(NSBundle.mainBundle().pathForResource_ofType_('MacSystemTrayIcon', 'pdf'))
 	image.setTemplate_(True)

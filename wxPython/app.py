@@ -355,7 +355,7 @@ class AppFrame(wx.Frame):
 		if not client.preferences.get('localizationType'):
 			client.preferences.set('localizationType', 'systemLocale')
 		if not client.preferences.get('customLocaleChoice'):
-			client.preferences.set('customLocaleChoice', self.systemLocale())
+			client.preferences.set('customLocaleChoice', client.systemLocale())
 		if not client.preferences.get('reloadSubscriptionsInterval'):
 			client.preferences.set('reloadSubscriptionsInterval', 1 * 24 * 60 * 60) # one day
 		if not client.preferences.get('seenDialogs'):
@@ -416,7 +416,7 @@ class AppFrame(wx.Frame):
 #        m_opensubscription.SetAccel(wx.AcceleratorEntry(wx.ACCEL_CTRL,  ord('o')))
 
 
-		m_CheckForUpdates = menu.Append(wx.NewId(), "%s..." % (self.localize('Check for Updates')))
+		m_CheckForUpdates = menu.Append(wx.NewId(), "%s..." % (self.localize('Check for App Updates')))
 		self.Bind(wx.EVT_MENU, self.onCheckForUpdates, m_CheckForUpdates)
 		if MAC:
 			m_closewindow = menu.Append(wx.ID_CLOSE, "%s\tCtrl+W" % (self.localize('Close Window')))
@@ -474,10 +474,14 @@ class AppFrame(wx.Frame):
 		# Ask to install agent
 		seenDialogs = client.preferences.get('seenDialogs') or []
 		if not 'installMenubarIcon' in seenDialogs:
-			dlg = wx.MessageDialog(None, "Would you like to install the menu bar icon, a process that runs in the background and keeps checking on your font subscriptions?\nYou can always change this in the preferences.", 'Show menu bar icon',wx.YES_NO | wx.ICON_QUESTION)
-			result = dlg.ShowModal()
-			if result == wx.ID_YES:
-				installAgent()
+
+			# Menu Bar is actually running, so don't do anything
+			if not client.preferences.get('menuBarIcon'):
+				dlg = wx.MessageDialog(None, self.localizeString("#(InstallMenubarIconQuestion)"), self.localizeString("#(ShowMenuBarIcon)"),wx.YES_NO | wx.ICON_QUESTION)
+				result = dlg.ShowModal()
+				if result == wx.ID_YES:
+					installAgent()
+
 			seenDialogs.append('installMenubarIcon')
 			client.preferences.set('seenDialogs', seenDialogs)
 
@@ -580,7 +584,7 @@ class AppFrame(wx.Frame):
 		publishers = []
 		for i, key in enumerate(client.endpoints.keys()):
 			endpoint = client.endpoints[key]
-			name, language = endpoint.latestVersion().name.getTextAndLocale(locale = self.locale())
+			name, language = endpoint.latestVersion().name.getTextAndLocale(locale = client.locale())
 			publishers.append((i, name, language))
 		return publishers
 
@@ -699,7 +703,7 @@ class AppFrame(wx.Frame):
 		html.append('#(Version History) #(on) <a href="https://type.world/app">type.world/app</a>')
 		html.append('</p>')
 		# html.append(u'<p>')
-		# html.append(u'<a class="button" onclick="python('self.sparkle.checkForUpdates_(None)');">#(Check for Updates)</a>')
+		# html.append(u'<a class="button" onclick="python('self.sparkle.checkForUpdates_(None)');">#(Check for App Updates)</a>')
 		# html.append(u'</p>')
 
 
@@ -714,7 +718,8 @@ class AppFrame(wx.Frame):
 
 		self.javaScript('showAbout();')
 
-
+	def resetDialogs(self):
+		client.preferences.set('seenDialogs', [])
 
 
 	def onPreferences(self, event):
@@ -726,7 +731,7 @@ class AppFrame(wx.Frame):
 		html.append('<h2>#(Icon in Menu Bar)</h2>')
 		html.append('<p>')
 		html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">#(Show Icon in Menu Bar)</label></span>' % ('checked' if agentIsRunning() else ''))
-		html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { python("uninstallAgent()"); } });</script>')
+		html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
 		html.append('<br />')
 		html.append('#(Icon in Menu Bar Explanation)')
 		html.append('</p>')
@@ -750,13 +755,13 @@ class AppFrame(wx.Frame):
 			html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(client.preferences.get('reloadSubscriptionsInterval')) else '', name))
 		html.append('</select>')
 		html.append('<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
-		html.append('<br />#(Last Check): %s' % NaturalRelativeWeekdayTimeAndDate(client.preferences.get('reloadSubscriptionsLastPerformed'), locale = self.locale()[0]))
+		html.append('<br />#(Last Check): %s' % NaturalRelativeWeekdayTimeAndDate(client.preferences.get('reloadSubscriptionsLastPerformed'), locale = client.locale()[0]))
 		html.append('</p>')
 
 		html.append('<p></p>')
 
 		# Localization
-		systemLocale = self.systemLocale()
+		systemLocale = client.systemLocale()
 		for code, name in locales.locales:
 			if code == systemLocale:
 				systemLocale = name
@@ -780,6 +785,17 @@ class AppFrame(wx.Frame):
 		});</script>''')
 		html.append('</p>')
 
+
+		# Reset Dialogs
+		html.append('<h2>#(Reset Dialogs)</h2>')
+		html.append('<p>')
+		html.append('<a id="resetDialogButton" class="button">#(ResetDialogsButton)</a>')
+		html.append('</p>')
+		html.append('''<script>$("#preferences #resetDialogButton").click(function() {
+
+			python("self.resetDialogs()");
+			 
+		});</script>''')
 
 
 		# Print HTML
@@ -903,7 +919,7 @@ class AppFrame(wx.Frame):
 
 		publisher = client.publisher(self.b64decode(b64ID))
 
-		dlg = wx.MessageDialog(self, self.localizeString('#(Are you sure)'), self.localizeString('#(Remove X)').replace('%name%', self.localizeString(publisher.name(self.locale())[0])), wx.YES_NO | wx.ICON_QUESTION)
+		dlg = wx.MessageDialog(self, self.localizeString('#(Are you sure)'), self.localizeString('#(Remove X)').replace('%name%', self.localizeString(publisher.name(client.locale())[0])), wx.YES_NO | wx.ICON_QUESTION)
 		result = dlg.ShowModal() == wx.ID_YES
 		dlg.Destroy()
 		
@@ -921,7 +937,7 @@ class AppFrame(wx.Frame):
 				if subscription.url == self.b64decode(b64ID):
 
 
-					dlg = wx.MessageDialog(self, self.localizeString('#(Are you sure)'), self.localizeString('#(Remove X)').replace('%name%', self.localizeString(subscription.name(self.locale()))), wx.YES_NO | wx.ICON_QUESTION)
+					dlg = wx.MessageDialog(self, self.localizeString('#(Are you sure)'), self.localizeString('#(Remove X)').replace('%name%', self.localizeString(subscription.name(client.locale()))), wx.YES_NO | wx.ICON_QUESTION)
 					result = dlg.ShowModal() == wx.ID_YES
 					dlg.Destroy()
 					
@@ -957,7 +973,7 @@ class AppFrame(wx.Frame):
 		family = subscription.familyByID(familyID)
 
 		for font in family.fonts():
-			if font.setName.getText(self.locale) == setName and font.format == formatName:
+			if font.setName.getText(client.locale()) == setName and font.format == formatName:
 				if not font.installedVersion():
 					fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
 
@@ -980,7 +996,7 @@ class AppFrame(wx.Frame):
 		family = subscription.familyByID(familyID)
 
 		for font in family.fonts():
-			if font.setName.getText(self.locale) == setName and font.format == formatName:
+			if font.setName.getText(client.locale()) == setName and font.format == formatName:
 				if font.installedVersion():
 					fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID)])
 
@@ -1060,7 +1076,7 @@ class AppFrame(wx.Frame):
 			if type(message) in (str, str):
 				self.errorMessage(message)
 			else:
-				self.errorMessage('Server: %s' % message.getText(self.locale()))
+				self.errorMessage('Server: %s' % message.getText(client.locale()))
 
 		self.setSideBarHTML()
 		self.setBadges()
@@ -1153,7 +1169,7 @@ class AppFrame(wx.Frame):
 			if type(message) in (str, str):
 				self.errorMessage(message)
 			else:
-				self.errorMessage('Server: %s' % message.getText(self.locale()))
+				self.errorMessage('Server: %s' % message.getText(client.locale()))
 
 		self.setSideBarHTML()
 		self.setBadges()
@@ -1294,7 +1310,7 @@ class AppFrame(wx.Frame):
 				html = []
 
 
-				html.append('<h2>%s (%s)</h2>' % (publisher.name(self.locale())[0], publisher.get('type')))
+				html.append('<h2>%s (%s)</h2>' % (publisher.name(client.locale())[0], publisher.get('type')))
 				if publisher.get('type') == 'GitHub':
 
 					# Rate limits
@@ -1478,7 +1494,7 @@ class AppFrame(wx.Frame):
 	def errorMessage(self, message):
 
 		if type(message) == typeWorld.api.base.MultiLanguageText:
-			message = message.getText(locale = self.locale())
+			message = message.getText(locale = client.locale())
 
 		dlg = wx.MessageDialog(self, message or 'No message defined', '', wx.ICON_ERROR)
 		result = dlg.ShowModal()
@@ -1488,7 +1504,7 @@ class AppFrame(wx.Frame):
 	def message(self, message):
 
 		if type(message) == typeWorld.api.base.MultiLanguageText:
-			message = message.getText(locale = self.locale())
+			message = message.getText(locale = client.locale())
 
 		dlg = wx.MessageDialog(self, message or 'No message defined', '')
 		result = dlg.ShowModal()
@@ -1555,7 +1571,7 @@ class AppFrame(wx.Frame):
 					html.append('</div>') # publisher
 
 			html.append('<div class="names centerOuter"><div class="centerInner">')
-			html.append('<div class="name">%s</div>' % (foundry.name.getText(self.locale())))
+			html.append('<div class="name">%s</div>' % (foundry.name.getText(client.locale())))
 			if foundry.website:
 				html.append('<div class="website"><a href="%s">%s</a></div>' % (foundry.website, foundry.website))
 
@@ -1574,19 +1590,19 @@ class AppFrame(wx.Frame):
 				html.append('<div class="title">')
 				html.append('<div class="clear">')
 				html.append('<div class="left name">')
-				html.append(family.name.getText(self.locale()))
+				html.append(family.name.getText(client.locale()))
 				html.append('</div>') # .left.name
 				html.append('</div>') # .clear
 				html.append('</div>') # .title
 
 
-				for setName in family.setNames(self.locale()):
-					for formatName in family.formatsForSetName(setName, self.locale()):
+				for setName in family.setNames(client.locale()):
+					for formatName in family.formatsForSetName(setName, client.locale()):
 
 						fonts = []
 						amountInstalled = 0
 						for font in family.fonts():
-							if font.setName.getText(self.locale()) == setName and font.format == formatName:
+							if font.setName.getText(client.locale()) == setName and font.format == formatName:
 								fonts.append(font)
 								if font.installedVersion():
 									amountInstalled += 1
@@ -1634,7 +1650,7 @@ class AppFrame(wx.Frame):
 							html.append('<div class="clear">')
 
 							html.append('<div class="left" style="width: 50%;">')
-							html.append(font.name.getText(self.locale()))
+							html.append(font.name.getText(client.locale()))
 							if font.free:
 								html.append('<span class="label free">free</span>')
 							if font.beta:
@@ -1790,7 +1806,7 @@ class AppFrame(wx.Frame):
 			b64ID = self.b64encode(publisher.canonicalURL)
 
 			if publisher.subscriptions():
-				name, language = publisher.name(locale = self.locale())
+				name, language = publisher.name(locale = client.locale())
 
 
 				if language in ('ar', 'he'):
@@ -1844,7 +1860,7 @@ class AppFrame(wx.Frame):
 #                        html.append('<a class="subscription" href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
 						html.append('<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s" publisherID="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url), b64ID))
 						html.append('<div class="name">')
-						html.append(self.localizeString(subscription.name(locale=self.locale())))
+						html.append(self.localizeString(subscription.name(locale=client.locale())))
 						html.append('</div>')
 						html.append('<div class="reloadAnimation" style="display: none;">')
 						html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
@@ -1995,13 +2011,13 @@ $( document ).ready(function() {
 			self._dockTile.setBadgeLabel_(label)
 
 	def localize(self, key, html = False):
-		string = locales.localize(key, self.locale())
+		string = locales.localize('world.type.guiapp', key, client.locale())
 		if html:
 			string = string.replace('\n', '<br />')
 		return string
 
 	def localizeString(self, string, html = False):
-		string = locales.localizeString(string, languages = self.locale(), html = html)
+		string = locales.localizeString('world.type.guiapp', string, languages = client.locale(), html = html)
 		return string
 
 	def replaceHTML(self, html):
@@ -2015,31 +2031,6 @@ $( document ).ready(function() {
 
 		html = html.replace('##htmlroot##', path)
 		return html
-
-	def systemLocale(self):
-		if MAC:
-			from AppKit import NSLocale
-			return str(NSLocale.autoupdatingCurrentLocale().localeIdentifier().split('_')[0])
-		elif WIN:
-			import locale
-			return locale.getdefaultlocale()[0].split('_')[0]
-		else:
-			return 'en'
-
-	def locale(self):
-		'''\
-		Reads user locale from OS
-		'''
-
-		if not hasattr(self, '_locale'):
-
-			if client.preferences.get('localizationType') == 'systemLocale':
-				self._locale = [self.systemLocale(), 'en']
-			elif client.preferences.get('localizationType') == 'customLocale':
-				self._locale = [client.preferences.get('customLocaleChoice'), 'en']
-			else:
-				self._locale = [self.systemLocale(), 'en']
-		return self._locale
 
 	def setBadges(self):
 		amount = 0

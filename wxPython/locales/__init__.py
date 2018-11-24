@@ -22,28 +22,28 @@ def makeHTML(string, html):
 #		string = markdown.markdown(string)
 	return string
 
-def localize(key, languages = ['en'], html = False):
+def localize(appID, key, languages = ['en'], html = False):
 	'''\
 	Return localized version of key, if found. Otherwise try English, if found.u
 	'''
 
 	string = None
-	if key in content:
+	if appID in content and key in content[appID]:
 		for language in languages:
-			if language in content[key]:
-				return makeHTML(content[key][language], html)
-			elif 'en' in content[key]:
-				return makeHTML(content[key]['en'], html)
+			if language in content[appID][key]:
+				return makeHTML(content[appID][key][language], html)
+			elif 'en' in content[appID][key]:
+				return makeHTML(content[appID][key]['en'], html)
 
 	return makeHTML(key, html)
 
-def localizeString(source, languages = ['en'], html = False):
+def localizeString(appID, source, languages = ['en'], html = False):
 	'''\
 	Replace all occurrences of $(key) with their localized content
 	'''
 
 	def my_replace(match):
-		return localize(match.group(2), languages, html)
+		return localize(appID, match.group(2), languages, html)
 
 	return re.sub(r'(\#\((.+?)\))', my_replace, source)
 

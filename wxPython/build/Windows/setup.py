@@ -36,28 +36,32 @@ setup(  name = "Type.World",
           'optimize': 2,
           'build_exe': destinationFolder,
         }},
-        executables = [Executable(os.path.join(baseFolder, "app.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico'))])
+        executables = [,
+          Executable(os.path.join(baseFolder, "app.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico')),
+          Executable(os.path.join(baseFolder, "agent.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Subscription Opener.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico')),
+          Executable(os.path.join(baseFolder, "daemon.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Taskbar Agent.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico')),
+          ])
 
-setup(  name = "Type.World Subscription Opener",
-        version = version.split('-')[0],
-        options = {"build_exe": {
-         'optimize': 2,
-#          'build_exe': os.path.join(destinationFolder, 'URL Opening Agent'),
-          'build_exe': destinationFolder,
-          'packages': [],
-        }},
-        executables = [Executable(os.path.join(baseFolder, "agent.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Subscription Opener.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico'))])
+# setup(  name = "Type.World Subscription Opener",
+#         version = version.split('-')[0],
+#         options = {"build_exe": {
+#          'optimize': 2,
+#           'build_exe': os.path.join(destinationFolder, 'URL Opening Agent'),
+# #          'build_exe': destinationFolder,
+#           'packages': [],
+#         }},
+#         executables = [Executable(os.path.join(baseFolder, "agent.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Subscription Opener.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico'))])
 
-setup(  name = "Type.World Taskbar Agent",
-        version = version.split('-')[0],
-        options = {"build_exe": {
-         'optimize': 2,
-          'build_exe': destinationFolder,
-#          'build_exe': os.path.join(destinationFolder, 'Taskbar Agent'),
-          'packages': ['pystray'],
-          'include_files': [
-                os.path.join(baseFolder, 'icon'), 
-                ],
-        }},
-        executables = [Executable(os.path.join(baseFolder, "daemon.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Taskbar Agent.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico'))])
+# setup(  name = "Type.World Taskbar Agent",
+#         version = version.split('-')[0],
+#         options = {"build_exe": {
+#          'optimize': 2,
+# #          'build_exe': destinationFolder,
+#           'build_exe': os.path.join(destinationFolder, 'Taskbar Agent'),
+#           'packages': ['pystray'],
+#           'include_files': [
+#                 os.path.join(baseFolder, 'icon'), 
+#                 ],
+#         }},
+#         executables = [Executable(os.path.join(baseFolder, "daemon.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Taskbar Agent.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico'))])
 

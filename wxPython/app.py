@@ -30,7 +30,6 @@ import platform
 WIN = platform.system() == 'Windows'
 MAC = platform.system() == 'Darwin'
 
-
 from ynlib.files import ReadFromFile, WriteToFile
 from ynlib.strings import *
 from ynlib.web import GetHTTP
@@ -206,6 +205,129 @@ def agentIsRunning():
 		return PID('TypeWorld Taskbar Agent.exe') is not None
 
 
+def installAgent():
+
+	uninstallAgent()
+
+	if MAC:
+		from AppKit import NSBundle
+		zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
+		plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
+		agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
+		plist = '''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>Debug</key>
+<true/>
+<key>Disabled</key>
+<false/>
+<key>KeepAlive</key>
+<true/>
+<key>Label</key>
+<string>world.type.agent</string>
+<key>MachServices</key>
+<dict>
+	<key>world.type.agent</key>
+	<true/>
+</dict>
+<key>OnDemand</key>
+<false/>
+<key>Program</key>
+<string>''' + agentPath + '''/Contents/MacOS/Type.World Agent</string>
+<key>RunAtLoad</key>
+<true/>
+</dict>
+</plist>'''
+
+
+		# Extract app
+		folder = os.path.dirname(agentPath)
+		if not os.path.exists(folder):
+			os.makedirs(folder)
+		os.system('tar -zxf "%s" -C "%s"' % (zipPath, folder))
+
+		# Write Launch Agent
+		if not os.path.exists(os.path.dirname(plistPath)):
+			os.makedirs(os.path.dirname(plistPath))
+		f = open(plistPath, 'w')
+		f.write(plist)
+		f.close()
+
+		# Run App
+		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
+			os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
+
+		print('installAgent() done')
+
+	if WIN:
+
+#			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
+		file_path = os.path.join(os.path.dirname(__file__), r'Taskbar Agent', r'TypeWorld Taskbar Agent.exe')
+		file_path = file_path.replace(r'\\Mac\Home', r'Z:')
+		print(file_path)
+
+		import getpass
+		USER_NAME = getpass.getuser()
+
+		bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup' % USER_NAME
+		bat_command = 'start "" "%s"' % file_path
+
+		from pathlib import Path
+		print(Path(file_path).exists())
+
+		if not os.path.exists(os.path.dirname(bat_path)):
+			os.makedirs(os.path.dirname(bat_path))
+		with open(bat_path + '\\' + "TypeWorld.bat", "w+") as bat_file:
+			bat_file.write(bat_command)
+
+		import subprocess
+		os.chdir(os.path.dirname(file_path))
+		subprocess.Popen([file_path], executable = file_path)
+
+	client.preferences.set('menuBarIcon', True)
+
+
+
+
+def uninstallAgent():
+
+	if MAC:
+		from AppKit import NSRunningApplication
+
+		plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
+		agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
+
+		# Kill running app
+		ID = 'world.type.agent'
+		# App is running, so activate it
+		apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
+		if apps:
+			mainApp = apps[0]
+			mainApp.terminate()
+
+		# delete app bundle
+		if os.path.exists(agentPath):
+			os.system('rm -r "%s"' % agentPath)
+
+		# delete plist
+		if os.path.exists(plistPath):
+			os.system('rm "%s"' % plistPath)
+
+	if WIN:
+
+		agent('quit')	
+
+		import getpass
+		USER_NAME = getpass.getuser()
+
+		bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\TypeWorld.bat' % USER_NAME
+		if os.path.exists(bat_path):
+			os.remove(bat_path)
+
+	client.preferences.set('menuBarIcon', False)
+
+
 
 class AppFrame(wx.Frame):
 	def __init__(self, parent):        
@@ -303,9 +425,9 @@ class AppFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.onQuit, m_exit)
 
 		# m_InstallAgent = menu.Append(wx.NewId(), "Install Agent")
-		# self.Bind(wx.EVT_MENU, self.onInstallAgent, m_InstallAgent)
+		# self.Bind(wx.EVT_MENU, self.installAgent, m_InstallAgent)
 		# m_RemoveAgent = menu.Append(wx.NewId(), "Remove Agent")
-		# self.Bind(wx.EVT_MENU, self.onRemoveAgent, m_RemoveAgent)
+		# self.Bind(wx.EVT_MENU, self.uninstallAgent, m_RemoveAgent)
 
 
 		menuBar.Append(menu, "&%s" % (self.localize('File')))
@@ -347,7 +469,7 @@ class AppFrame(wx.Frame):
 		if agentIsRunning():
 			agentVersion = agent('version')
 			if semver.compare(APPVERSION, agentVersion) == 1:
-				self.onInstallAgent(None)
+				installAgent()
 
 		# Ask to install agent
 		seenDialogs = client.preferences.get('seenDialogs') or []
@@ -355,13 +477,13 @@ class AppFrame(wx.Frame):
 			dlg = wx.MessageDialog(None, "Would you like to install the menu bar icon, a process that runs in the background and keeps checking on your font subscriptions?\nYou can always change this in the preferences.", 'Show menu bar icon',wx.YES_NO | wx.ICON_QUESTION)
 			result = dlg.ShowModal()
 			if result == wx.ID_YES:
-				self.onInstallAgent(None)
+				installAgent()
 			seenDialogs.append('installMenubarIcon')
 			client.preferences.set('seenDialogs', seenDialogs)
 
 		# Restart after restart
 		if client.preferences.get('menuBarIcon') and not agentIsRunning():
-			self.onInstallAgent(None)
+			installAgent()
 
 
 		self.CentreOnScreen()
@@ -604,7 +726,7 @@ class AppFrame(wx.Frame):
 		html.append('<h2>#(Icon in Menu Bar)</h2>')
 		html.append('<p>')
 		html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">#(Show Icon in Menu Bar)</label></span>' % ('checked' if agentIsRunning() else ''))
-		html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("self.onInstallAgent(None)"); } else { python("self.onRemoveAgent(None)"); } });</script>')
+		html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { python("uninstallAgent()"); } });</script>')
 		html.append('<br />')
 		html.append('#(Icon in Menu Bar Explanation)')
 		html.append('</p>')
@@ -1997,130 +2119,6 @@ $( document ).ready(function() {
 		# # background silently
 		# pywinsparkle.win_sparkle_check_update_without_ui()
 
-	def onInstallAgent(self, evt):
-
-		self.onRemoveAgent(None)
-
-		if MAC:
-			from AppKit import NSBundle
-			zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
-			plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
-			agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
-			plist = '''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>Debug</key>
-	<true/>
-	<key>Disabled</key>
-	<false/>
-	<key>KeepAlive</key>
-	<true/>
-	<key>Label</key>
-	<string>world.type.agent</string>
-	<key>MachServices</key>
-	<dict>
-		<key>world.type.agent</key>
-		<true/>
-	</dict>
-	<key>OnDemand</key>
-	<false/>
-	<key>Program</key>
-	<string>''' + agentPath + '''/Contents/MacOS/Type.World Agent</string>
-	<key>RunAtLoad</key>
-	<true/>
-</dict>
-</plist>'''
-
-
-			# Extract app
-			folder = os.path.dirname(agentPath)
-			if not os.path.exists(folder):
-				os.makedirs(folder)
-			os.system('tar -zxf "%s" -C "%s"' % (zipPath, folder))
-			if not os.path.exists(agentPath):
-				self.errorMessage('Unzip failed')
-				return 
-
-			# Write Launch Agent
-			if not os.path.exists(os.path.dirname(plistPath)):
-				os.makedirs(os.path.dirname(plistPath))
-			f = open(plistPath, 'w')
-			f.write(plist)
-			f.close()
-
-			# Run App
-			if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
-				os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
-
-			print('onInstallAgent() done')
-
-		if WIN:
-
-			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-#			file_path = os.path.join(os.path.dirname(__file__), r'Taskbar Agent', r'TypeWorld Taskbar Agent.exe')
-			file_path = file_path.replace(r'\\Mac\Home', r'Z:')
-			print(file_path)
-
-			import getpass
-			USER_NAME = getpass.getuser()
-
-			bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup' % USER_NAME
-			bat_command = 'start "" "%s"' % file_path
-
-			from pathlib import Path
-			print(Path(file_path).exists())
-
-			if not os.path.exists(os.path.dirname(bat_path)):
-				os.makedirs(os.path.dirname(bat_path))
-			with open(bat_path + '\\' + "TypeWorld.bat", "w+") as bat_file:
-				bat_file.write(bat_command)
-
-			import subprocess
-			os.chdir(os.path.dirname(file_path))
-			subprocess.Popen([file_path], executable = file_path)
-
-		client.preferences.set('menuBarIcon', True)
-
-
-
-
-	def onRemoveAgent(self, evt):
-
-		if MAC:
-			from AppKit import NSRunningApplication
-
-			plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
-			agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
-
-			# Kill running app
-			ID = 'world.type.agent'
-			# App is running, so activate it
-			apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
-			if apps:
-				mainApp = apps[0]
-				mainApp.terminate()
-
-			# delete app bundle
-			if os.path.exists(agentPath):
-				os.system('rm -r "%s"' % agentPath)
-
-			# delete plist
-			if os.path.exists(plistPath):
-				os.system('rm "%s"' % plistPath)
-
-		if WIN:
-
-			agent('quit')	
-
-			import getpass
-			USER_NAME = getpass.getuser()
-
-			bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\TypeWorld.bat' % USER_NAME
-			if os.path.exists(bat_path):
-				os.remove(bat_path)
-
-		client.preferences.set('menuBarIcon', False)
 
 
 
@@ -2272,7 +2270,7 @@ def listenerFunction():
 	log('Closed listener loop')
 
 
-intercomCommands = ['amountOutdatedFonts', 'startListener', 'killAgent', 'restartAgent']
+intercomCommands = ['amountOutdatedFonts', 'startListener', 'killAgent', 'restartAgent', 'uninstallAgent']
 
 
 
@@ -2338,7 +2336,13 @@ def intercom(commands):
 
 		agent('quit')
 
+	if commands[0] == 'uninstallAgent':
+
+		uninstallAgent()
+
 	if commands[0] == 'restartAgent':
+
+		agent('quit')
 
 		# Restart after restart
 		if client.preferences.get('menuBarIcon') and not agentIsRunning():

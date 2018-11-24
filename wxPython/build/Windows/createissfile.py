@@ -10,12 +10,16 @@ iss.write('''[Setup]
 AppName=Type.World
 AppVersion=%s
 DefaultDirName={pf}\\Type.World
+DisableDirPage=yes
 DefaultGroupName=Type.World
+DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\\TypeWorld.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=Z:\\Code\\TypeWorldApp\\dmg\\
 OutputBaseFilename=TypeWorldApp.%s
+DisableReadyPage=yes
+CloseApplications=force
 
 [Registry]
 Root: HKCR; Subkey: "typeworldjson"; Flags: uninsdeletekey
@@ -28,7 +32,10 @@ Root: HKCR; Subkey: "typeworldgithub"; ValueType: string; ValueName: "URL Protoc
 Root: HKCR; Subkey: "typeworldgithub\\shell\\open\\command"; ValueType: string; ValueData: "\"\"{app}\\URL Opening Agent\\TypeWorld Subscription Opener.exe\"\" \"\"%%1\"\""
 
 [Run]
-Filename: "C:\\Windows\\system32\\cmd.exe"; Parameters: "/min /C ""set __COMPAT_LAYER=RUNASINVOKER && start """" ""{app}\\TypeWorld.exe"" restartAgent"
+Filename: "{app}\\TypeWorld.exe"; Parameters: "restartAgent"; Flags: runascurrentuser
+
+[UninstallRun]
+Filename: "{app}\\TypeWorld.exe"; Parameters: "uninstallAgent"; Flags: runascurrentuser
 
 [Icons]
 Name: "{group}\\Type.World"; Filename: "{app}\\TypeWorld.exe"

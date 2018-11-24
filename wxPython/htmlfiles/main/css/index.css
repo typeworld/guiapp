@@ -399,15 +399,14 @@ input[type=radio],input[type=checkbox] {
 
     overflow-y: scroll;
 
-
-
-
 }
+
 
 #main .publisher .head {
 	width: 100%;
-	background-color: #EEE;
+	background-color: #EEE; 
 	padding: 25px;
+	color: #000;
 
 }
 

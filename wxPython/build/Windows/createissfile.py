@@ -27,11 +27,24 @@ Root: HKCR; Subkey: "typeworldgithub"; ValueType: string; ValueData: "URL:typewo
 Root: HKCR; Subkey: "typeworldgithub"; ValueType: string; ValueName: "URL Protocol"
 Root: HKCR; Subkey: "typeworldgithub\\shell\\open\\command"; ValueType: string; ValueData: "\"\"{app}\\URL Opening Agent\\TypeWorld Subscription Opener.exe\"\" \"\"%%1\"\""
 
+[Run]
+Filename: "C:\\Windows\\system32\\cmd.exe"; Parameters: "/min /C ""set __COMPAT_LAYER=RUNASINVOKER && start """" ""{app}\\TypeWorld.exe"" restartAgent"
+
 [Icons]
 Name: "{group}\\Type.World"; Filename: "{app}\\TypeWorld.exe"
 
 [Files]
 ''' % (version, version))
+
+# Filename: "cmd /min /C ""set __COMPAT_LAYER=RUNASINVOKER && start """" ""{app}\\TypeWorld.exe"" restartAgent"
+
+specialLines = {
+#  'TypeWorld Taskbar Agent.exe': '; BeforeInstall: "{app}\\TypeWorld.exe killAgent"',
+#  'TypeWorld Taskbar Agent.exe': '; Flags: ignoreversion; BeforeInstall: TaskKill(\'TypeWorld Taskbar Agent.exe\')',
+}
+
+# [Run]
+# Filename: "{app}\\TypeWorld.exe"; Parameters: "killAgent"
 
 
 lines = []
@@ -47,6 +60,29 @@ for subdir, dirs, files in os.walk(rootdir):
       path = os.path.join(subdir, file)
       destsubfolder = subdir[len(rootdir) + 1:]
 
-      iss.write('Source: "%s"; DestDir: "{app}%s%s"\n' % (path, "\\" if destsubfolder else "", destsubfolder))
+      special = ''
+      for key in specialLines:
+        if key in path:
+          special = specialLines[key]
+
+      iss.write('Source: "%s"; DestDir: "{app}%s%s"%s\n' % (path, "\\" if destsubfolder else "", destsubfolder, special))
+
+
+iss.write('''
+
+
+[Code]
+procedure TaskKill(FileName: String);
+var
+  ResultCode: Integer;
+begin
+    Exec(ExpandConstant('taskkill.exe'), '/f /im ' + '"' + FileName + '"', '', SW_HIDE,
+     ewWaitUntilTerminated, ResultCode);
+end;
+
+''')
+
+
+
 
 iss.close()

@@ -24,15 +24,15 @@ function linkout(url) {
 }
 
 function setPreference(key, value) {
-    python('self.client.preferences.set(____' + key + '____, ____' + value + '____)');
+    python('client.preferences.set(____' + key + '____, ____' + value + '____)');
 }
 
 function setPublisherPreference(b64ID, key, value) {
-    python('self.client.publisher(self.b64decode(____' + b64ID + '____)).set(____' + key + '____, ____' + value + '____)');
+    python('client.publisher(self.b64decode(____' + b64ID + '____)).set(____' + key + '____, ____' + value + '____)');
 }
 
 function setPublisherPassword(b64ID, username, password) {
-    python('self.client.publisher(self.b64decode(____' + b64ID + '____)).setPassword(____' + username + '____, ____' + password + '____)');
+    python('client.publisher(self.b64decode(____' + b64ID + '____)).setPassword(____' + username + '____, ____' + password + '____)');
 }
 
 function contextmenu(evt) {

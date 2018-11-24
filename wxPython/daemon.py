@@ -62,7 +62,7 @@ import typeWorldClient
 if MAC:
 	mainAppPath = str(NSWorkspace.sharedWorkspace().URLForApplicationWithBundleIdentifier_('world.type.guiapp'))[7:]
 if WIN:
-	mainAppPath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'TypeWorld.exe'))
+	mainAppPath = os.path.abspath(os.path.join(os.path.dirname(__file__), 'TypeWorld.exe'))
 
 if WIN:
 	import zroya
@@ -379,11 +379,11 @@ def openApp(url = None):
 
 			# That didn't work. Let's execute the main app directly (with elevated privileges)
 			except:
-				exe = os.path.join(os.path.dirname(__file__), '..', 'TypeWorld.exe')
+				exe = os.path.join(os.path.dirname(__file__), 'TypeWorld.exe')
 				ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, '', None, 1)
 
 		else:
-			exe = os.path.join(os.path.dirname(__file__), '..', 'TypeWorld.exe')
+			exe = os.path.join(os.path.dirname(__file__), 'TypeWorld.exe')
 			ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, '', None, 1)
 
 

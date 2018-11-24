@@ -73,7 +73,7 @@ if WIN and RUNTIME:
 			wreg.SetValueEx(key, None, 0, wreg.REG_SZ, 'URL:%s' % handler)
 			wreg.SetValueEx(key, 'URL Protocol', 0, wreg.REG_SZ, '')
 			key = wreg.CreateKey(key, 'shell\\open\\command')
-			wreg.SetValueEx(key, None, 0, wreg.REG_SZ, '"%s" "%%1"' % os.path.join(os.path.dirname(__file__), 'URL Opening Agent', 'TypeWorld Subscription Opener.exe'))
+			wreg.SetValueEx(key, None, 0, wreg.REG_SZ, '"%s" "%%1"' % os.path.join(os.path.dirname(__file__), 'TypeWorld Subscription Opener.exe'))
 	except:
 		pass
 
@@ -263,7 +263,7 @@ def installAgent():
 	if WIN:
 
 #			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-		file_path = os.path.join(os.path.dirname(__file__), r'Taskbar Agent', r'TypeWorld Taskbar Agent.exe')
+		file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
 		file_path = file_path.replace(r'\\Mac\Home', r'Z:')
 		print(file_path)
 
@@ -2347,7 +2347,7 @@ def intercom(commands):
 		# Restart after restart
 		if client.preferences.get('menuBarIcon') and not agentIsRunning():
 
-			file_path = os.path.join(os.path.dirname(__file__), r'Taskbar Agent', r'TypeWorld Taskbar Agent.exe')
+			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
 			file_path = file_path.replace(r'\\Mac\Home', r'Z:')
 			import subprocess
 			os.chdir(os.path.dirname(file_path))

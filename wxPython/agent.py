@@ -38,11 +38,11 @@ if pid:
 
     # That didn't work. Let's execute the main app directly (with elevated privileges)
     except:
-        exe = os.path.join(os.path.dirname(__file__), '..', 'TypeWorld.exe')
+        exe = os.path.join(os.path.dirname(__file__), 'TypeWorld.exe')
         ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, '', None, 1)
 
 
 else:
-    exe = os.path.join(os.path.dirname(__file__), '..', 'TypeWorld.exe')
+    exe = os.path.join(os.path.dirname(__file__), 'TypeWorld.exe')
     ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, '', None, 1)
 

@@ -25,11 +25,11 @@ CloseApplications=force
 Root: HKCR; Subkey: "typeworldjson"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "typeworldjson"; ValueType: string; ValueData: "URL:typeworldjson"
 Root: HKCR; Subkey: "typeworldjson"; ValueType: string; ValueName: "URL Protocol"
-Root: HKCR; Subkey: "typeworldjson\\shell\\open\\command"; ValueType: string; ValueData: "\"\"{app}\\URL Opening Agent\\TypeWorld Subscription Opener.exe\"\" \"\"%%1\"\""
+Root: HKCR; Subkey: "typeworldjson\\shell\\open\\command"; ValueType: string; ValueData: "\"\"{app}\\TypeWorld Subscription Opener.exe\"\" \"\"%%1\"\""
 Root: HKCR; Subkey: "typeworldgithub"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "typeworldgithub"; ValueType: string; ValueData: "URL:typeworldgithub"
 Root: HKCR; Subkey: "typeworldgithub"; ValueType: string; ValueName: "URL Protocol"
-Root: HKCR; Subkey: "typeworldgithub\\shell\\open\\command"; ValueType: string; ValueData: "\"\"{app}\\URL Opening Agent\\TypeWorld Subscription Opener.exe\"\" \"\"%%1\"\""
+Root: HKCR; Subkey: "typeworldgithub\\shell\\open\\command"; ValueType: string; ValueData: "\"\"{app}\\TypeWorld Subscription Opener.exe\"\" \"\"%%1\"\""
 
 [Run]
 Filename: "{app}\\TypeWorld.exe"; Parameters: "restartAgent"; Flags: runascurrentuser

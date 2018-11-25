@@ -11,8 +11,7 @@ setup(
     data_files=[],
     options={'py2app': {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
            'iconfile': '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/tw.icns',
-           'includes': ['ynlib', 'wx'],#, 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
-           'excludes': ['locales'],
+           'includes': ['ynlib', 'locales'],#, 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
            'frameworks': ['Python.framework'],
            'resources': ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/InternetAccessPolicy.plist', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', '/Users/yanone/Code/dsa_pub.pem'], #, 'appbadge.docktileplugin'
            'packages': ['certifi'],

@@ -835,6 +835,8 @@ Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\HTML\image\p
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\HTML\image\BTN_ManualTop.gif"; DestDir: "{app}\lib\win32com\HTML\image"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\libs\axscript.lib"; DestDir: "{app}\lib\win32com\libs"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\libs\pythoncom.lib"; DestDir: "{app}\lib\win32com\libs"
+Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\gen_py\dicts.dat"; DestDir: "{app}\lib\win32com\gen_py"
+Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\gen_py\__init__.py"; DestDir: "{app}\lib\win32com\gen_py"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\client\build.pyc"; DestDir: "{app}\lib\win32com\client"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\client\selecttlb.pyc"; DestDir: "{app}\lib\win32com\client"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\client\makepy.pyc"; DestDir: "{app}\lib\win32com\client"

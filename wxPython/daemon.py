@@ -1,8 +1,8 @@
+# System imports
+
 import threading, time, sys, os, traceback, ctypes, plistlib
 from threading import Thread
-
 import platform
-import locales
 
 WIN = platform.system() == 'Windows'
 MAC = platform.system() == 'Darwin'
@@ -10,13 +10,19 @@ MAC = platform.system() == 'Darwin'
 DEBUG = True
 APPVERSION = 'n/a'
 
-
-
 # Adjust __file__ to point to executable on runtime
 try:
 	__file__ = os.path.abspath(__file__)
 except:
 	__file__ = sys.executable
+
+sys.path.insert(0, os.path.dirname(__file__))
+
+# App-specific imports
+
+import locales
+
+
 
 
 if MAC:
@@ -46,7 +52,7 @@ def exit_signal_handler(signal, frame):
 
 	quitIcon()
 
-signal.signal(signal.SIGBREAK, exit_signal_handler)
+#signal.signal(signal.SIGBREAK, exit_signal_handler)
 signal.signal(signal.SIGTERM, exit_signal_handler)
 signal.signal(signal.SIGINT, exit_signal_handler)
 

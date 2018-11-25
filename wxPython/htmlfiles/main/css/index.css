@@ -135,6 +135,10 @@ input[type=radio],input[type=checkbox] {
 	width: 25px;
 }
 
+label {
+	cursor: pointer;
+
+}
 
 .contextmenu {
 	  -webkit-touch-callout: none; /* iOS Safari */

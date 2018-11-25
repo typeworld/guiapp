@@ -837,6 +837,7 @@ Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\libs\axscrip
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\libs\pythoncom.lib"; DestDir: "{app}\lib\win32com\libs"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\gen_py\dicts.dat"; DestDir: "{app}\lib\win32com\gen_py"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\gen_py\__init__.py"; DestDir: "{app}\lib\win32com\gen_py"
+Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\gen_py\__pycache__\__init__.cpython-36.pyc"; DestDir: "{app}\lib\win32com\gen_py\__pycache__"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\client\build.pyc"; DestDir: "{app}\lib\win32com\client"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\client\selecttlb.pyc"; DestDir: "{app}\lib\win32com\client"
 Source: "Z:\Code\TypeWorldApp\apps\Windows\0.1.5-alpha\lib\win32com\client\makepy.pyc"; DestDir: "{app}\lib\win32com\client"

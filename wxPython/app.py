@@ -205,9 +205,21 @@ def agentIsRunning():
 		return PID('TypeWorld Taskbar Agent.exe') is not None
 
 
+def waitToLaunchAgent():
+
+	time.sleep(2)
+
+	if MAC:
+		agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
+		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
+
+		# import subprocess
+		# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
+#
+
 def installAgent():
 
-	uninstallAgent()
+#	uninstallAgent()
 
 	if MAC:
 		from AppKit import NSBundle
@@ -255,8 +267,13 @@ def installAgent():
 		f.close()
 
 		# Run App
-		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
-			os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
+#		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
+		# import subprocess
+		# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
+		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
+
+		launchAgentThread = Thread(target=waitToLaunchAgent)
+		launchAgentThread.start()
 
 		print('installAgent() done')
 
@@ -406,12 +423,17 @@ class AppFrame(wx.Frame):
 
 
 
+		self.Bind(wx.EVT_CLOSE, self.onClose)
+		self.Bind(wx.EVT_QUERY_END_SESSION, self.onQuit)
+		self.Bind(wx.EVT_END_SESSION, self.onQuit)
+
+
 		### Menus
 		menuBar = wx.MenuBar()
 
 		# Exit
 		menu = wx.Menu()
-		m_opensubscription = menu.Append(wx.ID_OPEN, "%s%s" % (self.localize('Add Subscription'), '\tCtrl+O' if MAC else ''))#\tCtrl-O
+		m_opensubscription = menu.Append(wx.ID_OPEN, "%s...%s" % (self.localize('Add Subscription'), '\tCtrl+O' if MAC else ''))#\tCtrl-O
 		self.Bind(wx.EVT_MENU, self.showAddSubscription, m_opensubscription)
 #        m_opensubscription.SetAccel(wx.AcceleratorEntry(wx.ACCEL_CTRL,  ord('o')))
 
@@ -469,34 +491,42 @@ class AppFrame(wx.Frame):
 		if agentIsRunning():
 			agentVersion = agent('version')
 			if semver.compare(APPVERSION, agentVersion) == 1:
+				uninstallAgent()
 				installAgent()
-
-		# Ask to install agent
-		seenDialogs = client.preferences.get('seenDialogs') or []
-		if not 'installMenubarIcon' in seenDialogs:
-
-			# Menu Bar is actually running, so don't do anything
-			if not client.preferences.get('menuBarIcon'):
-				dlg = wx.MessageDialog(None, self.localizeString("#(InstallMenubarIconQuestion)"), self.localizeString("#(ShowMenuBarIcon)"),wx.YES_NO | wx.ICON_QUESTION)
-				result = dlg.ShowModal()
-				if result == wx.ID_YES:
-					installAgent()
-
-			seenDialogs.append('installMenubarIcon')
-			client.preferences.set('seenDialogs', seenDialogs)
-
-		# Restart after restart
-		if client.preferences.get('menuBarIcon') and not agentIsRunning():
-			installAgent()
 
 
 		self.CentreOnScreen()
 		self.Show()
 
 
+		# Restart agent after restart
+		if client.preferences.get('menuBarIcon') and not agentIsRunning():
+			installAgent()
+
+
 		self.Bind(wx.EVT_SIZE, self.onResize, self)
 		self.Bind(wx.EVT_ACTIVATE, self.onActivate, self)
 
+
+		import signal
+
+		def exit_signal_handler(signal, frame):
+
+			# template = zroya.Template(zroya.TemplateType.ImageAndText4)
+			# template.setFirstLine('Quit Signal')
+			# # template.setSecondLine(str(signal))
+			# # template.setThirdLine(str(frame))
+			# expiration = 24 * 60 * 60 * 1000 # one day
+			# template.setExpiration(expiration) # One day
+			# notificationID = zroya.show(template)
+
+
+			self.onQuit(None)
+
+		# if MAC:
+		# 	signal.signal(signal.SIGBREAK, exit_signal_handler)
+		signal.signal(signal.SIGTERM, exit_signal_handler)
+		signal.signal(signal.SIGINT, exit_signal_handler)
 
 
 
@@ -652,21 +682,18 @@ class AppFrame(wx.Frame):
 
 	def applyDarkMode(self):
 
-#		if platform.mac_ver()[0].split('.') > '14.0.0'.split('.'):
-		from AppKit import NSUserDefaults
+		if platform.mac_ver()[0].split('.') > '10.14.0'.split('.'):
+			from AppKit import NSUserDefaults
 
-		if NSUserDefaults.standardUserDefaults().objectForKey_('AppleInterfaceStyle') == 'Dark':
-			self.javaScript('$("#main").css("background-color", "#000");')
-			self.javaScript('$("#main").css("color", "#fff");')
-			self.javaScript('$("#main .publisher .font.hover, #main .publisher .section.hover").css("background-color", "#070707");')
+			if NSUserDefaults.standardUserDefaults().objectForKey_('AppleInterfaceStyle') == 'Dark':
+				self.javaScript('$("#main").css("background-color", "#000");')
+				self.javaScript('$("#main").css("color", "#fff");')
+				self.javaScript('$("#main .publisher .font.hover, #main .publisher .section.hover").css("background-color", "#070707");')
 
-		else:
-			self.javaScript('$("#main").css("background-color", "#fff");')
-			self.javaScript('$("#main").css("color", "#000");')
-			self.javaScript('$("#main .publisher .font.hover, #main .publisher .section.hover").css("background-color", "#F7F7F7");')
-
-
-
+			else:
+				self.javaScript('$("#main").css("background-color", "#fff");')
+				self.javaScript('$("#main").css("color", "#000");')
+				self.javaScript('$("#main .publisher .font.hover, #main .publisher .section.hover").css("background-color", "#F7F7F7");')
 
 
 
@@ -727,18 +754,6 @@ class AppFrame(wx.Frame):
 
 		html = []
 
-		# Agent
-		html.append('<h2>#(Icon in Menu Bar)</h2>')
-		html.append('<p>')
-		html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">#(Show Icon in Menu Bar)</label></span>' % ('checked' if agentIsRunning() else ''))
-		html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
-		html.append('<br />')
-		html.append('#(Icon in Menu Bar Explanation)')
-		html.append('</p>')
-
-		html.append('<p></p>')
-
-
 		# Update Interval
 		html.append('<h2>#(Update Interval)</h2>')
 		html.append('<p>#(UpdateIntervalExplanation)</p>')
@@ -760,18 +775,31 @@ class AppFrame(wx.Frame):
 
 		html.append('<p></p>')
 
+
+		# Agent
+		html.append('<h2>#(Icon in Menu Bar)</h2>')
+		html.append('<p>')
+		html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">#(Show Icon in Menu Bar)</label></span>' % ('checked' if agentIsRunning() else ''))
+		html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
+		html.append('<br />')
+		html.append('#(Icon in Menu Bar Explanation)')
+		html.append('</p>')
+
+		html.append('<p></p>')
+
+
 		# Localization
 		systemLocale = client.systemLocale()
 		for code, name in locales.locales:
 			if code == systemLocale:
 				systemLocale = name
 				break
-		html.append('<h2>App Localization</h2>')
+		html.append('<h2>App Language</h2>')
 		html.append('<p>')
-		html.append('<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Locale (%s)</label></span>' % ('checked' if client.preferences.get('localizationType') == 'systemLocale' else '', systemLocale))
+		html.append('<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Language (%s)</label></span>' % ('checked' if client.preferences.get('localizationType') == 'systemLocale' else '', systemLocale))
 		html.append('<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>')
 		html.append('<br />')
-		html.append('<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Locale (choose below). Requires restart to take full effect.</label></span>' % ('checked' if client.preferences.get('localizationType') == 'customLocale' else ''))
+		html.append('<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Language (choose below). Requires app restart to take full effect.</label></span>' % ('checked' if client.preferences.get('localizationType') == 'customLocale' else ''))
 		html.append('<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>')
 		html.append('<br />')
 		html.append('<select id="customLocaleChoice" style="" onchange="">')
@@ -1379,6 +1407,11 @@ class AppFrame(wx.Frame):
 
 	def autoReloadSubscriptions(self):
 
+		if WIN:
+			path = os.path.expanduser('~/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Type.World.lnk')
+			if os.path.exists(path):
+				os.remove(path)
+
 		# Preference is set to check automatically
 		if int(client.preferences.get('reloadSubscriptionsInterval')) != -1:
 
@@ -1967,6 +2000,19 @@ $( document ).ready(function() {
 		for message in self.messages:
 			self.message(message)
 
+		# Ask to install agent
+		seenDialogs = client.preferences.get('seenDialogs') or []
+		if not 'installMenubarIcon' in seenDialogs:
+
+			# Menu Bar is actually running, so don't do anything
+			if not client.preferences.get('menuBarIcon'):
+				dlg = wx.MessageDialog(None, self.localizeString("#(InstallMenubarIconQuestion)"), self.localizeString("#(ShowMenuBarIcon)"),wx.YES_NO | wx.ICON_QUESTION)
+				result = dlg.ShowModal()
+				if result == wx.ID_YES:
+					installAgent()
+
+			seenDialogs.append('installMenubarIcon')
+			client.preferences.set('seenDialogs', seenDialogs)
 
 
 	def checkForURLInFile(self):
@@ -2277,7 +2323,7 @@ def intercom(commands):
 
 
 		# Preference is set to check automatically
-		if int(client.preferences.get('reloadSubscriptionsInterval')) != -1 or force:
+		if (client.preferences.get('reloadSubscriptionsInterval') and int(client.preferences.get('reloadSubscriptionsInterval')) != -1) or force:
 
 
 			# Has never been checked, set to long time ago
@@ -2388,6 +2434,7 @@ else:
 
 	listenerThread = Thread(target=listenerFunction)
 	listenerThread.start()
+
 
 	app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = None)
 	app.MainLoop()

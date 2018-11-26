@@ -217,6 +217,20 @@ def waitToLaunchAgent():
 		# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
 #
 
+def restartAgentWorker(wait):
+
+	if wait:
+		time.sleep(wait)
+	uninstallAgent()
+	installAgent()
+
+	print('Agent restarted')
+
+def restartAgent(wait = 0):
+	restartAgentThread = Thread(target = restartAgentWorker, args=(wait, ))
+	restartAgentThread.start()
+
+
 def installAgent():
 
 #	uninstallAgent()
@@ -486,13 +500,6 @@ class AppFrame(wx.Frame):
 		menuBar.Append(menu, "&%s" % (self.localize('Help')))
 
 		self.SetMenuBar(menuBar)
-
-		# Reinstall agent if outdated
-		if agentIsRunning():
-			agentVersion = agent('version')
-			if semver.compare(APPVERSION, agentVersion) == 1:
-				uninstallAgent()
-				installAgent()
 
 
 		self.CentreOnScreen()
@@ -2023,6 +2030,13 @@ $( document ).ready(function() {
 
 			seenDialogs.append('installMenubarIcon')
 			client.preferences.set('seenDialogs', seenDialogs)
+
+		# Reinstall agent if outdated
+		if agentIsRunning():
+			agentVersion = agent('version')
+			if semver.compare(APPVERSION, agentVersion) == 1:
+				print('Agent is outdated (%s), needs restart.' % agentVersion)
+				restartAgent(2)
 
 
 	def checkForURLInFile(self):

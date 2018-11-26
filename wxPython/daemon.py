@@ -50,8 +50,6 @@ try:
 	import locales
 
 
-
-
 	if MAC:
 		import objc 
 		from AppKit import NSObject, NSApp, NSLog, NSApplication, NSUserNotification, NSUserNotificationCenter, NSApplicationActivationPolicyProhibited, NSRunningApplication, \

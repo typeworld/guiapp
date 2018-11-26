@@ -1572,6 +1572,12 @@ class AppFrame(wx.Frame):
 
 	def setPublisherHTML(self, b64ID):
 
+		# import cProfile
+		# profile = cProfile.Profile()
+		# profile.enable()
+
+
+
 #       print b64ID
 
 		ID = self.b64decode(b64ID)
@@ -1808,6 +1814,10 @@ class AppFrame(wx.Frame):
 		self.javaScript("showMain();")
 
 		agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
+
+
+		# profile.disable()
+		# profile.print_stats(sort='time')
 
 	def b64encode(self, string):
 

@@ -58,9 +58,6 @@ else:
 	DESIGNTIME = True
 	RUNTIME = False
 
-if WIN:
-	sys._MEIPASS = os.path.join(os.path.dirname(__file__), 'lib', 'pywinsparkle', 'libs', 'x64')
-	from pywinsparkle import pywinsparkle
 
 ## Windows:
 ## Register Custom Protocol Handlers in the Registry. Later, this should be moved into the installer.
@@ -360,6 +357,91 @@ def uninstallAgent():
 
 
 
+
+# Sparkle Updating
+
+if MAC and RUNTIME:
+	# URL to Appcast.xml, eg. https://yourserver.com/Appcast.xml
+	APPCAST_URL = 'https://type.world/downloads/guiapp/appcast.xml'
+	# Path to Sparkle's "Sparkle.framework" inside your app bundle
+
+	if '.app' in os.path.dirname(__file__):
+		SPARKLE_PATH = os.path.join(os.path.dirname(__file__), '..', 'Frameworks', 'Sparkle.framework')
+	else:
+		SPARKLE_PATH = '/Users/yanone/Code/Sparkle/Sparkle.framework'
+
+	from objc import pathForFramework, loadBundle
+	sparkle_path = pathForFramework(SPARKLE_PATH)
+	objc_namespace = dict()
+	loadBundle('Sparkle', objc_namespace, bundle_path=sparkle_path)
+
+	sparkle = objc_namespace['SUUpdater'].sharedUpdater()
+	sparkle.setAutomaticallyChecksForUpdates_(True)
+#       sparkle.setAutomaticallyDownloadsUpdates_(True)
+	NSURL = objc_namespace['NSURL']
+	sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
+
+
+def pywinsparkle_no_update_found():
+	""" when no update has been found, close the updater"""
+	print("No update found")
+	print("Setting flag to shutdown PassagesUpdater")
+
+
+def pywinsparkle_found_update():
+	""" log that an update was found """
+	print("New Update Available")
+
+
+def pywinsparkle_encountered_error():
+	print("An error occurred")
+
+
+def pywinsparkle_update_cancelled():
+	""" when the update was cancelled, close the updater"""
+	print("Update was cancelled")
+	print("Setting flag to shutdown PassagesUpdater")
+
+
+def pywinsparkle_shutdown():
+	""" The installer is being launched signal the updater to shutdown """
+
+	# actually shutdown the app here
+	print("Safe to shutdown before installing")
+
+def setup_pywinsparkle():
+
+	# register callbacks
+	pywinsparkle.win_sparkle_set_did_find_update_callback(pywinsparkle_found_update)
+	pywinsparkle.win_sparkle_set_error_callback(pywinsparkle_encountered_error)
+	pywinsparkle.win_sparkle_set_update_cancelled_callback(pywinsparkle_update_cancelled)
+	pywinsparkle.win_sparkle_set_did_not_find_update_callback(pywinsparkle_no_update_found)
+	pywinsparkle.win_sparkle_set_shutdown_request_callback(pywinsparkle_shutdown)
+
+	# set application details
+	update_url = "https://type.world/downloads/guiapp/appcast_windows.xml"
+	pywinsparkle.win_sparkle_set_appcast_url(update_url)
+	pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
+
+	# initialize
+	pywinsparkle.win_sparkle_init()
+
+	# # check for updates
+	# pywinsparkle.win_sparkle_check_update_with_ui()
+
+	# # alternatively you could check for updates in the
+	# # background silently
+	# pywinsparkle.win_sparkle_check_update_without_ui()
+
+
+
+if WIN:
+	sys._MEIPASS = os.path.join(os.path.dirname(__file__), 'lib', 'pywinsparkle', 'libs', 'x64')
+	from pywinsparkle import pywinsparkle
+	setup_pywinsparkle()
+
+
+
 class AppFrame(wx.Frame):
 	def __init__(self, parent):        
 
@@ -527,6 +609,7 @@ class AppFrame(wx.Frame):
 			# template.setExpiration(expiration) # One day
 			# notificationID = zroya.show(template)
 
+			self.log('Received SIGTERM or SIGINT')
 
 			self.onQuit(None)
 
@@ -538,54 +621,8 @@ class AppFrame(wx.Frame):
 
 
 
-		if MAC and RUNTIME:
-			# Your Qt QApplication instance
-			QT_APP = self
-			# URL to Appcast.xml, eg. https://yourserver.com/Appcast.xml
-			APPCAST_URL = 'https://type.world/downloads/guiapp/appcast.xml'
-			# Path to Sparkle's "Sparkle.framework" inside your app bundle
-
-			if '.app' in os.path.dirname(__file__):
-				SPARKLE_PATH = os.path.join(os.path.dirname(__file__), '..', 'Frameworks', 'Sparkle.framework')
-			else:
-				SPARKLE_PATH = '/Users/yanone/Code/Sparkle/Sparkle.framework'
-
-			from objc import pathForFramework, loadBundle
-			sparkle_path = pathForFramework(SPARKLE_PATH)
-			self.objc_namespace = dict()
-			loadBundle('Sparkle', self.objc_namespace, bundle_path=sparkle_path)
-			def about_to_quit():
-				# See https://github.com/sparkle-project/Sparkle/issues/839
-				self.objc_namespace['NSApplication'].sharedApplication().terminate_(None)
-
-	#       QT_APP.aboutToQuit.connect(about_to_quit)
-			self.sparkle = self.objc_namespace['SUUpdater'].sharedUpdater()
-			self.sparkle.setAutomaticallyChecksForUpdates_(True)
-	#       self.sparkle.setAutomaticallyDownloadsUpdates_(True)
-			NSURL = self.objc_namespace['NSURL']
-			self.sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
-			self.sparkle.checkForUpdatesInBackground()
-
-		if WIN:
-			self.setup_pywinsparkle()
-
-		# try:
-		#     from ctypes import OleDLL
-		#     # Turn on high-DPI awareness to make sure rendering is sharp on big
-		#     # monitors with font scaling enabled.
-		#     OleDLL('shcore').SetProcessDpiAwareness(1)
-		# except AttributeError:
-		#     # We're on a non-Windows box.
-		#     pass
-		# except OSError:
-		#     # exc.winerror is often E_ACCESSDENIED (-2147024891/0x80070005).
-		#     # This occurs after the first run, when the parameter is reset in the
-		#     # executable's manifest and then subsequent calls raise this exception
-		#     # See last paragraph of Remarks at
-		#     # https://msdn.microsoft.com/en-us/library/dn302122(v=vs.85).aspx
-		#     pass
-
-
+		# Set up Sparkle
+		sparkle.checkForUpdatesInBackground()
 
 
 
@@ -628,7 +665,7 @@ class AppFrame(wx.Frame):
 
 	def onCheckForUpdates(self, event):
 		if MAC:
-			self.sparkle.checkForUpdates_(None)
+			sparkle.checkForUpdates_(None)
 		elif WIN:
 			pywinsparkle.win_sparkle_check_update_with_ui()
 
@@ -643,10 +680,13 @@ class AppFrame(wx.Frame):
 
 	def onQuit(self, event):
 
-		address = ('localhost', 65500)
-		myConn = Client(address)
-		myConn.send('closeListener')
-		myConn.close()
+		try:
+			address = ('localhost', 65500)
+			myConn = Client(address)
+			myConn.send('closeListener')
+			myConn.close()
+		except ConnectionRefusedError:
+			pass
 
 		if WIN:
 			pywinsparkle.win_sparkle_cleanup()
@@ -2129,57 +2169,6 @@ $( document ).ready(function() {
 
 
 
-	def pywinsparkle_no_update_found(self):
-		""" when no update has been found, close the updater"""
-		print("No update found")
-		print("Setting flag to shutdown PassagesUpdater")
-
-
-	def pywinsparkle_found_update(self):
-		""" log that an update was found """
-		print("New Update Available")
-
-
-	def pywinsparkle_encountered_error(self):
-		print("An error occurred")
-
-
-	def pywinsparkle_update_cancelled(self):
-		""" when the update was cancelled, close the updater"""
-		print("Update was cancelled")
-		print("Setting flag to shutdown PassagesUpdater")
-
-
-	def pywinsparkle_shutdown(self):
-		""" The installer is being launched signal the updater to shutdown """
-
-		# actually shutdown the app here
-		print("Safe to shutdown before installing")
-
-	def setup_pywinsparkle(self):
-
-		# register callbacks
-		pywinsparkle.win_sparkle_set_did_find_update_callback(self.pywinsparkle_found_update)
-		pywinsparkle.win_sparkle_set_error_callback(self.pywinsparkle_encountered_error)
-		pywinsparkle.win_sparkle_set_update_cancelled_callback(self.pywinsparkle_update_cancelled)
-		pywinsparkle.win_sparkle_set_did_not_find_update_callback(self.pywinsparkle_no_update_found)
-		pywinsparkle.win_sparkle_set_shutdown_request_callback(self.pywinsparkle_shutdown)
-
-		# set application details
-		update_url = "https://type.world/downloads/guiapp/appcast_windows.xml"
-		pywinsparkle.win_sparkle_set_appcast_url(update_url)
-		pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
-
-		# initialize
-		pywinsparkle.win_sparkle_init()
-
-		# # check for updates
-		# pywinsparkle.win_sparkle_check_update_with_ui()
-
-		# # alternatively you could check for updates in the
-		# # background silently
-		# pywinsparkle.win_sparkle_check_update_without_ui()
-
 
 
 
@@ -2380,6 +2369,10 @@ def intercom(commands):
 					client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
 
 
+		# TODO:
+		# Add update checking here
+
+
 		log('client.amountOutdatedFonts() %s' % (client.amountOutdatedFonts()))
 		return client.amountOutdatedFonts()
 
@@ -2413,6 +2406,10 @@ def intercom(commands):
 			import subprocess
 			os.chdir(os.path.dirname(file_path))
 			subprocess.Popen([file_path], executable = file_path)
+
+	if commands[0] == 'searchAppUpdate':
+
+		sparkle.checkForUpdatesInBackground()
 
 
 # Set up logging

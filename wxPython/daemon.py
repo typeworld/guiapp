@@ -523,7 +523,7 @@ try:
 				if self.stopped():
 					return
 
-				if self.counter == 20:
+				if self.counter == 60:
 					log('calling autoReloadSubscriptions() from inner loop')
 
 					if WIN:
@@ -533,6 +533,7 @@ try:
 
 					autoReloadSubscriptions(force = False)
 					self.counter = 0
+
 
 				else:
 					self.counter += 1

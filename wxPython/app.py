@@ -37,13 +37,21 @@ from ynlib.web import GetHTTP
 from typeWorldClient import APIClient, JSON, AppKitNSUserDefaults
 import typeWorld.api.base
 
+if MAC:
+	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp
+
 # print ('__file__', __file__)
 # print ('sys.executable ', sys.executable )
 
 APPNAME = 'Type.World'
 APPVERSION = 'n/a'
-DEBUG = False
+DEBUG = True
 BUILDSTAGE = 'alpha'
+
+global app
+app = None
+global locks
+locks = 0
 
 # Mac executable
 if 'app.py' in __file__ and '/Contents/MacOS/python' in sys.executable:
@@ -77,6 +85,21 @@ if WIN and RUNTIME:
 
 import sys, os, traceback, types
 
+
+# Application quit locks
+
+def lock():
+	global locks
+	locks += 1
+
+def unlock():
+	global locks
+	if locks > 0:
+		locks -= 1
+
+def locked():
+	global locks
+	return locks > 0
 
 ## Windows:
 ## Open other app instance if open
@@ -232,6 +255,8 @@ def installAgent():
 
 #	uninstallAgent()
 
+	lock()
+
 	if MAC:
 		from AppKit import NSBundle
 		zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
@@ -281,7 +306,7 @@ def installAgent():
 #		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
 		# import subprocess
 		# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
-		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
+#		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
 
 		launchAgentThread = Thread(target=waitToLaunchAgent)
 		launchAgentThread.start()
@@ -315,10 +340,12 @@ def installAgent():
 
 	client.preferences.set('menuBarIcon', True)
 
-
+#	allowedToQuit = True
 
 
 def uninstallAgent():
+
+	lock()
 
 	if MAC:
 		from AppKit import NSRunningApplication
@@ -355,7 +382,7 @@ def uninstallAgent():
 
 	client.preferences.set('menuBarIcon', False)
 
-
+	unlock()
 
 
 # Sparkle Updating
@@ -376,10 +403,97 @@ if MAC and RUNTIME:
 	loadBundle('Sparkle', objc_namespace, bundle_path=sparkle_path)
 
 	sparkle = objc_namespace['SUUpdater'].sharedUpdater()
-	sparkle.setAutomaticallyChecksForUpdates_(True)
 #       sparkle.setAutomaticallyDownloadsUpdates_(True)
-	NSURL = objc_namespace['NSURL']
-	sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
+	# NSURL = objc_namespace['NSURL']
+	# sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
+
+
+	def waitForUpdateToFinish(app, updater, delegate):
+
+		while updater.updateInProgress():
+			time.sleep(1)
+
+		log('Update loop finished')
+
+		if delegate.downloadStarted == False:
+			delegate.destroyIfRemotelyCalled()
+
+
+	from AppKit import NSObject
+	class SparkleUpdateDelegate(NSObject):
+
+		def destroyIfRemotelyCalled(self):
+			log('Quitting because app was called remotely for an update')
+			global app
+			if app.startWithCommand:
+				if app.startWithCommand == 'checkForUpdateInformation':
+					app.frame.Destroy()
+
+		def updater_didAbortWithError_(self, updater, error):
+			log('sparkleUpdateDelegate.updater_didAbortWithError_()')
+			log(error)
+			self.destroyIfRemotelyCalled()
+
+		def userDidCancelDownload_(self, updater):
+			log('sparkleUpdateDelegate.userDidCancelDownload_()')
+			self.destroyIfRemotelyCalled()
+
+		def updater_didFindValidUpdate_(self, updater, appcastItem):
+			log('sparkleUpdateDelegate.updater_didFindValidUpdate_()')
+
+			self.updateFound = True
+			self.downloadStarted = False
+
+			global app
+			waitForUpdateThread = Thread(target=waitForUpdateToFinish, args=(app, updater, self))
+			waitForUpdateThread.start()
+
+
+		def updaterDidNotFindUpdate_(self, updater):
+			log('sparkleUpdateDelegate.updaterDidNotFindUpdate_()')
+			self.updateFound = False
+			self.destroyIfRemotelyCalled()
+
+		# Not so important
+		def updater_didFinishLoadingAppcast_(self, updater, appcast):
+			log('sparkleUpdateDelegate.updater_didFinishLoadingAppcast_()')
+
+		def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
+			log('sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()')
+
+		def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
+			log('sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()')
+
+		def updater_willDownloadUpdate_withRequest_(self, updater, appcast, request):
+			self.downloadStarted = True
+			log('sparkleUpdateDelegate.updater_willDownloadUpdate_withRequest_()')
+
+		def updater_didDownloadUpdate_(self, updater, item):
+			log('sparkleUpdateDelegate.updater_didDownloadUpdate_()')
+
+		def updater_failedToDownloadUpdate_error_(self, updater, item, error):
+			log('sparkleUpdateDelegate.updater_failedToDownloadUpdate_error_()')
+
+		def updater_willExtractUpdate_(self, updater, item):
+			log('sparkleUpdateDelegate.updater_willExtractUpdate_()')
+
+		def updater_didExtractUpdate_(self, updater, item):
+			log('sparkleUpdateDelegate.updater_didExtractUpdate_()')
+
+		def updater_willInstallUpdate_(self, updater, item):
+			log('sparkleUpdateDelegate.updater_willInstallUpdate_()')
+
+		def updaterWillRelaunchApplication_(self, updater):
+			log('sparkleUpdateDelegate.updater_willInstallUpdate_()')
+
+		def updaterWillShowModalAlert_(self, updater):
+			log('sparkleUpdateDelegate.updaterWillShowModalAlert_()')
+
+		def updaterDidShowModalAlert_(self, updater):
+			log('sparkleUpdateDelegate.updaterDidShowModalAlert_()')
+
+	sparkleDelegate = SparkleUpdateDelegate.alloc().init()
+	sparkle.setDelegate_(sparkleDelegate)
 
 
 def pywinsparkle_no_update_found():
@@ -525,6 +639,47 @@ class AppFrame(wx.Frame):
 
 
 		### Menus
+		self.setMenuBar()
+		self.CentreOnScreen()
+		self.Show()
+
+
+		# Restart agent after restart
+		if client.preferences.get('menuBarIcon') and not agentIsRunning():
+			installAgent()
+
+
+		self.Bind(wx.EVT_SIZE, self.onResize, self)
+		self.Bind(wx.EVT_ACTIVATE, self.onActivate, self)
+
+
+		import signal
+
+		def exit_signal_handler(signal, frame):
+
+			# template = zroya.Template(zroya.TemplateType.ImageAndText4)
+			# template.setFirstLine('Quit Signal')
+			# # template.setSecondLine(str(signal))
+			# # template.setThirdLine(str(frame))
+			# expiration = 24 * 60 * 60 * 1000 # one day
+			# template.setExpiration(expiration) # One day
+			# notificationID = zroya.show(template)
+
+			self.log('Received SIGTERM or SIGINT')
+
+			self.onQuit(None)
+
+		# if MAC:
+		# 	signal.signal(signal.SIGBREAK, exit_signal_handler)
+		signal.signal(signal.SIGTERM, exit_signal_handler)
+		signal.signal(signal.SIGINT, exit_signal_handler)
+
+
+
+		log('AppFrame.__init__() finished')
+
+
+	def setMenuBar(self):
 		menuBar = wx.MenuBar()
 
 		# Exit
@@ -584,48 +739,6 @@ class AppFrame(wx.Frame):
 		self.SetMenuBar(menuBar)
 
 
-		self.CentreOnScreen()
-		self.Show()
-
-
-		# Restart agent after restart
-		if client.preferences.get('menuBarIcon') and not agentIsRunning():
-			installAgent()
-
-
-		self.Bind(wx.EVT_SIZE, self.onResize, self)
-		self.Bind(wx.EVT_ACTIVATE, self.onActivate, self)
-
-
-		import signal
-
-		def exit_signal_handler(signal, frame):
-
-			# template = zroya.Template(zroya.TemplateType.ImageAndText4)
-			# template.setFirstLine('Quit Signal')
-			# # template.setSecondLine(str(signal))
-			# # template.setThirdLine(str(frame))
-			# expiration = 24 * 60 * 60 * 1000 # one day
-			# template.setExpiration(expiration) # One day
-			# notificationID = zroya.show(template)
-
-			self.log('Received SIGTERM or SIGINT')
-
-			self.onQuit(None)
-
-		# if MAC:
-		# 	signal.signal(signal.SIGBREAK, exit_signal_handler)
-		signal.signal(signal.SIGTERM, exit_signal_handler)
-		signal.signal(signal.SIGINT, exit_signal_handler)
-
-
-
-
-		# Set up Sparkle
-		sparkle.checkForUpdatesInBackground()
-
-
-
 
 	def javaScript(self, script):
 #        print()
@@ -665,7 +778,8 @@ class AppFrame(wx.Frame):
 
 	def onCheckForUpdates(self, event):
 		if MAC:
-			sparkle.checkForUpdates_(None)
+			sparkle.checkForUpdates_(self)
+			# sparkle.checkForUpdateInformation()
 		elif WIN:
 			pywinsparkle.win_sparkle_check_update_with_ui()
 
@@ -679,6 +793,12 @@ class AppFrame(wx.Frame):
 			self.onQuit(None)
 
 	def onQuit(self, event):
+
+		log('onQuit()')
+
+		while locked():
+			log('Waiting for locks to disappear')
+			time.sleep(.5)
 
 		try:
 			address = ('localhost', 65500)
@@ -2078,6 +2198,11 @@ $( document ).ready(function() {
 				print('Agent is outdated (%s), needs restart.' % agentVersion)
 				restartAgent(2)
 
+		# Set up Sparkle
+		# if MAC:
+#			sparkle.checkForUpdatesInBackground()
+			# sparkle.setAutomaticallyChecksForUpdates_(True)
+
 
 	def checkForURLInFile(self):
 
@@ -2088,7 +2213,6 @@ $( document ).ready(function() {
 			urlFile = open(openURLFilePath, 'r')
 			url = urlFile.read().strip()
 			urlFile.close()
-
 
 			if self.fullyLoaded:
 				self.addSubscription(url)
@@ -2105,11 +2229,9 @@ $( document ).ready(function() {
 
 
 	def log(self, message):
-		if MAC:
-			from AppKit import NSLog
-			NSLog('Type.World App: %s' % message)
-		else:
-			print(message)
+
+		log(message)
+
 
 	def setBadgeLabel(self, label):
 		'''\
@@ -2197,11 +2319,76 @@ class Logger(object):
 
 
 
+class UpdateFrame(wx.Frame):
+	def __init__(self, parent):
+
+		super(UpdateFrame, self).__init__(parent)
+
+#		sparkle.checkForUpdateInformation()
+
+		sparkle.checkForUpdatesInBackground()
+
+		log('sparkle.checkForUpdateInformation() finished')
+
+
+
+	# def onCheckForUpdates(self, event):
+	# 	if MAC:
+	# 		sparkle.checkForUpdates_(self)
+	# 		# sparkle.checkForUpdateInformation()
+	# 	elif WIN:
+	# 		pywinsparkle.win_sparkle_check_update_with_ui()
+
+
+
+
+class NSAppDelegate(NSObject):
+	def applicationWillFinishLaunching_(self, notification):
+
+		log('applicationWillFinishLaunching_()')
+
+
+		try:
+
+			app = wx.GetApp()
+
+		# 	app.CustomOnInit()
+		# 	app.frame.setMenuBar()
+
+			if app.startWithCommand == 'checkForUpdateInformation':
+
+				from AppKit import NSApplicationActivationPolicyAccessory 
+				NSApp().setActivationPolicy_(NSApplicationActivationPolicyAccessory)
+
+		except:
+			log(traceback.format_exc())
+
+	def applicationDidFinishLaunching_(self, notification):
+
+		log('applicationDidFinishLaunching_()')
+
+
+
+		# NSApp().activateIgnoringOtherApps_(False)
+
 
 
 
 
 class MyApp(wx.App):
+
+	def __init__(self, redirect=False, filename=None, useBestVisual=False, clearSigInt=True, startWithCommand = None):
+		self.startWithCommand = startWithCommand
+
+		super().__init__(redirect, filename, useBestVisual, clearSigInt)
+
+
+	def OnPreInit(self):
+
+		if MAC:
+			NSApplication.sharedApplication().setDelegate_(NSAppDelegate.alloc().init())
+			log('set NSAppDelegate')
+
 
 	def MacOpenURL(self, url):
 		
@@ -2217,74 +2404,112 @@ class MyApp(wx.App):
 
 	def OnInit(self):
 
+		log('self.startWithCommand: %s' % self.startWithCommand)
 
-		if WIN:
-			import winreg as wreg
-			current_file = __file__
-			key = wreg.CreateKey(wreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION")
-			wreg.SetValueEx(key, current_file, 0, wreg.REG_DWORD, 11001)
+		if self.startWithCommand:
 
+			if self.startWithCommand == 'checkForUpdateInformation':
 
-		frame = AppFrame(None)
-		self.frame = frame
-
-		self.frame.log('MyApp.OnInit()')
-		
-		if MAC:
-			from AppKit import NSApp
-			self.frame.nsapp = NSApp()
-			self.frame._dockTile = self.frame.nsapp.dockTile()
+				try:
 
 
-		html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'index.html'))
+					global sparkle
+	# #				sparkle.setValue_forKey_(self, NSString('guiapp'))
+	# 				sparkle.guiapp = self
+	# 				sparkle.guiappCommand = 'destroy'
+	#				sparkle.setValue_forKey_(NSString.alloc().initWithString_('destroy'), NSString.alloc().initWithString_('guiappCommand'))
 
-#        html = html.replace('##jqueryuicss##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'css', 'jquery-ui.css')))
-		html = html.replace('APPVERSION', APPVERSION)
+					frame = UpdateFrame(None)
+					self.frame = frame
 
-		html = frame.localizeString(html, html = True)
-		html = frame.replaceHTML(html)
+#					frame.Show()
 
-
-		# memoryfs = wx.MemoryFSHandler()
-		# wx.FileSystem.AddHandler(memoryfs)
-		# wx.MemoryFSHandler.AddFileWithMimeType("index.htm", html, 'text/html')
-		# frame.html.RegisterHandler(wx.html2.WebViewFSHandler("memory"))
-
-#        frame.html.SetPage(html, os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main'))
-		# frame.html.SetPage(html, '')
-		# frame.html.Reload()
-
-		filename = os.path.join(prefDir, 'world.type.guiapp.app.html')
-		WriteToFile(filename, html)
-		frame.html.LoadURL("file://%s" % filename)
-
-		#TODO: Remove later, old implementation
-		filename = os.path.join(os.path.dirname(__file__), 'app.html')
-		if os.path.exists(filename):
-			os.remove(filename)
-
-
-		# if os.path.exists(openURLFilePath):
-		#     urlFile = open(openURLFilePath, 'r')
-		#     URL = urlFile.read().strip()
-		#     urlFile.close()
-		#     frame.justAddedPublisher = URL
+				except:
+					log(traceback.format_exc())
 
 
 
-		frame.Show()
-		frame.CentreOnScreen()
 
-		# if MAC:
+			# 	sparkle.checkForUpdates_(None)
 
-		# 	from AppKit import NSObject, NSDistributedNotificationCenter
-		# 	class darkModeDelegate(NSObject):
-		# 		def darkModeChanged_(self, sender):
-		# 			print('darkmodeChanged', sender)
+		# while sparkle.updateInProgress():
+		# 	time.sleep(1)
 
-		# 	delegate = darkModeDelegate.alloc().init()
 
-		# 	NSDistributedNotificationCenter.defaultCenter().addObserver_selector_name_object_(delegate, delegate.darkModeChanged_, 'AppleInterfaceThemeChangedNotification', None)
+
+
+
+		else:
+
+
+			if WIN:
+				import winreg as wreg
+				current_file = __file__
+				key = wreg.CreateKey(wreg.HKEY_CURRENT_USER, "Software\\Microsoft\\Internet Explorer\\Main\\FeatureControl\\FEATURE_BROWSER_EMULATION")
+				wreg.SetValueEx(key, current_file, 0, wreg.REG_DWORD, 11001)
+
+
+			frame = AppFrame(None)
+			self.frame = frame
+
+			self.frame.log('MyApp.OnInit()')
+			
+			if MAC:
+				self.frame.nsapp = NSApp()
+				self.frame._dockTile = self.frame.nsapp.dockTile()
+
+
+			html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'index.html'))
+
+	#        html = html.replace('##jqueryuicss##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'css', 'jquery-ui.css')))
+			html = html.replace('APPVERSION', APPVERSION)
+
+			html = frame.localizeString(html, html = True)
+			html = frame.replaceHTML(html)
+
+
+			# memoryfs = wx.MemoryFSHandler()
+			# wx.FileSystem.AddHandler(memoryfs)
+			# wx.MemoryFSHandler.AddFileWithMimeType("index.htm", html, 'text/html')
+			# frame.html.RegisterHandler(wx.html2.WebViewFSHandler("memory"))
+
+	#        frame.html.SetPage(html, os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main'))
+			# frame.html.SetPage(html, '')
+			# frame.html.Reload()
+
+			filename = os.path.join(prefDir, 'world.type.guiapp.app.html')
+			WriteToFile(filename, html)
+			frame.html.LoadURL("file://%s" % filename)
+
+			#TODO: Remove later, old implementation
+			filename = os.path.join(os.path.dirname(__file__), 'app.html')
+			if os.path.exists(filename):
+				os.remove(filename)
+
+
+			# if os.path.exists(openURLFilePath):
+			#     urlFile = open(openURLFilePath, 'r')
+			#     URL = urlFile.read().strip()
+			#     urlFile.close()
+			#     frame.justAddedPublisher = URL
+
+
+
+			frame.Show()
+			frame.CentreOnScreen()
+
+	
+
+			# if MAC:
+
+			# 	from AppKit import NSObject, NSDistributedNotificationCenter
+			# 	class darkModeDelegate(NSObject):
+			# 		def darkModeChanged_(self, sender):
+			# 			print('darkmodeChanged', sender)
+
+			# 	delegate = darkModeDelegate.alloc().init()
+
+			# 	NSDistributedNotificationCenter.defaultCenter().addObserver_selector_name_object_(delegate, delegate.darkModeChanged_, 'AppleInterfaceThemeChangedNotification', None)
 
 
 
@@ -2292,6 +2517,9 @@ class MyApp(wx.App):
 		return True
 
 #class MyNSApp(NSApp):
+
+
+intercomCommands = ['amountOutdatedFonts', 'startListener', 'killAgent', 'restartAgent', 'uninstallAgent', 'searchAppUpdate', 'daemonStart']
 
 
 def listenerFunction():
@@ -2320,96 +2548,154 @@ def listenerFunction():
 	log('Closed listener loop')
 
 
-intercomCommands = ['amountOutdatedFonts', 'startListener', 'killAgent', 'restartAgent', 'uninstallAgent']
 
 
 
 def intercom(commands):
 
-	log('intercom %s' % commands[0])
+	lock()
+	returnObject = None
 
-	if commands[0] == 'amountOutdatedFonts':
+	if not commands[0] in intercomCommands:
+		log('Intercom: Command %s not registered' % (commands[0]))
 
-		totalSuccess = False
+	else:
+		log('Intercom called with command: %s' % commands[0])
 
-		force = (len(commands) > 1 and commands[1] == 'force')
+		if commands[0] == 'amountOutdatedFonts':
 
+			totalSuccess = False
 
-		# Preference is set to check automatically
-		if (client.preferences.get('reloadSubscriptionsInterval') and int(client.preferences.get('reloadSubscriptionsInterval')) != -1) or force:
-
-
-			# Has never been checked, set to long time ago
-			if not client.preferences.get('reloadSubscriptionsLastPerformed'):
-				client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) - 10)
-
-			# See if we should check now
-			if int(client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) or force:
-
-				log('now checking')
-
-				client.prepareUpdate()
-
-				for publisher in client.publishers():
-					for subscription in publisher.subscriptions():
-
-						startTime = time.time()
-						success, message = subscription.update()
-
-						totalSuccess = totalSuccess and success   
-
-						if not success:
-							log(message)
-
-						log('updated %s (%1.2fs)' % (subscription, time.time() - startTime))
-
-				# Reset
-				if client.allSubscriptionsUpdated():
-					log('resetting timing')
-					client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
+			force = (len(commands) > 1 and commands[1] == 'force')
 
 
-		# TODO:
-		# Add update checking here
+			# Preference is set to check automatically
+			if (client.preferences.get('reloadSubscriptionsInterval') and int(client.preferences.get('reloadSubscriptionsInterval')) != -1) or force:
 
 
-		log('client.amountOutdatedFonts() %s' % (client.amountOutdatedFonts()))
-		return client.amountOutdatedFonts()
+				# Has never been checked, set to long time ago
+				if not client.preferences.get('reloadSubscriptionsLastPerformed'):
+					client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) - 10)
+
+				# See if we should check now
+				if int(client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) or force:
+
+					log('now checking')
+
+					client.prepareUpdate()
+
+					for publisher in client.publishers():
+						for subscription in publisher.subscriptions():
+
+							startTime = time.time()
+							success, message = subscription.update()
+
+							totalSuccess = totalSuccess and success   
+
+							if not success:
+								log(message)
+
+							log('updated %s (%1.2fs)' % (subscription, time.time() - startTime))
+
+					# Reset
+					if client.allSubscriptionsUpdated():
+						log('resetting timing')
+						client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
 
 
-	if commands[0] == 'startListener':
+			log('client.amountOutdatedFonts() %s' % (client.amountOutdatedFonts()))
+			returnObject = client.amountOutdatedFonts()
 
-		log('about to start listener thread')
 
-		listenerThread = Thread(target=listenerFunction)
-		listenerThread.start()
+		if commands[0] == 'startListener':
 
-		log('listener thread started')
+			log('about to start listener thread')
 
-	if commands[0] == 'killAgent':
+			listenerThread = Thread(target=listenerFunction)
+			listenerThread.start()
 
-		agent('quit')
+			log('listener thread started')
 
-	if commands[0] == 'uninstallAgent':
+		if commands[0] == 'killAgent':
 
-		uninstallAgent()
+			agent('quit')
 
-	if commands[0] == 'restartAgent':
+		if commands[0] == 'uninstallAgent':
 
-		agent('quit')
+			uninstallAgent()
 
-		# Restart after restart
-		if client.preferences.get('menuBarIcon') and not agentIsRunning():
+		if commands[0] == 'restartAgent':
 
-			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-			file_path = file_path.replace(r'\\Mac\Home', r'Z:')
-			import subprocess
-			os.chdir(os.path.dirname(file_path))
-			subprocess.Popen([file_path], executable = file_path)
+			agent('quit')
 
-	if commands[0] == 'searchAppUpdate':
+			# Restart after restart
+			if client.preferences.get('menuBarIcon') and not agentIsRunning():
 
-		sparkle.checkForUpdatesInBackground()
+				file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
+				file_path = file_path.replace(r'\\Mac\Home', r'Z:')
+				import subprocess
+				os.chdir(os.path.dirname(file_path))
+				subprocess.Popen([file_path], executable = file_path)
+
+		if commands[0] == 'searchAppUpdate':
+
+			# log('Started checkForUpdatesInBackground()')
+			# sparkle.checkForUpdatesInBackground()
+			# log('Finished checkForUpdatesInBackground()')
+
+			# log('Started checkForUpdates_()')
+			# log(app)
+			# if app:
+			# 	app.onCheckForUpdates(None)
+			# # sparkle.checkForUpdates_(app)
+			# # while sparkle.updateInProgress():
+			# # 	time.sleep(1)
+			# log('Finished checkForUpdates_()')
+
+
+			try:
+
+
+				log('Started checkForUpdateInformation()')
+				# def checkForUpdateInformationFunction():
+
+				# checkForUpdateInformationThread = Thread(target=checkForUpdateInformationFunction)
+				# checkForUpdateInformationThread.start()
+
+
+
+				global app
+				app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = None, startWithCommand = 'checkForUpdateInformation')
+
+
+
+
+	#			app.frame.onCheckForUpdates(None)
+				app.MainLoop()
+
+
+				log('Finished checkForUpdateInformation()')
+
+
+			except:
+				log(traceback.format_exc())
+
+			# log('Started checkForUpdateInformation()')
+			# sparkle.checkForUpdateInformation()
+
+			# # while sparkle.updateInProgress():
+			# # 	time.sleep(1)
+
+			# time.sleep(10)
+
+			# log('Finished checkForUpdateInformation()')
+
+		if commands[0] == 'daemonStart':
+			unlock()
+
+
+	unlock()
+	return returnObject
 
 
 # Set up logging
@@ -2420,10 +2706,17 @@ if WIN and DEBUG:
 	logging.basicConfig(filename=filename,level=logging.DEBUG)
 
 def log(message):
-	if WIN and DEBUG:
-		logging.debug(message)
+	if DEBUG:
+		if WIN:
+			logging.debug(message)
+		if MAC:
+			from AppKit import NSLog
+			NSLog('Type.World App: %s' % message)
 
 log(sys.argv)
+
+
+
 
 if len(sys.argv) > 1 and sys.argv[1] in intercomCommands:
 

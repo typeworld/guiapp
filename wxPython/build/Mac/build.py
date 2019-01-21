@@ -6,7 +6,7 @@ from subprocess import Popen,PIPE,STDOUT
 
 version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 'r').read().strip()
 findSymlinks = 'find -L ~/Code/TypeWorldApp/dist/Type.World.app -type l'
-
+sparkle = '/Users/yanone/Code/Sparkle-1.21.2/Sparkle.framework'
 
 _list = [
 ['Remove old build folder', 'rm -rf /Users/yanone/Code/TypeWorldApp/build'],
@@ -16,14 +16,16 @@ _list = [
 
 # Agent
 ['Agent build', '/usr/local/bin/python3 /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup_daemon.py py2app'],
+# ['Copying Sparkle', 'cp -R %s "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app/Contents/Frameworks/"' % sparkle],
 ['Signing inner components', 'codesign -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app/Contents/Frameworks/Python.framework/Versions/3.6"'],
 ['Signing inner components', 'codesign -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app/Contents/MacOS/python"'],
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app/Contents/Frameworks/Sparkle.framework/Versions/A"'],
 ['Signing app', 'codesign -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app"'],
 ['Zipping agent', 'tar -cjf /Users/yanone/Code/TypeWorldApp/dist/agent.tar.bz2 -C "/Users/yanone/Code/TypeWorldApp/dist/" "Type.World Agent.app"'],
 
 # Main app
 ['Main App build', '/usr/local/bin/python3 /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup.py py2app'],
-['Copying Sparkle', 'cp -R /Users/yanone/Code/Sparkle-1.19.0/Sparkle.framework /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/'],
+['Copying Sparkle', 'cp -R %s /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/' % sparkle],
 ['Copying agent', 'cp /Users/yanone/Code/TypeWorldApp/dist/agent.tar.bz2 /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/'],
 ['Unlink site.pyo', 'unlink ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.6/site.pyo'],
 ['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu-3.0.0.4.0.dylib'],

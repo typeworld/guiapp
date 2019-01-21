@@ -27,6 +27,7 @@ setup(
 #                'NSDockTilePlugIn': '@executable_path/../Resources/lib/python2.7/AppBadge.docktileplugin.py',
                 'NSDockTilePlugIn': 'appbadge.docktileplugin',
                 'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World Font Installation Protocols', 'CFBundleURLSchemes': ['typeworldjson', 'typeworldgithub']}],
+#                'LSUIElement': True, # No dock icon
 
                 # Sparkle
                 'SUFeedURL': 'https://type.world/downloads/guiapp/appcast.xml',

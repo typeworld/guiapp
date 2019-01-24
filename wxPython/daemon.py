@@ -13,8 +13,8 @@ if WIN:
 DEBUG = True
 APPVERSION = 'n/a'
 
-LOOPDURATION = 10
-UPDATESEARCHINTERVAL = 30
+LOOPDURATION = 60
+UPDATESEARCHINTERVAL = 24 * 60 * 60
 CURRENTLYUPDATING = False
 
 # Adjust __file__ to point to executable on runtime
@@ -24,7 +24,6 @@ except:
 	__file__ = sys.executable
 
 sys.path.insert(0, os.path.dirname(__file__))
-
 
 if WIN:
 	from appdirs import user_data_dir
@@ -39,11 +38,6 @@ if WIN and DEBUG:
 		os.remove(filename)
 	logging.basicConfig(filename=filename,level=logging.DEBUG)
 
-
-
-
-
-
 def log(message):
 	if DEBUG:
 		if WIN:
@@ -52,10 +46,31 @@ def log(message):
 			from AppKit import NSLog
 			NSLog('Type.World Agent: %s' % message)
 
+log('Start')
+
+# Application quit locks
+
+global locks
+locks = 0
+
+def lock():
+	global locks
+	locks += 1
+
+def unlock():
+	global locks
+	if locks > 0:
+		locks -= 1
+
+def locked():
+	global locks
+	return locks > 0
+
+
 try:
 
 
-	# This is shit as it requires separate internet access permissions for the agent.
+	# This is shit as it requires separate internet access permissions for the agent (Little Snitch).
 
 	# if MAC:
 	# 	# URL to Appcast.xml, eg. https://yourserver.com/Appcast.xml
@@ -424,7 +439,7 @@ try:
 
 			# APP UPDATE
 
-			if not appIsRunning('world.type.guiapp'):
+			if MAC and not appIsRunning('world.type.guiapp') or WIN and not appIsRunning('TypeWorld.exe'):
 
 				# Has never been checked, set to long time ago
 				if not client.preferences.get('appUpdateLastSearched'):
@@ -451,40 +466,41 @@ try:
 
 		def openApp(url = None):
 
-			if CURRENTLYUPDATING == False:
+			while CURRENTLYUPDATING:
+				time.sleep(.5)
 
-				if WIN:
+			if WIN:
 
-					pid = PID('TypeWorld.exe')
+				pid = PID('TypeWorld.exe')
 
-					if pid:
-						# Another PID already exists. See if we can activate it, then exit()
-						try:
-							import win32com.client
-							shell = win32com.client.Dispatch("WScript.Shell")
-							shell.AppActivate(pid)
+				if pid:
+					# Another PID already exists. See if we can activate it, then exit()
+					try:
+						import win32com.client
+						shell = win32com.client.Dispatch("WScript.Shell")
+						shell.AppActivate(pid)
 
-						# That didn't work. Let's execute the main app directly (with elevated privileges)
-						except:
-							exe = os.path.join(os.path.dirname(__file__), 'TypeWorld.exe')
-							ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, '', None, 1)
-
-					else:
+					# That didn't work. Let's execute the main app directly (with elevated privileges)
+					except:
 						exe = os.path.join(os.path.dirname(__file__), 'TypeWorld.exe')
 						ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, '', None, 1)
 
+				else:
+					exe = os.path.join(os.path.dirname(__file__), 'TypeWorld.exe')
+					ctypes.windll.shell32.ShellExecuteW(None, "runas", exe, '', None, 1)
 
-				if MAC:
-					ID = 'world.type.guiapp'
-					# App is running, so activate it
-					apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
-					if apps:
-						mainApp = apps[0]
-						mainApp.activateWithOptions_(1 << 1)
 
-					# Not running, launch it
-					else:
-						NSWorkspace.sharedWorkspace().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(ID, 0, None, None)
+			if MAC:
+				ID = 'world.type.guiapp'
+				# App is running, so activate it
+				apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
+				if apps:
+					mainApp = apps[0]
+					mainApp.activateWithOptions_(1 << 1)
+
+				# Not running, launch it
+				else:
+					NSWorkspace.sharedWorkspace().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(ID, 0, None, None)
 
 		def closeListener():
 			address = ('localhost', 65501)

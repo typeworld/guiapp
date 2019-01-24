@@ -50,8 +50,6 @@ BUILDSTAGE = 'alpha'
 
 global app
 app = None
-global locks
-locks = 0
 
 # Mac executable
 if 'app.py' in __file__ and '/Contents/MacOS/python' in sys.executable:
@@ -87,6 +85,9 @@ import sys, os, traceback, types
 
 
 # Application quit locks
+
+global locks
+locks = 0
 
 def lock():
 	global locks
@@ -185,7 +186,7 @@ elif MAC:
 if WIN:
 	prefFile = os.path.join(prefDir, 'preferences.json')
 	prefs = JSON(prefFile)
-	# print('Preferences at %s' % prefFile)
+	# log('Preferences at %s' % prefFile)
 else:
 	prefs = AppKitNSUserDefaults('world.type.clientapp' if DESIGNTIME else None)
 
@@ -244,7 +245,7 @@ def restartAgentWorker(wait):
 	uninstallAgent()
 	installAgent()
 
-	print('Agent restarted')
+	log('Agent restarted')
 
 def restartAgent(wait = 0):
 	restartAgentThread = Thread(target = restartAgentWorker, args=(wait, ))
@@ -257,131 +258,140 @@ def installAgent():
 
 	lock()
 
-	if MAC:
-		from AppKit import NSBundle
-		zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
-		plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
-		agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
-		plist = '''<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-<key>Debug</key>
-<true/>
-<key>Disabled</key>
-<false/>
-<key>KeepAlive</key>
-<true/>
-<key>Label</key>
-<string>world.type.agent</string>
-<key>MachServices</key>
-<dict>
-	<key>world.type.agent</key>
+	try:
+		if MAC:
+			from AppKit import NSBundle
+			zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
+			plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
+			agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
+			plist = '''<?xml version="1.0" encoding="UTF-8"?>
+	<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+	<plist version="1.0">
+	<dict>
+	<key>Debug</key>
 	<true/>
-</dict>
-<key>OnDemand</key>
-<false/>
-<key>Program</key>
-<string>''' + agentPath + '''/Contents/MacOS/Type.World Agent</string>
-<key>RunAtLoad</key>
-<true/>
-</dict>
-</plist>'''
+	<key>Disabled</key>
+	<false/>
+	<key>KeepAlive</key>
+	<true/>
+	<key>Label</key>
+	<string>world.type.agent</string>
+	<key>MachServices</key>
+	<dict>
+		<key>world.type.agent</key>
+		<true/>
+	</dict>
+	<key>OnDemand</key>
+	<false/>
+	<key>Program</key>
+	<string>''' + agentPath + '''/Contents/MacOS/Type.World Agent</string>
+	<key>RunAtLoad</key>
+	<true/>
+	</dict>
+	</plist>'''
 
 
-		# Extract app
-		folder = os.path.dirname(agentPath)
-		if not os.path.exists(folder):
-			os.makedirs(folder)
-		os.system('tar -zxf "%s" -C "%s"' % (zipPath, folder))
+			# Extract app
+			folder = os.path.dirname(agentPath)
+			if not os.path.exists(folder):
+				os.makedirs(folder)
+			os.system('tar -zxf "%s" -C "%s"' % (zipPath, folder))
 
-		# Write Launch Agent
-		if not os.path.exists(os.path.dirname(plistPath)):
-			os.makedirs(os.path.dirname(plistPath))
-		f = open(plistPath, 'w')
-		f.write(plist)
-		f.close()
+			# Write Launch Agent
+			if not os.path.exists(os.path.dirname(plistPath)):
+				os.makedirs(os.path.dirname(plistPath))
+			f = open(plistPath, 'w')
+			f.write(plist)
+			f.close()
 
-		# Run App
-#		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
-		# import subprocess
-		# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
-#		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
+			# Run App
+	#		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
+			# import subprocess
+			# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
+	#		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
 
-		launchAgentThread = Thread(target=waitToLaunchAgent)
-		launchAgentThread.start()
+			launchAgentThread = Thread(target=waitToLaunchAgent)
+			launchAgentThread.start()
 
-		print('installAgent() done')
 
-	if WIN:
+		if WIN:
 
-#			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-		file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-		file_path = file_path.replace(r'\\Mac\Home', r'Z:')
-		print(file_path)
+	#			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
+			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
+			file_path = file_path.replace(r'\\Mac\Home', 'Z:')
+			log(file_path)
 
-		import getpass
-		USER_NAME = getpass.getuser()
+			import getpass
+			USER_NAME = getpass.getuser()
 
-		bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup' % USER_NAME
-		bat_command = 'start "" "%s"' % file_path
+			bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup' % USER_NAME
+			bat_command = 'start "" "%s"' % file_path
 
-		from pathlib import Path
-		print(Path(file_path).exists())
+			from pathlib import Path
+			log(Path(file_path).exists())
+			log(os.path.exists(file_path))
 
-		if not os.path.exists(os.path.dirname(bat_path)):
-			os.makedirs(os.path.dirname(bat_path))
-		with open(bat_path + '\\' + "TypeWorld.bat", "w+") as bat_file:
-			bat_file.write(bat_command)
+			if not os.path.exists(os.path.dirname(bat_path)):
+				os.makedirs(os.path.dirname(bat_path))
+			with open(bat_path + '\\' + "TypeWorld.bat", "w+") as bat_file:
+				bat_file.write(bat_command)
 
-		import subprocess
-		os.chdir(os.path.dirname(file_path))
-		subprocess.Popen([file_path], executable = file_path)
+			import subprocess
+			os.chdir(os.path.dirname(file_path))
+			subprocess.Popen([file_path], executable = file_path)
 
-	client.preferences.set('menuBarIcon', True)
+		client.preferences.set('menuBarIcon', True)
 
-#	allowedToQuit = True
+		log('installAgent() done')
+
+	except:
+		log(traceback.format_exc())
+
+		unlock()
+
 
 
 def uninstallAgent():
 
 	lock()
+	try:
+		if MAC:
+			from AppKit import NSRunningApplication
 
-	if MAC:
-		from AppKit import NSRunningApplication
+			plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
+			agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
 
-		plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
-		agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
+			# Kill running app
+			ID = 'world.type.agent'
+			# App is running, so activate it
+			apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
+			if apps:
+				mainApp = apps[0]
+				mainApp.terminate()
 
-		# Kill running app
-		ID = 'world.type.agent'
-		# App is running, so activate it
-		apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
-		if apps:
-			mainApp = apps[0]
-			mainApp.terminate()
+			# delete app bundle
+			if os.path.exists(agentPath):
+				os.system('rm -r "%s"' % agentPath)
 
-		# delete app bundle
-		if os.path.exists(agentPath):
-			os.system('rm -r "%s"' % agentPath)
+			# delete plist
+			if os.path.exists(plistPath):
+				os.system('rm "%s"' % plistPath)
 
-		# delete plist
-		if os.path.exists(plistPath):
-			os.system('rm "%s"' % plistPath)
+		if WIN:
 
-	if WIN:
+			agent('quit')	
 
-		agent('quit')	
+			import getpass
+			USER_NAME = getpass.getuser()
 
-		import getpass
-		USER_NAME = getpass.getuser()
+			bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\TypeWorld.bat' % USER_NAME
+			if os.path.exists(bat_path):
+				os.remove(bat_path)
 
-		bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\TypeWorld.bat' % USER_NAME
-		if os.path.exists(bat_path):
-			os.remove(bat_path)
+		client.preferences.set('menuBarIcon', False)
 
-	client.preferences.set('menuBarIcon', False)
-
+	except:
+		log(traceback.format_exc())
 	unlock()
 
 
@@ -410,6 +420,8 @@ if MAC and RUNTIME:
 
 	def waitForUpdateToFinish(app, updater, delegate):
 
+		log('Waiting for update loop to finish')
+
 		while updater.updateInProgress():
 			time.sleep(1)
 
@@ -428,6 +440,7 @@ if MAC and RUNTIME:
 			if app.startWithCommand:
 				if app.startWithCommand == 'checkForUpdateInformation':
 					app.frame.Destroy()
+					log('app.frame.Destroy()')
 
 		def updater_didAbortWithError_(self, updater, error):
 			log('sparkleUpdateDelegate.updater_didAbortWithError_()')
@@ -439,7 +452,6 @@ if MAC and RUNTIME:
 			self.destroyIfRemotelyCalled()
 
 		def updater_didFindValidUpdate_(self, updater, appcastItem):
-			log('sparkleUpdateDelegate.updater_didFindValidUpdate_()')
 
 			self.updateFound = True
 			self.downloadStarted = False
@@ -447,6 +459,8 @@ if MAC and RUNTIME:
 			global app
 			waitForUpdateThread = Thread(target=waitForUpdateToFinish, args=(app, updater, self))
 			waitForUpdateThread.start()
+
+			log('sparkleUpdateDelegate.updater_didFindValidUpdate_() finished')
 
 
 		def updaterDidNotFindUpdate_(self, updater):
@@ -496,63 +510,109 @@ if MAC and RUNTIME:
 	sparkle.setDelegate_(sparkleDelegate)
 
 
-def pywinsparkle_no_update_found():
-	""" when no update has been found, close the updater"""
-	print("No update found")
-	print("Setting flag to shutdown PassagesUpdater")
+if WIN:
+	class SparkleUpdateDelegate(object):
+
+		def __init__(self):
+			self.updateInProgress = False
+
+		def waitForUpdateToFinish(self):
+
+			while self.updateInProgress:
+				time.sleep(1)
+
+			log('Update loop finished')
+
+			self.destroyIfRemotelyCalled()
+
+		def destroyIfRemotelyCalled(self):
+			log('Quitting because app was called remotely for an update')
+
+ 			# Do nothing here for Windows because we didn't create an app instance
+
+		def pywinsparkle_no_update_found(self):
+			""" when no update has been found, close the updater"""
+			log("No update found")
+			self.updateInProgress = False
 
 
-def pywinsparkle_found_update():
-	""" log that an update was found """
-	print("New Update Available")
+		def pywinsparkle_found_update(self):
+			""" log that an update was found """
+			log("New Update Available")
+			# self.updateInProgress = False
 
 
-def pywinsparkle_encountered_error():
-	print("An error occurred")
+		def pywinsparkle_encountered_error(self):
+			log("An error occurred")
+			self.updateInProgress = False
+			self.destroyIfRemotelyCalled()
 
 
-def pywinsparkle_update_cancelled():
-	""" when the update was cancelled, close the updater"""
-	print("Update was cancelled")
-	print("Setting flag to shutdown PassagesUpdater")
+		def pywinsparkle_update_cancelled(self):
+			""" when the update was cancelled, close the updater"""
+			log("Update was cancelled")
+			self.updateInProgress = False
 
 
-def pywinsparkle_shutdown():
-	""" The installer is being launched signal the updater to shutdown """
-
-	# actually shutdown the app here
-	print("Safe to shutdown before installing")
-
-def setup_pywinsparkle():
-
-	# register callbacks
-	pywinsparkle.win_sparkle_set_did_find_update_callback(pywinsparkle_found_update)
-	pywinsparkle.win_sparkle_set_error_callback(pywinsparkle_encountered_error)
-	pywinsparkle.win_sparkle_set_update_cancelled_callback(pywinsparkle_update_cancelled)
-	pywinsparkle.win_sparkle_set_did_not_find_update_callback(pywinsparkle_no_update_found)
-	pywinsparkle.win_sparkle_set_shutdown_request_callback(pywinsparkle_shutdown)
-
-	# set application details
-	update_url = "https://type.world/downloads/guiapp/appcast_windows.xml"
-	pywinsparkle.win_sparkle_set_appcast_url(update_url)
-	pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
-
-	# initialize
-	pywinsparkle.win_sparkle_init()
-
-	# # check for updates
-	# pywinsparkle.win_sparkle_check_update_with_ui()
-
-	# # alternatively you could check for updates in the
-	# # background silently
-	# pywinsparkle.win_sparkle_check_update_without_ui()
+		def pywinsparkle_shutdown(self):
+			""" The installer is being launched signal the updater to shutdown """
+			# actually shutdown the app here
+			log("Safe to shutdown before installing")
+			self.updateInProgress = False
 
 
+		def check_with_ui(self):
+			log("check_with_ui()")
+			self.updateInProgress = True
+
+			# waitForUpdateThread = Thread(target=self.waitForUpdateToFinish)
+			# waitForUpdateThread.start()
+
+			pywinsparkle.win_sparkle_check_update_with_ui()
+
+			self.waitForUpdateToFinish()
+
+		def check_without_ui(self):
+			log("check_without_ui()")
+			self.updateInProgress = True
+
+			# waitForUpdateThread = Thread(target=self.waitForUpdateToFinish)
+			# waitForUpdateThread.start()
+
+			pywinsparkle.win_sparkle_check_update_without_ui()
+
+			self.waitForUpdateToFinish()
+
+		def setup(self):
+
+			# register callbacks
+			pywinsparkle.win_sparkle_set_did_find_update_callback(self.pywinsparkle_found_update)
+			pywinsparkle.win_sparkle_set_did_not_find_update_callback(self.pywinsparkle_no_update_found)
+			pywinsparkle.win_sparkle_set_error_callback(self.pywinsparkle_encountered_error)
+			pywinsparkle.win_sparkle_set_update_cancelled_callback(self.pywinsparkle_update_cancelled)
+			pywinsparkle.win_sparkle_set_shutdown_request_callback(self.pywinsparkle_shutdown)
+
+			# set application details
+			update_url = "https://type.world/downloads/guiapp/appcast_windows.xml"
+			pywinsparkle.win_sparkle_set_appcast_url(update_url)
+			pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
+
+			# initialize
+			pywinsparkle.win_sparkle_init()
+
+			# # check for updates
+			# pywinsparkle.win_sparkle_check_update_with_ui()
+
+			# # alternatively you could check for updates in the
+			# # background silently
+			# pywinsparkle.win_sparkle_check_update_without_ui()
 
 if WIN:
 	sys._MEIPASS = os.path.join(os.path.dirname(__file__), 'lib', 'pywinsparkle', 'libs', 'x64')
 	from pywinsparkle import pywinsparkle
-	setup_pywinsparkle()
+
+	pywinsparkleDelegate = SparkleUpdateDelegate()
+	pywinsparkleDelegate.setup()
 
 
 
@@ -561,6 +621,7 @@ class AppFrame(wx.Frame):
 
 
 		self.messages = []
+		self.active = True
 
 
 		# Version adjustments
@@ -741,23 +802,23 @@ class AppFrame(wx.Frame):
 
 
 	def javaScript(self, script):
-#        print()
+#        log()
 		if self.fullyLoaded:
 			if threading.current_thread() == self.thread:
-#                print('JavaScript Executed:')
-#                print(str(script.encode())[:100], '...')
+#                log('JavaScript Executed:')
+#                log(str(script.encode())[:100], '...')
 				self.html.RunScript(script)
 			else:
 				pass
-#                print('JavaScript called from another thread:')
-#                print(str(script.encode())[:100], '...')
+#                log('JavaScript called from another thread:')
+#                log(str(script.encode())[:100], '...')
 
 
 
 		else:
 			pass
-#            print('JavaScript Execution: Page not fully loaded:')
-#            print(str(script.encode())[:100], '...')
+#            log('JavaScript Execution: Page not fully loaded:')
+#            log(str(script.encode())[:100], '...')
 
 
 
@@ -781,7 +842,7 @@ class AppFrame(wx.Frame):
 			sparkle.checkForUpdates_(self)
 			# sparkle.checkForUpdateInformation()
 		elif WIN:
-			pywinsparkle.win_sparkle_check_update_with_ui()
+			pywinsparkleDelegate.check_with_ui()
 
 	def onClose(self, event):
 
@@ -790,7 +851,7 @@ class AppFrame(wx.Frame):
 			self.javaScript('hidePanel();')
 		else:
 
-			self.onQuit(None)
+			self.onQuit(event)
 
 	def onQuit(self, event):
 
@@ -801,51 +862,57 @@ class AppFrame(wx.Frame):
 			time.sleep(.5)
 
 		try:
+			log('send closeListener command to self')
 			address = ('localhost', 65500)
 			myConn = Client(address)
 			myConn.send('closeListener')
 			myConn.close()
+			log('send closeListener command to self (finished)')
 		except ConnectionRefusedError:
 			pass
 
 		if WIN:
 			pywinsparkle.win_sparkle_cleanup()
 
+		self.active = False
+
 		self.Destroy()
 
 	def onActivate(self, event):
 
-		self.log('onActivate()')
 
-		resize = False
+		if self.active:
+			self.log('onActivate()')
 
-		# self.SetTitle(str(sys.argv))
+			resize = False
+
+			# self.SetTitle(str(sys.argv))
 
 
-		if MAC:
+			if MAC:
 
-			size = list(self.GetSize())
+				size = list(self.GetSize())
 
-			from AppKit import NSScreen
-			screenSize = NSScreen.mainScreen().frame().size
-			if size[0] > screenSize.width:
-				size[0] = screenSize.width - 50
-				resize = True
-			if size[1] > screenSize.height:
-				size[1] = screenSize.height - 50
-				resize = True
+				from AppKit import NSScreen
+				screenSize = NSScreen.mainScreen().frame().size
+				if size[0] > screenSize.width:
+					size[0] = screenSize.width - 50
+					resize = True
+				if size[1] > screenSize.height:
+					size[1] = screenSize.height - 50
+					resize = True
 
-		if resize:
-			self.SetSize(size)
+			if resize:
+				self.SetSize(size)
 
-		if client.preferences.get('currentPublisher'):
-			self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
+			if client.preferences.get('currentPublisher'):
+				self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
 
-		if WIN:
-			self.checkForURLInFile()
+			if WIN:
+				self.checkForURLInFile()
 
-		# if MAC:
-		# 	self.applyDarkMode()
+			# if MAC:
+			# 	self.applyDarkMode()
 
 	def applyDarkMode(self):
 
@@ -1016,7 +1083,7 @@ class AppFrame(wx.Frame):
 			code = code.replace('https//', 'https://')
 			code = code.replace('____', '\'')
 			code = code.replace("'", '\'')
-			# print('Python code:', code)
+			# log('Python code:', code)
 			exec(code)
 			evt.Veto()
 		elif uri.startswith('http://') or uri.startswith('https://'):
@@ -1032,12 +1099,12 @@ class AppFrame(wx.Frame):
 
 	def onNavigated(self, evt):
 		uri = evt.GetURL() # you may need to deal with unicode here
-		# print('Navigated: %s' % uri)
+		# log('Navigated: %s' % uri)
 
 
 	def onError(self, evt):
-		print()
-		print('Error received from WebView:', evt.GetString())
+		log()
+		log('Error received from WebView:', evt.GetString())
 #       raise Exception(evt.GetString())
 
 
@@ -1148,7 +1215,7 @@ class AppFrame(wx.Frame):
 
 
 	def publisherPreferences(self, i):
-		print(('publisherPreferences', i))
+		log(('publisherPreferences', i))
 		pass
 
 
@@ -1562,7 +1629,7 @@ class AppFrame(wx.Frame):
 
 	def reloadPublisher(self, evt, b64ID):
 
-		# print('reloadPublisher()')
+		# log('reloadPublisher()')
 
 		client.prepareUpdate()
 
@@ -2195,7 +2262,7 @@ $( document ).ready(function() {
 		if agentIsRunning():
 			agentVersion = agent('version')
 			if semver.compare(APPVERSION, agentVersion) == 1:
-				print('Agent is outdated (%s), needs restart.' % agentVersion)
+				log('Agent is outdated (%s), needs restart.' % agentVersion)
 				restartAgent(2)
 
 		# Set up Sparkle
@@ -2324,52 +2391,48 @@ class UpdateFrame(wx.Frame):
 
 		super(UpdateFrame, self).__init__(parent)
 
-#		sparkle.checkForUpdateInformation()
+		self.Bind(wx.EVT_CLOSE, self.onClose)
 
-		sparkle.checkForUpdatesInBackground()
+		if MAC:
+			sparkle.checkForUpdatesInBackground()
 
 		log('sparkle.checkForUpdateInformation() finished')
 
+	def onClose(self, event = None):
 
+		log('UpdateFrame.onCLose()')
 
-	# def onCheckForUpdates(self, event):
-	# 	if MAC:
-	# 		sparkle.checkForUpdates_(self)
-	# 		# sparkle.checkForUpdateInformation()
-	# 	elif WIN:
-	# 		pywinsparkle.win_sparkle_check_update_with_ui()
+		self.Destroy()
 
 
 
+if MAC:
+	class NSAppDelegate(NSObject):
+		def applicationWillFinishLaunching_(self, notification):
 
-class NSAppDelegate(NSObject):
-	def applicationWillFinishLaunching_(self, notification):
-
-		log('applicationWillFinishLaunching_()')
-
-
-		try:
-
-			app = wx.GetApp()
-
-		# 	app.CustomOnInit()
-		# 	app.frame.setMenuBar()
-
-			if app.startWithCommand == 'checkForUpdateInformation':
-
-				from AppKit import NSApplicationActivationPolicyAccessory 
-				NSApp().setActivationPolicy_(NSApplicationActivationPolicyAccessory)
-
-		except:
-			log(traceback.format_exc())
-
-	def applicationDidFinishLaunching_(self, notification):
-
-		log('applicationDidFinishLaunching_()')
+			log('applicationWillFinishLaunching_()')
 
 
+			try:
 
-		# NSApp().activateIgnoringOtherApps_(False)
+				app = wx.GetApp()
+
+			# 	app.CustomOnInit()
+			# 	app.frame.setMenuBar()
+
+				if app.startWithCommand == 'checkForUpdateInformation':
+
+					from AppKit import NSApplicationActivationPolicyAccessory 
+					NSApp().setActivationPolicy_(NSApplicationActivationPolicyAccessory)
+
+			except:
+				log(traceback.format_exc())
+
+		def applicationDidFinishLaunching_(self, notification):
+
+			log('applicationDidFinishLaunching_()')
+
+
 
 
 
@@ -2410,34 +2473,8 @@ class MyApp(wx.App):
 
 			if self.startWithCommand == 'checkForUpdateInformation':
 
-				try:
-
-
-					global sparkle
-	# #				sparkle.setValue_forKey_(self, NSString('guiapp'))
-	# 				sparkle.guiapp = self
-	# 				sparkle.guiappCommand = 'destroy'
-	#				sparkle.setValue_forKey_(NSString.alloc().initWithString_('destroy'), NSString.alloc().initWithString_('guiappCommand'))
-
-					frame = UpdateFrame(None)
-					self.frame = frame
-
-#					frame.Show()
-
-				except:
-					log(traceback.format_exc())
-
-
-
-
-			# 	sparkle.checkForUpdates_(None)
-
-		# while sparkle.updateInProgress():
-		# 	time.sleep(1)
-
-
-
-
+				if MAC:
+					self.frame = UpdateFrame(None)
 
 		else:
 
@@ -2505,7 +2542,7 @@ class MyApp(wx.App):
 			# 	from AppKit import NSObject, NSDistributedNotificationCenter
 			# 	class darkModeDelegate(NSObject):
 			# 		def darkModeChanged_(self, sender):
-			# 			print('darkmodeChanged', sender)
+			# 			log('darkmodeChanged', sender)
 
 			# 	delegate = darkModeDelegate.alloc().init()
 
@@ -2549,152 +2586,122 @@ def listenerFunction():
 
 
 
-
-
 def intercom(commands):
 
 	lock()
-	returnObject = None
+	try:
+		returnObject = None
 
-	if not commands[0] in intercomCommands:
-		log('Intercom: Command %s not registered' % (commands[0]))
+		if not commands[0] in intercomCommands:
+			log('Intercom: Command %s not registered' % (commands[0]))
 
-	else:
-		log('Intercom called with command: %s' % commands[0])
+		else:
+			log('Intercom called with command: %s' % commands[0])
 
-		if commands[0] == 'amountOutdatedFonts':
+			if commands[0] == 'amountOutdatedFonts':
 
-			totalSuccess = False
+				totalSuccess = False
 
-			force = (len(commands) > 1 and commands[1] == 'force')
-
-
-			# Preference is set to check automatically
-			if (client.preferences.get('reloadSubscriptionsInterval') and int(client.preferences.get('reloadSubscriptionsInterval')) != -1) or force:
+				force = (len(commands) > 1 and commands[1] == 'force')
 
 
-				# Has never been checked, set to long time ago
-				if not client.preferences.get('reloadSubscriptionsLastPerformed'):
-					client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) - 10)
-
-				# See if we should check now
-				if int(client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) or force:
-
-					log('now checking')
-
-					client.prepareUpdate()
-
-					for publisher in client.publishers():
-						for subscription in publisher.subscriptions():
-
-							startTime = time.time()
-							success, message = subscription.update()
-
-							totalSuccess = totalSuccess and success   
-
-							if not success:
-								log(message)
-
-							log('updated %s (%1.2fs)' % (subscription, time.time() - startTime))
-
-					# Reset
-					if client.allSubscriptionsUpdated():
-						log('resetting timing')
-						client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
+				# Preference is set to check automatically
+				if (client.preferences.get('reloadSubscriptionsInterval') and int(client.preferences.get('reloadSubscriptionsInterval')) != -1) or force:
 
 
-			log('client.amountOutdatedFonts() %s' % (client.amountOutdatedFonts()))
-			returnObject = client.amountOutdatedFonts()
+					# Has never been checked, set to long time ago
+					if not client.preferences.get('reloadSubscriptionsLastPerformed'):
+						client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) - 10)
+
+					# See if we should check now
+					if int(client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) or force:
+
+						log('now checking')
+
+						client.prepareUpdate()
+
+						for publisher in client.publishers():
+							for subscription in publisher.subscriptions():
+
+								startTime = time.time()
+								success, message = subscription.update()
+
+								totalSuccess = totalSuccess and success   
+
+								if not success:
+									log(message)
+
+								log('updated %s (%1.2fs)' % (subscription, time.time() - startTime))
+
+						# Reset
+						if client.allSubscriptionsUpdated():
+							log('resetting timing')
+							client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
 
 
-		if commands[0] == 'startListener':
-
-			log('about to start listener thread')
-
-			listenerThread = Thread(target=listenerFunction)
-			listenerThread.start()
-
-			log('listener thread started')
-
-		if commands[0] == 'killAgent':
-
-			agent('quit')
-
-		if commands[0] == 'uninstallAgent':
-
-			uninstallAgent()
-
-		if commands[0] == 'restartAgent':
-
-			agent('quit')
-
-			# Restart after restart
-			if client.preferences.get('menuBarIcon') and not agentIsRunning():
-
-				file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-				file_path = file_path.replace(r'\\Mac\Home', r'Z:')
-				import subprocess
-				os.chdir(os.path.dirname(file_path))
-				subprocess.Popen([file_path], executable = file_path)
-
-		if commands[0] == 'searchAppUpdate':
-
-			# log('Started checkForUpdatesInBackground()')
-			# sparkle.checkForUpdatesInBackground()
-			# log('Finished checkForUpdatesInBackground()')
-
-			# log('Started checkForUpdates_()')
-			# log(app)
-			# if app:
-			# 	app.onCheckForUpdates(None)
-			# # sparkle.checkForUpdates_(app)
-			# # while sparkle.updateInProgress():
-			# # 	time.sleep(1)
-			# log('Finished checkForUpdates_()')
+				log('client.amountOutdatedFonts() %s' % (client.amountOutdatedFonts()))
+				returnObject = client.amountOutdatedFonts()
 
 
-			try:
+			if commands[0] == 'startListener':
 
+				log('about to start listener thread')
+
+				listenerThread = Thread(target=listenerFunction)
+				listenerThread.start()
+
+				log('listener thread started')
+
+			if commands[0] == 'killAgent':
+
+				agent('quit')
+
+			if commands[0] == 'uninstallAgent':
+
+				uninstallAgent()
+
+			if commands[0] == 'restartAgent':
+
+				agent('quit')
+
+				# Restart after restart
+				if client.preferences.get('menuBarIcon') and not agentIsRunning():
+
+					file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
+					file_path = file_path.replace(r'\\Mac\Home', r'Z:')
+					import subprocess
+					os.chdir(os.path.dirname(file_path))
+					subprocess.Popen([file_path], executable = file_path)
+
+			if commands[0] == 'searchAppUpdate':
 
 				log('Started checkForUpdateInformation()')
-				# def checkForUpdateInformationFunction():
-
-				# checkForUpdateInformationThread = Thread(target=checkForUpdateInformationFunction)
-				# checkForUpdateInformationThread.start()
 
 
+				if MAC:
+					global app
+					app = MyApp(redirect = False, filename = None, startWithCommand = 'checkForUpdateInformation')
+					app.MainLoop()
 
-				global app
-				app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = None, startWithCommand = 'checkForUpdateInformation')
 
-
-
-
-	#			app.frame.onCheckForUpdates(None)
-				app.MainLoop()
+				if WIN:
+					pywinsparkleDelegate.check_without_ui()
 
 
 				log('Finished checkForUpdateInformation()')
 
+			if commands[0] == 'daemonStart':
 
-			except:
-				log(traceback.format_exc())
+				agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
-			# log('Started checkForUpdateInformation()')
-			# sparkle.checkForUpdateInformation()
+				unlock()
 
-			# # while sparkle.updateInProgress():
-			# # 	time.sleep(1)
 
-			# time.sleep(10)
-
-			# log('Finished checkForUpdateInformation()')
-
-		if commands[0] == 'daemonStart':
-			unlock()
-
+	except:
+		log(traceback.format_exc())
 
 	unlock()
+	log('about to return reply: %s' % returnObject)
 	return returnObject
 
 
@@ -2722,7 +2729,7 @@ if len(sys.argv) > 1 and sys.argv[1] in intercomCommands:
 
 
 	# Output to STDOUT
-	print(intercom(sys.argv[1:]))
+	log(intercom(sys.argv[1:]))
 
 	sys.exit(0)
 
@@ -2750,5 +2757,6 @@ else:
 	listenerThread.start()
 
 
-	app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = None)
+#	app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = None)
+	app = MyApp(redirect = False, filename = None)
 	app.MainLoop()

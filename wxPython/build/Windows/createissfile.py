@@ -40,8 +40,18 @@ Filename: "{app}\\TypeWorld.exe"; Parameters: "uninstallAgent"; Flags: runascurr
 [Icons]
 Name: "{group}\\Type.World"; Filename: "{app}\\TypeWorld.exe"
 
+[Code]
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+  begin
+    DeleteFile(ExpandConstant('{userappdata}\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Type.World.lnk'));
+  end;
+end;
+
 [Files]
 ''' % (version, version))
+
 
 # Filename: "cmd /min /C ""set __COMPAT_LAYER=RUNASINVOKER && start """" ""{app}\\TypeWorld.exe"" restartAgent"
 

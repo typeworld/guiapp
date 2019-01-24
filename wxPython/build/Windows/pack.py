@@ -8,8 +8,8 @@ version = open('Z:/Code/py/git/typeWorld/guiapp/currentVersion.txt', 'r').read()
 _list = [
 ['Create InnoSetup .iss file', 'python "Z:\\Code\\py\\git\\typeWorld\\guiapp\\wxPython\\build\\Windows\\createissfile.py"'],
 ['Create InnoSetup Installer', '"C:\\Program Files (x86)\\Inno Setup 5\\ISCC.exe" "Z:\\Code\\py\\git\\typeWorld\\guiapp\\wxPython\\build\\Windows\\TypeWorld.iss"'],
-['Signing Installer Package', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /debug /fd SHA256 /a /n "Open Source Developer, Jan Gerner" "Z:\\Code\\TypeWorldApp\\dmg\\TypeWorldApp.%s.exe"' % version],
-['Verify signature', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" verify /pa /v "Z:\\Code\\TypeWorldApp\\dmg\\TypeWorldApp.%s.exe"' % version],
+# ['Signing Installer Package', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /debug /fd SHA256 /a /n "Open Source Developer, Jan Gerner" "Z:\\Code\\TypeWorldApp\\dmg\\TypeWorldApp.%s.exe"' % version],
+# ['Verify signature', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" verify /pa /v "Z:\\Code\\TypeWorldApp\\dmg\\TypeWorldApp.%s.exe"' % version],
 ]
 
 for desc, cmd in _list:

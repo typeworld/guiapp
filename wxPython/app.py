@@ -18,7 +18,7 @@ import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plist
 from threading import Thread
 import threading
 import wx.html2
-import locales
+import locales, patrons
 import urllib.request, urllib.parse, urllib.error, time
 from functools import partial
 from wx.lib.delayedresult import startWorker
@@ -38,7 +38,7 @@ from typeWorldClient import APIClient, JSON, AppKitNSUserDefaults
 import typeWorld.api.base
 
 if MAC:
-	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp
+	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp, NSObject
 
 # print ('__file__', __file__)
 # print ('sys.executable ', sys.executable )
@@ -256,104 +256,109 @@ def installAgent():
 
 #	uninstallAgent()
 
-	lock()
+	if RUNTIME:
 
-	try:
-		if MAC:
-			from AppKit import NSBundle
-			zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
-			plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
-			agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
-			plist = '''<?xml version="1.0" encoding="UTF-8"?>
-	<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-	<plist version="1.0">
-	<dict>
-	<key>Debug</key>
-	<true/>
-	<key>Disabled</key>
-	<false/>
-	<key>KeepAlive</key>
-	<true/>
-	<key>Label</key>
-	<string>world.type.agent</string>
-	<key>MachServices</key>
-	<dict>
-		<key>world.type.agent</key>
+		lock()
+		log('lock() from within installAgent()')
+
+		try:
+			if MAC:
+				from AppKit import NSBundle
+				zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
+				plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
+				agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
+				plist = '''<?xml version="1.0" encoding="UTF-8"?>
+		<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+		<plist version="1.0">
+		<dict>
+		<key>Debug</key>
 		<true/>
-	</dict>
-	<key>OnDemand</key>
-	<false/>
-	<key>Program</key>
-	<string>''' + agentPath + '''/Contents/MacOS/Type.World Agent</string>
-	<key>RunAtLoad</key>
-	<true/>
-	</dict>
-	</plist>'''
+		<key>Disabled</key>
+		<false/>
+		<key>KeepAlive</key>
+		<true/>
+		<key>Label</key>
+		<string>world.type.agent</string>
+		<key>MachServices</key>
+		<dict>
+			<key>world.type.agent</key>
+			<true/>
+		</dict>
+		<key>OnDemand</key>
+		<false/>
+		<key>Program</key>
+		<string>''' + agentPath + '''/Contents/MacOS/Type.World Agent</string>
+		<key>RunAtLoad</key>
+		<true/>
+		</dict>
+		</plist>'''
 
 
-			# Extract app
-			folder = os.path.dirname(agentPath)
-			if not os.path.exists(folder):
-				os.makedirs(folder)
-			os.system('tar -zxf "%s" -C "%s"' % (zipPath, folder))
+				# Extract app
+				folder = os.path.dirname(agentPath)
+				if not os.path.exists(folder):
+					os.makedirs(folder)
+				os.system('tar -zxf "%s" -C "%s"' % (zipPath, folder))
 
-			# Write Launch Agent
-			if not os.path.exists(os.path.dirname(plistPath)):
-				os.makedirs(os.path.dirname(plistPath))
-			f = open(plistPath, 'w')
-			f.write(plist)
-			f.close()
+				# Write Launch Agent
+				if not os.path.exists(os.path.dirname(plistPath)):
+					os.makedirs(os.path.dirname(plistPath))
+				f = open(plistPath, 'w')
+				f.write(plist)
+				f.close()
 
-			# Run App
-	#		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
-			# import subprocess
-			# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
-	#		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
+				# Run App
+		#		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
+				# import subprocess
+				# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
+		#		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
 
-			launchAgentThread = Thread(target=waitToLaunchAgent)
-			launchAgentThread.start()
+				launchAgentThread = Thread(target=waitToLaunchAgent)
+				launchAgentThread.start()
 
 
-		if WIN:
+			if WIN:
 
-	#			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-			file_path = file_path.replace(r'\\Mac\Home', 'Z:')
-			log(file_path)
+		#			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
+				file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
+				file_path = file_path.replace(r'\\Mac\Home', 'Z:')
+				log(file_path)
 
-			import getpass
-			USER_NAME = getpass.getuser()
+				import getpass
+				USER_NAME = getpass.getuser()
 
-			bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup' % USER_NAME
-			bat_command = 'start "" "%s"' % file_path
+				bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup' % USER_NAME
+				bat_command = 'start "" "%s"' % file_path
 
-			from pathlib import Path
-			log(Path(file_path).exists())
-			log(os.path.exists(file_path))
+				from pathlib import Path
+				log(Path(file_path).exists())
+				log(os.path.exists(file_path))
 
-			if not os.path.exists(os.path.dirname(bat_path)):
-				os.makedirs(os.path.dirname(bat_path))
-			with open(bat_path + '\\' + "TypeWorld.bat", "w+") as bat_file:
-				bat_file.write(bat_command)
+				if not os.path.exists(os.path.dirname(bat_path)):
+					os.makedirs(os.path.dirname(bat_path))
+				with open(bat_path + '\\' + "TypeWorld.bat", "w+") as bat_file:
+					bat_file.write(bat_command)
 
-			import subprocess
-			os.chdir(os.path.dirname(file_path))
-			subprocess.Popen([file_path], executable = file_path)
+				import subprocess
+				os.chdir(os.path.dirname(file_path))
+				subprocess.Popen([file_path], executable = file_path)
 
-		client.preferences.set('menuBarIcon', True)
+			client.preferences.set('menuBarIcon', True)
 
-		log('installAgent() done')
+			log('installAgent() done')
 
-	except:
-		log(traceback.format_exc())
+		except:
+			log(traceback.format_exc())
 
-		unlock()
+			unlock()
+			log('unlock() from within installAgent() after traceback')
 
 
 
 def uninstallAgent():
 
 	lock()
+	log('lock() from within uninstallAgent()')
 	try:
 		if MAC:
 			from AppKit import NSRunningApplication
@@ -393,6 +398,7 @@ def uninstallAgent():
 	except:
 		log(traceback.format_exc())
 	unlock()
+	log('unlock() from within uninstallAgent()')
 
 
 # Sparkle Updating
@@ -958,6 +964,15 @@ class AppFrame(wx.Frame):
 		html.append('<p>')
 		html.append('#(AboutText)')
 		html.append('</p>')
+
+		html.append('<p>')
+		html.append('#(We thank our Patrons):')
+		html.append('<br />')
+		patrons = json.loads(ReadFromFile(os.path.join(os.path.dirname(__file__), 'patrons', 'patrons.json')))
+		html.append('<b>' + '</b>, <b>'.join(patrons) + '</b>')
+		html.append('</p>')
+
+
 		html.append('<p>')
 		html.append('#(Anonymous App ID): %s<br />' % client.anonymousAppID())
 		html.append('#(Version) %s<br />' % APPVERSION)
@@ -1167,7 +1182,7 @@ class AppFrame(wx.Frame):
 
 		else:
 
-			self.errorMessage(message)
+			self.errorMessage(self.localizeString(message))
 
 		# Reset Form
 		self.javaScript('$("#addSubscriptionFormSubmitButton").show();')
@@ -1335,8 +1350,8 @@ class AppFrame(wx.Frame):
 
 		else:
 
-			if type(message) in (str, str):
-				self.errorMessage(message)
+			if type(message) == str:
+				self.errorMessage(self.localizeString(message))
 			else:
 				self.errorMessage('Server: %s' % message.getText(client.locale()))
 
@@ -1428,8 +1443,8 @@ class AppFrame(wx.Frame):
 
 		else:
 
-			if type(message) in (str, str):
-				self.errorMessage(message)
+			if type(message) == str:
+				self.errorMessage(self.localizeString(message))
 			else:
 				self.errorMessage('Server: %s' % message.getText(client.locale()))
 
@@ -1752,11 +1767,11 @@ class AppFrame(wx.Frame):
 		publisher = client.publisher(self.b64decode(b64publisherID))
 
 		for message in publisher.updatingProblem():
-			self.errorMessage(message)        
+			self.errorMessage(self.localizeString(message))        
 
 	def displaySubscriptionSidebarAlert(self, b64subscriptionID):
 		subscription = client.publisher(self.b64decode(b64subscriptionID))
-		self.errorMessage(subscription.updatingProblem())        
+		self.errorMessage(self.localizeString(subscription.updatingProblem()))
 
 	def errorMessage(self, message):
 
@@ -2589,6 +2604,7 @@ def listenerFunction():
 def intercom(commands):
 
 	lock()
+	log('lock() from within intercom()')
 	try:
 		returnObject = None
 
@@ -2695,12 +2711,14 @@ def intercom(commands):
 				agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
 				unlock()
+				log('unlock() from within intercom()')
 
 
 	except:
 		log(traceback.format_exc())
 
 	unlock()
+	log('unlock() from within intercom()')
 	log('about to return reply: %s' % returnObject)
 	return returnObject
 

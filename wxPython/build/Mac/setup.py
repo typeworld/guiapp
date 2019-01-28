@@ -26,7 +26,7 @@ setup(
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default
 #                'NSDockTilePlugIn': '@executable_path/../Resources/lib/python2.7/AppBadge.docktileplugin.py',
                 'NSDockTilePlugIn': 'appbadge.docktileplugin',
-                'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World Font Installation Protocols', 'CFBundleURLSchemes': ['typeworldjson', 'typeworldgithub']}],
+                'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World Font Installation Protocols', 'CFBundleURLSchemes': ['typeworldjson', 'typeworldgithub', 'typeworldapp']}],
 #                'LSUIElement': True, # No dock icon
 
                 # Sparkle

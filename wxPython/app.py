@@ -71,7 +71,7 @@ else:
 if WIN and RUNTIME:
 	try:
 		import winreg as wreg
-		for handler in ['typeworldjson', 'typeworldgithub']:
+		for handler in ['typeworldjson', 'typeworldgithub', 'typeworldapp']:
 			key = wreg.CreateKey(wreg.HKEY_CLASSES_ROOT, handler)
 			wreg.SetValueEx(key, None, 0, wreg.REG_SZ, 'URL:%s' % handler)
 			wreg.SetValueEx(key, 'URL Protocol', 0, wreg.REG_SZ, '')
@@ -1127,22 +1127,30 @@ class AppFrame(wx.Frame):
 		self.javaScript('showAddSubscription();')
 
 
-	def addSubscription(self, url, username = None, password = None):
+	def handleURL(self, url, username = None, password = None):
 
-		for publisher in client.publishers():
-			for subscription in publisher.subscriptions():
-				# print (subscription.url, url)
-				if subscription.url == client.addAttributeToURL(url.replace('typeworldjson://', ''), 'command', 'installableFonts'):
-					self.setActiveSubscription(self.b64encode(publisher.canonicalURL), self.b64encode(subscription.url))
-					return
+		if url.startswith('typeworldjson://'):
 
-		self.javaScript("showCenterMessage('%s');" % self.localizeString('#(Loading Subscription)'))
-		startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
+			for publisher in client.publishers():
+				for subscription in publisher.subscriptions():
+					# print (subscription.url, url)
+					if subscription.url == url.replace('typeworldjson://', ''):
+						self.setActiveSubscription(self.b64encode(publisher.canonicalURL), self.b64encode(subscription.url))
+						return
+
+			self.javaScript("showCenterMessage('%s');" % self.localizeString('#(Loading Subscription)'))
+			startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
+
+		elif url.startwith('typeworldgithub://'): 
+			pass
+
+		elif url.startwith('typeworldapp://'):
+			pass
 
 
 	def addSubscriptionViaDialog(self, url, username = None, password = None):
 
-		self.log('addSubscription(%s, %s, %s)' % (url, username, password))
+		self.log('handleURL(%s, %s, %s)' % (url, username, password))
 		startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
 
 
@@ -2244,7 +2252,7 @@ $( document ).ready(function() {
 
 		# Open drawer for newly added publisher
 		if self.justAddedPublisher:
-			self.addSubscription(self.justAddedPublisher)
+			self.handleURL(self.justAddedPublisher)
 			self.justAddedPublisher = None
 
 
@@ -2297,7 +2305,7 @@ $( document ).ready(function() {
 			urlFile.close()
 
 			if self.fullyLoaded:
-				self.addSubscription(url)
+				self.handleURL(url)
 			else:
 
 				self.justAddedPublisher = url
@@ -2473,7 +2481,7 @@ class MyApp(wx.App):
 		self.frame.log('MyApp.MacOpenURL(%s)' % url)
 
 		if self.frame.fullyLoaded:
-			self.frame.addSubscription(url)
+			self.frame.handleURL(url)
 		else:
 			self.frame.justAddedPublisher = url
 

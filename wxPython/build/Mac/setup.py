@@ -11,9 +11,9 @@ setup(
     data_files=[],
     options={'py2app': {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
            'iconfile': '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/tw.icns',
-           'includes': ['ynlib', 'locales'],#, 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
+           'includes': ['ynlib'],#, 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
            'frameworks': ['Python.framework'],
-           'resources': ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/InternetAccessPolicy.plist', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', '/Users/yanone/Code/dsa_pub.pem'], #, 'appbadge.docktileplugin'
+           'resources': ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/InternetAccessPolicy.plist', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/patrons', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', '/Users/yanone/Code/dsa_pub.pem'], #, 'appbadge.docktileplugin'
            'packages': ['certifi'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),

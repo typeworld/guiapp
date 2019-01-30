@@ -629,6 +629,9 @@ class AppFrame(wx.Frame):
 		self.messages = []
 		self.active = True
 
+		self.allowedToPullServerUpdates = True
+
+
 
 		# Version adjustments
 
@@ -861,6 +864,8 @@ class AppFrame(wx.Frame):
 
 	def onQuit(self, event):
 
+		self.active = False
+
 		log('onQuit()')
 
 		while locked():
@@ -880,15 +885,34 @@ class AppFrame(wx.Frame):
 		if WIN:
 			pywinsparkle.win_sparkle_cleanup()
 
-		self.active = False
 
 		self.Destroy()
+
+
+			
+
+
+	def pullServerUpdates_worker(self):
+
+		client.downloadSubscriptions()
+
+	def pullServerUpdates_consumer(self, delayedResult):
+
+		self.setSideBarHTML()
+
+	def pullServerUpdates(self):
+
+		if self.allowedToPullServerUpdates:
+			startWorker(self.pullServerUpdates_consumer, self.pullServerUpdates_worker)
+
 
 	def onActivate(self, event):
 
 
 		if self.active:
 			self.log('onActivate()')
+
+			self.pullServerUpdates()
 
 			resize = False
 
@@ -998,6 +1022,19 @@ class AppFrame(wx.Frame):
 		client.preferences.set('seenDialogs', [])
 
 
+	def unlinkUserAccount(self):
+
+
+		success, message = client.unlinkUser()
+
+		if success:
+
+			self.onPreferences(None)
+
+		else:
+			self.errorMessage(message)
+
+
 	def onPreferences(self, event):
 
 
@@ -1023,6 +1060,25 @@ class AppFrame(wx.Frame):
 		html.append('</p>')
 
 		html.append('<p></p>')
+
+		# User
+		html.append('<h2>#(User Account)</h2>')
+		html.append('<p>')
+		if client.user():
+			html.append('Linked user account: %s' % client.user())
+			html.append('<br />')
+			html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
+		else:
+			html.append('No user account linked. Go to <a href="https://type.world">type.world</a>, create a user account and click on the <em>Link App</em> button on the account page.')
+		html.append('</p>')
+		html.append('''<script>$("#preferences #unlinkAppButton").click(function() {
+
+			python("self.unlinkUserAccount()");
+			 
+		});</script>''')
+
+		html.append('<p></p>')
+
 
 
 		# Agent
@@ -1114,12 +1170,10 @@ class AppFrame(wx.Frame):
 
 	def onNavigated(self, evt):
 		uri = evt.GetURL() # you may need to deal with unicode here
-		# log('Navigated: %s' % uri)
 
 
 	def onError(self, evt):
-		log()
-		log('Error received from WebView:', evt.GetString())
+		log('Error received from WebView: %s' % evt.GetString())
 #       raise Exception(evt.GetString())
 
 
@@ -1129,7 +1183,9 @@ class AppFrame(wx.Frame):
 
 	def handleURL(self, url, username = None, password = None):
 
-		if url.startswith('typeworldjson://'):
+		print('handleURL(%s)' % url)
+
+		if url.startswith('typeworldjson://') or url.startswith('typeworldjson//'):
 
 			for publisher in client.publishers():
 				for subscription in publisher.subscriptions():
@@ -1141,18 +1197,46 @@ class AppFrame(wx.Frame):
 			self.javaScript("showCenterMessage('%s');" % self.localizeString('#(Loading Subscription)'))
 			startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
 
-		elif url.startwith('typeworldgithub://'): 
+		elif url.startswith('typeworldgithub://') or url.startswith('typeworldgithub//'): 
 			pass
 
-		elif url.startwith('typeworldapp://'):
-			pass
+		elif url.startswith('typeworldapp://') or url.startswith('typeworldapp//'):
+			self.handleAppCommand(url.replace('typeworldapp://', '').replace('typeworldapp//', ''))
+
+	def handleAppCommand(self, url):
+
+		log('handleAppCommand(%s)' % url)
+
+		parts = url.split('/')
+
+		if parts[0] == 'linkTypeWorldUserAccount':
+
+			assert len(parts) == 3 and bool(parts[1])
+
+			if client.user():
+				self.errorMessage('A user account is already linked.')
+			else:
+				success, message = client.linkUser(parts[1], parts[2])
+
+				if not success:
+					self.errorMessage(message)
+
+				self.setSideBarHTML()
+
+				self.javaScript('hidePanel();')
+
+				self.message('#(justLinkedUserAccount)')
 
 
 	def addSubscriptionViaDialog(self, url, username = None, password = None):
 
-		self.log('handleURL(%s, %s, %s)' % (url, username, password))
-		startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
+		if url.startswith('typeworldapp'):
+			self.handleAppCommand(url.replace('typeworldapp://', '').replace('typeworldapp//', ''))
 
+		else:
+
+			self.log('handleURL(%s, %s, %s)' % (url, username, password))
+			startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
 
 
 	def addSubscription_worker(self, url, username, password):
@@ -1190,7 +1274,7 @@ class AppFrame(wx.Frame):
 
 		else:
 
-			self.errorMessage(self.localizeString(message))
+			self.errorMessage(message)
 
 		# Reset Form
 		self.javaScript('$("#addSubscriptionFormSubmitButton").show();')
@@ -1201,6 +1285,8 @@ class AppFrame(wx.Frame):
 
 
 	def removePublisher(self, evt, b64ID):
+
+		self.allowedToPullServerUpdates = False
 
 		publisher = client.publisher(self.b64decode(b64ID))
 
@@ -1214,8 +1300,11 @@ class AppFrame(wx.Frame):
 			self.setSideBarHTML()
 			self.javaScript("hideMain();")
 
+		self.allowedToPullServerUpdates = True
+
 	def removeSubscription(self, evt, b64ID):
 
+		self.allowedToPullServerUpdates = False
 
 		for publisher in client.publishers():
 			for subscription in publisher.subscriptions():
@@ -1230,11 +1319,11 @@ class AppFrame(wx.Frame):
 
 						subscription.delete()
 
-						if publisher.subscription():
+						if publisher.subscriptions():
 							self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
-						else:
-							self.javaScript("hideMain();")
 		self.setSideBarHTML()
+
+		self.allowedToPullServerUpdates = True
 
 
 	def publisherPreferences(self, i):
@@ -1359,7 +1448,7 @@ class AppFrame(wx.Frame):
 		else:
 
 			if type(message) == str:
-				self.errorMessage(self.localizeString(message))
+				self.errorMessage(message)
 			else:
 				self.errorMessage('Server: %s' % message.getText(client.locale()))
 
@@ -1452,7 +1541,7 @@ class AppFrame(wx.Frame):
 		else:
 
 			if type(message) == str:
-				self.errorMessage(self.localizeString(message))
+				self.errorMessage(message)
 			else:
 				self.errorMessage('Server: %s' % message.getText(client.locale()))
 
@@ -1631,6 +1720,7 @@ class AppFrame(wx.Frame):
 
 	def showPublisherInFinder(self, evt, b64ID):
 		
+		log('showPublisherInFinder()')
 		publisher = client.publisher(self.b64decode(b64ID))
 		path = publisher.path()
 
@@ -1641,6 +1731,8 @@ class AppFrame(wx.Frame):
 		subprocess.call(["open", "-R", path])
 
 	def showFontInFinder(self, evt, subscription, fontID):
+
+		log('showFontInFinder()')
 		font = subscription.fontByID(fontID)
 		version = subscription.installedFontVersion(fontID)
 		path = font.path(version, folder = None)
@@ -1775,16 +1867,18 @@ class AppFrame(wx.Frame):
 		publisher = client.publisher(self.b64decode(b64publisherID))
 
 		for message in publisher.updatingProblem():
-			self.errorMessage(self.localizeString(message))        
+			self.errorMessage(message)
 
 	def displaySubscriptionSidebarAlert(self, b64subscriptionID):
 		subscription = client.publisher(self.b64decode(b64subscriptionID))
-		self.errorMessage(self.localizeString(subscription.updatingProblem()))
+		self.errorMessage(subscription.updatingProblem())
 
 	def errorMessage(self, message):
 
 		if type(message) == typeWorld.api.base.MultiLanguageText:
 			message = message.getText(locale = client.locale())
+
+		message = self.localizeString(message)
 
 		dlg = wx.MessageDialog(self, message or 'No message defined', '', wx.ICON_ERROR)
 		result = dlg.ShowModal()
@@ -1795,6 +1889,8 @@ class AppFrame(wx.Frame):
 
 		if type(message) == typeWorld.api.base.MultiLanguageText:
 			message = message.getText(locale = client.locale())
+
+		message = self.localizeString(message)
 
 		dlg = wx.MessageDialog(self, message or 'No message defined', '')
 		result = dlg.ShowModal()
@@ -2095,6 +2191,15 @@ class AppFrame(wx.Frame):
 	def setSideBarHTML(self):
 		# Set publishers
 
+		if not client.publishers():
+			self.javaScript("hideMain();")
+
+		else:
+			if not client.currentPublisher():
+				client.preferences.set('currentPublisher', client.publishers()[0].canonicalURL)
+				self.setActiveSubscription(self.b64encode(client.publishers()[0].canonicalURL), self.b64encode(client.publishers()[0].subscriptions()[0].url))
+
+
 		html = []
 
 		# Sort
@@ -2288,6 +2393,7 @@ $( document ).ready(function() {
 				log('Agent is outdated (%s), needs restart.' % agentVersion)
 				restartAgent(2)
 
+		self.pullServerUpdates()
 		# Set up Sparkle
 		# if MAC:
 #			sparkle.checkForUpdatesInBackground()
@@ -2471,14 +2577,16 @@ class MyApp(wx.App):
 
 	def OnPreInit(self):
 
+
 		if MAC:
-			NSApplication.sharedApplication().setDelegate_(NSAppDelegate.alloc().init())
-			log('set NSAppDelegate')
+			if self.startWithCommand == 'checkForUpdateInformation': # Otherwise MacOpenURL() wont work
+				NSApplication.sharedApplication().setDelegate_(NSAppDelegate.alloc().init())
+				log('set NSAppDelegate')
 
 
 	def MacOpenURL(self, url):
 		
-		self.frame.log('MyApp.MacOpenURL(%s)' % url)
+		log('MyApp.MacOpenURL(%s)' % url)
 
 		if self.frame.fullyLoaded:
 			self.frame.handleURL(url)

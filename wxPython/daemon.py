@@ -16,6 +16,7 @@ APPVERSION = 'n/a'
 LOOPDURATION = 60
 UPDATESEARCHINTERVAL = 24 * 60 * 60
 CURRENTLYUPDATING = False
+PULLSERVERUPDATEINTERVAL = 60
 
 # Adjust __file__ to point to executable on runtime
 try:
@@ -294,7 +295,7 @@ try:
 							expiration = int(client.preferences.get('reloadSubscriptionsInterval')) * 1000
 						template.setExpiration(expiration) # One day
 						template.addAction(localize('Open Type.World App'))
-						notificationID = zroya.show(template, on_action=onAction)
+						notificationID = zroya.show(template) # , on_action=onAction
 
 			else:
 				icon.icon = image
@@ -450,6 +451,11 @@ try:
 					time.sleep(15)
 					searchAppUpdate()
 					client.preferences.set('appUpdateLastSearched', int(time.time())) # set to now
+
+			# Sync subscriptions
+			if not client.preferences.get('lastServerSync') or client.preferences.get('lastServerSync') < time.time() - PULLSERVERUPDATEINTERVAL:
+				replyFromMothership('pullServerUpdate')
+
 
 
 		# Set up tray icon

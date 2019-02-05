@@ -65,6 +65,7 @@ else:
 if MAC:
 	import objc
 	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp, NSObject, NSUserNotification, NSUserNotificationCenter
+	from AppKit import NSView, NSRect, NSPoint, NSSize, NSMakeRect, NSColor, NSRectFill
 
 	NSUserNotificationCenterDelegate = objc.protocolNamed('NSUserNotificationCenterDelegate')
 	class NotificationDelegate(NSObject, protocols=[NSUserNotificationCenterDelegate]):
@@ -637,13 +638,11 @@ try:
 				log("Update was cancelled")
 				self.updateInProgress = False
 
-
 			def pywinsparkle_shutdown(self):
 				""" The installer is being launched signal the updater to shutdown """
 				# actually shutdown the app here
 				log("Safe to shutdown before installing")
 				self.updateInProgress = False
-
 
 			def check_with_ui(self):
 				log("check_with_ui()")
@@ -702,6 +701,7 @@ try:
 
 	class AppFrame(wx.Frame):
 		def __init__(self, parent):        
+
 
 
 			self.messages = []
@@ -784,6 +784,7 @@ try:
 			self.Bind(wx.EVT_QUERY_END_SESSION, self.onQuit)
 			self.Bind(wx.EVT_END_SESSION, self.onQuit)
 
+			self.Bind(wx.EVT_LEFT_DOWN, self.onMouseDown)
 
 			### Menus
 			self.setMenuBar()
@@ -824,6 +825,9 @@ try:
 
 
 			log('AppFrame.__init__() finished')
+
+		def onMouseDown(self, event):
+			print(event)
 
 
 		def setMenuBar(self):
@@ -908,11 +912,6 @@ try:
 
 
 
-					
-
-
-
-
 		def publishersNames(self):
 			# Build list, sort it
 			publishers = []
@@ -985,6 +984,13 @@ try:
 			if success:
 				subscriptionsUpdatedNotification(message)
 
+			else:
+
+				if message in ('notOnline'):
+					pass
+				else:
+					self.errorMessage('An error occurred while synching the account:\n\n%s' % message)
+
 
 		def pullServerUpdates(self, force = False):
 
@@ -1051,19 +1057,11 @@ try:
 
 
 		def onResize(self, event):
-			# Make title bar transparent
-			# https://developer.apple.com/documentation/appkit/nswindowstylemask?language=objc
-	#       if False:
-			# if wx.Platform == '__WXMAC__':
-			#   w = self.nsapp.mainWindow()
-				# w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3 | 1 << 15)
-				# w.setTitlebarAppearsTransparent_(1)
-	#           w.setTitle_(' ')
-	#       print w.title(), w.titlebarAppearsTransparent(), w.styleMask()
+
+			if MAC:
+				self.dragView.setFrameSize_(NSSize(self.GetSize()[0], 30))
 			client.preferences.set('sizeMainWindow', (self.GetSize()[0], self.GetSize()[1]))
 			event.Skip()
-	#       print event.Veto()
-	#       return
 
 
 		def onAbout(self, event):
@@ -1118,6 +1116,7 @@ try:
 			if success:
 
 				self.onPreferences(None)
+				self.setSideBarHTML()
 
 			else:
 
@@ -1155,7 +1154,11 @@ try:
 			html.append('<h2>#(User Account)</h2>')
 			html.append('<p>')
 			if client.user():
-				html.append('#(Linked User Account): %s' % client.user())
+				html.append('#(Linked User Account): ')
+				if client.userName() and client.userEmail():
+					html.append('%s (%s)' % (client.userName(), client.userEmail()))
+				elif client.userEmail():
+					html.append('%s' % (client.userEmail()))
 				html.append('<br />')
 				html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
 				html.append('<br />')
@@ -1513,7 +1516,8 @@ try:
 				api = subscription.latestVersion()
 
 				# Remove other installed versions
-				if subscription.installedFontVersion(fontID) != version:
+				installedVersion = subscription.installedFontVersion(fontID)
+				if installedVersion and installedVersion != version:
 					success, message = subscription.removeFont(fontID)
 					if success == False:
 						return success, message, b64publisherURL
@@ -1970,6 +1974,8 @@ try:
 			if type(message) == typeWorld.api.base.MultiLanguageText:
 				message = message.getText(locale = client.locale())
 
+			log(message)
+
 			message = localizeString(message)
 
 			dlg = wx.MessageDialog(self, message or 'No message defined', '', wx.ICON_ERROR)
@@ -1981,6 +1987,8 @@ try:
 
 			if type(message) == typeWorld.api.base.MultiLanguageText:
 				message = message.getText(locale = client.locale())
+
+			log(message)
 
 			message = localizeString(message)
 
@@ -2437,12 +2445,41 @@ try:
 
 			self.javaScript(js)
 
+			if client.userEmail():
+				self.javaScript('$("#userBadge #userName").html("%s");' % client.userEmail())
+				self.javaScript('$("#userBadge").show();')
+			else:
+				self.javaScript('$("#userBadge").hide();')
+
 
 		def onLoad(self, event):
 
 
+
 			self.log('MyApp.frame.onLoad()')
 			self.fullyLoaded = True
+
+			if MAC:
+				w = NSApp().mainWindow()
+				w.setMovable_(False)
+
+				class MyView(NSView):
+					def mouseDragged_(self, event):
+						event.window().setFrameOrigin_(NSPoint(event.window().frame().origin.x + event.deltaX(), event.window().frame().origin.y - event.deltaY()))
+
+					# def drawRect_(self, rect):
+					# 	NSColor.yellowColor().set()
+					# 	NSRectFill(rect)
+
+				self.dragView = MyView.alloc().initWithFrame_(NSMakeRect(0, 0, self.GetSize()[0], 30))
+				w.contentView().addSubview_(self.dragView)
+
+				self.javaScript("$('.sidebar').css('padding-top', '25px');")
+				self.SetTitle('')
+
+				w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3 | 1 << 15)
+				w.setTitlebarAppearsTransparent_(1)
+
 
 			self.setSideBarHTML()
 
@@ -2679,6 +2716,8 @@ try:
 
 
 		def OnInit(self):
+
+
 
 			log('self.startWithCommand: %s' % self.startWithCommand)
 

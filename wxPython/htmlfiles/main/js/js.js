@@ -89,7 +89,6 @@ $( document ).ready(function() {
     	return false;
 	});
 
-
 	$("#main #publisher .removePublisherButton").click(function() {
 		$( this ).addClass( "hover" );
 		id = $(this).closest('.publisher').attr('id');

@@ -65,7 +65,7 @@ else:
 if MAC:
 	import objc
 	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp, NSObject, NSUserNotification, NSUserNotificationCenter
-	from AppKit import NSView, NSRect, NSPoint, NSSize, NSMakeRect, NSColor, NSRectFill
+	from AppKit import NSView, NSRect, NSPoint, NSSize, NSMakeRect, NSColor, NSRectFill, NSToolbar
 
 	NSUserNotificationCenterDelegate = objc.protocolNamed('NSUserNotificationCenterDelegate')
 	class NotificationDelegate(NSObject, protocols=[NSUserNotificationCenterDelegate]):
@@ -895,8 +895,8 @@ try:
 	#        log()
 			if self.fullyLoaded:
 				if threading.current_thread() == self.thread:
-	#                log('JavaScript Executed:')
-	#                log(str(script.encode())[:100], '...')
+					# log('JavaScript Executed:')
+					# log(str(script)[:100])
 					self.html.RunScript(script)
 				else:
 					pass
@@ -909,6 +909,7 @@ try:
 				pass
 	#            log('JavaScript Execution: Page not fully loaded:')
 	#            log(str(script.encode())[:100], '...')
+
 
 
 
@@ -931,6 +932,7 @@ try:
 
 		def onClose(self, event):
 
+			print('onClose()')
 
 			if self.panelVisible:
 				self.javaScript('hidePanel();')
@@ -1058,8 +1060,12 @@ try:
 
 		def onResize(self, event):
 
+			size = self.GetSize()
+
+			# self.javaScript("$('.panel').css('height', '%spx');" % (size[1]))
+
 			if MAC:
-				self.dragView.setFrameSize_(NSSize(self.GetSize()[0], 30))
+				self.dragView.setFrameSize_(NSSize(self.GetSize()[0], 40))
 			client.preferences.set('sizeMainWindow', (self.GetSize()[0], self.GetSize()[1]))
 			event.Skip()
 
@@ -1145,10 +1151,23 @@ try:
 				html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(client.preferences.get('reloadSubscriptionsInterval')) else '', name))
 			html.append('</select>')
 			html.append('<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
-			html.append('<br />#(Last Check): %s' % NaturalRelativeWeekdayTimeAndDate(client.preferences.get('reloadSubscriptionsLastPerformed'), locale = client.locale()[0]))
+			html.append('</p>')
+			html.append('<p>')
+			html.append('#(Last Check): %s' % NaturalRelativeWeekdayTimeAndDate(client.preferences.get('reloadSubscriptionsLastPerformed'), locale = client.locale()[0]))
 			html.append('</p>')
 
-			html.append('<p></p>')
+			html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
 
 			# User
 			html.append('<h2>#(User Account)</h2>')
@@ -1159,12 +1178,14 @@ try:
 					html.append('%s (%s)' % (client.userName(), client.userEmail()))
 				elif client.userEmail():
 					html.append('%s' % (client.userEmail()))
-				html.append('<br />')
+				html.append('</p>')
+				html.append('<p>')
 				html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
-				html.append('<br />')
+				html.append('</p>')
+				html.append('<p>')
 				html.append('#(Account Last Synchronized): %s' % (NaturalRelativeWeekdayTimeAndDate(client.preferences.get('lastServerSync')) if client.preferences.get('lastServerSync') else 'Never'))
 			else:
-				html.append('#(NoUserAccountLinkedLongText)')
+				html.append('#(NoUserAccountLinked)<br />#(PleaseCreateUserAccountExplanation)')
 			html.append('</p>')
 			html.append('''<script>$("#preferences #unlinkAppButton").click(function() {
 
@@ -1172,21 +1193,19 @@ try:
 				 
 			});</script>''')
 
-			html.append('<p></p>')
-
-
+			html.append('<hr>')
 
 			# Agent
 			html.append('<h2>#(Icon in Menu Bar)</h2>')
 			html.append('<p>')
 			html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">#(Show Icon in Menu Bar)</label></span>' % ('checked' if agentIsRunning() else ''))
 			html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
-			html.append('<br />')
+			html.append('</p>')
+			html.append('<p>')
 			html.append('#(Icon in Menu Bar Explanation)')
 			html.append('</p>')
 
-			html.append('<p></p>')
-
+			html.append('<hr>')
 
 			# Localization
 			systemLocale = client.systemLocale()
@@ -1198,10 +1217,12 @@ try:
 			html.append('<p>')
 			html.append('<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Language (%s)</label></span>' % ('checked' if client.preferences.get('localizationType') == 'systemLocale' else '', systemLocale))
 			html.append('<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>')
-			html.append('<br />')
+			html.append('</p>')
+			html.append('<p>')
 			html.append('<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Language (choose below). Requires app restart to take full effect.</label></span>' % ('checked' if client.preferences.get('localizationType') == 'customLocale' else ''))
 			html.append('<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>')
-			html.append('<br />')
+			html.append('</p>')
+			html.append('<p>')
 			html.append('<select id="customLocaleChoice" style="" onchange="">')
 			for code, name in locales.locales:
 				html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if code == client.preferences.get('customLocaleChoice') else '', name))
@@ -1212,6 +1233,8 @@ try:
 				 
 			});</script>''')
 			html.append('</p>')
+
+			html.append('<hr>')
 
 			# Reset Dialogs
 			html.append('<h2>#(Reset Dialogs)</h2>')
@@ -1227,13 +1250,73 @@ try:
 			# Print HTML
 			html = ''.join(html)
 			html = html.replace('"', '\'')
+			html = localizeString(html, html = True)
 			html = html.replace('\n', '')
-			html = localizeString(html)
 			# print(html)
-			js = '$("#preferences .inner").html("' + html + '");'
+			js = '$("#preferences .inner").html("<div>' + html + '</div>");'
 			self.javaScript(js)
 
 			self.javaScript('showPreferences();')
+
+
+		def setSubscriptionPreference(self, url, key, value):
+
+			for publisher in client.publishers():
+				for subscription in publisher.subscriptions():
+					if subscription.exists and subscription.url == url:
+
+						if value == 'true':
+							value = True
+						if value == 'false':
+							value = False
+
+						subscription.set(key, value)
+
+
+		def showSubscriptionPreferences(self, event, b64ID):
+
+
+			for publisher in client.publishers():
+				for subscription in publisher.subscriptions():
+					if subscription.exists and subscription.url == self.b64decode(b64ID):
+
+
+						html = []
+
+						html.append('<h2>#(URL)</h2>')
+						html.append('<p><em>')
+						html.append(subscription.url) # .replace('secretKey', '<span style="color: orange;">secretKey</span>')
+						html.append('</em></p>')
+
+
+
+						# Reveal Identity
+						if subscription.parent.get('type') == 'JSON':
+
+							html.append('<hr>')
+
+							html.append('<h2>#(Reveal Identity)</h2>')
+							html.append('<p>')
+							if client.user():
+								html.append('<span><input id="revealidentity" type="checkbox" name="revealidentity" %s><label for="revealidentity">#(Reveal Your Identity For This Subscription)</label></span>' % ('checked' if subscription.get('revealIdentity') else ''))
+								html.append('<script>$("#preferences #revealidentity").click(function() {setSubscriptionPreference("%s", "revealIdentity", $("#preferences #revealidentity").prop("checked"));});</script>' % b64ID)
+								html.append('<br />')
+								html.append('#(RevealIdentityExplanation)')
+							else:
+								html.append('#(RevealIdentityRequiresUserAccountExplanation)<br />#(PleaseCreateUserAccountExplanation)')
+							html.append('</p>')
+
+
+						# Print HTML
+						html = ''.join(html)
+						html = html.replace('"', '\'')
+						html = localizeString(html, html = True)
+						html = html.replace('\n', '')
+						# print(html)
+						js = '$("#preferences .inner").html("' + html + '");'
+						self.javaScript(js)
+
+						self.javaScript('showPreferences();')
 
 
 		def onNavigating(self, evt):
@@ -1672,7 +1755,7 @@ try:
 				menu.Bind(wx.EVT_MENU, partial(self.showPublisherInFinder, b64ID = b64ID), item)
 
 				if publisher.get('type') == 'GitHub':
-					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Preferences)'))
+					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Publisher Preferences)'))
 					menu.Append(item)
 					menu.Bind(wx.EVT_MENU, partial(self.showPublisherPreferences, b64ID = b64ID), item)
 
@@ -1701,6 +1784,10 @@ try:
 								menu.Append(item)
 								menu.Bind(wx.EVT_MENU, partial(self.updateAllFonts, publisherB64ID = None, subscriptionB64ID = b64ID), item)
 							break
+
+				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Subscription Preferences)'))
+				menu.Append(item)
+				menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionPreferences, b64ID = b64ID), item)
 
 				menu.AppendSeparator()
 
@@ -2145,8 +2232,8 @@ try:
 								html.append(font.name.getText(client.locale()))
 								if font.free:
 									html.append('<span class="label free">free</span>')
-								if font.beta:
-									html.append('<span class="label beta">beta</span>')
+								if font.prerelease:
+									html.append('<span class="label pre">pre</span>')
 								if font.variableFont:
 									html.append('<span class="label var">OTVar</span>')
 								html.append('</div>') # .left
@@ -2344,6 +2431,15 @@ try:
 					html.append('%s' % (installedFonts or ''))
 					html.append('</div>')
 					html.append('</div>') # .badges
+
+					# Identity Revealed Icon
+					if len(publisher.subscriptions()) == 1:
+						subscription = publisher.subscriptions()[0]
+						if client.user() and subscription.get('revealIdentity'):
+							html.append('<div class="badges clear">')
+							html.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
+							html.append('</div>') # .badges
+
 					html.append('<div class="alert" style="display: none;">')
 					html.append('<a href="x-python://self.displayPublisherSidebarAlert(____%s____)">' % b64ID)
 					html.append('⚠️')
@@ -2354,8 +2450,7 @@ try:
 
 					html.append('<div class="subscriptions" style="display: %s;">' % ('block' if selected else 'none'))
 					if len(publisher.subscriptions()) > 1:
-						html.append('<div class="margin top"></div>')
-						for subscription in publisher.subscriptions():
+						for i, subscription in enumerate(publisher.subscriptions()):
 
 							amountInstalledFonts = subscription.amountInstalledFonts()
 							amountOutdatedFonts = subscription.amountOutdatedFonts()
@@ -2378,6 +2473,13 @@ try:
 							html.append('%s' % amountInstalledFonts)
 							html.append('</div>')
 							html.append('</div>') # .badges
+
+							# Identity Revealed Icon
+							if client.user() and subscription.get('revealIdentity'):
+								html.append('<div class="badges clear">')
+								html.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
+								html.append('</div>') # .badges
+
 							html.append('<div class="alert" style="display: none;">')
 							html.append('<a href="x-python://self.displaySubscriptionSidebarAlert(____%s____)">' % self.b64encode(subscription.url))
 							html.append('⚠️')
@@ -2386,6 +2488,8 @@ try:
 							html.append('</div>') # subscription
 	#                        html.append('</a>')
 							html.append('</div>')
+							if i == 0:
+								html.append('<div class="margin top"></div>')
 						html.append('<div class="margin bottom"></div>')
 					html.append('</div>')
 
@@ -2460,25 +2564,12 @@ try:
 			self.fullyLoaded = True
 
 			if MAC:
-				w = NSApp().mainWindow()
-				w.setMovable_(False)
+				self.javaScript("$('.sidebar').css('padding-top', '32px');")
+				# self.javaScript("$('.panel').css('padding-left', '50px');")
+				# self.javaScript("$('.panel').css('padding-top', '90px');")
+				# self.javaScript("$('.panel').css('padding-bottom', '90px');")
 
-				class MyView(NSView):
-					def mouseDragged_(self, event):
-						event.window().setFrameOrigin_(NSPoint(event.window().frame().origin.x + event.deltaX(), event.window().frame().origin.y - event.deltaY()))
-
-					# def drawRect_(self, rect):
-					# 	NSColor.yellowColor().set()
-					# 	NSRectFill(rect)
-
-				self.dragView = MyView.alloc().initWithFrame_(NSMakeRect(0, 0, self.GetSize()[0], 30))
-				w.contentView().addSubview_(self.dragView)
-
-				self.javaScript("$('.sidebar').css('padding-top', '25px');")
 				self.SetTitle('')
-
-				w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3 | 1 << 15)
-				w.setTitlebarAppearsTransparent_(1)
 
 
 			self.setSideBarHTML()
@@ -2740,6 +2831,69 @@ try:
 
 				frame = AppFrame(None)
 				self.frame = frame
+
+				# Window Styling
+				if MAC:
+					w = NSApp().mainWindow()
+					w.setMovable_(False)
+
+					from AppKit import NSLeftMouseDraggedMask, NSLeftMouseUpMask, NSScreen, NSLeftMouseUp
+
+
+					class MyView(NSView):
+						# def mouseDragged_(self, event):
+						# 	event.window().setFrameOrigin_(NSPoint(event.window().frame().origin.x + event.deltaX(), event.window().frame().origin.y - event.deltaY()))
+
+						def mouseDown_(self, event):
+
+							_initialLocation = event.locationInWindow()
+
+							while True:
+
+								theEvent = w.nextEventMatchingMask_(NSLeftMouseDraggedMask | NSLeftMouseUpMask)
+								point = theEvent.locationInWindow()
+								screenVisibleFrame = NSScreen.mainScreen().visibleFrame()
+								windowFrame = w.frame()
+								newOrigin = windowFrame.origin
+
+
+								# Get the mouse location in window coordinates.
+								currentLocation = point
+
+								# Update the origin with the difference between the new mouse location and the old mouse location.
+								newOrigin.x += (currentLocation.x - _initialLocation.x)
+								newOrigin.y += (currentLocation.y - _initialLocation.y)
+
+								# Don't let window get dragged up under the menu bar
+								if ((newOrigin.y + windowFrame.size.height) > (screenVisibleFrame.origin.y + screenVisibleFrame.size.height)):
+									newOrigin.y = screenVisibleFrame.origin.y + (screenVisibleFrame.size.height - windowFrame.size.height)
+
+								# Move the window to the new location
+								w.setFrameOrigin_(newOrigin)
+
+								if theEvent.type() == NSLeftMouseUp:
+									break
+
+							event.window().setFrameOrigin_(NSPoint(event.window().frame().origin.x + event.deltaX(), event.window().frame().origin.y - event.deltaY()))
+
+						# def drawRect_(self, rect):
+						# 	NSColor.yellowColor().set()
+						# 	NSRectFill(rect)
+
+					self.frame.dragView = MyView.alloc().initWithFrame_(NSMakeRect(0, 0, self.frame.GetSize()[0], 40))
+					w.contentView().addSubview_(self.frame.dragView)
+
+					self.frame.javaScript("$('.sidebar').css('padding-top', '32px');")
+					self.frame.SetTitle('')
+
+					w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3 | 1 << 15)
+					w.setTitlebarAppearsTransparent_(1)
+
+					w.setTitleVisibility_(1)
+					toolbar = NSToolbar.alloc().init()
+					toolbar.setShowsBaselineSeparator_(0)
+					w.setToolbar_(toolbar)
+
 
 				self.frame.log('MyApp.OnInit()')
 				

@@ -38,31 +38,26 @@ a {
 }
 
 
-.centerOuter {
-	height: 100%;
-}
+hr {
+	border: none;
+	border-top: 1px solid #F8B334;
 
-.centerInner {
-  position: relative;
-  top: 50%;
-  -webkit-transform: translateY(-50%);
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
+	margin-top: 30px;
+	margin-bottom: 30px;
 }
-
 
 h1, h2, h3, h4, h5, h6 {
 	font-weight: normal;
-	margin-bottom: 20px;
+	margin-bottom: 15px;
 	margin-top: 10px;
 }
 
 p + h1, p + h2, p + h3, p + h4, p + h5, p + h6 {
-	margin-top: 20px;
+	margin-top: 40px;
 }
 
 p + p {
-	margin-top: 10px;
+	margin-top: 0px;
 }
 
 input, textarea, select {
@@ -217,7 +212,7 @@ label {
 
     overflow-y: scroll;
 
-	
+
 }
 
 .sidebar .headline {
@@ -239,6 +234,8 @@ label {
     padding-top: 4px;
     padding-bottom: 4px;
 
+    height: 23px;
+
 }
 
 .sidebar .line.hover {
@@ -250,7 +247,7 @@ label {
 }
 
 .sidebar .subscription.line.selected {
-	background-color: rgba(0, 0, 0, .2);
+	background-color: rgba(0, 0, 0, .1);
 }
 
 .sidebar .publisher.line.single.selected {
@@ -289,12 +286,15 @@ label {
 }
 
 .sidebar .publisherWrapper .subscriptions div.margin.top {
-	background: linear-gradient(rgba(0, 0, 0, .3), rgba(0, 0, 0, 0));
+	background: linear-gradient(rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
 	margin-bottom: -10px;
+	position: relative;
+	top: -33px;
+	z-index: 100;
 }
 
 .sidebar .publisherWrapper .subscriptions div.margin.bottom {
-	background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .3));
+	background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .4));
 	margin-top: -10px;
 }
 
@@ -328,6 +328,16 @@ label {
 	margin-left: 5px;
 	margin-right: 5px;
 	top: 3px;
+
+/*	display: none;*/
+}
+
+.sidebar .revealIdentity {
+	position: relative;
+	float: right;
+	margin-left: 2px;
+	margin-right: 2px;
+	top: 0px;
 
 /*	display: none;*/
 }
@@ -638,7 +648,7 @@ label {
 	color: black;
 }
 
-.label.beta {
+.label.pre {
 	background-color: #F4D9CB;
 	color: #F17022;
 }
@@ -739,42 +749,60 @@ label {
 .panel {
 
 	display: none;
-	position:absolute;
+	position: absolute;
 
-/*	padding: 50px;
-*/
 	left: 0px;
-	top: 0;
-	bottom: 0;
+	top: 0px;
+	bottom: 0px;
 	right: 0px;
 
-    height: 100%;
     background-color: #EDEBDD;
 
-    overflow-y: scroll;
+    overflow: scroll;
 
     font-size: 10pt;
-    line-height: 14pt;
+    line-height: 15pt;
 
 	text-align: center;
 
-	z-index: 50;
-}
+	z-index: 200;
 
-.panel #text {
-	display: inline-block;
-	width: 500px;
-	text-align: left;
+/*	border: 1px solid green;
+*/
+
 }
 
 .panel a {
 	color: #259CD3;
 }
 
-.panel .inner {
-	text-align: left;
-	padding: 50px;
+.panel .centerOuter {
 
+/*	border: 1px solid red;
+*/
+/*	display: inline-block;
+*/
+
+}
+
+.panel .inner {
+
+	text-align: left;
+	width: 800px;
+
+/*	border: 1px solid blue;
+*/
+	position: relative;
+
+	margin: 80px;
+
+
+}
+
+.panel .closePanelButton {
+	position: fixed;
+	right: 20px;
+	top: 20px;
 }
 
 /*.panel * {

@@ -31,6 +31,10 @@ function setPublisherPreference(b64ID, key, value) {
     python('client.publisher(self.b64decode(____' + b64ID + '____)).set(____' + key + '____, ____' + value + '____)');
 }
 
+function setSubscriptionPreference(b64ID, key, value) {
+    python('self.setSubscriptionPreference(self.b64decode(____' + b64ID + '____), ____' + key + '____, ____' + value + '____)');
+}
+
 function setPublisherPassword(b64ID, username, password) {
     python('client.publisher(self.b64decode(____' + b64ID + '____)).setPassword(____' + username + '____, ____' + password + '____)');
 }
@@ -165,6 +169,7 @@ function hidePanel() {
 	$('#about').slideUp();
 	python('self.panelVisible = False');
 	unregisterKeypress(27);
+	python('self.setSideBarHTML()');
 	
 }
 

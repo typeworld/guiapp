@@ -31,45 +31,47 @@
 	<div class="closePanelButton">
 		<a onclick="hidePanel();">✕</a>
 	</div>
-	<div class="inner">
-		<h2>#(Add Subscription)</h2>
+	<div class="centerOuter">
+		<div class="centerInner inner">
+			<h2>#(Add Subscription)</h2>
 
-		<p>
-			#(ManuallyAddSubscriptionExplanation)
-		</p>
-		<p>
-		</p>
-
-		<form id="addSubscriptionForm" action="destination.html">
 			<p>
-				#(Subscription URL)<br />
-				<input type="text" id="url" name="url" placeholder="typeworldjson:// #(or) typeworldgithub://">
-				<script>$('#addSubscription #url').keyup(function(){ if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });</script>
+				#(ManuallyAddSubscriptionExplanation)
 			</p>
-			<div id="authenticationCheckBox" style="display: none;">
-				<p>
-					<span style="width: 20px;"><input type="checkbox" id="usePassword"><label for="usePassword">#(Use Authentication)</label></span>
-					<script>$('#addSubscription #usePassword').click(function(){ debug($('#addSubscription #usePassword').val()); if ($('#addSubscription #usePassword').is(":checked")) { $('#addSubscription #authentication').slideDown(); } else { $('#addSubscription #authentication').slideUp(); } });</script>
-				</p>
-			</div>
-			<div id="authentication" style="display: none;">
-				<p>
-				#(Username)<br />
-				<input type="text" id="username">
-				#(Password)<br />
-				<input type="password" id="password">
-				</p>
-				<p>
-				#(GitHubRequestLimitExplanation)
-				</p>
-			</div>
+			<p>
 			</p>
-			<p style="margin-top: 10px;">
-				<a class="button" id="addSubscriptionFormSubmitButton">#(Add)</a>
-				<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img id="animation" src="file://##htmlroot##/loading.gif" style="height: 13px;"></a>
-				<input type="button" value="#(Cancel)" onclick="hidePanel();" class="secondary" id="addSubscriptionFormCancelButton">
-			</p>
-		</form>
+
+			<form id="addSubscriptionForm" action="destination.html">
+				<p>
+					#(Subscription URL)<br />
+					<input type="text" id="url" name="url" placeholder="typeworldjson:// #(or) typeworldgithub://">
+					<script>$('#addSubscription #url').keyup(function(){ if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });</script>
+				</p>
+				<div id="authenticationCheckBox" style="display: none;">
+					<p>
+						<span style="width: 20px;"><input type="checkbox" id="usePassword"><label for="usePassword">#(Use Authentication)</label></span>
+						<script>$('#addSubscription #usePassword').click(function(){ debug($('#addSubscription #usePassword').val()); if ($('#addSubscription #usePassword').is(":checked")) { $('#addSubscription #authentication').slideDown(); } else { $('#addSubscription #authentication').slideUp(); } });</script>
+					</p>
+				</div>
+				<div id="authentication" style="display: none;">
+					<p>
+					#(Username)<br />
+					<input type="text" id="username">
+					#(Password)<br />
+					<input type="password" id="password">
+					</p>
+					<p>
+					#(GitHubRequestLimitExplanation)
+					</p>
+				</div>
+				</p>
+				<p style="margin-top: 10px;">
+					<a class="button" id="addSubscriptionFormSubmitButton">#(Add)</a>
+					<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img id="animation" src="file://##htmlroot##/loading.gif" style="height: 13px;"></a>
+					<input type="button" value="#(Cancel)" onclick="hidePanel();" class="secondary" id="addSubscriptionFormCancelButton">
+				</p>
+			</form>
+		</div>
 	</div>
 	<script>
 		$( document ).ready(function() {
@@ -125,6 +127,7 @@
 </div>
 -->
 
+
 <div class="wrapper">
 	<div id="main">
 	</div>
@@ -141,7 +144,8 @@
 			<a onclick="hidePanel();">✕</a>
 		</div>
 		<div class="centerOuter">
-			<div id="text" class="centerInner inner" style="margin-top: -20px;">
+			<div id="text" class="centerInner inner">
+
 			</div>
 		</div>
 	</div>
@@ -179,14 +183,12 @@
 		</div>
 	</div>
 
-
-
 </div>
 
 
 <img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground">
 <canvas id="atom" width="150" height="150"></canvas>
-<div id="atomButton" class="centerOuter"><div class="centerInner"><a onclick="showAddSubscription();">+</a></div></div>
+<div id="atomButton" class="centerOuter"><div class="centerInner" style="padding-top: 45px;"><a onclick="showAddSubscription();">+</a></div></div>
 
 <div id="userWrapper">
 	<div id="userBadge"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"> <span id="userName"></span></div>

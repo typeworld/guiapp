@@ -53,11 +53,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 p + h1, p + h2, p + h3, p + h4, p + h5, p + h6 {
-	margin-top: 40px;
+	margin-top: 25px;
 }
 
 p + p {
-	margin-top: 0px;
+	margin-top: 6px;
 }
 
 input, textarea, select {
@@ -89,7 +89,7 @@ input[type=button],input[type=submit],a.button {
 	padding-right: 10px;
 	margin-top: 8px;
 	margin-left: 0px;
-/*	margin-bottom: -5px; */
+	margin-bottom: 6px; 
 	margin-right: 0px;
 	cursor: pointer;
 	background-color: #58585A;
@@ -218,9 +218,10 @@ label {
 .sidebar .headline {
 	font-size: 75%;
 	text-transform: uppercase;
+	font-weight: bold;
 	letter-spacing: 2px;
     padding: 15px;
-    padding-bottom: 8px;
+    padding-bottom: 12px;
     padding-left: 20px;
     padding-right: 20px;
     color: #999;
@@ -297,6 +298,7 @@ label {
 	background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .4));
 	margin-top: -10px;
 }
+
 
 .sidebar .badges {
 	position: relative;
@@ -905,4 +907,9 @@ label {
 	color: #000;
 	background-color: #444;
 
+}
+
+
+div + div.headline {
+	margin-top: 10px;
 }

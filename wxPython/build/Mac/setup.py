@@ -5,15 +5,18 @@ version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 
 
 os.system('rm -rf ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version)
 
-
-setup(
-    app=['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/app.py'],
-    data_files=[],
-    options={'py2app': {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
+options = {'py2app': {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
            'iconfile': '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/tw.icns',
            'includes': ['ynlib'],#, 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
            'frameworks': ['Python.framework'],
-           'resources': ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/InternetAccessPolicy.plist', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/patrons', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', '/Users/yanone/Code/dsa_pub.pem'], #, 'appbadge.docktileplugin'
+           'resources': [
+                '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/InternetAccessPolicy.plist', 
+                '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/Little Snitch Translations', 
+                '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles', 
+                '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/patrons', 
+                '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', 
+                '/Users/yanone/Code/dsa_pub.pem',
+            ], #, 'appbadge.docktileplugin'
            'packages': ['certifi'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
@@ -40,7 +43,18 @@ setup(
            'optimize': 1,
 #     'semi_standalone': False,
 #     'no-chdir': True,
-           }},
+           }}
+
+
+# Little Snitch Translations
+folder = '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/Little Snitch Translations'
+options['py2app']['resources'].extend([os.path.join(folder, x) for x in next(os.walk(folder))[1]])
+
+
+setup(
+    app=['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/app.py'],
+    data_files=[],
+    options=options,
     setup_requires=['py2app'],
 )
 

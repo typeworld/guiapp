@@ -19,6 +19,18 @@ for app in a:
 			if not lang in languages:
 				languages.append(lang)
 
+count = 0
+for app in a:
+	for word in a[app]:
+		english = word
+		if 'en' in a[app][word]:
+			english = a[app][word]['en']
+		count += len(english)
+
+print('Letter count: %s' % count)
+print('Google Translate Costs: $%s' % (20*count/10**6))
+
+
 
 # Little Snitch Internet Access Policy
 import locales

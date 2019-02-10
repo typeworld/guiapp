@@ -1,4 +1,13 @@
 
+function startLoadingAnimation() {
+	startAnimation();
+}
+
+function stopLoadingAnimation() {
+	stopAnimation();
+}
+
+
 window.onerror = function (msg, url, lineNo, columnNo, error) {
  
  	debug('JavaScript error:');
@@ -12,6 +21,7 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
 }
 
 function python(code) {
+	debug(code);
     window.location.href = "x-python://" + code;
 }
 

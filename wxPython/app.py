@@ -34,6 +34,7 @@ from ynlib.files import ReadFromFile, WriteToFile
 from ynlib.strings import *
 from ynlib.web import GetHTTP
 
+import typeWorldClient
 from typeWorldClient import APIClient, JSON, AppKitNSUserDefaults
 import typeWorld.api.base
 
@@ -741,6 +742,13 @@ try:
 				client.preferences.set('seenDialogs', [])
 
 			client.preferences.set('appVersion', APPVERSION)
+
+
+			if client.preferences.get('currentPublisher') == 'pendingInvitations' and len(client.preferences.get('pendingInvitations')) == 0:
+				client.preferences.set('currentPublisher', '')
+
+			if not client.preferences.get('currentPublisher') and len(client.publishers()) >= 1:
+				client.preferences.set('currentPublisher', client.publishers()[0].canonicalURL)
 
 
 
@@ -1499,6 +1507,102 @@ try:
 
 			self.javaScript('hideCenterMessage();')
 
+		def acceptInvitation(self, ID):
+
+			self.javaScript('startLoadingAnimation();')
+
+			startWorker(self.acceptInvitation_consumer, self.acceptInvitation_worker, wargs=(ID, ))
+
+		def acceptInvitation_worker(self, ID):
+
+			success, message = client.acceptInvitation(ID)
+			return success, message, ID
+
+
+		def acceptInvitation_consumer(self, delayedResult):
+
+			success, message, ID = delayedResult.get()
+
+			if success:
+
+				self.javaScript('$("#%s.invitation").slideUp();' % ID)
+
+				for invitation in client.preferences.get('acceptedInvitations'):
+					if invitation['ID'] == ID:
+
+						client.preferences.set('currentPublisher', invitation['canonicalURL'])
+						self.setSideBarHTML()
+						self.setPublisherHTML(self.b64encode(client.currentPublisher().canonicalURL))
+
+			else:
+
+				pass
+
+			self.javaScript('stopLoadingAnimation();')
+
+
+		def declineInvitation(self, ID):
+
+			invitation = None
+
+
+			for invitation in client.preferences.get('acceptedInvitations'):
+				if invitation['ID'] == ID:
+					url = invitation['url']
+					for publisher in client.publishers():
+						for subscription in publisher.subscriptions():
+							if url == subscription.url:
+
+								name = publisher.name(locale = client.locale())[0] + ' (' + subscription.name(locale=client.locale()) + ')'
+
+								dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Remove X)').replace('%name%', name), wx.YES_NO | wx.ICON_QUESTION)
+								result = dlg.ShowModal() == wx.ID_YES
+								dlg.Destroy()
+					
+								if result:
+									self.javaScript('startLoadingAnimation();')
+									startWorker(self.declineInvitation_consumer, self.declineInvitation_worker, wargs=(ID, ))
+
+
+			for invitation in client.preferences.get('pendingInvitations'):
+				if invitation['ID'] == ID:
+					dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Decline Invitation)'), wx.YES_NO | wx.ICON_QUESTION)
+					result = dlg.ShowModal() == wx.ID_YES
+					dlg.Destroy()
+		
+					if result:
+						self.javaScript('startLoadingAnimation();')
+						startWorker(self.declineInvitation_consumer, self.declineInvitation_worker, wargs=(ID, ))
+
+		def declineInvitation_worker(self, ID):
+
+			success, message = client.declineInvitation(ID)
+			return success, message, ID
+
+
+		def declineInvitation_consumer(self, delayedResult):
+
+			success, message, ID = delayedResult.get()
+
+			if success:
+
+				self.javaScript('$("#%s.invitation").slideUp();' % ID)
+
+				if len(client.preferences.get('pendingInvitations')) == 0:
+					if client.publishers():
+						self.setSideBarHTML()
+						self.setPublisherHTML(self.b64encode(client.publishers()[0].canonicalURL))
+
+
+			else:
+
+				pass
+
+			self.javaScript('stopLoadingAnimation();')
+
+
+				
+
 
 		def removePublisher(self, evt, b64ID):
 
@@ -2169,7 +2273,7 @@ try:
 
 
 
-		def setPublisherHTML(self, b64ID):
+		def setPublisherHTML(self, b64ID = None):
 
 			# import cProfile
 			# profile = cProfile.Profile()
@@ -2181,12 +2285,112 @@ try:
 
 				html = []
 
+
+				if client.preferences.get('pendingInvitations'):
+					for invitation in client.preferences.get('pendingInvitations'):
+
+						html.append('<div class="publisher invitation" id="%s">' % invitation['ID'])
+
+						html.append('<div class="foundry">')
+						html.append('<div class="head clear" style="background-color: %s;">' % ('#' + invitation['backgroundColor'] if 'backgroundColor' in invitation else 'none'))
+
+
+						if 'logoURL' in invitation:
+							html.append('<div class="logo">')
+							html.append('<img src="%s" style="width: 100px; height: 100px;" />' % (invitation['logoURL']))
+							html.append('</div>') # publisher
+
+						html.append('<div class="names centerOuter"><div class="centerInner">')
+						html.append('<div class="name">%s%s</div>' % (typeWorldClient.base.MultiLanguageText(json = invitation['publisherName']).getText(client.locale()), (' (%s)' % typeWorldClient.base.MultiLanguageText(json = invitation['subscriptionName']).getText(client.locale()) if 'subscriptionName' in invitation else '')))
+						if 'website' in invitation:
+							html.append('<p>')
+							html.append('<div class="website"><a href="%s">%s</a></div>' % (invitation['website'], invitation['website']))
+							html.append('</p>')
+
+						if invitation['foundries'] or invitation['families'] or invitation['fonts']:
+							html.append('<p>')
+							html.append('%s #(Foundry/ies), %s #(Typeface/s), %s #(Font/s)' % (invitation['foundries'] or 0, invitation['families'] or 0, invitation['fonts'] or 0))
+							html.append('</p>')
+
+						html.append('<p>')
+						if invitation['invitedByUserEmail'] or invitation['invitedByUserName']:
+							html.append('#(Invited by): <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
+							if invitation['invitedByUserEmail'] and invitation['invitedByUserName']:
+								html.append('<b>%s</b> (%s)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail']))
+							else:
+								html.append('%s' % (invitation['invitedByUserName'] or invitation['invitedByUserEmail']))
+
+						if invitation['time']:
+							html.append(', %s' % (NaturalRelativeWeekdayTimeAndDate(invitation['time'], locale = client.locale()[0])))
+
+						html.append('</p>')
+
+
+						html.append('<div style="margin-top: 15px;">')
+
+						html.append('<a class="acceptInvitation" id="%s">' % invitation['ID'])
+						html.append('<div class="clear invitationButton accept">')
+						html.append('<div class="symbol">')
+						html.append('✓')
+						html.append('</div>')
+						html.append('<div class="text">')
+						html.append('#(Accept Invitation)')
+						html.append('</div>')
+						html.append('</div>')
+						html.append('</a>')
+
+#						html.append('&nbsp;&nbsp;')
+
+						html.append('<a class="declineInvitation" id="%s">' % invitation['ID'])
+						html.append('<div class="clear invitationButton decline">')
+						html.append('<div class="symbol">')
+						html.append('✕')
+						html.append('</div>')
+						html.append('<div class="text">')
+						html.append('#(Decline Invitation)')
+						html.append('</div>')
+						html.append('</div>')
+						html.append('</a>')
+
+						html.append('</div>') # buttons
+
+
+
+
+						html.append('</div></div>') # .centerInner .centerOuter
+
+
+
+
+
+						html.append('</div>') # .head
+						html.append('</div>') # .foundry
+						html.append('</div>') # .publisher
+
+
+						html.append('''<script>
+
+
+			$("#main .publisher a.acceptInvitation").click(function() {
+				python("self.acceptInvitation(" + $(this).attr('id') + ")");
+			});
+
+			$("#main .publisher a.declineInvitation").click(function() {
+				python("self.declineInvitation(" + $(this).attr("id") + ")");
+			});
+
+
+							</script>''')
+
+
 				# Print HTML
 				html = ''.join(html)
 				html = html.replace('"', '\'')
 				html = html.replace('\n', '')
 				html = localizeString(html)
 				html = self.replaceHTML(html)
+
+
 		#       print html
 				js = '$("#main").html("' + html + '");'
 				self.javaScript(js)
@@ -2194,7 +2398,6 @@ try:
 				# Set Sidebar Focus
 				self.javaScript('$("#sidebar div.subscriptions").slideUp();')
 				
-
 				self.javaScript("$('#sidebar .publisher').removeClass('selected');")
 				self.javaScript("$('#sidebar .subscription').removeClass('selected');")
 				self.javaScript("$('#sidebar .pendingInvitations').addClass('selected');")
@@ -2221,11 +2424,61 @@ try:
 
 				html.append('<div class="publisher" id="%s">' % (b64ID))
 
+				if client.preferences.get('acceptedInvitations'):
+					for invitation in client.preferences.get('acceptedInvitations'):
+						if invitation['url'] == subscription.url:
+
+							html.append('<div class="foundry">')
+							html.append('<div class="head clear">')
+							html.append('<p>')
+							if invitation['invitedByUserEmail'] or invitation['invitedByUserName']:
+								html.append('#(Invited by): <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
+								if invitation['invitedByUserEmail'] and invitation['invitedByUserName']:
+									html.append('<b>%s</b> (%s)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail']))
+								else:
+									html.append('%s' % (invitation['invitedByUserName'] or invitation['invitedByUserEmail']))
+
+							if invitation['time']:
+								html.append(', %s' % (NaturalRelativeWeekdayTimeAndDate(invitation['time'], locale = client.locale()[0])))
+
+							html.append('</p>')
+
+							html.append('<div style="margin-top: 15px;">')
+
+							html.append('<a class="declineInvitation" id="%s">' % invitation['ID'])
+							html.append('<div class="clear invitationButton decline">')
+							html.append('<div class="symbol">')
+							html.append('✕')
+							html.append('</div>')
+							html.append('<div class="text">')
+							html.append('#(Remove Invitation)')
+							html.append('</div>')
+							html.append('</div>')
+							html.append('</a>')
+
+							html.append('</div>') # buttons
+
+
+							html.append('</div>') # .head
+							html.append('</div>') # .foundry
+
+							html.append('''<script>
+
+
+				$("#main .publisher a.declineInvitation").click(function() {
+					python("self.declineInvitation(" + $(this).attr('id') + ")");
+				});
+
+
+								</script>''')
+
+
+
 				for foundry in subscription.foundries():
 
 
 					html.append('<div class="foundry">')
-					html.append('<div class="head" style="height: %spx; background-color: %s;">' % (110 if foundry.logo else 70, '#' + foundry.backgroundColor if foundry.backgroundColor else 'none'))
+					html.append('<div class="head clear" style="background-color: %s;">' % ('#' + foundry.backgroundColor if foundry.backgroundColor else 'none'))
 
 					if foundry.logo:
 						success, logo, mimeType = subscription.resourceByURL(foundry.logo, binary = True)
@@ -2237,7 +2490,10 @@ try:
 					html.append('<div class="names centerOuter"><div class="centerInner">')
 					html.append('<div class="name">%s</div>' % (foundry.name.getText(client.locale())))
 					if foundry.website:
+						html.append('<p>')
 						html.append('<div class="website"><a href="%s">%s</a></div>' % (foundry.website, foundry.website))
+						html.append('</p>')
+
 
 					html.append('</div></div>') # .centerInner .centerOuter
 
@@ -2436,10 +2692,10 @@ try:
 				self.javaScript("$('#sidebar .subscription').removeClass('selected');")
 				self.javaScript("$('#sidebar #%s.publisher').addClass('selected');" % b64ID)
 				self.javaScript("$('#sidebar #%s.subscription').addClass('selected');" % self.b64encode(subscription.url))
-				self.javaScript("showMain();")
 
 				agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
+			self.javaScript("showMain();")
 
 			# profile.disable()
 			# profile.print_stats(sort='time')
@@ -2463,7 +2719,7 @@ try:
 		def setSideBarHTML(self):
 			# Set publishers
 
-			if not client.publishers():
+			if not client.preferences.get('currentPublisher'):
 				self.javaScript("hideMain();")
 
 			else:
@@ -2476,117 +2732,119 @@ try:
 
 			# Sort
 			# pass
-			html.append('<div class="headline">#(My Subscriptions)</div>')
-			html.append('<div id="publishers">')
+
+			if client.publishers():
+				html.append('<div class="headline">#(My Subscriptions)</div>')
+				html.append('<div id="publishers">')
 
 
 
 
-			# Create HTML
-			for publisher in client.publishers():
+				# Create HTML
+				for publisher in client.publishers():
 
-				b64ID = self.b64encode(publisher.canonicalURL)
+					b64ID = self.b64encode(publisher.canonicalURL)
 
-				if publisher.subscriptions():
-					name, language = publisher.name(locale = client.locale())
+					if publisher.subscriptions():
+						name, language = publisher.name(locale = client.locale())
 
 
-					if language in ('ar', 'he'):
-						direction = 'rtl'
-						if language in ('ar'):
-							name = kashidaSentence(name, 20)
-					else:
-						direction = 'ltr'
+						if language in ('ar', 'he'):
+							direction = 'rtl'
+							if language in ('ar'):
+								name = kashidaSentence(name, 20)
+						else:
+							direction = 'ltr'
 
-					installedFonts = publisher.amountInstalledFonts()
-					outdatedFonts = publisher.amountOutdatedFonts()
-					selected = client.preferences.get('currentPublisher') == publisher.canonicalURL
+						installedFonts = publisher.amountInstalledFonts()
+						outdatedFonts = publisher.amountOutdatedFonts()
+						selected = client.preferences.get('currentPublisher') == publisher.canonicalURL
 
-					_type = 'multiple' if len(publisher.subscriptions()) > 1 else 'single'
+						_type = 'multiple' if len(publisher.subscriptions()) > 1 else 'single'
 
-					html.append('<div class="publisherWrapper">')
-	#                html.append('<a class="publisher" href="x-python://self.setPublisherHTML(____%s____)">' % b64ID)
-					html.append('<div id="%s" class="contextmenu publisher line clear %s %s %s" lang="%s" dir="%s">' % (b64ID, _type, 'selected' if selected else '', 'expanded' if len(publisher.subscriptions()) > 1 else '', language, direction))
-					html.append('<div class="name">')
-					html.append('%s %s' % (name, '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px; width:16px; height:16px;">' if publisher.get('type') == 'GitHub' else ''))
-					html.append('</div>')
-					html.append('<div class="reloadAnimation" style="display: %s;">' % ('block' if publisher.stillUpdating() else 'none'))
-					html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
-					html.append('</div>')
-					html.append('<div class="badges clear">')
-					html.append('<div class="badge outdated" style="display: %s;">' % ('block' if outdatedFonts else 'none'))
-					html.append('%s' % (outdatedFonts or ''))
-					html.append('</div>')
-					html.append('<div class="badge installed" style="display: %s;">' % ('block' if installedFonts else 'none'))
-					html.append('%s' % (installedFonts or ''))
-					html.append('</div>')
-					html.append('</div>') # .badges
+						html.append('<div class="publisherWrapper">')
+		#                html.append('<a class="publisher" href="x-python://self.setPublisherHTML(____%s____)">' % b64ID)
+						html.append('<div id="%s" class="contextmenu publisher line clear %s %s %s" lang="%s" dir="%s">' % (b64ID, _type, 'selected' if selected else '', 'expanded' if len(publisher.subscriptions()) > 1 else '', language, direction))
+						html.append('<div class="name">')
+						html.append('%s %s' % (name, '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px; width:16px; height:16px;">' if publisher.get('type') == 'GitHub' else ''))
+						html.append('</div>')
+						html.append('<div class="reloadAnimation" style="display: %s;">' % ('block' if publisher.stillUpdating() else 'none'))
+						html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
+						html.append('</div>')
+						html.append('<div class="badges clear">')
+						html.append('<div class="badge outdated" style="display: %s;">' % ('block' if outdatedFonts else 'none'))
+						html.append('%s' % (outdatedFonts or ''))
+						html.append('</div>')
+						html.append('<div class="badge installed" style="display: %s;">' % ('block' if installedFonts else 'none'))
+						html.append('%s' % (installedFonts or ''))
+						html.append('</div>')
+						html.append('</div>') # .badges
 
-					# Identity Revealed Icon
-					if len(publisher.subscriptions()) == 1:
-						subscription = publisher.subscriptions()[0]
-						if client.user() and subscription.get('revealIdentity'):
-							html.append('<div class="badges clear">')
-							html.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
-							html.append('</div>') # .badges
-
-					html.append('<div class="alert noclick" style="display: %s;">' % ('block' if publisher.updatingProblem() else 'none'))
-					html.append('<a href="x-python://self.displayPublisherSidebarAlert(____%s____)">' % b64ID)
-					html.append('⚠️')
-					html.append('</a>')
-					html.append('</div>') # .alert
-					html.append('</div>') # publisher
-	#                html.append('</a>')
-
-					html.append('<div class="subscriptions" style="display: %s;">' % ('block' if selected else 'none'))
-					if len(publisher.subscriptions()) > 1:
-						for i, subscription in enumerate(publisher.subscriptions()):
-
-							amountInstalledFonts = subscription.amountInstalledFonts()
-							amountOutdatedFonts = subscription.amountOutdatedFonts()
-							selected = subscription.url == publisher.currentSubscription().url
-
-							html.append('<div>')
-	#                        html.append('<a class="subscription" href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
-							html.append('<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s" publisherID="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url), b64ID))
-							html.append('<div class="name">')
-							html.append(localizeString(subscription.name(locale=client.locale())))
-							html.append('</div>')
-							html.append('<div class="reloadAnimation" style="display: %s;">' % ('block' if subscription.stillUpdating() else 'none'))
-							html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
-							html.append('</div>')
-							html.append('<div class="badges clear">')
-							html.append('<div class="badge outdated" style="display: %s;">' % ('block' if amountOutdatedFonts else 'none'))
-							html.append('%s' % amountOutdatedFonts)
-							html.append('</div>')
-							html.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
-							html.append('%s' % amountInstalledFonts)
-							html.append('</div>')
-							html.append('</div>') # .badges
-
-							# Identity Revealed Icon
+						# Identity Revealed Icon
+						if len(publisher.subscriptions()) == 1:
+							subscription = publisher.subscriptions()[0]
 							if client.user() and subscription.get('revealIdentity'):
 								html.append('<div class="badges clear">')
 								html.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
 								html.append('</div>') # .badges
 
-							html.append('<div class="alert" style="display: %s;">' % ('block' if subscription.updatingProblem() else 'none'))
-							html.append('<a href="x-python://self.displaySubscriptionSidebarAlert(____%s____)">' % self.b64encode(subscription.url))
-							html.append('⚠️')
-							html.append('</a>')
-							html.append('</div>') # .alert
-							html.append('</div>') # subscription
-	#                        html.append('</a>')
-							html.append('</div>')
-							if i == 0:
-								html.append('<div class="margin top"></div>')
-						html.append('<div class="margin bottom"></div>')
-					html.append('</div>')
+						html.append('<div class="alert noclick" style="display: %s;">' % ('block' if publisher.updatingProblem() else 'none'))
+						html.append('<a href="x-python://self.displayPublisherSidebarAlert(____%s____)">' % b64ID)
+						html.append('⚠️')
+						html.append('</a>')
+						html.append('</div>') # .alert
+						html.append('</div>') # publisher
+		#                html.append('</a>')
 
-					html.append('</div>') # .publisherWrapper
+						html.append('<div class="subscriptions" style="display: %s;">' % ('block' if selected else 'none'))
+						if len(publisher.subscriptions()) > 1:
+							for i, subscription in enumerate(publisher.subscriptions()):
+
+								amountInstalledFonts = subscription.amountInstalledFonts()
+								amountOutdatedFonts = subscription.amountOutdatedFonts()
+								selected = subscription.url == publisher.currentSubscription().url
+
+								html.append('<div>')
+		#                        html.append('<a class="subscription" href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
+								html.append('<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s" publisherID="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url), b64ID))
+								html.append('<div class="name">')
+								html.append(subscription.name(locale=client.locale()))
+								html.append('</div>')
+								html.append('<div class="reloadAnimation" style="display: %s;">' % ('block' if subscription.stillUpdating() else 'none'))
+								html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
+								html.append('</div>')
+								html.append('<div class="badges clear">')
+								html.append('<div class="badge outdated" style="display: %s;">' % ('block' if amountOutdatedFonts else 'none'))
+								html.append('%s' % amountOutdatedFonts)
+								html.append('</div>')
+								html.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
+								html.append('%s' % amountInstalledFonts)
+								html.append('</div>')
+								html.append('</div>') # .badges
+
+								# Identity Revealed Icon
+								if client.user() and subscription.get('revealIdentity'):
+									html.append('<div class="badges clear">')
+									html.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
+									html.append('</div>') # .badges
+
+								html.append('<div class="alert" style="display: %s;">' % ('block' if subscription.updatingProblem() else 'none'))
+								html.append('<a href="x-python://self.displaySubscriptionSidebarAlert(____%s____)">' % self.b64encode(subscription.url))
+								html.append('⚠️')
+								html.append('</a>')
+								html.append('</div>') # .alert
+								html.append('</div>') # subscription
+		#                        html.append('</a>')
+								html.append('</div>')
+								if i == 0:
+									html.append('<div class="margin top"></div>')
+							html.append('<div class="margin bottom"></div>')
+						html.append('</div>')
+
+						html.append('</div>') # .publisherWrapper
 
 
-			if client.preferences.get('invitations'):
+			if client.preferences.get('pendingInvitations'):
 				html.append('<div class="headline">#(Invitations)</div>')
 
 				selected = client.preferences.get('currentPublisher') == 'pendingInvitations'
@@ -2598,7 +2856,7 @@ try:
 				html.append('</div>')
 				html.append('<div class="badges clear">')
 				html.append('<div class="badge outdated" style="display: %s;">' % ('block'))
-				html.append('%s' % (len(client.preferences.get('invitations'))))
+				html.append('%s' % (len(client.preferences.get('pendingInvitations'))))
 				html.append('</div>')
 				# html.append('<div class="badge installed" style="display: %s;">' % ('block' if installedFonts else 'none'))
 				# html.append('%s' % (installedFonts or ''))

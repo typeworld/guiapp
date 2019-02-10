@@ -423,7 +423,10 @@ label {
 	padding: 25px;
 	color: #000;
 
+
+
 }
+
 
 #main .publisher .head .warningButton {
 	color: #E5352D;
@@ -468,6 +471,7 @@ label {
 	float: left;
 	margin-right: 10px;
 }
+
 
 
 #main .publisher .foundry .families {
@@ -912,4 +916,32 @@ label {
 
 div + div.headline {
 	margin-top: 10px;
+}
+
+
+
+.invitationButton {
+	display: inline-block;
+	padding: 7px;
+	padding-right: 9px;
+	background-color: white;
+}
+
+.invitationButton .symbol {
+	float: left;
+	width: 20px;
+	text-align: center;
+	margin-right: 3px;
+}
+
+.invitationButton .text {
+	float: left;
+}
+
+a:hover.acceptInvitation {
+	color: green !important;
+}
+
+a:hover.declineInvitation {
+	color: red !important;
 }

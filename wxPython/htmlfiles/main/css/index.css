@@ -29,6 +29,7 @@ html {
 body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 10pt;
+    line-height: 14pt;
     margin: none;
 }
 
@@ -417,16 +418,23 @@ label {
 }
 
 
-#main .publisher .head {
-	width: 100%;
-	background-color: #EEE; 
-	padding: 25px;
-	color: #000;
-
-
+#main .foundry {
 
 }
 
+
+#main .publisher .head {
+	width: 100%;
+	color: #000;
+
+	padding: 25px;
+	background-color: #EEE; 
+
+}
+
+#main .publisher .head .inner {
+	margin-right: 50px;
+}
 
 #main .publisher .head .warningButton {
 	color: #E5352D;
@@ -944,4 +952,32 @@ a:hover.acceptInvitation {
 
 a:hover.declineInvitation {
 	color: red !important;
+}
+
+.lighter {
+	color: rgba(0, 0, 0, .6);
+}
+
+
+.vertCenterOuter {
+	display: table;
+  
+
+/*  border: 1px solid red;*/
+
+}
+
+.vertCenterMiddle {
+	 display: table-cell;
+  vertical-align: middle;
+
+/*  border: 1px solid yellow;*/
+}
+
+
+.vertCenterInner {
+	margin-left: auto;
+  margin-right: auto;
+
+/*  border: 1px solid green;*/
 }

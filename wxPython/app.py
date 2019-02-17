@@ -33,6 +33,7 @@ MAC = platform.system() == 'Darwin'
 from ynlib.files import ReadFromFile, WriteToFile
 from ynlib.strings import *
 from ynlib.web import GetHTTP
+from ynlib.colors import Color
 
 import typeWorldClient
 from typeWorldClient import APIClient, JSON, AppKitNSUserDefaults
@@ -67,6 +68,7 @@ if MAC:
 	import objc
 	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp, NSObject, NSUserNotification, NSUserNotificationCenter
 	from AppKit import NSView, NSRect, NSPoint, NSSize, NSMakeRect, NSColor, NSRectFill, NSToolbar
+	from AppKit import NSRunningApplication
 
 	NSUserNotificationCenterDelegate = objc.protocolNamed('NSUserNotificationCenterDelegate')
 	class NotificationDelegate(NSObject, protocols=[NSUserNotificationCenterDelegate]):
@@ -156,6 +158,19 @@ try:
 		for proc in psutil.process_iter():
 			if proc.name() == PROCNAME and proc.pid != os.getpid():
 				return proc.pid
+
+	def appIsRunning(ID):
+
+		if MAC:
+			# App is running, so activate it
+			apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
+
+			if apps:
+				mainApp = apps[0]
+				return True
+
+		if WIN:
+			return PID(ID) is not None
 
 
 	def notification(title, text):
@@ -327,85 +342,91 @@ try:
 
 			try:
 				if MAC:
-					from AppKit import NSBundle
-					zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
-					plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
-					agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
-					plist = '''<?xml version="1.0" encoding="UTF-8"?>
-			<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-			<plist version="1.0">
-			<dict>
-			<key>Debug</key>
-			<true/>
-			<key>Disabled</key>
-			<false/>
-			<key>KeepAlive</key>
-			<true/>
-			<key>Label</key>
-			<string>world.type.agent</string>
-			<key>MachServices</key>
-			<dict>
-				<key>world.type.agent</key>
+
+					if not appIsRunning('world.type.agent'):
+
+
+						from AppKit import NSBundle
+						zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
+						plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
+						agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
+						plist = '''<?xml version="1.0" encoding="UTF-8"?>
+				<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+				<plist version="1.0">
+				<dict>
+				<key>Debug</key>
 				<true/>
-			</dict>
-			<key>OnDemand</key>
-			<false/>
-			<key>Program</key>
-			<string>''' + agentPath + '''/Contents/MacOS/Type.World Agent</string>
-			<key>RunAtLoad</key>
-			<true/>
-			</dict>
-			</plist>'''
+				<key>Disabled</key>
+				<false/>
+				<key>KeepAlive</key>
+				<true/>
+				<key>Label</key>
+				<string>world.type.agent</string>
+				<key>MachServices</key>
+				<dict>
+					<key>world.type.agent</key>
+					<true/>
+				</dict>
+				<key>OnDemand</key>
+				<false/>
+				<key>Program</key>
+				<string>''' + agentPath + '''/Contents/MacOS/Type.World Agent</string>
+				<key>RunAtLoad</key>
+				<true/>
+				</dict>
+				</plist>'''
 
 
-					# Extract app
-					folder = os.path.dirname(agentPath)
-					if not os.path.exists(folder):
-						os.makedirs(folder)
-					os.system('tar -zxf "%s" -C "%s"' % (zipPath, folder))
+						# Extract app
+						folder = os.path.dirname(agentPath)
+						if not os.path.exists(folder):
+							os.makedirs(folder)
+						os.system('tar -zxf "%s" -C "%s"' % (zipPath, folder))
 
-					# Write Launch Agent
-					if not os.path.exists(os.path.dirname(plistPath)):
-						os.makedirs(os.path.dirname(plistPath))
-					f = open(plistPath, 'w')
-					f.write(plist)
-					f.close()
+						# Write Launch Agent
+						if not os.path.exists(os.path.dirname(plistPath)):
+							os.makedirs(os.path.dirname(plistPath))
+						f = open(plistPath, 'w')
+						f.write(plist)
+						f.close()
 
-					# Run App
-			#		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
-					# import subprocess
-					# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
-			#		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
+						# Run App
+				#		if platform.mac_ver()[0].split('.') < '10.14.0'.split('.'):
+						# import subprocess
+						# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
+				#		os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
 
-					launchAgentThread = Thread(target=waitToLaunchAgent)
-					launchAgentThread.start()
+						launchAgentThread = Thread(target=waitToLaunchAgent)
+						launchAgentThread.start()
 
 
 				if WIN:
 
-			#			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-					file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-					file_path = file_path.replace(r'\\Mac\Home', 'Z:')
-					log(file_path)
+					if not appIsRunning('TypeWorld Taskbar Agent.exe'):
 
-					import getpass
-					USER_NAME = getpass.getuser()
+				#			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
+						file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
+						file_path = file_path.replace(r'\\Mac\Home', 'Z:')
+						log(file_path)
 
-					bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup' % USER_NAME
-					bat_command = 'start "" "%s"' % file_path
+						import getpass
+						USER_NAME = getpass.getuser()
 
-					from pathlib import Path
-					log(Path(file_path).exists())
-					log(os.path.exists(file_path))
+						bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup' % USER_NAME
+						bat_command = 'start "" "%s"' % file_path
 
-					if not os.path.exists(os.path.dirname(bat_path)):
-						os.makedirs(os.path.dirname(bat_path))
-					with open(bat_path + '\\' + "TypeWorld.bat", "w+") as bat_file:
-						bat_file.write(bat_command)
+						from pathlib import Path
+						log(Path(file_path).exists())
+						log(os.path.exists(file_path))
 
-					import subprocess
-					os.chdir(os.path.dirname(file_path))
-					subprocess.Popen([file_path], executable = file_path)
+						if not os.path.exists(os.path.dirname(bat_path)):
+							os.makedirs(os.path.dirname(bat_path))
+						with open(bat_path + '\\' + "TypeWorld.bat", "w+") as bat_file:
+							bat_file.write(bat_command)
+
+						import subprocess
+						os.chdir(os.path.dirname(file_path))
+						subprocess.Popen([file_path], executable = file_path)
 
 				client.preferences.set('menuBarIcon', True)
 
@@ -425,7 +446,6 @@ try:
 		log('lock() from within uninstallAgent()')
 		try:
 			if MAC:
-				from AppKit import NSRunningApplication
 
 				plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
 				agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
@@ -448,7 +468,7 @@ try:
 
 			if WIN:
 
-				agent('quit')	
+				agent('quit')
 
 				import getpass
 				USER_NAME = getpass.getuser()
@@ -743,8 +763,11 @@ try:
 
 			client.preferences.set('appVersion', APPVERSION)
 
+			# This should be unnecessary, but let's keep it here. More resilience.
+			if client.preferences.get('currentPublisher') == 'pendingInvitations' and not client.preferences.get('pendingInvitations'):
+				client.preferences.set('currentPublisher', '')
 
-			if client.preferences.get('currentPublisher') == 'pendingInvitations' and len(client.preferences.get('pendingInvitations')) == 0:
+			if client.preferences.get('currentPublisher') == 'None':
 				client.preferences.set('currentPublisher', '')
 
 			if not client.preferences.get('currentPublisher') and len(client.publishers()) >= 1:
@@ -812,6 +835,7 @@ try:
 
 			self.Bind(wx.EVT_SIZE, self.onResize, self)
 			self.Bind(wx.EVT_ACTIVATE, self.onActivate, self)
+			self.Bind(wx.EVT_KILL_FOCUS, self.onInactivate)
 
 
 			import signal
@@ -983,6 +1007,14 @@ try:
 				
 
 
+		def pullServerUpdates(self, force = False):
+
+
+			if not client.preferences.get('lastServerSync') or client.preferences.get('lastServerSync') < time.time() - PULLSERVERUPDATEINTERVAL or force:
+				if self.allowedToPullServerUpdates:
+					startWorker(self.pullServerUpdates_consumer, self.pullServerUpdates_worker)
+
+
 		def pullServerUpdates_worker(self):
 
 			return client.downloadSubscriptions()
@@ -992,28 +1024,32 @@ try:
 
 			success, message = delayedResult.get()
 
+			print(success, message)
+
 			self.setSideBarHTML()
 			if client.currentPublisher():
 				self.setPublisherHTML(self.b64encode(client.currentPublisher().canonicalURL))
+			self.setBadges()
 
 			if success:
 				subscriptionsUpdatedNotification(message)
 
+				self.javaScript('$("#userWrapper .alert").hide();')
+				self.javaScript('$("#userWrapper .noAlert").show();')
+
 			else:
 
-				if message in ('notOnline'):
-					pass
-				else:
-					self.errorMessage('An error occurred while synching the account:\n\n%s' % message)
+				self.javaScript('$("#userWrapper .alert").show();')
+				self.javaScript('$("#userWrapper .noAlert").hide();')
 
 
-		def pullServerUpdates(self, force = False):
-
-			if not client.preferences.get('lastServerSync') or client.preferences.get('lastServerSync') < time.time() - PULLSERVERUPDATEINTERVAL or force:
-				if self.allowedToPullServerUpdates:
-					startWorker(self.pullServerUpdates_consumer, self.pullServerUpdates_worker)
 
 
+
+		def onInactivate(self, event):
+
+			if client.preferences.get('currentPublisher'):
+				self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
 
 		def onActivate(self, event):
 
@@ -1138,11 +1174,14 @@ try:
 			if success:
 
 				self.onPreferences(None)
-				self.setSideBarHTML()
+				if client.preferences.get('currentPublisher'):
+					self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
 
 			else:
 
 				self.errorMessage(message)
+
+			self.setSideBarHTML()
 
 
 
@@ -1385,6 +1424,10 @@ try:
 				
 				webbrowser.open_new_tab('https://type.world/linkRedirect/?url=' + urllib.parse.quote(uri))
 				evt.Veto()
+
+			elif uri.startswith('mailto:'):
+				webbrowser.open(uri, new=1)
+
 			# else:
 			#   code = uri
 			#   code = urllib.unquote(code)
@@ -1445,11 +1488,11 @@ try:
 					if not success:
 						self.errorMessage(message)
 
-					self.setSideBarHTML()
 
-					self.javaScript('hidePanel();')
-
-					self.message('#(justLinkedUserAccount)')
+					if success:
+						self.setSideBarHTML()
+						self.javaScript('hidePanel();')
+						self.message('#(justLinkedUserAccount)')
 
 
 		def addSubscriptionViaDialog(self, url, username = None, password = None):
@@ -1533,6 +1576,7 @@ try:
 						client.preferences.set('currentPublisher', invitation['canonicalURL'])
 						self.setSideBarHTML()
 						self.setPublisherHTML(self.b64encode(client.currentPublisher().canonicalURL))
+						self.setBadges()
 
 			else:
 
@@ -1555,7 +1599,8 @@ try:
 
 								name = publisher.name(locale = client.locale())[0] + ' (' + subscription.name(locale=client.locale()) + ')'
 
-								dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Remove X)').replace('%name%', name), wx.YES_NO | wx.ICON_QUESTION)
+								dlg = wx.MessageDialog(self, localizeString('#(Are you sure)\n#(RemoveInvitationConfirmationExplanation)'), localizeString('#(Remove X)').replace('%name%', name), wx.YES_NO | wx.ICON_QUESTION)
+								dlg.SetYesNoLabels(localizeString('#(Remove)'), localizeString('#(Cancel)'))
 								result = dlg.ShowModal() == wx.ID_YES
 								dlg.Destroy()
 					
@@ -1567,6 +1612,7 @@ try:
 			for invitation in client.preferences.get('pendingInvitations'):
 				if invitation['ID'] == ID:
 					dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Decline Invitation)'), wx.YES_NO | wx.ICON_QUESTION)
+					dlg.SetYesNoLabels(localizeString('#(Remove)'), localizeString('#(Cancel)'))
 					result = dlg.ShowModal() == wx.ID_YES
 					dlg.Destroy()
 		
@@ -1590,8 +1636,11 @@ try:
 
 				if len(client.preferences.get('pendingInvitations')) == 0:
 					if client.publishers():
-						self.setSideBarHTML()
 						self.setPublisherHTML(self.b64encode(client.publishers()[0].canonicalURL))
+					else:
+						client.preferences.set('currentPublisher', '')
+				self.setSideBarHTML()
+				self.setBadges()
 
 
 			else:
@@ -1611,6 +1660,7 @@ try:
 			publisher = client.publisher(self.b64decode(b64ID))
 
 			dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Remove X)').replace('%name%', localizeString(publisher.name(client.locale())[0])), wx.YES_NO | wx.ICON_QUESTION)
+			dlg.SetYesNoLabels(localizeString('#(Remove)'), localizeString('#(Cancel)'))
 			result = dlg.ShowModal() == wx.ID_YES
 			dlg.Destroy()
 			
@@ -1632,6 +1682,7 @@ try:
 
 
 						dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Remove X)').replace('%name%', localizeString(subscription.name(client.locale()))), wx.YES_NO | wx.ICON_QUESTION)
+						dlg.SetYesNoLabels(localizeString('#(Remove)'), localizeString('#(Cancel)'))
 						result = dlg.ShowModal() == wx.ID_YES
 						dlg.Destroy()
 						
@@ -2201,6 +2252,11 @@ try:
 			agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
 
+		def displaySyncProblems(self):
+
+			self.errorMessage('\n\n'.join(client.syncProblems()))
+
+
 		def displayPublisherSidebarAlert(self, b64publisherID):
 			publisher = client.publisher(self.b64decode(b64publisherID))
 
@@ -2292,15 +2348,26 @@ try:
 						html.append('<div class="publisher invitation" id="%s">' % invitation['ID'])
 
 						html.append('<div class="foundry">')
-						html.append('<div class="head clear" style="background-color: %s;">' % ('#' + invitation['backgroundColor'] if 'backgroundColor' in invitation else 'none'))
+						html.append('<div class="head clear" style="background-color: %s;">' % ('#' + Color(hex=invitation['backgroundColor'] or 'DDDDDD').desaturate(0 if self.IsActive() else 1).hex if 'backgroundColor' in invitation else 'none'))
 
 
 						if 'logoURL' in invitation:
-							html.append('<div class="logo">')
-							html.append('<img src="%s" style="width: 100px; height: 100px;" />' % (invitation['logoURL']))
-							html.append('</div>') # publisher
+							success, logo, mimeType = client.resourceByURL(invitation['logoURL'], binary = True)
+							if success:
+								html.append('<div class="logo">')
+								html.append('<img src="data:%s;base64,%s" style="width: 100px; height: 100px;" />' % (mimeType, logo))
+								html.append('</div>') # publisher
+							else:
+								html.append('<div class="logo">')
+								html.append('<img src="%s" style="width: 100px; height: 100px;" />' % (invitation['logoURL']))
+								html.append('</div>') # publisher
 
 						html.append('<div class="names centerOuter"><div class="centerInner">')
+
+						html.append('<div class="vertCenterOuter" style="height: 100px;">')
+						html.append('<div class="vertCenterMiddle">')
+						html.append('<div class="vertCenterInner">')
+
 						html.append('<div class="name">%s%s</div>' % (typeWorldClient.base.MultiLanguageText(json = invitation['publisherName']).getText(client.locale()), (' (%s)' % typeWorldClient.base.MultiLanguageText(json = invitation['subscriptionName']).getText(client.locale()) if 'subscriptionName' in invitation else '')))
 						if 'website' in invitation:
 							html.append('<p>')
@@ -2316,7 +2383,7 @@ try:
 						if invitation['invitedByUserEmail'] or invitation['invitedByUserName']:
 							html.append('#(Invited by): <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
 							if invitation['invitedByUserEmail'] and invitation['invitedByUserName']:
-								html.append('<b>%s</b> (%s)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail']))
+								html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail'], invitation['invitedByUserEmail']))
 							else:
 								html.append('%s' % (invitation['invitedByUserName'] or invitation['invitedByUserEmail']))
 
@@ -2355,6 +2422,9 @@ try:
 						html.append('</div>') # buttons
 
 
+						html.append('</div>') # .vertCenterInner
+						html.append('</div>') # .vertCenterMiddle
+						html.append('</div>') # .vertCenterOuter
 
 
 						html.append('</div></div>') # .centerInner .centerOuter
@@ -2410,8 +2480,7 @@ try:
 
 				ID = self.b64decode(b64ID)
 
-				if client.preferences:
-					client.preferences.set('currentPublisher', ID)
+				client.preferences.set('currentPublisher', ID)
 
 				html = []
 
@@ -2421,259 +2490,291 @@ try:
 		#       print api
 
 
+				if subscription and subscription.exists:
 
-				html.append('<div class="publisher" id="%s">' % (b64ID))
+					html.append('<div class="publisher" id="%s">' % (b64ID))
 
-				if client.preferences.get('acceptedInvitations'):
-					for invitation in client.preferences.get('acceptedInvitations'):
-						if invitation['url'] == subscription.url:
+					if client.user() and subscription.invitationAccepted():
+						for invitation in client.preferences.get('acceptedInvitations'):
+							if invitation['url'] == subscription.url:
 
-							html.append('<div class="foundry">')
-							html.append('<div class="head clear">')
+								html.append('<div class="foundry">')
+								html.append('<div class="head clear">')
+								html.append('<div class="inner">')
+
+								# Invited by
+								html.append('<div class="clear">')
+								html.append('<div class="one" style="float: left; width: 300px;">')
+
+
+								html.append('<p>')
+								if invitation['invitedByUserEmail'] or invitation['invitedByUserName']:
+									html.append('<span class="lighter">#(Invited by):</span>')
+									html.append('</p>')
+									html.append('<p>')
+
+									html.append('<img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
+									if invitation['invitedByUserEmail'] and invitation['invitedByUserName']:
+										html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail'], invitation['invitedByUserEmail']))
+									else:
+										html.append('%s' % (invitation['invitedByUserName'] or invitation['invitedByUserEmail']))
+
+								if invitation['time']:
+									html.append('<br />%s' % (NaturalRelativeWeekdayTimeAndDate(invitation['time'], locale = client.locale()[0])))
+
+								html.append('</p>')
+
+								html.append('</div>') # .one
+								html.append('<div class="two" style="float: right;">')
+
+								html.append('<div style="margin-top: 18px;">')
+
+								html.append('<a class="declineInvitation" id="%s">' % invitation['ID'])
+								html.append('<div class="clear invitationButton decline">')
+								html.append('<div class="symbol">')
+								html.append('✕')
+								html.append('</div>')
+								html.append('<div class="text">')
+								html.append('#(Remove Invitation)')
+								html.append('</div>')
+								html.append('</div>')
+								html.append('</a>')
+
+								html.append('</div>') # buttons
+
+								html.append('</div>') # .clear
+
+
+
+								html.append('</div>') # .inner
+								html.append('</div>') # .head
+								html.append('</div>') # .foundry
+
+								html.append('''<script>
+
+
+					$("#main .publisher a.declineInvitation").click(function() {
+						python("self.declineInvitation(" + $(this).attr('id') + ")");
+					});
+
+
+									</script>''')
+
+
+
+					for foundry in subscription.foundries():
+
+
+						html.append('<div class="foundry">')
+						html.append('<div class="head clear" style="background-color: %s;">' % ('#' + Color(hex=foundry.backgroundColor or 'DDDDDD').desaturate(0 if self.IsActive() else 1).hex if foundry.backgroundColor else 'none'))
+
+
+
+						if foundry.logo:
+							success, logo, mimeType = subscription.resourceByURL(foundry.logo, binary = True)
+							if success:
+								html.append('<div class="logo">')
+								html.append('<img src="data:%s;base64,%s" style="width: 100px; height: 100px;" />' % (mimeType, logo))
+								html.append('</div>') # publisher
+
+						html.append('<div class="names centerOuter"><div class="centerInner">')
+
+						html.append('<div class="vertCenterOuter" style="height: 100px;">')
+						html.append('<div class="vertCenterMiddle">')
+						html.append('<div class="vertCenterInner">')
+
+
+						html.append('<div class="name">%s</div>' % (foundry.name.getText(client.locale())))
+						if foundry.website:
 							html.append('<p>')
-							if invitation['invitedByUserEmail'] or invitation['invitedByUserName']:
-								html.append('#(Invited by): <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
-								if invitation['invitedByUserEmail'] and invitation['invitedByUserName']:
-									html.append('<b>%s</b> (%s)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail']))
-								else:
-									html.append('%s' % (invitation['invitedByUserName'] or invitation['invitedByUserEmail']))
-
-							if invitation['time']:
-								html.append(', %s' % (NaturalRelativeWeekdayTimeAndDate(invitation['time'], locale = client.locale()[0])))
-
+							html.append('<div class="website"><a href="%s">%s</a></div>' % (foundry.website, foundry.website))
 							html.append('</p>')
 
-							html.append('<div style="margin-top: 15px;">')
+						html.append('</div>') # .vertCenterInner
+						html.append('</div>') # .vertCenterMiddle
+						html.append('</div>') # .vertCenterOuter
 
-							html.append('<a class="declineInvitation" id="%s">' % invitation['ID'])
-							html.append('<div class="clear invitationButton decline">')
-							html.append('<div class="symbol">')
-							html.append('✕')
-							html.append('</div>')
-							html.append('<div class="text">')
-							html.append('#(Remove Invitation)')
-							html.append('</div>')
-							html.append('</div>')
-							html.append('</a>')
-
-							html.append('</div>') # buttons
+						html.append('</div></div>') # .centerInner .centerOuter
 
 
-							html.append('</div>') # .head
-							html.append('</div>') # .foundry
-
-							html.append('''<script>
 
 
-				$("#main .publisher a.declineInvitation").click(function() {
-					python("self.declineInvitation(" + $(this).attr('id') + ")");
+
+						html.append('</div>') # .head
+
+
+						html.append('<div class="families">')
+
+						for family in foundry.families():
+							html.append('<div class="contextmenu family" id="%s">' % self.b64encode(family.uniqueID))
+
+							html.append('<div class="title">')
+							html.append('<div class="clear">')
+							html.append('<div class="left name">')
+							html.append(family.name.getText(client.locale()))
+							html.append('</div>') # .left.name
+							html.append('</div>') # .clear
+							html.append('</div>') # .title
+
+
+							for setName in family.setNames(client.locale()):
+								for formatName in family.formatsForSetName(setName, client.locale()):
+
+									fonts = []
+									amountInstalled = 0
+									for font in family.fonts():
+										if font.setName.getText(client.locale()) == setName and font.format == formatName:
+											fonts.append(font)
+											if font.installedVersion():
+												amountInstalled += 1
+
+									completeSetName = ''
+									if setName:
+										completeSetName = setName + ', '
+									completeSetName += typeWorld.api.base.FILEEXTENSIONNAMES[formatName]
+
+									html.append('<div class="section" id="%s">' % completeSetName)
+
+									html.append('<div class="title clear">')
+									html.append('<div class="left">%s</div>' % completeSetName)
+
+									if len(fonts) > 1:
+
+										html.append('<div class="more right" style="padding-top: 5px;">')
+										html.append('<img src="file://##htmlroot##/more_darker.svg" style="height: 8px; position: relative; top: 0px;">')
+										html.append('</div>')
+
+										html.append('<div class="installButtons right" style="padding-top: 5px;">')
+										html.append('<div class="clear">')
+
+										if amountInstalled < len(fonts):
+											html.append('<div class="install installButton right">')
+											html.append('<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+											html.append('✓ #(Install All)')
+											html.append('</a>')
+											html.append('</div>') # .installButton
+
+										if amountInstalled > 0:
+											html.append('<div class="remove installButton right">')
+											html.append('<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+											html.append('✕ #(Remove All)')
+											html.append('</a>')
+											html.append('</div>') # .installButton
+
+										html.append('</div>') # .clear
+										html.append('</div>') # .installButtons
+
+									html.append('</div>') # .title
+
+									for font in fonts:
+										html.append('<div class="contextmenu font" id="%s">' % self.b64encode(font.uniqueID))
+										html.append('<div class="clear">')
+
+										html.append('<div class="left" style="width: 50%;">')
+										html.append(font.name.getText(client.locale()))
+										if font.free:
+											html.append('<span class="label free">free</span>')
+										if font.status != 'stable':
+											html.append('<span class="label pre">%s</span>' % font.status)
+										if font.variableFont:
+											html.append('<span class="label var">OTVar</span>')
+										html.append('</div>') # .left
+										html.append('<div class="left">')
+										installedVersion = font.installedVersion()
+										if installedVersion:
+											html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getVersions()[-1].number else 'olderVersion', installedVersion))
+										else:
+											html.append('<span class="notInstalled">#(Not Installed)</span>')
+										html.append('</div>') # .left
+
+										if font.purpose == 'desktop':
+											html.append('<div class="installButtons right">')
+											html.append('<div class="clear">')
+											html.append('<div class="installButton install right" style="display: %s;">' % ('none' if installedVersion else 'block'))
+											html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getVersions()[-1].number if font.getVersions() else ''))
+											html.append('✓ #(Install)')
+											html.append('</a>')
+											html.append('</div>') # .right
+											html.append('<div class="installButton remove right" style="display: %s;">' % ('block' if installedVersion else 'none'))
+											html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
+											html.append('✕ #(Remove)')
+											html.append('</a>')
+											html.append('</div>') # .right
+											html.append('</div>') # .clear
+											html.append('</div>') # .installButtons
+											html.append('<div class="right">')
+											html.append('<a class="status">')
+											html.append('''<img src="file://##htmlroot##/loading.gif" style="height: 13px; position: relative; top: 2px;">''')
+											html.append('</a>')
+											html.append('<div>')
+											html.append('<a class="more">')
+											html.append('''<img src="file://##htmlroot##/more_lighter.svg" style="height: 8px; position: relative; top: 0px;">''')
+											html.append('</a>')
+											html.append('</div>')
+											html.append('</div>') # .right
+
+										html.append('</div>') # .clear
+										html.append('</div>') # .font
+
+									html.append('</div>') # .section
+
+							html.append('</div>') # .family
+
+
+						html.append('</div>') # .families
+
+
+
+
+						html.append('</div>') # .foundry
+
+
+
+
+
+
+					html.append('</div>') # .publisher
+
+					html.append('''<script>     
+
+
+				$("#main .section .title").hover(function() {
+					$( this ).closest(".section").addClass( "hover" );
+					$( this ).closest(".section").children(".font").addClass("hover");
+
+				  }, function() {
+					$( this ).closest(".section").removeClass( "hover" );
+					$( this ).closest(".section").children(".font").removeClass("hover");
+				  }
+				);
+
+				$("#main .font").hover(function() {
+					$( this ).addClass( "hover" );
+					$( this ).addClass( "hoverOverFont" );
+				  }, function() {
+					$( this ).removeClass( "hover" );
+					$( this ).removeClass( "hoverOverFont" );
+				  }
+				);
+
+				$("#main .publisher a.reloadPublisherButton").click(function() {
+					$("#sidebar #%s .badges").hide();
+					$("#sidebar #%s .reloadAnimation").show();
+					python("self.reloadPublisher(None, ____%s____)");
 				});
 
 
-								</script>''')
+
+			</script>''' % (b64ID, b64ID, b64ID))
 
 
-
-				for foundry in subscription.foundries():
-
-
-					html.append('<div class="foundry">')
-					html.append('<div class="head clear" style="background-color: %s;">' % ('#' + foundry.backgroundColor if foundry.backgroundColor else 'none'))
-
-					if foundry.logo:
-						success, logo, mimeType = subscription.resourceByURL(foundry.logo, binary = True)
-						if success:
-							html.append('<div class="logo">')
-							html.append('<img src="data:%s;base64,%s" style="width: 100px; height: 100px;" />' % (mimeType, logo))
-							html.append('</div>') # publisher
-
-					html.append('<div class="names centerOuter"><div class="centerInner">')
-					html.append('<div class="name">%s</div>' % (foundry.name.getText(client.locale())))
-					if foundry.website:
-						html.append('<p>')
-						html.append('<div class="website"><a href="%s">%s</a></div>' % (foundry.website, foundry.website))
-						html.append('</p>')
-
-
-					html.append('</div></div>') # .centerInner .centerOuter
-
-
-
-					html.append('</div>') # .head
-
-
-					html.append('<div class="families">')
-
-					for family in foundry.families():
-						html.append('<div class="contextmenu family" id="%s">' % self.b64encode(family.uniqueID))
-
-						html.append('<div class="title">')
-						html.append('<div class="clear">')
-						html.append('<div class="left name">')
-						html.append(family.name.getText(client.locale()))
-						html.append('</div>') # .left.name
-						html.append('</div>') # .clear
-						html.append('</div>') # .title
-
-
-						for setName in family.setNames(client.locale()):
-							for formatName in family.formatsForSetName(setName, client.locale()):
-
-								fonts = []
-								amountInstalled = 0
-								for font in family.fonts():
-									if font.setName.getText(client.locale()) == setName and font.format == formatName:
-										fonts.append(font)
-										if font.installedVersion():
-											amountInstalled += 1
-
-								completeSetName = ''
-								if setName:
-									completeSetName = setName + ', '
-								completeSetName += typeWorld.api.base.FILEEXTENSIONNAMES[formatName]
-
-								html.append('<div class="section" id="%s">' % completeSetName)
-
-								html.append('<div class="title clear">')
-								html.append('<div class="left">%s</div>' % completeSetName)
-
-								if len(fonts) > 1:
-
-									html.append('<div class="more right" style="padding-top: 5px;">')
-									html.append('<img src="file://##htmlroot##/more_darker.svg" style="height: 8px; position: relative; top: 0px;">')
-									html.append('</div>')
-
-									html.append('<div class="installButtons right" style="padding-top: 5px;">')
-									html.append('<div class="clear">')
-
-									if amountInstalled < len(fonts):
-										html.append('<div class="install installButton right">')
-										html.append('<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
-										html.append('✓ #(Install All)')
-										html.append('</a>')
-										html.append('</div>') # .installButton
-
-									if amountInstalled > 0:
-										html.append('<div class="remove installButton right">')
-										html.append('<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
-										html.append('✕ #(Remove All)')
-										html.append('</a>')
-										html.append('</div>') # .installButton
-
-									html.append('</div>') # .clear
-									html.append('</div>') # .installButtons
-
-								html.append('</div>') # .title
-
-								for font in fonts:
-									html.append('<div class="contextmenu font" id="%s">' % self.b64encode(font.uniqueID))
-									html.append('<div class="clear">')
-
-									html.append('<div class="left" style="width: 50%;">')
-									html.append(font.name.getText(client.locale()))
-									if font.free:
-										html.append('<span class="label free">free</span>')
-									if font.prerelease:
-										html.append('<span class="label pre">pre</span>')
-									if font.variableFont:
-										html.append('<span class="label var">OTVar</span>')
-									html.append('</div>') # .left
-									html.append('<div class="left">')
-									installedVersion = font.installedVersion()
-									if installedVersion:
-										html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getVersions()[-1].number else 'olderVersion', installedVersion))
-									else:
-										html.append('<span class="notInstalled">#(Not Installed)</span>')
-									html.append('</div>') # .left
-
-									if font.purpose == 'desktop':
-										html.append('<div class="installButtons right">')
-										html.append('<div class="clear">')
-										html.append('<div class="installButton install right" style="display: %s;">' % ('none' if installedVersion else 'block'))
-										html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getVersions()[-1].number if font.getVersions() else ''))
-										html.append('✓ #(Install)')
-										html.append('</a>')
-										html.append('</div>') # .right
-										html.append('<div class="installButton remove right" style="display: %s;">' % ('block' if installedVersion else 'none'))
-										html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
-										html.append('✕ #(Remove)')
-										html.append('</a>')
-										html.append('</div>') # .right
-										html.append('</div>') # .clear
-										html.append('</div>') # .installButtons
-										html.append('<div class="right">')
-										html.append('<a class="status">')
-										html.append('''<img src="file://##htmlroot##/loading.gif" style="height: 13px; position: relative; top: 2px;">''')
-										html.append('</a>')
-										html.append('<div>')
-										html.append('<a class="more">')
-										html.append('''<img src="file://##htmlroot##/more_lighter.svg" style="height: 8px; position: relative; top: 0px;">''')
-										html.append('</a>')
-										html.append('</div>')
-										html.append('</div>') # .right
-
-									html.append('</div>') # .clear
-									html.append('</div>') # .font
-
-								html.append('</div>') # .section
-
-						html.append('</div>') # .family
-
-
-					html.append('</div>') # .families
-
-
-
-
-					html.append('</div>') # .foundry
-
-
-
-
-
-
-				html.append('</div>') # .publisher
-
-				html.append('''<script>     
-
-
-			$("#main .section .title").hover(function() {
-				$( this ).closest(".section").addClass( "hover" );
-				$( this ).closest(".section").children(".font").addClass("hover");
-
-			  }, function() {
-				$( this ).closest(".section").removeClass( "hover" );
-				$( this ).closest(".section").children(".font").removeClass("hover");
-			  }
-			);
-
-			$("#main .font").hover(function() {
-				$( this ).addClass( "hover" );
-				$( this ).addClass( "hoverOverFont" );
-			  }, function() {
-				$( this ).removeClass( "hover" );
-				$( this ).removeClass( "hoverOverFont" );
-			  }
-			);
-
-			$("#main .publisher a.reloadPublisherButton").click(function() {
-				$("#sidebar #%s .badges").hide();
-				$("#sidebar #%s .reloadAnimation").show();
-				python("self.reloadPublisher(None, ____%s____)");
-			});
-
-
-
-		</script>''' % (b64ID, b64ID, b64ID))
-
-
-				# Unused:
-				'''
-			$("#main .font, #main .family .title").click(function() {
-				$("#main .font, #main .family .title").removeClass('selected');
-				$( this ).addClass( "selected" );
-			  });
-		'''
+					# Unused:
+					'''
+				$("#main .font, #main .family .title").click(function() {
+					$("#main .font, #main .family .title").removeClass('selected');
+					$( this ).addClass( "selected" );
+				  });
+			'''
 
 
 
@@ -2691,8 +2792,11 @@ try:
 				self.javaScript("$('#sidebar .publisher').removeClass('selected');")
 				self.javaScript("$('#sidebar .subscription').removeClass('selected');")
 				self.javaScript("$('#sidebar #%s.publisher').addClass('selected');" % b64ID)
-				self.javaScript("$('#sidebar #%s.subscription').addClass('selected');" % self.b64encode(subscription.url))
 
+				if subscription:
+					self.javaScript("$('#sidebar #%s.subscription').addClass('selected');" % self.b64encode(subscription.url))
+
+				self.setBadges()
 				agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
 			self.javaScript("showMain();")
@@ -2723,7 +2827,7 @@ try:
 				self.javaScript("hideMain();")
 
 			else:
-				if not client.currentPublisher():
+				if not client.currentPublisher() and client.publishers():
 					client.preferences.set('currentPublisher', client.publishers()[0].canonicalURL)
 					self.setActiveSubscription(self.b64encode(client.publishers()[0].canonicalURL), self.b64encode(client.publishers()[0].subscriptions()[0].url))
 
@@ -2782,10 +2886,16 @@ try:
 
 						# Identity Revealed Icon
 						if len(publisher.subscriptions()) == 1:
+
 							subscription = publisher.subscriptions()[0]
 							if client.user() and subscription.get('revealIdentity'):
 								html.append('<div class="badges clear">')
-								html.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
+								html.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
+								html.append('</div>') # .badges
+
+							if client.user() and subscription.invitationAccepted():
+								html.append('<div class="badges clear">')
+								html.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(IsInvitationExplanation)') + '">✉️</div>')
 								html.append('</div>') # .badges
 
 						html.append('<div class="alert noclick" style="display: %s;">' % ('block' if publisher.updatingProblem() else 'none'))
@@ -2826,6 +2936,11 @@ try:
 								if client.user() and subscription.get('revealIdentity'):
 									html.append('<div class="badges clear">')
 									html.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
+									html.append('</div>') # .badges
+
+								if client.user() and subscription.invitationAccepted():
+									html.append('<div class="badges clear">')
+									html.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(IsInvitationExplanation)') + '">📥</div>')
 									html.append('</div>') # .badges
 
 								html.append('<div class="alert" style="display: %s;">' % ('block' if subscription.updatingProblem() else 'none'))
@@ -2970,8 +3085,8 @@ try:
 
 			self.javaScript(js)
 
-			if client.userEmail():
-				self.javaScript('$("#userBadge #userName").html("%s");' % client.userEmail())
+			if client.user():
+				self.javaScript('$("#userBadge #userName").html("%s");' % (client.userEmail() or (client.user()[:20] + '...')))
 				self.javaScript('$("#userBadge").show();')
 			else:
 				self.javaScript('$("#userBadge").hide();')
@@ -3020,6 +3135,7 @@ try:
 				# Menu Bar is actually running, so don't do anything
 				if not client.preferences.get('menuBarIcon'):
 					dlg = wx.MessageDialog(None, localizeString("#(InstallMenubarIconQuestion)"), localizeString("#(ShowMenuBarIcon)"),wx.YES_NO | wx.ICON_QUESTION)
+					dlg.SetYesNoLabels(localizeString('#(Yes)'), localizeString('#(No)'))
 					result = dlg.ShowModal()
 					if result == wx.ID_YES:
 						installAgent()
@@ -3092,9 +3208,9 @@ try:
 			return html
 
 		def setBadges(self):
-			amount = 0
-			for publisher in client.publishers():
-				amount += publisher.amountOutdatedFonts()
+			amount = client.amountOutdatedFonts()
+			if client.preferences.get('pendingInvitations'):
+				amount += len(client.preferences.get('pendingInvitations'))
 			if amount > 0:
 				self.setBadgeLabel(str(amount))
 			else:

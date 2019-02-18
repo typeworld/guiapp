@@ -1335,6 +1335,11 @@ try:
 
 						subscription.set(key, value)
 
+					self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
+					self.setSideBarHTML()
+
+					break
+
 
 		def showSubscriptionPreferences(self, event, b64ID):
 
@@ -1386,7 +1391,11 @@ try:
 							html.append('<p>')
 							if client.user():
 								html.append('<span><input id="revealidentity" type="checkbox" name="revealidentity" %s><label for="revealidentity">#(Reveal Your Identity For This Subscription)</label></span>' % ('checked' if subscription.get('revealIdentity') else ''))
-								html.append('<script>$("#preferences #revealidentity").click(function() {setSubscriptionPreference("%s", "revealIdentity", $("#preferences #revealidentity").prop("checked"));});</script>' % b64ID)
+								html.append('''<script>
+									$("#preferences #revealidentity").click(function() {
+										setSubscriptionPreference("%s", "revealIdentity", $("#preferences #revealidentity").prop("checked"));
+									});
+								</script>''' % (b64ID))
 								html.append('</p><p>')
 								html.append('#(RevealIdentityExplanation)')
 							else:
@@ -1523,15 +1532,27 @@ try:
 			if not known:
 				return False, 'Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS), None
 
-			success, message, publisher = client.addSubscription(url, username, password)
-			return success, message, publisher
+			success, message, publisher, subscription = client.addSubscription(url, username, password)
+			return success, message, publisher, subscription
 
 
 		def addSubscription_consumer(self, delayedResult):
 
-			success, message, publisher = delayedResult.get()
+			success, message, publisher, subscription = delayedResult.get()
 
 			if success:
+
+
+				if subscription.latestVersion().response.getCommand().prefersRevealedUserIdentity:
+
+					dlg = wx.MessageDialog(self, localizeString('#(Reveal Identity)'), localizeString('#(RevealUserIdentityRequest)'), wx.YES_NO | wx.ICON_QUESTION)
+					dlg.SetYesNoLabels(localizeString('#(Okay)'), localizeString('#(Cancel)'))
+					result = dlg.ShowModal() == wx.ID_YES
+					dlg.Destroy()
+					
+					if result:
+						subscription.set('revealIdentity', True)
+
 
 				b64ID = self.b64encode(publisher.canonicalURL)
 
@@ -2492,7 +2513,60 @@ try:
 
 				if subscription and subscription.exists:
 
+
 					html.append('<div class="publisher" id="%s">' % (b64ID))
+
+					if subscription.latestVersion().response.getCommand().prefersRevealedUserIdentity and subscription.get('revealIdentity') != True:
+
+						html.append('<div class="foundry" id="acceptRevealIdentity">')
+						html.append('<div class="head clear">')
+						html.append('<div class="inner">')
+
+						html.append('<div class="clear">')
+
+						html.append('<div class="one" style="float: left; width: 500px;">')
+						html.append('<p>')
+						html.append('<b>#(Reveal Identity)</b>')
+						html.append('</p>')
+						html.append('<p>')
+						html.append('#(RevealUserIdentityRequest)')
+						html.append('</p>')
+						html.append('</div>') # .one
+
+						html.append('<div class="two" style="float: right;">')
+
+						# # BUTTON
+						html.append('<div style="margin-top: 18px;">')
+						html.append('<a class="acceptInvitation" id="acceptRevealIdentityButton">')
+						html.append('<div class="clear invitationButton agree">')
+						html.append('<div class="symbol">')
+						html.append('✓')
+						html.append('</div>')
+						html.append('<div class="text">')
+						html.append('#(Agree)')
+						html.append('</div>')
+						html.append('</div>')
+						html.append('</a>')
+						html.append('</div>') # buttons
+
+						html.append('</div>') # .two
+						html.append('</div>') # .clear
+
+						html.append('</div>') # .inner
+						html.append('</div>') # .head
+						html.append('</div>') # .foundry
+
+						html.append('''<script>
+
+
+			$("#acceptRevealIdentityButton").click(function() {
+				$("#acceptRevealIdentity").slideUp(function(){ 
+					setSubscriptionPreference("%s", "revealIdentity", "true");
+				});
+			});
+
+							</script>''' % self.b64encode(subscription.url))
+
 
 					if client.user() and subscription.invitationAccepted():
 						for invitation in client.preferences.get('acceptedInvitations'):
@@ -2782,9 +2856,9 @@ try:
 				html = ''.join(html)
 				html = html.replace('"', '\'')
 				html = html.replace('\n', '')
-				html = localizeString(html)
+				html = localizeString(html, html = True)
 				html = self.replaceHTML(html)
-		#       print html
+				# print(html)
 				js = '$("#main").html("' + html + '");'
 				self.javaScript(js)
 

@@ -171,6 +171,10 @@ function showPublisherPreferences() {
 	python('self.panelVisible = True')
 }
 
+function setPublisherHTML(b64ID) {
+	python('self.setPublisherHTML(____' + b64ID + '____)');
+}
+
 function hidePanel() {
 	$('#addSubscription').slideUp();
 	$('#preferences').slideUp();

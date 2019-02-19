@@ -307,15 +307,24 @@ label {
 	float: right;
 	overflow: hidden;
 	-ms-overflow-style: none;
+
+	margin-left: 5px;
+	margin-right: 0px;
+
 /*	border: 1px solid white;
 
 */}
 
 .sidebar .badge {
 	padding: 3px;
+	padding-left: 2px;
+	padding-right: 2px;
+	float: right;
+}
+
+.sidebar .badge.numbers {
 	padding-left: 6px;
 	padding-right: 6px;
-	float: right;
 }
 
 .sidebar .reloadAnimation {

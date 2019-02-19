@@ -14,7 +14,7 @@ except:
 sys.path.insert(0, os.path.dirname(__file__))
 
 
-import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, ctypes, semver, platform, logging
+import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, ctypes, semver, platform, logging, certifi
 from threading import Thread
 import threading
 import wx.html2
@@ -337,14 +337,15 @@ try:
 
 		if RUNTIME:
 
-			lock()
-			log('lock() from within installAgent()')
 
 			try:
 				if MAC:
 
 					if not appIsRunning('world.type.agent'):
 
+
+						lock()
+						log('lock() from within installAgent()')
 
 						from AppKit import NSBundle
 						zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
@@ -403,6 +404,10 @@ try:
 				if WIN:
 
 					if not appIsRunning('TypeWorld Taskbar Agent.exe'):
+
+						lock()
+						log('lock() from within installAgent()')
+
 
 				#			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
 						file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
@@ -1382,6 +1387,33 @@ try:
 
 
 
+
+						# Invitation
+
+						if client.user() and subscription.invitationAccepted():
+
+							html.append('<hr>')
+
+							html.append('<h2>#(Invitations)</h2>')
+							html.append('<p>')
+
+							for invitation in client.preferences.get('acceptedInvitations'):
+								if invitation['url'] == subscription.url:
+
+									if invitation['invitedByUserEmail'] or invitation['invitedByUserName']:
+										html.append('#(Invited by) <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
+										if invitation['invitedByUserEmail'] and invitation['invitedByUserName']:
+											html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail'], invitation['invitedByUserEmail']))
+										else:
+											html.append('%s' % (invitation['invitedByUserName'] or invitation['invitedByUserEmail']))
+
+									if invitation['time']:
+										html.append('<br />%s' % (NaturalRelativeWeekdayTimeAndDate(invitation['time'], locale = client.locale()[0])))
+
+							html.append('</p>')
+
+
+
 						# Reveal Identity
 						if subscription.parent.get('type') == 'JSON':
 
@@ -1408,7 +1440,251 @@ try:
 						html = html.replace('"', '\'')
 						html = localizeString(html, html = True)
 						html = html.replace('\n', '')
-						print(html)
+						html = self.replaceHTML(html)
+
+
+						js = '$("#preferences .inner").html("' + html + '");'
+						self.javaScript(js)
+
+						self.javaScript('showPreferences();')
+
+
+		def inviteUsers(self, b64ID, string):
+			
+			subscription = None
+			for publisher in client.publishers():
+				for s in publisher.subscriptions():
+					if s.exists and s.url == self.b64decode(b64ID):
+						subscription = s
+						break
+
+			if subscription and client.userEmail():
+				emails = [x.strip() for x in string.split(', ')]
+
+				for email in emails:
+
+					parameters = {
+						'command': 'inviteUserToSubscription',
+						'userEmail': email,
+						'invitedByUserEmail': client.userEmail(),
+						'subscriptionURL': subscription.completeURL(),
+					}
+
+					data = urllib.parse.urlencode(parameters).encode('ascii')
+					url = 'https://type.world/jsonAPI/'
+
+					try:
+						response = urllib.request.urlopen(url, data, cafile=certifi.where())
+					except urllib.error.HTTPError as e:
+						self.log('API endpoint alive HTTP error: %s' % e)
+						self.errorMessage('API endpoint alive HTTP error: %s' % e)
+
+					response = json.loads(response.read().decode())
+
+					if response['response'] == 'invalidSubscriptionURL':
+						self.errorMessage('The subscription URL %s is invalid.' % subscription.completeURL())
+
+					elif response['response'] == 'unknownEmail':
+						self.errorMessage('The invited user doesn’t have a valid Type.World user account as %s.' % email)
+
+					elif response['response'] == 'unknownInvitedByUserEmail':
+						self.errorMessage('The inviting user doesn’t have a valid Type.World user account as %s.' % client.userEmail())
+
+					elif response['response'] == 'success':
+						print('Successfully invited user %s' % email)
+
+						# Update
+						client.downloadSubscriptions()
+
+
+						self.showSubscriptionInvitations(None, b64ID)
+
+
+		def revokeUsers(self, b64ID, string):
+			
+			print("revokeUsers", b64ID, string)
+
+			subscription = None
+			for publisher in client.publishers():
+				for s in publisher.subscriptions():
+					if s.exists and s.url == self.b64decode(b64ID):
+						subscription = s
+						break
+
+			if subscription and client.userEmail():
+				emails = [x.strip() for x in string.split(', ')]
+
+				for email in emails:
+
+					parameters = {
+						'command': 'revokeSubscriptionInvitation',
+						'userEmail': email,
+						'invitedByUserEmail': client.userEmail(),
+						'subscriptionURL': subscription.completeURL(),
+					}
+
+					print(parameters)
+					data = urllib.parse.urlencode(parameters).encode('ascii')
+					url = 'https://type.world/jsonAPI/'
+
+					try:
+						response = urllib.request.urlopen(url, data, cafile=certifi.where())
+					except urllib.error.HTTPError as e:
+						self.log('API endpoint alive HTTP error: %s' % e)
+						self.errorMessage('API endpoint alive HTTP error: %s' % e)
+
+					response = json.loads(response.read().decode())
+
+					if response['response'] == 'invalidSubscriptionURL':
+						self.errorMessage('The subscription URL %s is invalid.' % subscription.completeURL())
+
+					elif response['response'] == 'unknownEmail':
+						self.errorMessage('The invited user doesn’t have a valid Type.World user account as %s.' % email)
+
+					elif response['response'] == 'unknownInvitedByUserEmail':
+						self.errorMessage('The inviting user doesn’t have a valid Type.World user account as %s.' % client.userEmail())
+
+					elif response['response'] == 'unknownSubscription':
+						self.errorMessage('The subscription URL is unkown.')
+
+					elif response['response'] == 'success':
+						print('Successfully revoked user %s' % email)
+
+						# Update
+						client.downloadSubscriptions()
+
+						self.showSubscriptionInvitations(None, b64ID)
+
+
+		def showSubscriptionInvitations(self, event, b64ID, loadUpdates = False):
+
+			if loadUpdates:
+				client.downloadSubscriptions()
+
+
+			print('showSubscriptionInvitations()')
+
+			url = self.b64decode(b64ID)
+
+			for publisher in client.publishers():
+				for subscription in publisher.subscriptions():
+					if subscription.exists and subscription.url == self.b64decode(b64ID):
+
+						html = []
+
+						html.append('<h2>#(Invitations)</h2>')
+						html.append('<p>URL: <em>')
+						html.append(subscription.url) # .replace('secretKey', '<span style="color: orange;">secretKey</span>')
+						html.append('</em></p>')
+
+
+
+						command = subscription.latestVersion().response.getCommand()
+						userName = command.userName.getText(client.locale())
+						userEmail = command.userEmail
+
+						html.append('<p>')
+						html.append('#(Provided by) ')
+						if subscription.latestVersion().website:
+							html.append('<a href="%s" title="%s">' % (subscription.latestVersion().website, subscription.latestVersion().website))
+						html.append('<b>' + subscription.latestVersion().name.getText(client.locale()) + '</b>')
+						if subscription.latestVersion().website:
+							html.append('</a> ')
+						if userName or userEmail:
+							html.append('#(for) ')
+						if userName and userEmail:
+							html.append('<b>%s</b> (%s)' % (userName, userEmail))
+						elif userName:
+							html.append('<b>%s</b>' % (userName))
+						elif userEmail:
+							html.append('<b>%s</b>' % (userEmail))
+						html.append('</p>')
+
+
+
+						html.append('<hr>')
+
+
+						html.append('<p>')
+						html.append('#(InviteUserByEmailAddressExplanation)')
+						html.append('</p>')
+						html.append('<p>')
+						html.append('<input type="text" id="inviteUserName" placeholder="#(JohnDoeEmailAddresses)"><br />')
+						html.append('<a id="inviteUsersButton" class="button">#(Invite Users)</a>')
+
+
+						html.append('</p>')
+
+
+						html.append('''<script>
+
+							$("#inviteUsersButton").click(function() {
+								python("self.inviteUsers(____%s____, ____" + $("#inviteUserName").val() + "____)");
+							});
+
+						</script>''' % (b64ID))
+
+
+
+						matchedInvitations = []
+
+						for invitation in client.preferences.get('sentInvitations'):
+							if invitation['url'] == url:
+								matchedInvitations.append(invitation)
+
+
+						html.append('<hr>')
+
+
+						if matchedInvitations:
+							for invitation in matchedInvitations:
+								html.append('<div class="clear" style="margin-bottom: 3px;">')
+								html.append('<div style="float: left; width: 300px;">')
+								html.append('<img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
+								html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation['invitedUserName'], invitation['invitedUserEmail'], invitation['invitedUserEmail']))
+								html.append('</div>')
+
+								html.append('<div style="float: left; width: 100px;">')
+								if invitation['confirmed']:
+									html.append('✓ #(Accepted)')
+								else:
+									html.append('<em>#(Pending)…</em>')
+								html.append('</div>')
+
+								html.append('<div style="float: right; width: 100px;">')
+								html.append('<a class="revokeInvitationButton" b64ID="%s" email="%s">#(Revoke Invitation)</a>' % (b64ID, invitation['invitedUserEmail']))
+								html.append('</div>')
+
+								html.append('</div>') # .clear
+
+
+						else:
+							html.append('<p>#(CurrentlyNoSentInvitations)</p>')
+
+						html.append('<p>')
+						html.append('<a id="updateInvitations" class="button">#(UpdateInfinitive)</a>')
+						html.append('</p>')
+						html.append('''<script>
+
+							$("#updateInvitations").click(function() {
+								python("self.showSubscriptionInvitations(None, ____%s____, loadUpdates = True)");
+							});
+
+							$(".revokeInvitationButton").click(function() {
+								python("self.revokeUsers(____" + $(this).attr("b64ID") + "____, ____" + $(this).attr("email") + "____)");
+							});
+
+						</script>''' % (b64ID))
+
+
+						# Print HTML
+						html = ''.join(html)
+						html = html.replace('"', '\'')
+						html = localizeString(html, html = True)
+						html = html.replace('\n', '')
+						html = self.replaceHTML(html)
+
+
 						js = '$("#preferences .inner").html("' + html + '");'
 						self.javaScript(js)
 
@@ -1502,6 +1778,7 @@ try:
 						self.setSideBarHTML()
 						self.javaScript('hidePanel();')
 						self.message('#(justLinkedUserAccount)')
+
 
 
 		def addSubscriptionViaDialog(self, url, username = None, password = None):
@@ -1981,6 +2258,10 @@ try:
 					menu.Append(item)
 					menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionPreferences, b64ID = self.b64encode(publisher.subscriptions()[0].url)), item)
 
+					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Invite Users)'))
+					menu.Append(item)
+					menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionInvitations, b64ID = self.b64encode(publisher.subscriptions()[0].url)), item)
+
 				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Show in Finder)'))
 				menu.Append(item)
 				menu.Bind(wx.EVT_MENU, partial(self.showPublisherInFinder, b64ID = b64ID), item)
@@ -2014,6 +2295,10 @@ try:
 				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Subscription Preferences)'))
 				menu.Append(item)
 				menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionPreferences, b64ID = b64ID), item)
+
+				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Invite Users)'))
+				menu.Append(item)
+				menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionInvitations, b64ID = b64ID), item)
 
 				menu.AppendSeparator()
 
@@ -2568,73 +2853,6 @@ try:
 							</script>''' % self.b64encode(subscription.url))
 
 
-					if client.user() and subscription.invitationAccepted():
-						for invitation in client.preferences.get('acceptedInvitations'):
-							if invitation['url'] == subscription.url:
-
-								html.append('<div class="foundry">')
-								html.append('<div class="head clear">')
-								html.append('<div class="inner">')
-
-								# Invited by
-								html.append('<div class="clear">')
-								html.append('<div class="one" style="float: left; width: 300px;">')
-
-
-								html.append('<p>')
-								if invitation['invitedByUserEmail'] or invitation['invitedByUserName']:
-									html.append('<span class="lighter">#(Invited by):</span>')
-									html.append('</p>')
-									html.append('<p>')
-
-									html.append('<img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
-									if invitation['invitedByUserEmail'] and invitation['invitedByUserName']:
-										html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail'], invitation['invitedByUserEmail']))
-									else:
-										html.append('%s' % (invitation['invitedByUserName'] or invitation['invitedByUserEmail']))
-
-								if invitation['time']:
-									html.append('<br />%s' % (NaturalRelativeWeekdayTimeAndDate(invitation['time'], locale = client.locale()[0])))
-
-								html.append('</p>')
-
-								html.append('</div>') # .one
-								html.append('<div class="two" style="float: right;">')
-
-								html.append('<div style="margin-top: 18px;">')
-
-								html.append('<a class="declineInvitation" id="%s">' % invitation['ID'])
-								html.append('<div class="clear invitationButton decline">')
-								html.append('<div class="symbol">')
-								html.append('✕')
-								html.append('</div>')
-								html.append('<div class="text">')
-								html.append('#(Remove Invitation)')
-								html.append('</div>')
-								html.append('</div>')
-								html.append('</a>')
-
-								html.append('</div>') # buttons
-
-								html.append('</div>') # .clear
-
-
-
-								html.append('</div>') # .inner
-								html.append('</div>') # .head
-								html.append('</div>') # .foundry
-
-								html.append('''<script>
-
-
-					$("#main .publisher a.declineInvitation").click(function() {
-						python("self.declineInvitation(" + $(this).attr('id') + ")");
-					});
-
-
-									</script>''')
-
-
 
 					for foundry in subscription.foundries():
 
@@ -2900,6 +3118,11 @@ try:
 			if not client.preferences.get('currentPublisher'):
 				self.javaScript("hideMain();")
 
+			if client.preferences.get('currentPublisher') == 'pendingInvitations' and not client.preferences.get('pendingInvitations'):
+				client.preferences.set('currentPublisher', '')
+				self.javaScript("hideMain();")
+
+
 			else:
 				if not client.currentPublisher() and client.publishers():
 					client.preferences.set('currentPublisher', client.publishers()[0].canonicalURL)
@@ -2950,10 +3173,10 @@ try:
 						html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
 						html.append('</div>')
 						html.append('<div class="badges clear">')
-						html.append('<div class="badge outdated" style="display: %s;">' % ('block' if outdatedFonts else 'none'))
+						html.append('<div class="badge numbers outdated" style="display: %s;">' % ('block' if outdatedFonts else 'none'))
 						html.append('%s' % (outdatedFonts or ''))
 						html.append('</div>')
-						html.append('<div class="badge installed" style="display: %s;">' % ('block' if installedFonts else 'none'))
+						html.append('<div class="badge numbers installed" style="display: %s;">' % ('block' if installedFonts else 'none'))
 						html.append('%s' % (installedFonts or ''))
 						html.append('</div>')
 						html.append('</div>') # .badges
@@ -2961,15 +3184,18 @@ try:
 						# Identity Revealed Icon
 						if len(publisher.subscriptions()) == 1:
 
+							badges = []
+
 							subscription = publisher.subscriptions()[0]
 							if client.user() and subscription.get('revealIdentity'):
-								html.append('<div class="badges clear">')
-								html.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
-								html.append('</div>') # .badges
+								badges.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon_Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>')
 
 							if client.user() and subscription.invitationAccepted():
+								badges.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(IsInvitationExplanation)') + '"><img src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>')
+
+							if badges:
 								html.append('<div class="badges clear">')
-								html.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(IsInvitationExplanation)') + '">✉️</div>')
+								html.append(''.join(badges))
 								html.append('</div>') # .badges
 
 						html.append('<div class="alert noclick" style="display: %s;">' % ('block' if publisher.updatingProblem() else 'none'))
@@ -2998,23 +3224,26 @@ try:
 								html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
 								html.append('</div>')
 								html.append('<div class="badges clear">')
-								html.append('<div class="badge outdated" style="display: %s;">' % ('block' if amountOutdatedFonts else 'none'))
+								html.append('<div class="badge numbers outdated" style="display: %s;">' % ('block' if amountOutdatedFonts else 'none'))
 								html.append('%s' % amountOutdatedFonts)
 								html.append('</div>')
-								html.append('<div class="badge installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
+								html.append('<div class="badge numbers installed" style="display: %s;">' % ('block' if amountInstalledFonts else 'none'))
 								html.append('%s' % amountInstalledFonts)
 								html.append('</div>')
 								html.append('</div>') # .badges
 
 								# Identity Revealed Icon
+								badges = []
+
 								if client.user() and subscription.get('revealIdentity'):
-									html.append('<div class="badges clear">')
-									html.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;"></div>')
-									html.append('</div>') # .badges
+									badges.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon:Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>')
 
 								if client.user() and subscription.invitationAccepted():
+									badges.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(IsInvitationExplanation)') + '"><img src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>')
+
+								if badges:
 									html.append('<div class="badges clear">')
-									html.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(IsInvitationExplanation)') + '">📥</div>')
+									html.append(''.join(badges))
 									html.append('</div>') # .badges
 
 								html.append('<div class="alert" style="display: %s;">' % ('block' if subscription.updatingProblem() else 'none'))
@@ -3044,7 +3273,7 @@ try:
 				html.append('#(Pending Invitations)…')
 				html.append('</div>')
 				html.append('<div class="badges clear">')
-				html.append('<div class="badge outdated" style="display: %s;">' % ('block'))
+				html.append('<div class="badge numbers outdated" style="display: %s;">' % ('block'))
 				html.append('%s' % (len(client.preferences.get('pendingInvitations'))))
 				html.append('</div>')
 				# html.append('<div class="badge installed" style="display: %s;">' % ('block' if installedFonts else 'none'))

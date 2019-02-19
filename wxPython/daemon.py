@@ -401,7 +401,8 @@ try:
 						call = '"%s" %s' % (os.path.join(mainAppPath, 'Contents', 'MacOS', 'Type.World'), command)
 						log('call: %s' % call)
 						response = Execute(call).strip()
-						log(response)
+						if response:
+							log(response)
 						reply = response
 
 

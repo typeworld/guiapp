@@ -41,7 +41,7 @@ import typeWorld.api.base
 
 APPNAME = 'Type.World'
 APPVERSION = 'n/a'
-DEBUG = True
+DEBUG = False
 BUILDSTAGE = 'alpha'
 PULLSERVERUPDATEINTERVAL = 60
 
@@ -69,6 +69,7 @@ if MAC:
 	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp, NSObject, NSUserNotification, NSUserNotificationCenter
 	from AppKit import NSView, NSRect, NSPoint, NSSize, NSMakeRect, NSColor, NSRectFill, NSToolbar
 	from AppKit import NSRunningApplication
+	from AppKit import NSScreen
 
 	NSUserNotificationCenterDelegate = objc.protocolNamed('NSUserNotificationCenterDelegate')
 	class NotificationDelegate(NSObject, protocols=[NSUserNotificationCenterDelegate]):
@@ -739,6 +740,7 @@ try:
 			self.active = True
 
 			self.allowedToPullServerUpdates = True
+			self.allowCheckForURLInFile = True
 
 
 			# Version adjustments
@@ -1066,14 +1068,20 @@ try:
 
 				resize = False
 
-				# self.SetTitle(str(sys.argv))
+				# If Window is outside of main screen (like after screen unplugging)
+				if self.GetPosition()[0] < 0:
+					self.SetPosition((0, self.GetPosition()[1]))
+				minY = 0
+				if MAC:
+					minY = NSScreen.mainScreen().visibleFrame().origin.y
+				if self.GetPosition()[1] < minY:
+					self.SetPosition((self.GetPosition()[0], minY))
 
 
 				if MAC:
 
 					size = list(self.GetSize())
 
-					from AppKit import NSScreen
 					screenSize = NSScreen.mainScreen().frame().size
 					if size[0] > screenSize.width:
 						size[0] = screenSize.width - 50
@@ -1082,16 +1090,13 @@ try:
 						size[1] = screenSize.height - 50
 						resize = True
 
-				# TODO:
-				# Move app back into screen center if it finds itself outside of it after screen unplugginng
-
 				if resize:
 					self.SetSize(size)
 
 				if client.preferences.get('currentPublisher'):
 					self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
 
-				if WIN:
+				if WIN and self.allowCheckForURLInFile:
 					self.checkForURLInFile()
 
 				# if MAC:
@@ -1132,21 +1137,21 @@ try:
 			html = []
 
 			html.append('<p style="text-align: center; margin-bottom: 20px;">')
-			html.append('<img src="file://##htmlroot##/biglogo.svg" style="width: 200px;"><br />')
+			html.append('<img src="file://##htmlroot##/icon.svg" style="width: 150px; height: 150px;"><br />')
 			html.append('</p>')
 			html.append('<p>')
 			html.append('#(AboutText)')
 			html.append('</p>')
 
-			html.append('<p>')
+			html.append('<p style="margin-bottom: 20px;">')
 			html.append('#(We thank our Patrons):')
 			html.append('<br />')
 			patrons = json.loads(ReadFromFile(os.path.join(os.path.dirname(__file__), 'patrons', 'patrons.json')))
-			html.append('<b>' + '</b>, <b>'.join(patrons) + '</b>')
+			html.append('<b>' + '</b>, <b>'.join([x.replace(' ', '&nbsp;') for x in patrons]) + '</b>')
 			html.append('</p>')
 
 
-			html.append('<p>')
+			html.append('<p style="margin-bottom: 20px;">')
 			html.append('#(Anonymous App ID): %s<br />' % client.anonymousAppID())
 			html.append('#(Version) %s<br />' % APPVERSION)
 			html.append('#(Version History) #(on) <a href="https://type.world/app">type.world/app</a>')
@@ -1329,6 +1334,8 @@ try:
 
 		def setSubscriptionPreference(self, url, key, value):
 
+			print('setSubscriptionPreference()', url, key, value)
+
 			for publisher in client.publishers():
 				for subscription in publisher.subscriptions():
 					if subscription.exists and subscription.url == url:
@@ -1340,10 +1347,10 @@ try:
 
 						subscription.set(key, value)
 
-					self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
-					self.setSideBarHTML()
+						self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
+						self.setSideBarHTML()
 
-					break
+						break
 
 
 		def showSubscriptionPreferences(self, event, b64ID):
@@ -1465,8 +1472,8 @@ try:
 
 					parameters = {
 						'command': 'inviteUserToSubscription',
-						'userEmail': email,
-						'invitedByUserEmail': client.userEmail(),
+						'targetUserEmail': email,
+						'sourceUserEmail': client.userEmail(),
 						'subscriptionURL': subscription.completeURL(),
 					}
 
@@ -1484,11 +1491,11 @@ try:
 					if response['response'] == 'invalidSubscriptionURL':
 						self.errorMessage('The subscription URL %s is invalid.' % subscription.completeURL())
 
-					elif response['response'] == 'unknownEmail':
+					elif response['response'] == 'unknownTargetEmail':
 						self.errorMessage('The invited user doesn’t have a valid Type.World user account as %s.' % email)
 
-					elif response['response'] == 'unknownInvitedByUserEmail':
-						self.errorMessage('The inviting user doesn’t have a valid Type.World user account as %s.' % client.userEmail())
+					elif response['response'] == 'invalidSource':
+						self.errorMessage('The source user could not be identified or doesn’t hold this subscription.')
 
 					elif response['response'] == 'success':
 						print('Successfully invited user %s' % email)
@@ -1502,8 +1509,6 @@ try:
 
 		def revokeUsers(self, b64ID, string):
 			
-			print("revokeUsers", b64ID, string)
-
 			subscription = None
 			for publisher in client.publishers():
 				for s in publisher.subscriptions():
@@ -1514,46 +1519,51 @@ try:
 			if subscription and client.userEmail():
 				emails = [x.strip() for x in string.split(', ')]
 
-				for email in emails:
+				dlg = wx.MessageDialog(None, localizeString("#(RevokeInvitationExplanationDialog)"), localizeString("#(Revoke Invitation)"), wx.YES_NO | wx.ICON_QUESTION)
+				dlg.SetYesNoLabels(localizeString('#(Revoke)'), localizeString('#(Cancel)'))
+				result = dlg.ShowModal()
+				if result == wx.ID_YES:
 
-					parameters = {
-						'command': 'revokeSubscriptionInvitation',
-						'userEmail': email,
-						'invitedByUserEmail': client.userEmail(),
-						'subscriptionURL': subscription.completeURL(),
-					}
+					for email in emails:
 
-					print(parameters)
-					data = urllib.parse.urlencode(parameters).encode('ascii')
-					url = 'https://type.world/jsonAPI/'
+						parameters = {
+							'command': 'revokeSubscriptionInvitation',
+							'targetUserEmail': email,
+							'sourceUserEmail': client.userEmail(),
+							'subscriptionURL': subscription.completeURL(),
+						}
 
-					try:
-						response = urllib.request.urlopen(url, data, cafile=certifi.where())
-					except urllib.error.HTTPError as e:
-						self.log('API endpoint alive HTTP error: %s' % e)
-						self.errorMessage('API endpoint alive HTTP error: %s' % e)
+						print(parameters)
+						data = urllib.parse.urlencode(parameters).encode('ascii')
+						url = 'https://type.world/jsonAPI/'
 
-					response = json.loads(response.read().decode())
+						try:
+							response = urllib.request.urlopen(url, data, cafile=certifi.where())
+						except urllib.error.HTTPError as e:
+							self.log('API endpoint alive HTTP error: %s' % e)
+							self.errorMessage('API endpoint alive HTTP error: %s' % e)
 
-					if response['response'] == 'invalidSubscriptionURL':
-						self.errorMessage('The subscription URL %s is invalid.' % subscription.completeURL())
+						response = json.loads(response.read().decode())
 
-					elif response['response'] == 'unknownEmail':
-						self.errorMessage('The invited user doesn’t have a valid Type.World user account as %s.' % email)
+						if response['response'] == 'invalidSubscriptionURL':
+							self.errorMessage('The subscription URL %s is invalid.' % subscription.completeURL())
 
-					elif response['response'] == 'unknownInvitedByUserEmail':
-						self.errorMessage('The inviting user doesn’t have a valid Type.World user account as %s.' % client.userEmail())
+						elif response['response'] == 'unknownTargetEmail':
+							self.errorMessage('The invited user doesn’t have a valid Type.World user account as %s.' % email)
 
-					elif response['response'] == 'unknownSubscription':
-						self.errorMessage('The subscription URL is unkown.')
+						elif response['response'] == 'invalidSource':
+							self.errorMessage('The inviting user doesn’t have a valid Type.World user account as %s.' % client.userEmail())
 
-					elif response['response'] == 'success':
-						print('Successfully revoked user %s' % email)
+						elif response['response'] == 'unknownSubscription':
+							self.errorMessage('The subscription URL is unkown.')
 
-						# Update
-						client.downloadSubscriptions()
+						elif response['response'] == 'success':
+							print('Successfully revoked user %s' % email)
 
-						self.showSubscriptionInvitations(None, b64ID)
+							# Update
+							client.downloadSubscriptions()
+
+							self.showSubscriptionInvitations(None, b64ID)
 
 
 		def showSubscriptionInvitations(self, event, b64ID, loadUpdates = False):
@@ -1735,8 +1745,6 @@ try:
 
 		def handleURL(self, url, username = None, password = None):
 
-			print('handleURL(%s)' % url)
-
 			if url.startswith('typeworldjson://') or url.startswith('typeworldjson//'):
 
 				for publisher in client.publishers():
@@ -1765,8 +1773,15 @@ try:
 
 				assert len(parts) == 3 and bool(parts[1])
 
-				if client.user():
-					self.errorMessage('A user account is already linked.')
+				# Different user
+				if client.user() and client.user() != parts[1]:
+					self.errorMessage('#(AccountAlreadyLinkedExplanation)')
+
+				# Same user, do nothing
+				if client.user() and client.user() == parts[1]:
+					pass
+
+				# New user
 				else:
 					success, message = client.linkUser(parts[1], parts[2])
 
@@ -1788,7 +1803,6 @@ try:
 
 			else:
 
-				self.log('handleURL(%s, %s, %s)' % (url, username, password))
 				startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
 
 
@@ -1820,15 +1834,15 @@ try:
 			if success:
 
 
-				if subscription.latestVersion().response.getCommand().prefersRevealedUserIdentity:
+				# if subscription.latestVersion().response.getCommand().prefersRevealedUserIdentity:
 
-					dlg = wx.MessageDialog(self, localizeString('#(Reveal Identity)'), localizeString('#(RevealUserIdentityRequest)'), wx.YES_NO | wx.ICON_QUESTION)
-					dlg.SetYesNoLabels(localizeString('#(Okay)'), localizeString('#(Cancel)'))
-					result = dlg.ShowModal() == wx.ID_YES
-					dlg.Destroy()
+				# 	dlg = wx.MessageDialog(self, localizeString('#(RevealUserIdentityRequest)'), localizeString('#(Reveal Identity)'), wx.YES_NO | wx.ICON_QUESTION)
+				# 	dlg.SetYesNoLabels(localizeString('#(Okay)'), localizeString('#(Cancel)'))
+				# 	result = dlg.ShowModal() == wx.ID_YES
+				# 	dlg.Destroy()
 					
-					if result:
-						subscription.set('revealIdentity', True)
+				# 	if result:
+				# 		subscription.set('revealIdentity', True)
 
 
 				b64ID = self.b64encode(publisher.canonicalURL)
@@ -2117,10 +2131,7 @@ try:
 
 			else:
 
-				if type(message) == str:
-					self.errorMessage(message)
-				else:
-					self.errorMessage('Server: %s' % message.getText(client.locale()))
+				self.errorMessage(message)
 
 			self.setSideBarHTML()
 			self.setBadges()
@@ -2581,30 +2592,40 @@ try:
 							self.errorMessage('No error message defined :/')
 
 
-		def errorMessage(self, message):
+		def errorMessage(self, message, title = ''):
 
-			if type(message) == typeWorld.api.base.MultiLanguageText:
+			if type(message) in (list, tuple):
+				assert len(message) == 2
+				message, title = message
+
+			elif type(message) == typeWorld.api.base.MultiLanguageText:
 				message = message.getText(locale = client.locale())
 
 			log(message)
 
 			message = localizeString(message)
+			title = localizeString(title)
 
-			dlg = wx.MessageDialog(self, message or 'No message defined', '', wx.ICON_ERROR)
+			dlg = wx.MessageDialog(self, message or 'No message defined', title, wx.ICON_ERROR)
 			result = dlg.ShowModal()
 			dlg.Destroy()
 
 
-		def message(self, message):
+		def message(self, message, title = ''):
 
-			if type(message) == typeWorld.api.base.MultiLanguageText:
+			if type(message) in (list, tuple):
+				assert len(message) == 2
+				message, title = message
+
+			elif type(message) == typeWorld.api.base.MultiLanguageText:
 				message = message.getText(locale = client.locale())
 
 			log(message)
 
 			message = localizeString(message)
+			title = localizeString(title)
 
-			dlg = wx.MessageDialog(self, message or 'No message defined', '')
+			dlg = wx.MessageDialog(self, message or 'No message defined', title)
 			result = dlg.ShowModal()
 			dlg.Destroy()
 
@@ -3236,7 +3257,7 @@ try:
 								badges = []
 
 								if client.user() and subscription.get('revealIdentity'):
-									badges.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon:Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>')
+									badges.append('<div class="badge revealIdentity" style="display: %s;" title="' + localizeString('#(YourIdentityWillBeRevealedTooltip)') + '"><img src="file://##htmlroot##/userIcon_Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>')
 
 								if client.user() and subscription.invitationAccepted():
 									badges.append('<div class="badge revealIdentity" style="display: block;" title="' + localizeString('#(IsInvitationExplanation)') + '"><img src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>')
@@ -3397,8 +3418,6 @@ try:
 
 		def onLoad(self, event):
 
-
-
 			self.log('MyApp.frame.onLoad()')
 			self.fullyLoaded = True
 
@@ -3425,7 +3444,7 @@ try:
 				self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
 			self.setBadges()
 
-			if WIN:
+			if WIN and self.allowCheckForURLInFile:
 				self.checkForURLInFile()
 
 			for message in self.messages:
@@ -3462,6 +3481,8 @@ try:
 
 		def checkForURLInFile(self):
 
+			self.allowCheckForURLInFile = False
+
 			from appdirs import user_data_dir
 			openURLFilePath = os.path.join(user_data_dir('Type.World', 'Type.World'), 'url.txt')
 
@@ -3478,6 +3499,9 @@ try:
 
 
 				os.remove(openURLFilePath)
+				time.sleep(.5)
+
+			self.allowCheckForURLInFile = True
 
 
 			return True

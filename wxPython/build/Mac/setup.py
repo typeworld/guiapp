@@ -15,6 +15,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/htmlfiles', 
                 '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/patrons', 
                 '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', 
+                # Sparkle < 1.12.0
                 '/Users/yanone/Code/dsa_pub.pem',
             ], #, 'appbadge.docktileplugin'
            'packages': ['certifi'],
@@ -35,7 +36,12 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 # Sparkle
                 'SUFeedURL': 'https://type.world/downloads/guiapp/appcast.xml',
                 'SUEnableAutomaticChecks': True,
+
+                # Sparkle < 1.20.0
                 'SUPublicDSAKeyFile': 'dsa_pub.pem',
+                # Sparkle >= 1.20.1
+                'SUPublicEDKey': 'WCzTmqV1rYPS/fi26Os2vmQGsfshmsOqGJY5wANr4r0=',
+
                 'SUAllowsAutomaticUpdates': True,
                 },
            'strip': True,

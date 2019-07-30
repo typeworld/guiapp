@@ -13,11 +13,22 @@ dmgFolder = os.path.expanduser('~/Code/TypeWorldApp/dmg')
 dsaFolder = os.path.expanduser('~/Code/TypeWorldApp/dsa')
 
 
+
+
 def getDSA(file):
-	path = '~/Code/Sparkle/bin/sign_update %s ~/Code/dsa_priv.pem' % file
-	dsa = Execute(path).decode()
-	dsa = dsa.replace(' ', '').replace('\n', '')
+	path = '"%s/Code/Sparkle/bin/old_dsa_scripts/sign_update" "%s" "%s/Code/dsa_priv.pem"' % (os.path.expanduser('~'), file, os.path.expanduser('~'))
 	print(path)
+	dsa = Execute(path).decode()
+	print(dsa)
+	dsa = dsa.replace(' ', '').replace('\n', '')
+	return dsa
+
+def getEdDSA(file):
+	path = '"%s/Code/Sparkle/bin/sign_update" "%s"' % (os.path.expanduser('~'), file)
+	print(path)
+	dsa = Execute(path).decode()
+	print(dsa)
+#	dsa = dsa.replace(' ', '').replace('\n', '')
 	return dsa
 
 
@@ -75,7 +86,7 @@ for OS in ('windows', 'mac'):
 			path = os.path.expanduser("~/Code/TypeWorldApp/dmg/" + file)
 			version = file.replace('TypeWorldApp.', '').replace(ending, '')
 			length = str(int(os.stat(path).st_size))
-			dsa = getDSA(os.path.join(dmgFolder, file))
+#			dsa = getDSA(os.path.join(dmgFolder, file))
 
 			lines.append('<item>')
 			lines.append('\t<title>' + version + '</title>')
@@ -98,7 +109,7 @@ for OS in ('windows', 'mac'):
 			else:
 				sparkleOS = ''
 
-			lines.append('\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '" ' + sparkleOS + 'sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" length="' + length + '" sparkle:dsaSignature="' + dsa + '" type="application/octet-stream" />')
+			lines.append('\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '" ' + sparkleOS + 'sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" ' + getEdDSA(os.path.join(dmgFolder, file)) + ' sparkle:dsaSignature="' + getDSA(os.path.join(dmgFolder, file)) + '" type="application/octet-stream" />')
 
 			if OS == 'mac':
 				# Deltas

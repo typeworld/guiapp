@@ -5,7 +5,7 @@ from subprocess import Popen,PIPE,STDOUT
 
 version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 'r').read().strip()
 findSymlinks = 'find -L ~/Code/TypeWorldApp/dist/Type.World.app -type l'
-sparkle = '/Users/yanone/Code/Sparkle-1.21.2/Sparkle.framework'
+sparkle = '/Users/yanone/Code/Sparkle/Sparkle.framework'
 
 flavour = sys.argv[-1]
 

@@ -29,7 +29,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 'NSHumanReadableCopyright': '@ Yanone 2018', #optional
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default
 #                'NSDockTilePlugIn': '@executable_path/../Resources/lib/python2.7/AppBadge.docktileplugin.py',
-                'NSDockTilePlugIn': 'appbadge.docktileplugin',
+#                'NSDockTilePlugIn': 'appbadge.docktileplugin',
                 'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World Font Installation Protocols', 'CFBundleURLSchemes': ['typeworldjson', 'typeworldgithub', 'typeworldapp']}],
 #                'LSUIElement': True, # No dock icon
 

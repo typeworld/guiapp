@@ -2875,6 +2875,74 @@ try:
 
 
 
+					if subscription.get('acceptedTermsOfService') != True:
+
+						html.append('<div class="foundry" id="acceptTermsOfService">')
+						html.append('<div class="head clear">')
+						html.append('<div class="inner">')
+
+						html.append('<div class="clear">')
+
+						html.append('<div class="one" style="float: left; width: 500px;">')
+						html.append('<p>')
+						html.append('<b>#(Terms of Service)</b>')
+						html.append('</p>')
+						html.append('<p>')
+						html.append('#(AcceptTermsOfServiceExplanation)')
+						html.append('</p>')
+						html.append('<p>')
+						html.append('<a href="%s">→ %s</a>' % (subscription.latestVersion().termsOfServiceAgreement, localizeString('#(Read X)', replace = {'content': localizeString('#(Terms of Service)')})))
+						html.append('</p>')
+
+						html.append('<p style="height: 5px;">&nbsp;</p>')
+
+						html.append('<p>')
+						html.append('<b>#(Privacy Policy)</b>')
+						html.append('</p>')
+						html.append('<p>')
+						html.append('#(AcceptPrivacyPolicyExplanation)')
+						html.append('</p>')
+						html.append('<p>')
+						html.append('<a href="%s">→ %s</a>' % (subscription.latestVersion().privacyPolicy, localizeString('#(Read X)', replace = {'content': localizeString('#(Privacy Policy)')})))
+						html.append('</p>')
+
+						html.append('</div>') # .one
+
+						html.append('<div class="two" style="float: right;">')
+
+						# # BUTTON
+						html.append('<div style="margin-top: 18px;">')
+						html.append('<a class="acceptInvitation" id="acceptTermsOfServiceButton">')
+						html.append('<div class="clear invitationButton agree">')
+						html.append('<div class="symbol">')
+						html.append('✓')
+						html.append('</div>')
+						html.append('<div class="text">')
+						html.append('#(Agree)')
+						html.append('</div>')
+						html.append('</div>')
+						html.append('</a>')
+						html.append('</div>') # buttons
+
+						html.append('</div>') # .two
+						html.append('</div>') # .clear
+
+						html.append('</div>') # .inner
+						html.append('</div>') # .head
+						html.append('</div>') # .foundry
+
+						html.append('''<script>
+
+
+			$("#acceptTermsOfServiceButton").click(function() {
+				$("#acceptTermsOfService").slideUp(function(){ 
+					setSubscriptionPreference("%s", "acceptedTermsOfService", "true");
+				});
+			});
+
+							</script>''' % self.b64encode(subscription.url))
+
+
 					for foundry in subscription.foundries():
 
 
@@ -2914,6 +2982,14 @@ try:
 
 
 						html.append('</div>') # .head
+
+
+
+
+
+
+
+
 
 
 						html.append('<div class="families">')

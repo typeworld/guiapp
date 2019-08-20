@@ -2891,7 +2891,7 @@ try:
 						html.append('#(AcceptTermsOfServiceExplanation)')
 						html.append('</p>')
 						html.append('<p>')
-						html.append('<a href="%s">→ %s</a>' % (subscription.latestVersion().termsOfServiceAgreement, localizeString('#(Read X)', replace = {'content': localizeString('#(Terms of Service)')})))
+						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(subscription.latestVersion().privacyPolicy, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(publisher.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.subscriptionID())), localizeString('#(Read X)', replace = {'content': localizeString('#(Terms of Service)')})))
 						html.append('</p>')
 
 						html.append('<p style="height: 5px;">&nbsp;</p>')
@@ -2903,7 +2903,7 @@ try:
 						html.append('#(AcceptPrivacyPolicyExplanation)')
 						html.append('</p>')
 						html.append('<p>')
-						html.append('<a href="%s">→ %s</a>' % (subscription.latestVersion().privacyPolicy, localizeString('#(Read X)', replace = {'content': localizeString('#(Privacy Policy)')})))
+						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(subscription.latestVersion().privacyPolicy, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(publisher.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.subscriptionID())), localizeString('#(Read X)', replace = {'content': localizeString('#(Privacy Policy)')})))
 						html.append('</p>')
 
 						html.append('</div>') # .one

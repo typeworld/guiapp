@@ -1,5 +1,5 @@
 
-# This app is called through the custom protocol handlers typeworldgithub:// and typeworldjson:// and distributes the calls back to the main Type.World app.
+# This app is called through the custom protocol handlers typeworld:// and distributes the calls back to the main Type.World app.
 # I'm using this detour to prevent the app from opening twice (with the nasty elevated permissions dialog)
 
 

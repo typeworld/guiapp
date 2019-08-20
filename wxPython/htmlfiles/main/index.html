@@ -44,7 +44,7 @@
 			<form id="addSubscriptionForm" action="destination.html">
 				<p>
 					#(Subscription URL)<br />
-					<input type="text" id="url" name="url" placeholder="typeworldjson:// #(or) typeworldgithub://">
+					<input type="text" id="url" name="url" placeholder="typeworld://json+">
 					<script>$('#addSubscription #url').keyup(function(){ if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });</script>
 				</p>
 				<div id="authenticationCheckBox" style="display: none;">

@@ -118,7 +118,7 @@ try:
 	if WIN and RUNTIME:
 		try:
 			import winreg as wreg
-			for handler in ['typeworldjson', 'typeworldgithub', 'typeworldapp']:
+			for handler in ['typeworld', 'typeworldapp']:
 				key = wreg.CreateKey(wreg.HKEY_CLASSES_ROOT, handler)
 				wreg.SetValueEx(key, None, 0, wreg.REG_SZ, 'URL:%s' % handler)
 				wreg.SetValueEx(key, 'URL Protocol', 0, wreg.REG_SZ, '')
@@ -1745,20 +1745,17 @@ try:
 
 		def handleURL(self, url, username = None, password = None):
 
-			if url.startswith('typeworldjson://') or url.startswith('typeworldjson//'):
+			if url.startswith('typeworld://') or url.startswith('typeworld//'):
 
 				for publisher in client.publishers():
 					for subscription in publisher.subscriptions():
 						# print (subscription.url, url)
-						if subscription.url == url.replace('typeworldjson://', ''):
+						if subscription.url == url.replace('typeworld://json+', ''):
 							self.setActiveSubscription(self.b64encode(publisher.canonicalURL), self.b64encode(subscription.url))
 							return
 
 				self.javaScript("showCenterMessage('%s');" % localizeString('#(Loading Subscription)'))
 				startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
-
-			elif url.startswith('typeworldgithub://') or url.startswith('typeworldgithub//'): 
-				pass
 
 			elif url.startswith('typeworldapp://') or url.startswith('typeworldapp//'):
 				self.handleAppCommand(url.replace('typeworldapp://', '').replace('typeworldapp//', ''))

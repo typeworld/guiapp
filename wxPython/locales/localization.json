@@ -1,1 +1,775 @@
-{"world.type.agent": {"Click to open Type.World app": {"de": "Hier klicken, um Type.World-App zu \u00f6ffnen"}, "Check for font updates now": {"de": "Jetzt nach Schriften-Aktualisierungen suchen"}, "Open Type.World App": {"de": "Type.World-App \u00f6ffnen"}, "XFontUpdatesAvailable": {"en": "%numberOfFonts% font update(s) available", "de": "%numberOfFonts% Schriften-Aktualisierung(en) verf\u00fcgbar"}}, "world.type.guiapp": {"Version": {}, "Close Window": {"de": "Fenster schlie\u00dfen"}, "AcceptTermsOfServiceExplanation": {"en": "Using fonts of this subscription requires your agreement to the following Terms of Service.", "de": "Die Nutzung der Schriften aus diesem Abonnement ben\u00f6tigt die Zustimmung zu den folgenden Nutzungsbedingungen."}, "X hours ago": {"en": "%number% hours ago", "de": "vor %number% Stunden"}, "Typeface/s": {"de": "Schriftfamilie(n)"}, "Icon in Menu Bar.Windows": {"en": "Icon in Task Bar", "de": "Symbol in der Task-Leiste"}, "Preferences": {"de": "Einstellungen"}, "Monthly": {"de": "Monatlich"}, "Subscriptions removed": {"de": "Abonnements entfernt"}, "Installed": {"de": "Installiert"}, "Anonymous App ID": {"de": "Anonyme App-ID"}, "AboutText": {"en": "Type.World is a not-for-profit project currently developed by type designer and multi media artist <a href='https://yanone.de'>Yanone</a>. Github-based subscriptions are being designed by <a href='http://mooniak.com'>Pathum Egodawatta</a>. The title illustration is by <a href='https://www.behance.net/SamarZureik'>Samar Zureik</a>.\n\nAll code is open source, and is therefore open for discussion and contributions.\nA discussion about the project can be found on <a href='http://typedrawers.com/discussion/2590/type-world-font-installation-protocol-and-gui-app/'>Typedrawers</a>.\nThe code is hosted on <a href='http://github.com/typeWorld'>Github</a>.\n\nPlease visit the project on <a href='https://type.world'>type.world</a> and make sure to follow <a href='https://twitter.com/typeDotWorld'>@typeDotWorld</a> on Twitter for the latest developments.\n\nThis project needs your financial contribution. Please pledge your support on our <a href='http://patreon.com/typeWorld'>Patreon page</a>. Thank you.", "de": "Type.World ist ein gemeinn\u00fcziges Projekt, das momentan vom Schriftgestalter und Multimediak\u00fcnstler <a href='https://yanone.de'>Yanone</a> entwickelt wird. Die Github-basierten Abonnements werden von <a href='http://mooniak.com'>Pathum Egodawatta</a> entwickelt.  Die Titelillustration is von <a href='https://www.behance.net/SamarZureik'>Samar Zureik</a>.\n\nAller Code ist quelloffen und damit offen f\u00fcr Diskussion und Vorschl\u00e4ge.\nEine Diskussion findet sich auf <a href='http://typedrawers.com/discussion/2590/type-world-font-installation-protocol-and-gui-app/'>Typedrawers</a>.\nDer Code wird auf <a href='http://github.com/typeWorld'>Github</a> gehostet.\n\nBitte besuche das Projekt auf <a href='https://type.world'>type.world</a> und vergiss nicht, <a href='https://twitter.com/typeDotWorld'>@typeDotWorld</a> auf Twitter f\u00fcr die neusten Nachrichten zu folgen.\n\nDieses Projekt ben\u00f6tigt deine finanzielle Unterst\u00fctzung. Bitte unterst\u00fctze uns mit einer monatlichen Spende auf unserer <a href='http://patreon.com/typeWorld'>Patreon-Seite</a>. Vielen Dank."}, "Terms of Service": {"de": "Nutzungsbedingungen"}, "Install Version": {"de": "Installiere Version"}, "1 year ago": {"de": "vor 1 Jahr"}, "My Subscriptions": {"de": "Meine Abonnements"}, "Read X": {"en": "Read %content%", "de": "%content% lesen"}, "RemoveInvitationConfirmationExplanation": {"en": "The subscription with all its fonts will be removed.", "de": "Das Abonnement mit all seinen Schriften wird entfernt."}, "response.seatAllowanceReached.headline": {"en": "Seat Allowance Reached", "de": "Sitzanzahl erreicht"}, "Unnamed": {"de": "Unbenannt"}, "Copy": {"de": "Kopieren"}, "X months ago": {"en": "%number% months ago", "de": "vor %number% Monaten"}, "just now": {"de": "gerade eben"}, "GitHubRequestLimitRemainderExplanation": {"en": "You have %requests% requests left. They will reset at %time%.", "de": "Du hast %requests% Anfragen \u00fcbrig, die um %time% zur\u00fcckgesetzt werden."}, "response.noFontsAvailable.headline": {}, "X years ago": {"en": "%number% years ago", "de": "vor %number% Jahren"}, "Subscriptions": {"de": "Abonnements"}, "response.revealedUserIdentityRequired.headline": {"en": "Revealed User Identity Required", "de": "\u00dcbermittlung deiner Identit\u00e4t"}, "Reveal Identity": {"de": "Identit\u00e4t \u00fcbermitteln"}, "ResetDialogsButton": {"en": "Reset all seen dialogs", "de": "Alle gesehenen Dialoge zur\u00fccksetzen"}, "last month": {"de": "letzten Monat"}, "for": {"de": "f\u00fcr"}, "IconInMenuBarExplanation": {"en": "Activate this option to receive notifications about font updates even when the Type.World app is not running.", "de": "Aktiviere diese Option, um Benachrichtigungen \u00fcber Schriften-Aktualisierungen zu erhalten, selbst wenn die Type.World-App nicht l\u00e4uft."}, "GitHubRequestLimitExplanation": {"en": "Other than accessing private repositories, GitHub allows 5000 requests per hour for authenticated users, as opposed to only 60/h for unauthenticated requests.", "de": "Abgesehen vom Zutritt in private Respositories erlaubt GitHub 5000 Anfragen pro Stunde f\u00fcr authorisierte Nutzer, jedoch nur 60 pro Stunde f\u00fcr unauthorisierte Anfragen."}, "on": {"de": "auf"}, "ShowMenuBarIcon": {"en": "Show Menu Bar Icon", "de": "Zeige Men\u00fcleistensymbol"}, "Accepted Invitations": {"de": "Angenommene Einladungen"}, "response.insufficientPermission.headline": {"en": "Insufficient Permission", "de": "Unzureichende Berechtigung"}, "Invite User": {"de": "Nutzer einladen"}, "Invitations": {"de": "Einladungen"}, "User Account": {"de": "Nutzerkonto"}, "Subscription URL": {"de": "Abonnement-URL"}, "day before yesterday": {"en": "2 days ago", "de": "vorgestern"}, "Add": {"de": "Hinzuf\u00fcgen"}, "Unlink User Account": {"de": "Nutzerkonto-Verkn\u00fcpfung aufheben"}, "Subscription": {"de": "Abonnement"}, "RevealUserIdentityRequest": {"en": "The publisher asks you to reveal your identity (name and email address) to them when using fonts of this subscription. Would you like to activate this option for this subscription only?\n(Can be changed in the subscription preferences.)", "de": "Der Schriftenverlag w\u00fcnscht sich die \u00dcbermittlung deiner Identit\u00e4t (Name und E-Mail-Adresse) beim Installieren von Schriften. M\u00f6chtest Du das f\u00fcr dieses Abonnement aktivieren?\n(Kann in den Abonnement-Einstellungen ge\u00e4ndert werden.)"}, "Update All Fonts": {"de": "Alle Schriften aktualisieren"}, "response.temporarilyUnavailable.headline": {"en": "Service Temporarily Unavailable", "de": "Dienst vor\u00fcbergehend nicht erreichbar"}, "Install": {"de": "Installieren"}, "response.validTypeWorldUserAccountRequired.headline": {"en": "Type.World User Account Required", "de": "Type.World-Nutzerkonto vonn\u00f6ten"}, "File": {"de": "Datei"}, "Revoke Invitation": {"de": "Einladung widerrufen"}, "response.unknownInstallation.headline": {}, "Remove X": {"en": "Remove %name%", "de": "%name% entfernen"}, "Type.World User Account": {"de": "Type.World-Nutzerkonto"}, "Reset Dialogs": {"de": "Dialoge zur\u00fccksetzen"}, "Publishers": {"de": "Verlage"}, "Publisher": {"de": "Verlag"}, "Not Installed": {"de": "Nicht installiert"}, "Accept Invitation": {"de": "Einladung annehmen"}, "Undefined": {"de": "Undefiniert"}, "SubscriptionAddedLongText": {"en": "Added %number% subscriptions after user account synchronization.", "de": "%number% Abonnements nach Nutzerkonto-Synchronisation hinzugef\u00fcgt"}, "Weekly": {"de": "W\u00f6chentlich"}, "UpdateIntervalExplanation": {"en": "Type.World checks all your subscriptions for available font updates", "de": "Type.World sucht in all deinen Abonnements nach verf\u00fcgbaren Aktualisierungen von Schriften"}, "Edit": {"de": "Bearbeiten"}, "Removing": {"de": "Entferne"}, "Are you sure": {"en": "Are you sure?", "de": "Bist Du sicher?"}, "response.accessTokenExpired.headline": {}, "response.unknownFont": {"en": "This font is unknown.", "de": "Diese Schrift ist unbekannt."}, "Installing": {"de": "Installiere"}, "Install All": {"de": "Alle installieren"}, "response.accessTokenExpired": {"en": "The single-use access token is expired. Please go back to the publisher\u2019s web site and click on the subscription button once more.", "de": "Das Einweg-Zugriffs-K\u00fcrzel dieses Abonnements ist abgelaufen. Bitte gehe zur\u00fcck zur Webseite des Schriftenverlags und klicke erneut auf den Abonnement-Knopf."}, "YourIdentityWillBeRevealedTooltip": {"en": "Your identity will be revealed to the publisher when installing fonts.", "de": "Deine Identit\u00e4t wird beim Installieren von Schriften an den Verlag \u00fcbermittelt."}, "Remove Invitation": {"de": "Einladung entfernen"}, "month before last month": {"de": "vorletzter Monat"}, "InviteUserByEmailAddressExplanation": {"en": "Invite users by their email address. This needs to be a valid Type.World user account.", "de": "Lade Nutzer ihrer E-Mail-Adresse nach ein. Dies muss ein g\u00fcltiges Type.World-Nutzerkonto sein."}, "Daily": {"de": "T\u00e4glich"}, "Decline Invitation": {"de": "Einladung ablehnen"}, "Add Subscription": {"de": "Abonnement hinzuf\u00fcgen"}, "Yes": {"de": "Ja"}, "Cut": {"de": "Ausschneiden"}, "InstallMenubarIconQuestion": {"en": "Would you like to install the menu bar icon, a process that runs in the background and keeps checking on your font subscriptions?\n\nThis is recommended. You can always change this back in the preferences.", "de": "M\u00f6chtest Du das Men\u00fcleistensymbol aktivieren, das im Hintergrund laufen und Dich \u00fcber verf\u00fcgbare Schrift-Aktualisierungen informieren wird?\n\nDas ist empfohlen. Du kannst das jederzeit in den Einstellungen wieder \u00e4ndern."}, "PleaseCreateUserAccountExplanation": {"en": "Please go to <a href='https://type.world'>type.world</a>, create yourself a user account and click on the <em>Link App</em> button on the account page.", "de": "Bitte gehe zu <a href='https://type.world'>type.world</a>, erstelle Dir ein Nutzerkonto, und verkn\u00fcpfe diese App \u00fcber den <em>App verkn\u00fcpfen</em>-Knopf auf der Nutzerkonto-Seite."}, "Use Authentication": {"de": "Nutzer authentifizieren"}, "Check for App Updates": {"de": "Nach App-Aktualisierungen suchen"}, "Invited by": {"de": "Eingeladen von"}, "last week": {"de": "letzte Woche"}, "week before last week": {"de": "vorletzte Woche"}, "Remove": {"de": "Entfernen"}, "Okay": {}, "Subscriptions added": {"de": "Abonnements hinzugef\u00fcgt"}, "Font/s": {"de": "Schrift(en)"}, "Select All": {"de": "Alles ausw\u00e4hlen"}, "Undo": {"de": "R\u00fcckg\u00e4ngig"}, "Reloading Subscription": {"de": "Aktualisiere Abonnement"}, "Invite Users": {"de": "Nutzer einladen"}, "ManuallyAddSubscriptionExplanation": {"en": "In case you received a link to a font repository by email or elsewhere, you can copy and paste the link here. \nLinks should start with <em>typeworld://json+</em> or similar.", "de": "Falls Du einen Link zu einem Schriften-Abonnement per E-Mail oder anderweitig erhalten hast, kannst Du ihn kopieren und hier einf\u00fcgen. \nLinks sollten mit <em>typeworld://json+</em> oder \u00e4hnlich beginnen."}, "Show in Finder": {"de": "Zeige im Finder"}, "Icon in Menu Bar.Mac": {"en": "Icon in Menu Bar", "de": "Symbol in Men\u00fcleiste"}, "Reload": {"de": "Aktualisieren"}, "X days ago": {"en": "%number% days ago", "de": "vor %number% Tagen"}, "Publisher Preferences": {"de": "Verlags-Einstellungen"}, "RevealIdentityRequiresUserAccountExplanation": {"en": "The revelation of your identity to the publisher requires a Type.World user account.", "de": "Die \u00dcbermittlung deiner Identit\u00e4t an den Verlag ist nur mit einem Type.World-Nutzerkonto m\u00f6glich."}, "Version History": {"de": "Versionsverlauf"}, "No": {"de": "Nein"}, "response.revealedUserIdentityRequired": {"en": "The publisher requires you to reveal your identity (name and email address) to them when installing fonts of this subscription.\nPlease activate it in the subscription\u2019s preferences first.", "de": "Der Schriftenverlag verlangt die die \u00dcbermittlung deiner Identit\u00e4t (Name und E-Mail-Adresse) beim Installieren von Schriften.\nBitte aktiviere diese Option zun\u00e4chst in den Abonnements-Einstellungen."}, "1 minute ago": {"de": "vor 1 Minute"}, "Show Icon in Menu Bar.Windows": {"en": "Show Icon in Menu Bar", "de": "Symbol in der Task-Leiste anzeigen"}, "Update Interval": {"de": "Aktualisierungs-Intervall"}, "Revoke": {"de": "Widerrufen"}, "response.unknownInstallation": {"en": "This font installation is unknown.", "de": "Diese Schrifteninstallation ist unbekannt."}, "X weeks ago": {"en": "%number% weeks ago", "de": "vor %number% Wochen"}, "NoUserAccountLinked": {"en": "No user account linked.", "de": "Kein Nutzerkonto verkn\u00fcpft."}, "Pending": {"de": "Ausstehend"}, "Remove All": {"de": "Alle entfernen"}, "Little Snitch Connection Purpose Description": {"en": "The app is deeply integrated with its complementary web service at https://type.world.", "de": "Die App ist eng mit dem dazugeh\u00f6rigen Web-Dienst auf https://type.world integriert."}, "Accepted": {"de": "Angenommen"}, "We thank our Patrons": {"de": "Wir danken unseren Unterst\u00fctzern"}, "Exit": {"de": "Beenden"}, "response.unknownFont.headline": {}, "Update All": {"de": "Alle aktualisieren"}, "Update Subscription": {"de": "Abonnement aktualisieren"}, "About": {"de": "\u00dcber"}, "yesterday": {"de": "gestern"}, "Hourly": {"de": "St\u00fcndlich"}, "AccountAlreadyLinkedExplanation": {"en": "This app is already linked with a user account.\nPlease unlink it first from the preferences, then repeat linking it to the new account.", "de": "Diese App ist bereits mit einem Nutzerkonto verkn\u00fcpft.\nBitte l\u00f6se die Verkn\u00fcpfung zun\u00e4chst in den Einstellungen, und wiederhole dann die Verkn\u00fcpfung."}, "RevealIdentityExplanation": {"en": "Reveal your <b>name</b> and <b>email address</b> to the publisher when installing fonts.\nBecause user data is transmitted anonymously by default (no names or email addresses are sent), this setting enables the publisher to identify which user has installed which version of the fonts.\n(Only valid for new font installations or updates after change of this setting.)\n</p><p>\n<b>Note:</b> This should only be necessary for small trusted work group environments where the publisher may want to get in touch with you about issues regarding the use of the fonts.", "de": "\u00dcbermittle beim Installieren von Schriften deinen <b>Namen</b> und <b>E-Mail-Adresse</b> an den Verlag.\nDa Nutzerdaten standardm\u00e4\u00dfig nur anonymisiert \u00fcbertragen werden (ohne Namen und E-Mail-Adressen), erm\u00f6glicht diese Einstellung dem Verlag, zu identifizieren, welcher Nutzer welche Schrift-Version installiert hat.\n(Gilt nur f\u00fcr neue Schriften-Installationen oder Updates ab \u00c4ndern dieser Einstellung.)\n</p><p>\n<b>Hinweis:</b> Dies sollte nur in kleinen, vertrauensw\u00fcrdigen Arbeitsgruppen n\u00f6tig sein, wo der Verlag mit Dir betreffs der Arbeit mit den Schriften in Kontakt treten wollen k\u00f6nnte."}, "Manually": {"de": "Manuell"}, "1 hour ago": {"de": "vor 1 Stunde"}, "response.seatAllowanceReached": {"en": "The seat allowance for this font under this license has been reached. Please either uninstall this font on other computers, or increase the seat allowance with the publisher.", "de": "Die Anzahl der erlaubten Installationen f\u00fcr diese Schrift sind ersch\u00f6pft. Bitte deinstalliere diese Schrift entweder auf anderen Computern, oder erh\u00f6he die Anzahl der erlaubten Installationen beim Schriftenverlag."}, "AcceptPrivacyPolicyExplanation": {"en": "The publisher is collecting data as per the following Privacy Policy.", "de": "Der Schriftverlag erhebt Daten per der hierunter angef\u00fchrten Datenschutzerkl\u00e4rung."}, "Update All Subscriptions": {"de": "Alle Abonnements aktualisieren"}, "JohnDoeEmailAddresses": {"en": "john.doe@gmail.com, mary.jane@gmail.com", "de": "erika.mustermann@web.de, max.mustermann@web.de"}, "Agree": {"de": "Zustimmen"}, "Password": {"de": "Passwort"}, "Paste": {"de": "Einf\u00fcgen"}, "Last Check": {"de": "Letzte Pr\u00fcfung"}, "Subscription Preferences": {"de": "Abonnements-Einstellungen"}, "or": {"de": "oder"}, "Foundry/ies": {"de": "Schriftverlag(e)"}, "response.termsOfServiceNotAccepted.headline": {"en": "Terms of Service not accepted", "de": "Nutzungsbedingungen nicht akzeptiert"}, "Cancel": {"de": "Abbrechen"}, "IsInvitationExplanation": {"en": "This subscription is an invitation", "de": "Dieses Abonnement ist eine Einladung"}, "response.temporarilyUnavailable": {"en": "The service is temporarily unavailable, but will be back soon. Please try again later.", "de": "Der Dienst ist vor\u00fcbergehend nicht erreichbar. Bitte versuch es sp\u00e4ter noch einmal."}, "Provided by": {"de": "Bereitgestellt von"}, "Little Snitch App Description": {"en": "The Type.World app is a front end application for over-the-web font installations. It greatly improves the font user experience for fonts distributed through participating publishers.", "de": "Die Type.World-App ist eine Endnutzer-Anwendung f\u00fcr Schriften-Installationen \u00fcber das Internet. Sie vereinfacht ma\u00dfgeblich die Erfahrung der Schriftnutzung von teilnehmenden Schriftverlagen."}, "Linked User Account": {"de": "Verkn\u00fcpftes Nutzerkonto"}, "UpdateInfinitive": {"en": "Update", "de": "Aktualisieren"}, "Account Last Synchronized": {"de": "Nutzerkonto zuletzt synchronisiert"}, "Username": {"de": "Nutzername"}, "Loading Subscription": {"de": "Lade Abonnement"}, "Pending Invitations": {"de": "Ausstehende Einladungen"}, "justLinkedUserAccount": {"en": "Your user account has been linked with the app.\nYou can unlink the account later in the app preferences.", "de": "Dein Nutzerkonto wurde mit der App verkn\u00fcpft.\nDu kannst die Verkn\u00fcpfung in den App-Einstellungen wieder aufheben."}, "Add Publisher": {"de": "Verlag hinzuf\u00fcgen"}, "SubscriptionRemovedLongText": {"en": "Removed %number% subscriptions after user account synchronization.", "de": "%number% Abonnements nach Nutzerkonto-Synchronisation entfernt"}, "response.termsOfServiceNotAccepted": {"en": "Using fonts of this subscription requires your agreement to publisher\u2019s Terms of Service.", "de": "Die Nutzung der Schriften aus diesem Abonnement ben\u00f6tigt die Zustimmung zu den Nutzungsbedingungen des Verlags."}, "WelcomeMessage": {"en": "Welcome to Type.World,\nthe one-click font installer.", "de": "Willkommen zu Type.World,\ndem Ein-Klick-Schriften-Installierer."}, "response.duplicateInstallation": {"en": "This font is already installed on this computer.", "de": "Diese Schrift ist bereits auf diesem Computer installiert."}, "Show Icon in Menu Bar.Mac": {"en": "Show Icon in Task Bar", "de": "Symbol in der Men\u00fcleiste anzeigen"}, "CurrentlyNoSentInvitations": {"en": "You have currently not invited anyone to this subscription. Add invitations above.", "de": "Du hast aktuell keine Einladungen zu diesem Abonnement verschickt. F\u00fcge Einladungen oben hinzu."}, "RevokeInvitationExplanationDialog": {"en": "Are you sure?\nAll subsequent invitations that the user has sent out to even other users will be revoked as well.", "de": "Bist Du sicher?\nAlle nachfolgenden Einladungen, die der Nutzer/die Nutzerin an andere Nutzer/innen verschickt haben k\u00f6nnte, werden ebenfalls widerrufen."}, "Foundries": {"de": "Foundrys"}, "Reloading Publisher": {"de": "Aktualisiere Verlag"}, "X minutes ago": {"en": "%number% minutes ago", "de": "vor %number% Minuten"}, "response.notOnline.headline": {"en": "Not Online", "de": "Kein Internetzugang"}, "Privacy Policy": {"de": "Datenschutzerkl\u00e4rung"}, "Reveal Your Identity For This Subscription": {"de": "Deine Identit\u00e4t f\u00fcr dieses Abonnement \u00fcbermitteln"}, "Originally Provided For": {"en": "Originally provided by %publisher% for", "de": "Urspr\u00fcnglich von <b>%publisher%</b> bereitgestellt f\u00fcr"}, "Little Snitch Connection Deny Consequences": {"en": "If you deny this connection, various key functionalities of the app will be impaired, such as the download and installation of fonts, user account synchronization, and software self-updates.", "de": "Wenn Du diese Verbindung verbietest, werden verschiedene wichtige Funktionalit\u00e4ten der App behindert sein, so z.B. Herunterladen und Installieren von Schriften, das Synchronisieren deiner Nutzerkonten, oder die Software-Selbst-Aktualisierung."}, "UnlinkUserAccountExplanation": {"en": "When you unlink your Type.World user account from this app, all protected fonts in all your subscriptions will be uninstalled. However, free fonts will remain installed.", "de": "Wenn Du die Verkn\u00fcpfung deines Type.World-Nutzerkontos mit dieser App aufhebst, werden alle gesch\u00fctzten Schriften all deiner Abonnements deinstalliert. Kostenlose Schriften bleiben aber installiert."}, "response.noFontsAvailable": {"en": "No font are available for installation.", "de": "Es sind keine Schriften zur Installation verf\u00fcgbar."}, "response.duplicateInstallation.headline": {}, "response.insufficientPermission": {"en": "You don\u2019t have sufficient permissions to access this subscription.", "de": "Du bist nicht berechtigt, auf dieses Abonnement zu zuzugreifen."}, "response.validTypeWorldUserAccountRequired": {"en": "This service requires a Type.World user account.\nPlease create your account on https://type.world, and link your app from the account section.", "de": "Dieser Dienst ben\u00f6tigt ein Type.World-Nutzerkonto.\nBitte erstelle Dir ein Nutzerkonto auf https://type.world, und verkn\u00fcpfe deine App auf der Nutzerkonto-Seite."}, "response.notOnline": {"en": "Can\u2019t reach the server. Please check your internet connection.", "de": "Kann den Server nicht erreichen. Bitte \u00fcberpr\u00fcfe deine Internetverbindung."}}}
+{
+    "world.type.agent": {
+        "Click to open Type.World app": {
+            "de": "Hier klicken, um Type.World-App zu öffnen",
+            "es": "Pulse aquí para abrir la aplicación Type.World"
+        },
+        "Check for font updates now": {
+            "de": "Jetzt nach Schriften-Aktualisierungen suchen",
+            "es": "Buscar actualizaciones de tipos de letra ahora"
+        },
+        "Open Type.World App": {
+            "de": "Type.World-App öffnen",
+            "es": "Abrir aplicación Type.World"
+        },
+        "XFontUpdatesAvailable": {
+            "en": "%numberOfFonts% font update(s) available",
+            "de": "%numberOfFonts% Schriften-Aktualisierung(en) verfügbar",
+            "es": "%numberOfFonts% actualizaciones de tipos de letra disponibles"
+        }
+    },
+    "world.type.guiapp": {
+        "Version": {},
+        "Close Window": {
+            "de": "Fenster schließen",
+            "es": "Cerrar ventana"
+        },
+        "AcceptTermsOfServiceExplanation": {
+            "en": "Using fonts of this subscription requires your agreement to the following Terms of Service.",
+            "de": "Die Nutzung der Schriften aus diesem Abonnement benötigt die Zustimmung zu den folgenden Nutzungsbedingungen.",
+            "es": "El uso de los tipos de letra de esta suscripción exige que acepte estas condiciones de servicio."
+        },
+        "X hours ago": {
+            "en": "%number% hours ago",
+            "de": "vor %number% Stunden",
+            "es": "hace %number% horas"
+        },
+        "Typeface/s": {
+            "de": "Schriftfamilie(n)",
+            "es": "Familias tipográficas"
+        },
+        "Icon in Menu Bar.Windows": {
+            "en": "Icon in Task Bar",
+            "de": "Symbol in der Task-Leiste",
+            "es": "Icono en la barra de tareas"
+        },
+        "Preferences": {
+            "de": "Einstellungen",
+            "es": "Preferencias"
+        },
+        "Monthly": {
+            "de": "Monatlich",
+            "es": "Mensualmente"
+        },
+        "Subscriptions removed": {
+            "de": "Abonnements entfernt",
+            "es": "Suscripciones eliminadas"
+        },
+        "Installed": {
+            "de": "Installiert",
+            "es": "Eliminado"
+        },
+        "Anonymous App ID": {
+            "de": "Anonyme App-ID",
+            "es": "Id. de aplicación anónimo"
+        },
+        "AboutText": {
+            "en": "Type.World is a not-for-profit project currently developed by type designer and multi media artist <a href='https://yanone.de'>Yanone</a>. Github-based subscriptions are being designed by <a href='http://mooniak.com'>Pathum Egodawatta</a>. The title illustration is by <a href='https://www.behance.net/SamarZureik'>Samar Zureik</a>.\n\nAll code is open source, and is therefore open for discussion and contributions.\nA discussion about the project can be found on <a href='http://typedrawers.com/discussion/2590/type-world-font-installation-protocol-and-gui-app/'>Typedrawers</a>.\nThe code is hosted on <a href='http://github.com/typeWorld'>Github</a>.\n\nPlease visit the project on <a href='https://type.world'>type.world</a> and make sure to follow <a href='https://twitter.com/typeDotWorld'>@typeDotWorld</a> on Twitter for the latest developments.\n\nThis project needs your financial contribution. Please pledge your support on our <a href='http://patreon.com/typeWorld'>Patreon page</a>. Thank you.",
+            "de": "Type.World ist ein gemeinnüziges Projekt, das momentan vom Schriftgestalter und Multimediakünstler <a href='https://yanone.de'>Yanone</a> entwickelt wird. Die Github-basierten Abonnements werden von <a href='http://mooniak.com'>Pathum Egodawatta</a> entwickelt.  Die Titelillustration is von <a href='https://www.behance.net/SamarZureik'>Samar Zureik</a>.\n\nAller Code ist quelloffen und damit offen für Diskussion und Vorschläge.\nEine Diskussion findet sich auf <a href='http://typedrawers.com/discussion/2590/type-world-font-installation-protocol-and-gui-app/'>Typedrawers</a>.\nDer Code wird auf <a href='http://github.com/typeWorld'>Github</a> gehostet.\n\nBitte besuche das Projekt auf <a href='https://type.world'>type.world</a> und vergiss nicht, <a href='https://twitter.com/typeDotWorld'>@typeDotWorld</a> auf Twitter für die neusten Nachrichten zu folgen.\n\nDieses Projekt benötigt deine finanzielle Unterstützung. Bitte unterstütze uns mit einer monatlichen Spende auf unserer <a href='http://patreon.com/typeWorld'>Patreon-Seite</a>. Vielen Dank.",
+            "es": "Type.World es un proyecto sin fines de lucro desarrollado en estos momentos por el diseñador de tipos y artista de medios audiovisuales <a href='https://yanone.de'>Yanone</a>. Las suscripciones basadas en GitHub las diseña <a href='http://mooniak.com'>Pathum Egodawatta</a>. La ilustración de título es de <a href='https://www.behance.net/SamarZureik'>Samar Zureik</a>.\n\nTodo el código es abierto y, por consiguiente, se presta a debate y contribuciones.\nHallará una discusión sobre el proyecto en <a href='http://typedrawers.com/discussion/2590/type-world-font-installation-protocol-and-gui-app/'>Typedrawers</a>.\nEl código se hospeda en <a href='http://github.com/typeWorld'>GitHub</a>.\n\nVisite el sitio del proyecto en <a href='https://type.world'>type.world</a> y no se olvide de seguir a <a href='https://twitter.com/typeDotWorld'>@typeDotWorld</a> en Twitter para enterarse de las novedades.\n\nEl proyecto necesita de su colaboración económica. Done mediante <a href='http://patreon.com/typeWorld'>nuestra página de Patreon</a>. Gracias."
+        },
+        "Terms of Service": {
+            "de": "Nutzungsbedingungen",
+            "es": "Condiciones del servicio"
+        },
+        "Install Version": {
+            "de": "Installiere Version",
+            "es": "Instalar versión"
+        },
+        "1 year ago": {
+            "de": "vor 1 Jahr",
+            "es": "hace 1 año"
+        },
+        "My Subscriptions": {
+            "de": "Meine Abonnements",
+            "es": "Mis suscripciones"
+        },
+        "Read X": {
+            "en": "Read %content%",
+            "de": "%content% lesen",
+            "es": "Leer %content%"
+        },
+        "RemoveInvitationConfirmationExplanation": {
+            "en": "The subscription with all its fonts will be removed.",
+            "de": "Das Abonnement mit all seinen Schriften wird entfernt.",
+            "es": "Se eliminará la suscripción y todos sus tipos de letra."
+        },
+        "response.seatAllowanceReached.headline": {
+            "en": "Seat Allowance Reached",
+            "de": "Sitzanzahl erreicht",
+            "es": "Se alcanzó el máximo de puestos"
+        },
+        "Unnamed": {
+            "de": "Unbenannt",
+            "es": "Sin nombre"
+        },
+        "Copy": {
+            "de": "Kopieren",
+            "es": "Copiar"
+        },
+        "X months ago": {
+            "en": "%number% months ago",
+            "de": "vor %number% Monaten",
+            "es": "hace %number% meses"
+        },
+        "just now": {
+            "de": "gerade eben",
+            "es": "ahora mismo"
+        },
+        "GitHubRequestLimitRemainderExplanation": {
+            "en": "You have %requests% requests left. They will reset at %time%.",
+            "de": "Du hast %requests% Anfragen übrig, die um %time% zurückgesetzt werden.",
+            "es": "Le quedan %requests%. Se restablecerán a las %time%."
+        },
+        "response.noFontsAvailable.headline": {},
+        "X years ago": {
+            "en": "%number% years ago",
+            "de": "vor %number% Jahren",
+            "es": "hace %number% años"
+        },
+        "Subscriptions": {
+            "de": "Abonnements",
+            "es": "Suscripciones"
+        },
+        "response.revealedUserIdentityRequired.headline": {
+            "en": "Revealed User Identity Required",
+            "de": "Übermittlung deiner Identität",
+            "es": "Es necesario que revele su identidad"
+        },
+        "Reveal Identity": {
+            "de": "Identität übermitteln",
+            "es": "Transmitir identidad"
+        },
+        "ResetDialogsButton": {
+            "en": "Reset all seen dialogs",
+            "de": "Alle gesehenen Dialoge zurücksetzen",
+            "es": "Restablecer todos los diálogos vistos"
+        },
+        "last month": {
+            "de": "letzten Monat",
+            "es": "el mes pasado"
+        },
+        "for": {
+            "de": "für",
+            "es": "por"
+        },
+        "IconInMenuBarExplanation": {
+            "en": "Activate this option to receive notifications about font updates even when the Type.World app is not running.",
+            "de": "Aktiviere diese Option, um Benachrichtigungen über Schriften-Aktualisierungen zu erhalten, selbst wenn die Type.World-App nicht läuft.",
+            "es": "Active esta opción para recibir notificaciones de tipos de letra nuevos incluso si no está ejecutando Type.World."
+        },
+        "GitHubRequestLimitExplanation": {
+            "en": "Other than accessing private repositories, GitHub allows 5000 requests per hour for authenticated users, as opposed to only 60/h for unauthenticated requests.",
+            "de": "Abgesehen vom Zutritt in private Respositories erlaubt GitHub 5000 Anfragen pro Stunde für authorisierte Nutzer, jedoch nur 60 pro Stunde für unauthorisierte Anfragen.",
+            "es": "Aparte del acceso a repositorios privados, GitHub brinda 5000 solicitudes por hora a usuarios autenticados, frente a solo 60 para solicitudes no autenticadas."
+        },
+        "on": {
+            "de": "auf",
+            "es": "en"
+        },
+        "ShowMenuBarIcon": {
+            "en": "Show Menu Bar Icon",
+            "de": "Zeige Menüleistensymbol",
+            "es": "Mostrar icono de barra de menús"
+        },
+        "Accepted Invitations": {
+            "de": "Angenommene Einladungen",
+            "es": "Invitaciones aceptadas"
+        },
+        "response.insufficientPermission.headline": {
+            "en": "Insufficient Permission",
+            "de": "Unzureichende Berechtigung",
+            "es": "Permisos insuficientes"
+        },
+        "Invite User": {
+            "de": "Nutzer einladen",
+            "es": "Invitar a usuario"
+        },
+        "Invitations": {
+            "de": "Einladungen",
+            "es": "Invitaciones"
+        },
+        "User Account": {
+            "de": "Nutzerkonto",
+            "es": "Cuenta"
+        },
+        "Subscription URL": {
+            "de": "Abonnement-URL",
+            "es": "URL de suscripción"
+        },
+        "day before yesterday": {
+            "en": "2 days ago",
+            "de": "vorgestern",
+            "es": "anteayer"
+        },
+        "Add": {
+            "de": "Hinzufügen",
+            "es": "Añadir"
+        },
+        "Unlink User Account": {
+            "de": "Nutzerkonto-Verknüpfung aufheben",
+            "es": "Desconectar cuenta"
+        },
+        "Subscription": {
+            "de": "Abonnement",
+            "es": "Suscripción"
+        },
+        "RevealUserIdentityRequest": {
+            "en": "The publisher asks you to reveal your identity (name and email address) to them when using fonts of this subscription. Would you like to activate this option for this subscription only?\n(Can be changed in the subscription preferences.)",
+            "de": "Der Schriftenverlag wünscht sich die Übermittlung deiner Identität (Name und E-Mail-Adresse) beim Installieren von Schriften. Möchtest Du das für dieses Abonnement aktivieren?\n(Kann in den Abonnement-Einstellungen geändert werden.)",
+            "es": "El fabricante solicita que le revele su identidad (nombre y correo electrónico) para utilizar los tipos de letra de esta suscripción. ¿Quiere activar esta opción únicamente para esta suscripción?\n(Podrá cambiarlo en las preferencias de la suscripción.)"
+        },
+        "Update All Fonts": {
+            "de": "Alle Schriften aktualisieren",
+            "es": "Actualizar todos los tipos de letra"
+        },
+        "response.temporarilyUnavailable.headline": {
+            "en": "Service Temporarily Unavailable",
+            "de": "Dienst vorübergehend nicht erreichbar",
+            "es": "El servicio no está disponible temporalmente"
+        },
+        "Install": {
+            "de": "Installieren",
+            "es": "Instalar"
+        },
+        "response.validTypeWorldUserAccountRequired.headline": {
+            "en": "Type.World User Account Required",
+            "de": "Type.World-Nutzerkonto vonnöten",
+            "es": "Se necesita una cuenta de Type.World"
+        },
+        "File": {
+            "de": "Datei",
+            "es": "Archivo"
+        },
+        "Revoke Invitation": {
+            "de": "Einladung widerrufen",
+            "es": "Revocar invitación"
+        },
+        "response.unknownInstallation.headline": {},
+        "Remove X": {
+            "en": "Remove %name%",
+            "de": "%name% entfernen",
+            "es": "Quitar %name%"
+        },
+        "Type.World User Account": {
+            "de": "Type.World-Nutzerkonto",
+            "es": "Cuenta de Type.World"
+        },
+        "Reset Dialogs": {
+            "de": "Dialoge zurücksetzen",
+            "es": "Restablecer diálogos"
+        },
+        "Publishers": {
+            "de": "Verlage",
+            "es": "Fabricantes"
+        },
+        "Publisher": {
+            "de": "Verlag",
+            "es": "Fabricante"
+        },
+        "Not Installed": {
+            "de": "Nicht installiert",
+            "es": "No instalado"
+        },
+        "Accept Invitation": {
+            "de": "Einladung annehmen",
+            "es": "Aceptar invitación"
+        },
+        "Undefined": {
+            "de": "Undefiniert",
+            "es": "Sin definir"
+        },
+        "SubscriptionAddedLongText": {
+            "en": "Added %number% subscriptions after user account synchronization.",
+            "de": "%number% Abonnements nach Nutzerkonto-Synchronisation hinzugefügt",
+            "es": "Se añadieron %number% suscripciones tras sincronizar con la cuenta"
+        },
+        "Weekly": {
+            "de": "Wöchentlich",
+            "es": "Semanalmente"
+        },
+        "UpdateIntervalExplanation": {
+            "en": "Type.World checks all your subscriptions for available font updates",
+            "de": "Type.World sucht in all deinen Abonnements nach verfügbaren Aktualisierungen von Schriften",
+            "es": "Type.World revisa todas sus suscripciones en busca de actualizaciones de los tipos de letra."
+        },
+        "Edit": {
+            "de": "Bearbeiten",
+            "es": "Editar"
+        },
+        "Removing": {
+            "de": "Entferne",
+            "es": "Quitando"
+        },
+        "Are you sure": {
+            "en": "Are you sure?",
+            "de": "Bist Du sicher?",
+            "es": "¿Lo confirma?"
+        },
+        "response.accessTokenExpired.headline": {},
+        "response.unknownFont": {
+            "en": "This font is unknown.",
+            "de": "Diese Schrift ist unbekannt.",
+            "es": "Se desconoce este tipo de letra."
+        },
+        "Installing": {
+            "de": "Installiere",
+            "es": "Instalando"
+        },
+        "Install All": {
+            "de": "Alle installieren",
+            "es": "Instalar todo"
+        },
+        "response.accessTokenExpired": {
+            "en": "The single-use access token is expired. Please go back to the publisher’s web site and click on the subscription button once more.",
+            "de": "Das Einweg-Zugriffs-Kürzel dieses Abonnements ist abgelaufen. Bitte gehe zurück zur Webseite des Schriftenverlags und klicke erneut auf den Abonnement-Knopf.",
+            "es": "Ha vencido la ficha de acceso de un solo uso. Vuelva al sitio del fabricante y pulse una vez más en el botón de suscripción."
+        },
+        "YourIdentityWillBeRevealedTooltip": {
+            "en": "Your identity will be revealed to the publisher when installing fonts.",
+            "de": "Deine Identität wird beim Installieren von Schriften an den Verlag übermittelt.",
+            "es": "Su identidad se revelará al fabricante al instalar los tipos de letra."
+        },
+        "Remove Invitation": {
+            "de": "Einladung entfernen",
+            "es": "Quitar invitación"
+        },
+        "month before last month": {
+            "de": "vorletzter Monat",
+            "es": "el penúltimo mes"
+        },
+        "InviteUserByEmailAddressExplanation": {
+            "en": "Invite users by their email address. This needs to be a valid Type.World user account.",
+            "de": "Lade Nutzer ihrer E-Mail-Adresse nach ein. Dies muss ein gültiges Type.World-Nutzerkonto sein.",
+            "es": "Invite a personas por correo electrónico. Estas direcciones deben corresponder a cuentas válidas de Type.World."
+        },
+        "Daily": {
+            "de": "Täglich",
+            "es": "Diariamente"
+        },
+        "Decline Invitation": {
+            "de": "Einladung ablehnen",
+            "es": "Rechazar invitación"
+        },
+        "Add Subscription": {
+            "de": "Abonnement hinzufügen",
+            "es": "Añadir suscripción"
+        },
+        "Yes": {
+            "de": "Ja",
+            "es": "Sí"
+        },
+        "Cut": {
+            "de": "Ausschneiden",
+            "es": "Cortar"
+        },
+        "InstallMenubarIconQuestion": {
+            "en": "Would you like to install the menu bar icon, a process that runs in the background and keeps checking on your font subscriptions?\n\nThis is recommended. You can always change this back in the preferences.",
+            "de": "Möchtest Du das Menüleistensymbol aktivieren, das im Hintergrund laufen und Dich über verfügbare Schrift-Aktualisierungen informieren wird?\n\nDas ist empfohlen. Du kannst das jederzeit in den Einstellungen wieder ändern.",
+            "es": "¿Quiere instalar el icono de la barra de menús, proceso que se ejecuta en segundo plano y revisa periódicamente sus suscripciones?\n\nRecomendamos hacerlo. Siempre podrá cambiar de parecer en las preferencias."
+        },
+        "PleaseCreateUserAccountExplanation": {
+            "en": "Please go to <a href='https://type.world'>type.world</a>, create yourself a user account and click on the <em>Link App</em> button on the account page.",
+            "de": "Bitte gehe zu <a href='https://type.world'>type.world</a>, erstelle Dir ein Nutzerkonto, und verknüpfe diese App über den <em>App verknüpfen</em>-Knopf auf der Nutzerkonto-Seite.",
+            "es": "Vaya a <a href='https://type.world'>type.world</a>. créese una cuenta y pulse en el botón <em>Conectar aplicación</em> de la página Cuenta."
+        },
+        "Use Authentication": {
+            "de": "Nutzer authentifizieren",
+            "es": "Utilizar autenticación"
+        },
+        "Check for App Updates": {
+            "de": "Nach App-Aktualisierungen suchen",
+            "es": "Buscar actualizaciones de aplicación"
+        },
+        "Invited by": {
+            "de": "Eingeladen von",
+            "es": "Invitado/a por"
+        },
+        "last week": {
+            "de": "letzte Woche",
+            "es": "el mes pasado"
+        },
+        "week before last week": {
+            "de": "vorletzte Woche",
+            "es": "la semana antepasada"
+        },
+        "Remove": {
+            "de": "Entfernen",
+            "es": "Quitar"
+        },
+        "Okay": {
+            "es": "Aceptar"
+        },
+        "Subscriptions added": {
+            "de": "Abonnements hinzugefügt",
+            "es": "Suscripciones añadidas"
+        },
+        "Font/s": {
+            "de": "Schrift(en)",
+            "es": "Tipos de letra"
+        },
+        "Select All": {
+            "de": "Alles auswählen",
+            "es": "Seleccionar todo"
+        },
+        "Undo": {
+            "de": "Rückgängig",
+            "es": "Deshacer"
+        },
+        "Reloading Subscription": {
+            "de": "Aktualisiere Abonnement",
+            "es": "Actualizando suscripción"
+        },
+        "Invite Users": {
+            "de": "Nutzer einladen",
+            "es": "Invitar usuarios"
+        },
+        "ManuallyAddSubscriptionExplanation": {
+            "en": "In case you received a link to a font repository by email or elsewhere, you can copy and paste the link here. \nLinks should start with <em>typeworld://json+</em> or similar.",
+            "de": "Falls Du einen Link zu einem Schriften-Abonnement per E-Mail oder anderweitig erhalten hast, kannst Du ihn kopieren und hier einfügen. \nLinks sollten mit <em>typeworld://json+</em> oder ähnlich beginnen.",
+            "es": "Si recibió un enlace a un repositorio tipográfico por correo u otro medio, puede pegar el enlace aquí.\nLos enlaces deben empezar por <em>typeworld://json+</em> o un código similar."
+        },
+        "Show in Finder": {
+            "de": "Zeige im Finder",
+            "es": "Revelar en el Finder"
+        },
+        "Icon in Menu Bar.Mac": {
+            "en": "Icon in Menu Bar",
+            "de": "Symbol in Menüleiste",
+            "es": "Icono en la barra de menús"
+        },
+        "Reload": {
+            "de": "Aktualisieren",
+            "es": "Actualizar"
+        },
+        "X days ago": {
+            "en": "%number% days ago",
+            "de": "vor %number% Tagen",
+            "es": "hace %number% días"
+        },
+        "Publisher Preferences": {
+            "de": "Verlags-Einstellungen",
+            "es": "Preferencias de fabricante"
+        },
+        "RevealIdentityRequiresUserAccountExplanation": {
+            "en": "The revelation of your identity to the publisher requires a Type.World user account.",
+            "de": "Die Übermittlung deiner Identität an den Verlag ist nur mit einem Type.World-Nutzerkonto möglich.",
+            "es": "Para revelar su identidad al fabricante necesita una cuenta de Type.World."
+        },
+        "Version History": {
+            "de": "Versionsverlauf",
+            "es": "Histórico de versiones"
+        },
+        "No": {
+            "de": "Nein",
+            "es": "No"
+        },
+        "response.revealedUserIdentityRequired": {
+            "en": "The publisher requires you to reveal your identity (name and email address) to them when installing fonts of this subscription.\nPlease activate it in the subscription’s preferences first.",
+            "de": "Der Schriftenverlag verlangt die die Übermittlung deiner Identität (Name und E-Mail-Adresse) beim Installieren von Schriften.\nBitte aktiviere diese Option zunächst in den Abonnements-Einstellungen.",
+            "es": "El fabricante solicita que le revele su identidad (nombre y correo electrónico) para utilizar los tipos de letra de esta suscripción\nActívelo de antemano en las preferencias de la suscripción."
+        },
+        "1 minute ago": {
+            "de": "vor 1 Minute",
+            "es": "hace 1 minuto"
+        },
+        "Show Icon in Menu Bar.Windows": {
+            "en": "Show Icon in Menu Bar",
+            "de": "Symbol in der Task-Leiste anzeigen",
+            "es": "Mostrar icono en la barra de menús"
+        },
+        "Update Interval": {
+            "de": "Aktualisierungs-Intervall",
+            "es": "Intervalo de actualización"
+        },
+        "Revoke": {
+            "de": "Widerrufen",
+            "es": "Revocar"
+        },
+        "response.unknownInstallation": {
+            "en": "This font installation is unknown.",
+            "de": "Diese Schrifteninstallation ist unbekannt.",
+            "es": "Se desconoce esta instalación de tipos de letra."
+        },
+        "X weeks ago": {
+            "en": "%number% weeks ago",
+            "de": "vor %number% Wochen",
+            "es": "hace %number% semanas"
+        },
+        "NoUserAccountLinked": {
+            "en": "No user account linked.",
+            "de": "Kein Nutzerkonto verknüpft.",
+            "es": "No se conectó ninguna cuenta."
+        },
+        "Pending": {
+            "de": "Ausstehend",
+            "es": "Pendientes"
+        },
+        "Remove All": {
+            "de": "Alle entfernen",
+            "es": "Quitar todo"
+        },
+        "Little Snitch Connection Purpose Description": {
+            "en": "The app is deeply integrated with its complementary web service at https://type.world.",
+            "de": "Die App ist eng mit dem dazugehörigen Web-Dienst auf https://type.world integriert.",
+            "es": "La aplicación está bien integrada en su servicio web complementario, alojado en https://type.world"
+        },
+        "Accepted": {
+            "de": "Angenommen",
+            "es": "Aceptado"
+        },
+        "We thank our Patrons": {
+            "de": "Wir danken unseren Unterstützern",
+            "es": "Agradecemos a nuestros patrocinadores"
+        },
+        "Exit": {
+            "de": "Beenden",
+            "es": "Salir"
+        },
+        "response.unknownFont.headline": {},
+        "Update All": {
+            "de": "Alle aktualisieren",
+            "es": "Actualizar todo"
+        },
+        "Update Subscription": {
+            "de": "Abonnement aktualisieren",
+            "es": "Actualizar suscripción"
+        },
+        "About": {
+            "de": "Über",
+            "es": "Acerca de"
+        },
+        "yesterday": {
+            "de": "gestern",
+            "es": "ayer"
+        },
+        "Hourly": {
+            "de": "Stündlich",
+            "es": "Cada hora"
+        },
+        "AccountAlreadyLinkedExplanation": {
+            "en": "This app is already linked with a user account.\nPlease unlink it first from the preferences, then repeat linking it to the new account.",
+            "de": "Diese App ist bereits mit einem Nutzerkonto verknüpft.\nBitte löse die Verknüpfung zunächst in den Einstellungen, und wiederhole dann die Verknüpfung.",
+            "es": "Esta aplicación ya está conectada con una cuenta.\nDesconéctela primero en Preferencias e intente conectarla de nuevo con la cuenta nueva."
+        },
+        "RevealIdentityExplanation": {
+            "en": "Reveal your <b>name</b> and <b>email address</b> to the publisher when installing fonts.\nBecause user data is transmitted anonymously by default (no names or email addresses are sent), this setting enables the publisher to identify which user has installed which version of the fonts.\n(Only valid for new font installations or updates after change of this setting.)\n</p><p>\n<b>Note:</b> This should only be necessary for small trusted work group environments where the publisher may want to get in touch with you about issues regarding the use of the fonts.",
+            "de": "Übermittle beim Installieren von Schriften deinen <b>Namen</b> und <b>E-Mail-Adresse</b> an den Verlag.\nDa Nutzerdaten standardmäßig nur anonymisiert übertragen werden (ohne Namen und E-Mail-Adressen), ermöglicht diese Einstellung dem Verlag, zu identifizieren, welcher Nutzer welche Schrift-Version installiert hat.\n(Gilt nur für neue Schriften-Installationen oder Updates ab Ändern dieser Einstellung.)\n</p><p>\n<b>Hinweis:</b> Dies sollte nur in kleinen, vertrauenswürdigen Arbeitsgruppen nötig sein, wo der Verlag mit Dir betreffs der Arbeit mit den Schriften in Kontakt treten wollen könnte.",
+            "es": "Revelar su <b>nombre</b> y <b>dirección electrónica</b> al fabricante al instalar tipos de letra.\nDado que de manera predeterminada se transmiten datos de usuario anónimamente, esta opción permite al fabricante saber qué usuarios han instalado una versión concreta de los tipos de letra.\n(Surte efecto solo para instalaciones o actualizaciones posteriores a la activación de esta opción.)\n</p><p>\n<b>Nota:</b> esto solo debería hacer falta en entornos de trabajo pequeños y de confianza, en los que el fabricante podría querer contactar con usted sobre asuntos relativos al uso de los tipos de letra."
+        },
+        "Manually": {
+            "de": "Manuell",
+            "es": "Manualmente"
+        },
+        "1 hour ago": {
+            "de": "vor 1 Stunde",
+            "es": "hace 1 hora"
+        },
+        "response.seatAllowanceReached": {
+            "en": "The seat allowance for this font under this license has been reached. Please either uninstall this font on other computers, or increase the seat allowance with the publisher.",
+            "de": "Die Anzahl der erlaubten Installationen für diese Schrift sind erschöpft. Bitte deinstalliere diese Schrift entweder auf anderen Computern, oder erhöhe die Anzahl der erlaubten Installationen beim Schriftenverlag.",
+            "es": "Ha alcanzado el límite de puestos estipulado en la licencia del tipo de letra. Desinstale el tipo de letra de otros equipos o acuerde aumentar el límite con el fabricante."
+        },
+        "AcceptPrivacyPolicyExplanation": {
+            "en": "The publisher is collecting data as per the following Privacy Policy.",
+            "de": "Der Schriftverlag erhebt Daten per der hierunter angeführten Datenschutzerklärung.",
+            "es": "El fabricante recaba datos como se estipula en la normativa de privacidad que sigue."
+        },
+        "Update All Subscriptions": {
+            "de": "Alle Abonnements aktualisieren",
+            "es": "Actualizar todas las suscripciones"
+        },
+        "JohnDoeEmailAddresses": {
+            "en": "john.doe@gmail.com, mary.jane@gmail.com",
+            "de": "erika.mustermann@web.de, max.mustermann@web.de",
+            "es": "juan.perez@correo.com, agueda.vera@correo.com"
+        },
+        "Agree": {
+            "de": "Zustimmen",
+            "es": "De acuerdo"
+        },
+        "Password": {
+            "de": "Passwort",
+            "es": "Contraseña"
+        },
+        "Paste": {
+            "de": "Einfügen",
+            "es": "Pegar"
+        },
+        "Last Check": {
+            "de": "Letzte Prüfung",
+            "es": "Última revisión"
+        },
+        "Subscription Preferences": {
+            "de": "Abonnements-Einstellungen",
+            "es": "Preferencias de suscripción"
+        },
+        "or": {
+            "de": "oder",
+            "es": "o"
+        },
+        "Foundry/ies": {
+            "de": "Schriftverlag(e)",
+            "es": "Fundiciones"
+        },
+        "response.termsOfServiceNotAccepted.headline": {
+            "en": "Terms of Service not accepted",
+            "de": "Nutzungsbedingungen nicht akzeptiert",
+            "es": "No se aceptaron las condiciones de uso"
+        },
+        "Cancel": {
+            "de": "Abbrechen",
+            "es": "Cancelar"
+        },
+        "IsInvitationExplanation": {
+            "en": "This subscription is an invitation",
+            "de": "Dieses Abonnement ist eine Einladung",
+            "es": "Esta suscripción es una invitación"
+        },
+        "response.temporarilyUnavailable": {
+            "en": "The service is temporarily unavailable, but will be back soon. Please try again later.",
+            "de": "Der Dienst ist vorübergehend nicht erreichbar. Bitte versuch es später noch einmal.",
+            "es": "El servicio no está disponible temporalmente, pero regresará pronto. Inténtelo de nuevo más tarde."
+        },
+        "Provided by": {
+            "de": "Bereitgestellt von",
+            "es": "Proporcionado por"
+        },
+        "Little Snitch App Description": {
+            "en": "The Type.World app is a front end application for over-the-web font installations. It greatly improves the font user experience for fonts distributed through participating publishers.",
+            "de": "Die Type.World-App ist eine Endnutzer-Anwendung für Schriften-Installationen über das Internet. Sie vereinfacht maßgeblich die Erfahrung der Schriftnutzung von teilnehmenden Schriftverlagen.",
+            "es": "La aplicación Type.World es un frontal para instalaciones de tipos de letra por Internet. Mejora sobremanera la experiencia de usuario relativa a la distribución de tipos de letra de fabricantes participantes."
+        },
+        "Linked User Account": {
+            "de": "Verknüpftes Nutzerkonto",
+            "es": "Cuenta conectada"
+        },
+        "UpdateInfinitive": {
+            "en": "Update",
+            "de": "Aktualisieren",
+            "es": "Actualizar"
+        },
+        "Account Last Synchronized": {
+            "de": "Nutzerkonto zuletzt synchronisiert",
+            "es": "Última sincronización con cuenta"
+        },
+        "Username": {
+            "de": "Nutzername",
+            "es": "Nombre de usuario"
+        },
+        "Loading Subscription": {
+            "de": "Lade Abonnement",
+            "es": "Cargando suscripción"
+        },
+        "Pending Invitations": {
+            "de": "Ausstehende Einladungen",
+            "es": "Invitaciones pendientes"
+        },
+        "justLinkedUserAccount": {
+            "en": "Your user account has been linked with the app.\nYou can unlink the account later in the app preferences.",
+            "de": "Dein Nutzerkonto wurde mit der App verknüpft.\nDu kannst die Verknüpfung in den App-Einstellungen wieder aufheben.",
+            "es": "Su cuenta se ha conectado con la aplicación.\nPuede desconectarla posteriormente en Preferencias."
+        },
+        "Add Publisher": {
+            "de": "Verlag hinzufügen",
+            "es": "Añadir fabricante"
+        },
+        "SubscriptionRemovedLongText": {
+            "en": "Removed %number% subscriptions after user account synchronization.",
+            "de": "%number% Abonnements nach Nutzerkonto-Synchronisation entfernt",
+            "es": "Se quitaron %number% suscripciones tras sincronizar con la cuenta"
+        },
+        "response.termsOfServiceNotAccepted": {
+            "en": "Using fonts of this subscription requires your agreement to publisher’s Terms of Service.",
+            "de": "Die Nutzung der Schriften aus diesem Abonnement benötigt die Zustimmung zu den Nutzungsbedingungen des Verlags.",
+            "es": "Utilizar los tipos de letra de esta suscripción exige la aceptación de las condiciones de servicio del fabricante."
+        },
+        "WelcomeMessage": {
+            "en": "Welcome to Type.World,\nthe one-click font installer.",
+            "de": "Willkommen zu Type.World,\ndem Ein-Klick-Schriften-Installierer.",
+            "es": "Le damos la bienvenida a Type.World,\nel instalador de tipos de un solo clic."
+        },
+        "response.duplicateInstallation": {
+            "en": "This font is already installed on this computer.",
+            "de": "Diese Schrift ist bereits auf diesem Computer installiert.",
+            "es": "Este tipo de letra ya se ha instalado en este equipo."
+        },
+        "Show Icon in Menu Bar.Mac": {
+            "en": "Show Icon in Task Bar",
+            "de": "Symbol in der Menüleiste anzeigen",
+            "es": "Mostrar icono en la barra de tareas"
+        },
+        "CurrentlyNoSentInvitations": {
+            "en": "You have currently not invited anyone to this subscription. Add invitations above.",
+            "de": "Du hast aktuell keine Einladungen zu diesem Abonnement verschickt. Füge Einladungen oben hinzu.",
+            "es": "No ha invitado a nadie a esta suscripción. Puede añadir invitaciones más arriba."
+        },
+        "RevokeInvitationExplanationDialog": {
+            "en": "Are you sure?\nAll subsequent invitations that the user has sent out to even other users will be revoked as well.",
+            "de": "Bist Du sicher?\nAlle nachfolgenden Einladungen, die der Nutzer/die Nutzerin an andere Nutzer/innen verschickt haben könnte, werden ebenfalls widerrufen.",
+            "es": "¿Lo confirma?\nSe revocarán también todas las invitaciones subsecuentes que el usuario haya enviado a otros."
+        },
+        "Foundries": {
+            "de": "Foundrys",
+            "es": "Fundiciones"
+        },
+        "Reloading Publisher": {
+            "de": "Aktualisiere Verlag",
+            "es": "Actualizando fabricante"
+        },
+        "X minutes ago": {
+            "en": "%number% minutes ago",
+            "de": "vor %number% Minuten",
+            "es": "hace %number% minutos"
+        },
+        "response.notOnline.headline": {
+            "en": "Not Online",
+            "de": "Kein Internetzugang",
+            "es": "No hay conexión"
+        },
+        "Privacy Policy": {
+            "de": "Datenschutzerklärung",
+            "es": "Normativa de privacidad"
+        },
+        "Reveal Your Identity For This Subscription": {
+            "de": "Deine Identität für dieses Abonnement übermitteln",
+            "es": "Revelar su identidad para esta suscripción"
+        },
+        "Originally Provided For": {
+            "en": "Originally provided by %publisher% for",
+            "de": "Ursprünglich von <b>%publisher%</b> bereitgestellt für",
+            "es": "Originalmente provisto por %publisher% para:"
+        },
+        "Little Snitch Connection Deny Consequences": {
+            "en": "If you deny this connection, various key functionalities of the app will be impaired, such as the download and installation of fonts, user account synchronization, and software self-updates.",
+            "de": "Wenn Du diese Verbindung verbietest, werden verschiedene wichtige Funktionalitäten der App behindert sein, so z.B. Herunterladen und Installieren von Schriften, das Synchronisieren deiner Nutzerkonten, oder die Software-Selbst-Aktualisierung.",
+            "es": "Si rechaza esta conexión se verán perjudicadas varias funcionalidades, tales como la descarga e instalación de tipos de letra, la sincronización con la cuenta y las autoactualizaciones del programa."
+        },
+        "UnlinkUserAccountExplanation": {
+            "en": "When you unlink your Type.World user account from this app, all protected fonts in all your subscriptions will be uninstalled. However, free fonts will remain installed.",
+            "de": "Wenn Du die Verknüpfung deines Type.World-Nutzerkontos mit dieser App aufhebst, werden alle geschützten Schriften all deiner Abonnements deinstalliert. Kostenlose Schriften bleiben aber installiert.",
+            "es": "Cuando desconecte su cuenta de Type.World de esta aplicación, se desinstalarán todos los tipos de letra protegidos provenientes de todas las suscripciones. Sin embargo, los tipos gratuitos permanecerán instalados."
+        },
+        "response.noFontsAvailable": {
+            "en": "No font are available for installation.",
+            "de": "Es sind keine Schriften zur Installation verfügbar.",
+            "es": "No hay ningún tipo de letra disponible para instalar."
+        },
+        "response.duplicateInstallation.headline": {},
+        "response.insufficientPermission": {
+            "en": "You don’t have sufficient permissions to access this subscription.",
+            "de": "Du bist nicht berechtigt, auf dieses Abonnement zu zuzugreifen.",
+            "es": "No tiene privilegios suficientes para acceder a esta suscripción."
+        },
+        "response.validTypeWorldUserAccountRequired": {
+            "en": "This service requires a Type.World user account.\nPlease create your account on https://type.world, and link your app from the account section.",
+            "de": "Dieser Dienst benötigt ein Type.World-Nutzerkonto.\nBitte erstelle Dir ein Nutzerkonto auf https://type.world, und verknüpfe deine App auf der Nutzerkonto-Seite.",
+            "es": "Este servicio precisa de una cuenta de Type.World.\nCree su cuenta en https://type.world y conéctela con la aplicación en la sección Cuenta."
+        },
+        "response.notOnline": {
+            "en": "Can’t reach the server. Please check your internet connection.",
+            "de": "Kann den Server nicht erreichen. Bitte überprüfe deine Internetverbindung.",
+            "es": "No se puede comunicar con el servidor. Compruebe su conexión a Internet."
+        }
+    }
+}

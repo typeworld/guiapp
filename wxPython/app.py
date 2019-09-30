@@ -35,8 +35,7 @@ from ynlib.strings import *
 from ynlib.web import GetHTTP
 from ynlib.colors import Color
 
-import typeWorldClient
-from typeWorldClient import APIClient, JSON, AppKitNSUserDefaults
+from typeWorld.client import APIClient, JSON, AppKitNSUserDefaults
 import typeWorld.api.base
 
 APPNAME = 'Type.World'
@@ -82,7 +81,6 @@ if MAC:
 	notificationCenter.setDelegate_(notificationCenterDelegate)
 
 
-
 if WIN:
 	from appdirs import user_data_dir
 	prefDir = user_data_dir('Type.World', 'Type.World')
@@ -96,6 +94,7 @@ if WIN and DEBUG:
 	if os.path.exists(filename):
 		os.remove(filename)
 	logging.basicConfig(filename=filename,level=logging.DEBUG)
+
 
 def log(message):
 	if DEBUG:
@@ -113,7 +112,7 @@ def log(message):
 try:
 
 	## Windows:
-	## Register Custom Protocol Handlers in the Registry. Later, this should be moved into the installer.
+	## Register Custom Protocol Handlers in the Registry. TODO: Later, this should be moved into the installer.
 
 	if WIN and RUNTIME:
 		try:
@@ -821,8 +820,6 @@ try:
 			sizer.Add(self.html, 1, wx.EXPAND)
 			self.SetSizer(sizer)
 
-
-
 			self.Bind(wx.EVT_CLOSE, self.onClose)
 			self.Bind(wx.EVT_QUERY_END_SESSION, self.onQuit)
 			self.Bind(wx.EVT_END_SESSION, self.onQuit)
@@ -1369,17 +1366,28 @@ try:
 						html.append('</em></p>')
 
 
+						success, message = subscription.protocol.rootCommand()
+						if success:
+							rootCommand = message
+						else:
+							rootCommand = None
 
-						command = subscription.latestVersion().response.getCommand()
+
+						success, message = subscription.protocol.installableFontsCommand()
+						if success:
+							command = message
+						else:
+							command = None
+
 						userName = command.userName.getText(client.locale())
 						userEmail = command.userEmail
 
 						html.append('<p>')
 						html.append('#(Provided by) ')
-						if subscription.latestVersion().website:
-							html.append('<a href="%s" title="%s">' % (subscription.latestVersion().website, subscription.latestVersion().website))
-						html.append('<b>' + subscription.latestVersion().name.getText(client.locale()) + '</b>')
-						if subscription.latestVersion().website:
+						if rootCommand.website:
+							html.append('<a href="%s" title="%s">' % (rootCommand.website, rootCommand.website))
+						html.append('<b>' + rootCommand.name.getText(client.locale()) + '</b>')
+						if rootCommand.website:
 							html.append('</a> ')
 						if userName or userEmail:
 							html.append('#(for) ')
@@ -1404,18 +1412,18 @@ try:
 							html.append('<h2>#(Invitations)</h2>')
 							html.append('<p>')
 
-							for invitation in client.preferences.get('acceptedInvitations'):
-								if invitation['url'] == subscription.url:
+							for invitation in client.acceptedInvitations():
+								if invitation.url == subscription.url:
 
-									if invitation['invitedByUserEmail'] or invitation['invitedByUserName']:
+									if invitation.invitedByUserEmail or invitation.invitedByUserName:
 										html.append('#(Invited by) <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
-										if invitation['invitedByUserEmail'] and invitation['invitedByUserName']:
-											html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail'], invitation['invitedByUserEmail']))
+										if invitation.invitedByUserEmail and invitation.invitedByUserName:
+											html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation.invitedByUserName, invitation.invitedByUserEmail, invitation.invitedByUserEmail))
 										else:
-											html.append('%s' % (invitation['invitedByUserName'] or invitation['invitedByUserEmail']))
+											html.append('%s' % (invitation.invitedByUserName or invitation.invitedByUserEmail))
 
-									if invitation['time']:
-										html.append('<br />%s' % (NaturalRelativeWeekdayTimeAndDate(invitation['time'], locale = client.locale()[0])))
+									if invitation.time:
+										html.append('<br />%s' % (NaturalRelativeWeekdayTimeAndDate(invitation.time, locale = client.locale()[0])))
 
 							html.append('</p>')
 
@@ -1465,46 +1473,17 @@ try:
 						subscription = s
 						break
 
-			if subscription and client.userEmail():
-				emails = [x.strip() for x in string.split(', ')]
+			for email in [x.strip() for x in string.split(', ')]:
 
-				for email in emails:
+				success, message = subscription.inviteUser(email)
 
-					parameters = {
-						'command': 'inviteUserToSubscription',
-						'targetUserEmail': email,
-						'sourceUserEmail': client.userEmail(),
-						'subscriptionURL': subscription.completeURL(),
-					}
+				if success:
+					client.downloadSubscriptions()
+					self.showSubscriptionInvitations(None, b64ID)
 
-					data = urllib.parse.urlencode(parameters).encode('ascii')
-					url = 'https://type.world/jsonAPI/'
+				else:
+					self.errorMessage(message)
 
-					try:
-						response = urllib.request.urlopen(url, data, cafile=certifi.where())
-					except urllib.error.HTTPError as e:
-						self.log('API endpoint alive HTTP error: %s' % e)
-						self.errorMessage('API endpoint alive HTTP error: %s' % e)
-
-					response = json.loads(response.read().decode())
-
-					if response['response'] == 'invalidSubscriptionURL':
-						self.errorMessage('The subscription URL %s is invalid.' % subscription.completeURL())
-
-					elif response['response'] == 'unknownTargetEmail':
-						self.errorMessage('The invited user doesn’t have a valid Type.World user account as %s.' % email)
-
-					elif response['response'] == 'invalidSource':
-						self.errorMessage('The source user could not be identified or doesn’t hold this subscription.')
-
-					elif response['response'] == 'success':
-						print('Successfully invited user %s' % email)
-
-						# Update
-						client.downloadSubscriptions()
-
-
-						self.showSubscriptionInvitations(None, b64ID)
 
 
 		def revokeUsers(self, b64ID, string):
@@ -1517,53 +1496,22 @@ try:
 						break
 
 			if subscription and client.userEmail():
-				emails = [x.strip() for x in string.split(', ')]
 
 				dlg = wx.MessageDialog(None, localizeString("#(RevokeInvitationExplanationDialog)"), localizeString("#(Revoke Invitation)"), wx.YES_NO | wx.ICON_QUESTION)
 				dlg.SetYesNoLabels(localizeString('#(Revoke)'), localizeString('#(Cancel)'))
 				result = dlg.ShowModal()
 				if result == wx.ID_YES:
 
-					for email in emails:
+					for email in [x.strip() for x in string.split(', ')]:
 
-						parameters = {
-							'command': 'revokeSubscriptionInvitation',
-							'targetUserEmail': email,
-							'sourceUserEmail': client.userEmail(),
-							'subscriptionURL': subscription.completeURL(),
-						}
+						success, message = subscription.revokeUser(email)
 
-						print(parameters)
-						data = urllib.parse.urlencode(parameters).encode('ascii')
-						url = 'https://type.world/jsonAPI/'
-
-						try:
-							response = urllib.request.urlopen(url, data, cafile=certifi.where())
-						except urllib.error.HTTPError as e:
-							self.log('API endpoint alive HTTP error: %s' % e)
-							self.errorMessage('API endpoint alive HTTP error: %s' % e)
-
-						response = json.loads(response.read().decode())
-
-						if response['response'] == 'invalidSubscriptionURL':
-							self.errorMessage('The subscription URL %s is invalid.' % subscription.completeURL())
-
-						elif response['response'] == 'unknownTargetEmail':
-							self.errorMessage('The invited user doesn’t have a valid Type.World user account as %s.' % email)
-
-						elif response['response'] == 'invalidSource':
-							self.errorMessage('The inviting user doesn’t have a valid Type.World user account as %s.' % client.userEmail())
-
-						elif response['response'] == 'unknownSubscription':
-							self.errorMessage('The subscription URL is unkown.')
-
-						elif response['response'] == 'success':
-							print('Successfully revoked user %s' % email)
-
-							# Update
+						if success:
 							client.downloadSubscriptions()
-
 							self.showSubscriptionInvitations(None, b64ID)
+
+						else:
+							self.errorMessage(message)
 
 
 		def showSubscriptionInvitations(self, event, b64ID, loadUpdates = False):
@@ -1587,18 +1535,28 @@ try:
 						html.append(subscription.url) # .replace('secretKey', '<span style="color: orange;">secretKey</span>')
 						html.append('</em></p>')
 
+						success, message = subscription.protocol.rootCommand()
+						if success:
+							rootCommand = message
+						else:
+							rootCommand = None
 
 
-						command = subscription.latestVersion().response.getCommand()
+						success, message = subscription.protocol.installableFontsCommand()
+						if success:
+							command = message
+						else:
+							command = None
+
 						userName = command.userName.getText(client.locale())
 						userEmail = command.userEmail
 
 						html.append('<p>')
 						html.append('#(Provided by) ')
-						if subscription.latestVersion().website:
-							html.append('<a href="%s" title="%s">' % (subscription.latestVersion().website, subscription.latestVersion().website))
-						html.append('<b>' + subscription.latestVersion().name.getText(client.locale()) + '</b>')
-						if subscription.latestVersion().website:
+						if rootCommand.website:
+							html.append('<a href="%s" title="%s">' % (rootCommand.website, rootCommand.website))
+						html.append('<b>' + rootCommand.name.getText(client.locale()) + '</b>')
+						if rootCommand.website:
 							html.append('</a> ')
 						if userName or userEmail:
 							html.append('#(for) ')
@@ -1638,8 +1596,8 @@ try:
 
 						matchedInvitations = []
 
-						for invitation in client.preferences.get('sentInvitations'):
-							if invitation['url'] == url:
+						for invitation in client.sentInvitations():
+							if invitation.url == url:
 								matchedInvitations.append(invitation)
 
 
@@ -1651,18 +1609,18 @@ try:
 								html.append('<div class="clear" style="margin-bottom: 3px;">')
 								html.append('<div style="float: left; width: 300px;">')
 								html.append('<img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
-								html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation['invitedUserName'], invitation['invitedUserEmail'], invitation['invitedUserEmail']))
+								html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation.invitedUserName, invitation.invitedUserEmail, invitation.invitedUserEmail))
 								html.append('</div>')
 
 								html.append('<div style="float: left; width: 100px;">')
-								if invitation['confirmed']:
+								if invitation.confirmed:
 									html.append('✓ #(Accepted)')
 								else:
 									html.append('<em>#(Pending)…</em>')
 								html.append('</div>')
 
 								html.append('<div style="float: right; width: 100px;">')
-								html.append('<a class="revokeInvitationButton" b64ID="%s" email="%s">#(Revoke Invitation)</a>' % (b64ID, invitation['invitedUserEmail']))
+								html.append('<a class="revokeInvitationButton" b64ID="%s" email="%s">#(Revoke Invitation)</a>' % (b64ID, invitation.invitedUserEmail))
 								html.append('</div>')
 
 								html.append('</div>') # .clear
@@ -1879,10 +1837,10 @@ try:
 
 				self.javaScript('$("#%s.invitation").slideUp();' % ID)
 
-				for invitation in client.preferences.get('acceptedInvitations'):
-					if invitation['ID'] == ID:
+				for invitation in client.acceptedInvitations():
+					if invitation.ID == ID:
 
-						client.preferences.set('currentPublisher', invitation['canonicalURL'])
+						client.preferences.set('currentPublisher', invitation.canonicalURL)
 						self.setSideBarHTML()
 						self.setPublisherHTML(self.b64encode(client.currentPublisher().canonicalURL))
 						self.setBadges()
@@ -1899,9 +1857,9 @@ try:
 			invitation = None
 
 
-			for invitation in client.preferences.get('acceptedInvitations'):
-				if invitation['ID'] == ID:
-					url = invitation['url']
+			for invitation in client.acceptedInvitations():
+				if invitation.ID == ID:
+					url = invitation.url
 					for publisher in client.publishers():
 						for subscription in publisher.subscriptions():
 							if url == subscription.url:
@@ -1918,8 +1876,8 @@ try:
 									startWorker(self.declineInvitation_consumer, self.declineInvitation_worker, wargs=(ID, ))
 
 
-			for invitation in client.preferences.get('pendingInvitations'):
-				if invitation['ID'] == ID:
+			for invitation in client.pendingInvitations():
+				if invitation.ID == ID:
 					dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Decline Invitation)'), wx.YES_NO | wx.ICON_QUESTION)
 					dlg.SetYesNoLabels(localizeString('#(Remove)'), localizeString('#(Cancel)'))
 					result = dlg.ShowModal() == wx.ID_YES
@@ -1943,7 +1901,7 @@ try:
 
 				self.javaScript('$("#%s.invitation").slideUp();' % ID)
 
-				if len(client.preferences.get('pendingInvitations')) == 0:
+				if len(client.pendingInvitations()) == 0:
 					if client.publishers():
 						self.setPublisherHTML(self.b64encode(client.publishers()[0].canonicalURL))
 					else:
@@ -2026,9 +1984,9 @@ try:
 			subscription = publisher.subscription(subscriptionID)
 			family = subscription.familyByID(familyID)
 
-			for font in family.fonts():
+			for font in family.fonts:
 				if font.setName.getText(client.locale()) == setName and font.format == formatName:
-					if not font.installedVersion():
+					if not subscription.installedFontVersion(font.uniqueID):
 						fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
 
 			self.installFonts(fonts)
@@ -2049,9 +2007,9 @@ try:
 			subscription = publisher.subscription(subscriptionID)
 			family = subscription.familyByID(familyID)
 
-			for font in family.fonts():
+			for font in family.fonts:
 				if font.setName.getText(client.locale()) == setName and font.format == formatName:
-					if font.installedVersion():
+					if subscription.installedFontVersion(font.uniqueID):
 						fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID)])
 
 			self.removeFonts(fonts)
@@ -2100,7 +2058,6 @@ try:
 
 				publisher = client.publisher(publisherURL)
 				subscription = publisher.subscription(subscriptionURL)
-				api = subscription.latestVersion()
 
 				# Remove other installed versions
 				installedVersion = subscription.installedFontVersion(fontID)
@@ -2143,9 +2100,16 @@ try:
 				publisher = client.publisher(self.b64decode(publisherB64ID))
 				for subscription in publisher.subscriptions():
 					subscriptionB64ID = self.b64encode(subscription.url)
-					for foundry in subscription.foundries():
-						for family in foundry.families():
-							for font in family.fonts():
+
+					success, message = subscription.protocol.installableFontsCommand()
+					if success:
+						command = message
+					else:
+						command = None
+
+					for foundry in command.foundries:
+						for family in foundry.families:
+							for font in family.fonts:
 								if font.isOutdated():
 									fonts.append([publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
 
@@ -2157,9 +2121,15 @@ try:
 							publisherB64ID = self.b64encode(publisher.canonicalURL)
 							break
 
-				for foundry in subscription.foundries():
-					for family in foundry.families():
-						for font in family.fonts():
+				success, message = subscription.protocol.installableFontsCommand()
+				if success:
+					command = message
+				else:
+					command = None
+
+				for foundry in command.foundries:
+					for family in foundry.families:
+						for font in family.fonts:
 							if font.isOutdated():
 								fonts.append([publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
 
@@ -2197,7 +2167,6 @@ try:
 
 				publisher = client.publisher(publisherURL)
 				subscription = publisher.subscription(subscriptionURL)
-				api = subscription.latestVersion()
 
 				success, message = subscription.removeFont(fontID)
 
@@ -2325,12 +2294,20 @@ try:
 
 				for publisher in client.publishers():
 					for subscription in publisher.subscriptions():
-						for foundry in subscription.foundries():
-							for family in foundry.families():
-								for font in family.fonts():
+
+						success, message = subscription.protocol.installableFontsCommand()
+						if success:
+							command = message
+						else:
+							command = None
+
+
+						for foundry in command.foundries:
+							for family in foundry.families:
+								for font in family.fonts:
 									if font.uniqueID == fontID:
 
-										if font.installedVersion():
+										if subscription.installedFontVersion(font.uniqueID):
 											item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Show in Finder)'))
 											menu.Bind(wx.EVT_MENU, partial(self.showFontInFinder, subscription = subscription, fontID = fontID), item)
 											menu.Append(item)
@@ -2341,7 +2318,7 @@ try:
 
 										for version in font.getVersions():
 
-											if font.installedVersion() == version.number:
+											if subscription.installedFontVersion(font.uniqueID) == version.number:
 												item = wx.MenuItem(subMenu, wx.NewId(), str(version.number), "", wx.ITEM_RADIO)
 
 											else:
@@ -2422,7 +2399,7 @@ try:
 			
 			log('showPublisherInFinder()')
 			publisher = client.publisher(self.b64decode(b64ID))
-			path = publisher.path()
+			path = publisher.folder()
 
 			if not os.path.exists(path):
 				os.makedirs(path)
@@ -2665,25 +2642,25 @@ try:
 
 				html = []
 
+				pendingInvitations = client.pendingInvitations()
+				if pendingInvitations:
+					for invitation in pendingInvitations:
 
-				if client.preferences.get('pendingInvitations'):
-					for invitation in client.preferences.get('pendingInvitations'):
-
-						html.append('<div class="publisher invitation" id="%s">' % invitation['ID'])
+						html.append('<div class="publisher invitation" id="%s">' % invitation.ID)
 
 						html.append('<div class="foundry">')
-						html.append('<div class="head clear" style="background-color: %s;">' % ('#' + Color(hex=invitation['backgroundColor'] or 'DDDDDD').desaturate(0 if self.IsActive() else 1).hex if 'backgroundColor' in invitation else 'none'))
+						html.append('<div class="head clear" style="background-color: %s;">' % ('#' + Color(hex=invitation.backgroundColor or 'DDDDDD').desaturate(0 if self.IsActive() else 1).hex if invitation.backgroundColor else 'none'))
 
 
-						if 'logoURL' in invitation:
-							success, logo, mimeType = client.resourceByURL(invitation['logoURL'], binary = True)
+						if invitation.logoURL:
+							success, logo, mimeType = client.resourceByURL(invitation.logoURL, binary = True)
 							if success:
 								html.append('<div class="logo">')
 								html.append('<img src="data:%s;base64,%s" style="width: 100px; height: 100px;" />' % (mimeType, logo))
 								html.append('</div>') # publisher
 							else:
 								html.append('<div class="logo">')
-								html.append('<img src="%s" style="width: 100px; height: 100px;" />' % (invitation['logoURL']))
+								html.append('<img src="%s" style="width: 100px; height: 100px;" />' % (invitation.logoURL))
 								html.append('</div>') # publisher
 
 						html.append('<div class="names centerOuter"><div class="centerInner">')
@@ -2692,34 +2669,34 @@ try:
 						html.append('<div class="vertCenterMiddle">')
 						html.append('<div class="vertCenterInner">')
 
-						html.append('<div class="name">%s%s</div>' % (typeWorldClient.base.MultiLanguageText(json = invitation['publisherName']).getText(client.locale()), (' (%s)' % typeWorldClient.base.MultiLanguageText(json = invitation['subscriptionName']).getText(client.locale()) if 'subscriptionName' in invitation else '')))
-						if 'website' in invitation:
+						html.append('<div class="name">%s%s</div>' % (typeWorld.api.base.MultiLanguageText(json = invitation.publisherName).getText(client.locale()), (' (%s)' % typeWorld.api.base.MultiLanguageText(json = invitation.subscriptionName).getText(client.locale()) if invitation.subscriptionName else '')))
+						if invitation.website:
 							html.append('<p>')
-							html.append('<div class="website"><a href="%s">%s</a></div>' % (invitation['website'], invitation['website']))
+							html.append('<div class="website"><a href="%s">%s</a></div>' % (invitation.website, invitation.website))
 							html.append('</p>')
 
-						if invitation['foundries'] or invitation['families'] or invitation['fonts']:
+						if invitation.foundries or invitation.families or invitation.fonts:
 							html.append('<p>')
-							html.append('%s #(Foundry/ies), %s #(Typeface/s), %s #(Font/s)' % (invitation['foundries'] or 0, invitation['families'] or 0, invitation['fonts'] or 0))
+							html.append('%s #(Foundry/ies), %s #(Typeface/s), %s #(Font/s)' % (invitation.foundries or 0, invitation.families or 0, invitation.fonts or 0))
 							html.append('</p>')
 
 						html.append('<p>')
-						if invitation['invitedByUserEmail'] or invitation['invitedByUserName']:
+						if invitation.invitedByUserEmail or invitation.invitedByUserName:
 							html.append('#(Invited by): <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
-							if invitation['invitedByUserEmail'] and invitation['invitedByUserName']:
-								html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation['invitedByUserName'], invitation['invitedByUserEmail'], invitation['invitedByUserEmail']))
+							if invitation.invitedByUserEmail and invitation.invitedByUserName:
+								html.append('<b>%s</b> (<a href="mailto:%s">%s</a>)' % (invitation.invitedByUserName, invitation.invitedByUserEmail, invitation.invitedByUserEmail))
 							else:
-								html.append('%s' % (invitation['invitedByUserName'] or invitation['invitedByUserEmail']))
+								html.append('%s' % (invitation.invitedByUserName or invitation.invitedByUserEmail))
 
-						if invitation['time']:
-							html.append(', %s' % (NaturalRelativeWeekdayTimeAndDate(invitation['time'], locale = client.locale()[0])))
+						if invitation.time:
+							html.append(', %s' % (NaturalRelativeWeekdayTimeAndDate(invitation.time, locale = client.locale()[0])))
 
 						html.append('</p>')
 
 
 						html.append('<div style="margin-top: 15px;">')
 
-						html.append('<a class="acceptInvitation" id="%s">' % invitation['ID'])
+						html.append('<a class="acceptInvitation" id="%s">' % invitation.ID)
 						html.append('<div class="clear invitationButton accept">')
 						html.append('<div class="symbol">')
 						html.append('✓')
@@ -2732,7 +2709,7 @@ try:
 
 #						html.append('&nbsp;&nbsp;')
 
-						html.append('<a class="declineInvitation" id="%s">' % invitation['ID'])
+						html.append('<a class="declineInvitation" id="%s">' % invitation.ID)
 						html.append('<div class="clear invitationButton decline">')
 						html.append('<div class="symbol">')
 						html.append('✕')
@@ -2808,10 +2785,15 @@ try:
 
 				html = []
 
+
 				publisher = client.publisher(ID)
 				subscription = publisher.currentSubscription()
-		#       api = subscription.latestVersion()
-		#       print api
+
+				success, message = subscription.protocol.rootCommand()
+				if success:
+					rootCommand = message
+				else:
+					rootCommand = None
 
 
 				if subscription and subscription.exists:
@@ -2819,7 +2801,13 @@ try:
 
 					html.append('<div class="publisher" id="%s">' % (b64ID))
 
-					if subscription.latestVersion().response.getCommand().prefersRevealedUserIdentity and subscription.get('revealIdentity') != True:
+					success, message = subscription.protocol.installableFontsCommand()
+					if success:
+						command = message
+					else:
+						command = None
+
+					if command.prefersRevealedUserIdentity and subscription.get('revealIdentity') != True:
 
 						html.append('<div class="foundry" id="acceptRevealIdentity">')
 						html.append('<div class="head clear">')
@@ -2888,7 +2876,7 @@ try:
 						html.append('#(AcceptTermsOfServiceExplanation)')
 						html.append('</p>')
 						html.append('<p>')
-						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(subscription.latestVersion().privacyPolicy, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(publisher.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.subscriptionID())), localizeString('#(Read X)', replace = {'content': localizeString('#(Terms of Service)')})))
+						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(rootCommand.termsOfServiceAgreement, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(rootCommand.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.protocol.subscriptionID)), localizeString('#(Read X)', replace = {'content': localizeString('#(Terms of Service)')})))
 						html.append('</p>')
 
 						html.append('<p style="height: 5px;">&nbsp;</p>')
@@ -2900,7 +2888,7 @@ try:
 						html.append('#(AcceptPrivacyPolicyExplanation)')
 						html.append('</p>')
 						html.append('<p>')
-						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(subscription.latestVersion().privacyPolicy, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(publisher.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.subscriptionID())), localizeString('#(Read X)', replace = {'content': localizeString('#(Privacy Policy)')})))
+						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(rootCommand.privacyPolicy, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(rootCommand.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.protocol.subscriptionID)), localizeString('#(Read X)', replace = {'content': localizeString('#(Privacy Policy)')})))
 						html.append('</p>')
 
 						html.append('</div>') # .one
@@ -2940,7 +2928,7 @@ try:
 							</script>''' % self.b64encode(subscription.url))
 
 
-					for foundry in subscription.foundries():
+					for foundry in command.foundries:
 
 
 						html.append('<div class="foundry">')
@@ -2991,7 +2979,7 @@ try:
 
 						html.append('<div class="families">')
 
-						for family in foundry.families():
+						for family in foundry.families:
 							html.append('<div class="contextmenu family" id="%s">' % self.b64encode(family.uniqueID))
 
 							html.append('<div class="title">')
@@ -3008,10 +2996,10 @@ try:
 
 									fonts = []
 									amountInstalled = 0
-									for font in family.fonts():
+									for font in family.fonts:
 										if font.setName.getText(client.locale()) == setName and font.format == formatName:
 											fonts.append(font)
-											if font.installedVersion():
+											if subscription.installedFontVersion(font.uniqueID):
 												amountInstalled += 1
 
 									completeSetName = ''
@@ -3066,7 +3054,8 @@ try:
 											html.append('<span class="label var">OTVar</span>')
 										html.append('</div>') # .left
 										html.append('<div class="left">')
-										installedVersion = font.installedVersion()
+										installedVersion = subscription.installedFontVersion(font.uniqueID)
+										
 										if installedVersion:
 											html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getVersions()[-1].number else 'olderVersion', installedVersion))
 										else:
@@ -3232,9 +3221,6 @@ try:
 				html.append('<div class="headline">#(My Subscriptions)</div>')
 				html.append('<div id="publishers">')
 
-
-
-
 				# Create HTML
 				for publisher in client.publishers():
 
@@ -3376,36 +3362,6 @@ try:
 				html.append('</div>') # .badges
 				html.append('</div>')
 
-
-	# 			for invitation in client.preferences.get('invitations'):
-
-	# 				selected = False
-
-	# 				name = invitation['publisherName']
-
-	# 				html.append('<div class="publisherWrapper">')
-	# 				html.append('<div id="%s" class="contextmenu publisher invitation line clear %s %s" lang="en" dir="ltr">' % ('', '', 'selected' if selected else ''))
-	# 				html.append('<div class="name">')
-	# 				html.append(name)
-	# 				html.append('</div>')
-	# 				# html.append('<div class="reloadAnimation" style="display: %s;">' % ('block' if publisher.stillUpdating() else 'none'))
-	# 				# html.append('<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">')
-	# 				# html.append('</div>')
-	# 				# html.append('<div class="badges clear">')
-	# 				# html.append('<div class="badge outdated" style="display: %s;">' % ('block' if outdatedFonts else 'none'))
-	# 				# html.append('%s' % (outdatedFonts or ''))
-	# 				# html.append('</div>')
-	# 				# html.append('<div class="badge installed" style="display: %s;">' % ('block' if installedFonts else 'none'))
-	# 				# html.append('%s' % (installedFonts or ''))
-	# 				# html.append('</div>')
-	# 				# html.append('</div>') # .badges
-	# 				# html.append('<div class="alert noclick" style="display: %s;">' % ('block' if publisher.updatingProblem() else 'none'))
-	# 				# html.append('<a href="x-python://self.displayPublisherSidebarAlert(____%s____)">' % b64ID)
-	# 				# html.append('⚠️')
-	# 				# html.append('</a>')
-	# 				# html.append('</div>') # .alert
-	# 				html.append('</div>') # publisher
-	# #                html.append('</a>')
 
 
 

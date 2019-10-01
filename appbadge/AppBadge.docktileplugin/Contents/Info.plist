@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleDisplayName</key>
+	<string>AppBadge</string>
+	<key>CFBundleExecutable</key>
+	<string>plugin</string>
+	<key>CFBundleIdentifier</key>
+	<string>world.type.GUIApp.docktileplugin</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>AppBadge</string>
+	<key>CFBundlePackageType</key>
+	<string>BNDL</string>
+	<key>CFBundleVersion</key>
+	<string>0.1.7-alpha</string>
+	<key>CFBundleShortVersionString</key>
+	<string>0.1.7-alpha</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright, ____Developer____, ____YEAR____</string>
+	<key>NSPrincipalClass</key>
+	<string>AppBadge</string>
+	<key>PyMainFileNames</key>
+	<array>
+		<string>../MacOS/main.py</string>
+	</array>
+</dict>
+</plist>

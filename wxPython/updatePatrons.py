@@ -10,7 +10,7 @@ import urllib
 
 # secrets = json.loads(ReadFromFile('/Users/yanone/Code/TypeWorldApp/misc/Patreon/api_secrets.json'))
 
-patrons = []
+patrons = ['Google Fonts']
 
 # url = "https://www.patreon.com/api/oauth2/api/campaigns/%s/pledges?include=patron.null" % secrets['campaign_id']
 
@@ -42,9 +42,12 @@ with open(files[0], "rt", encoding='utf-8') as csvfile:
 	# 	patrons.append(row[0])
 		if 'Active' in row[3]:
 			patrons.append(row[0])
-			print(row[0])
 
 path = os.path.join(os.path.dirname(__file__), 'patrons', 'patrons.json')
+
+patrons = sorted(patrons)
+print(patrons)
+
 WriteToFile(path, json.dumps(patrons))
 
 print('Done...')

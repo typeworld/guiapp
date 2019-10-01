@@ -28,7 +28,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 'CFBundleIdentifier':'world.type.guiapp', #optional
                 'NSHumanReadableCopyright': '@ Yanone 2018', #optional
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default
-#                'NSDockTilePlugIn': '@executable_path/../Resources/lib/python2.7/AppBadge.docktileplugin.py',
+                'NSDockTilePlugIn': '@executable_path/../Resources/AppBadge.docktileplugin',
 #                'NSDockTilePlugIn': 'appbadge.docktileplugin',
                 'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World Font Installation Protocols', 'CFBundleURLSchemes': ['typeworld', 'typeworldapp']}],
 #                'LSUIElement': True, # No dock icon

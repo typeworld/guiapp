@@ -26,6 +26,7 @@ _list = [
 # Main app
 ['Main App build', '/usr/local/bin/python3 /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup.py py2app', None, ''],
 ['Copying Sparkle', 'cp -R %s /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/' % sparkle],
+['Copying Docktileplugin', 'cp -R /Users/yanone/Code/py/git/typeWorld/guiapp/appbadge/AppBadge.docktileplugin /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/'],
 ['Copying agent', 'cp /Users/yanone/Code/TypeWorldApp/dist/agent.tar.bz2 /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/', None, ''],
 ['Unlink site.pyo', 'unlink ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.6/site.pyo', None, ''],
 ['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu-3.0.0.4.0.dylib', None, 'nosign'],

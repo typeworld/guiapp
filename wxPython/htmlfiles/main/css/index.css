@@ -646,9 +646,48 @@ label {
 
 }
 
-.font .status {
+
+
+/* ######## Installation statuses ############ */
+
+
+.font .status.loading {
 	display: none;
 }
+
+.font.loading .status.loading {
+	display: block;
+}
+
+.font .status.install {
+	display: none;
+}
+
+.font.notInstalled .status.install {
+	display: block;
+}
+
+.font.loading .status.install {
+	display: none;
+}
+
+.font .status.remove {
+	display: none;
+}
+
+.font.installed .status.remove {
+	display: block;
+}
+
+.font.loading .status.remove {
+	display: none;
+}
+
+.font.loading .more {
+	display: none;
+}
+
+
 
 .font.hoverOverFont .more {
 	display: none;
@@ -659,8 +698,8 @@ label {
 }
 
 #main .publisher a:hover {
-	color: gray;
-}
+/*	color: gray;
+*/}
 
 #main .publisher a:active {
 	color: black;

@@ -2051,10 +2051,13 @@ try:
 
 		def installFont(self, b64publisherURL, b64subscriptionURL, b64fontID, version):
 
-			self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
-			self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
-			self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
-			self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
+			self.selectFont(b64fontID)
+			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
+
+			# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
+			# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
+			# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
+			# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
 
 			startWorker(self.installFonts_consumer, self.installFonts_worker, wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID, version]]]))
 
@@ -2063,10 +2066,11 @@ try:
 
 			for b64publisherURL, b64subscriptionURL, b64fontID, version in fonts:
 
-				self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
-				self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
-				self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
-				self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
+				self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
 
 			startWorker(self.installFonts_consumer, self.installFonts_worker, wargs=([fonts]))
 
@@ -2090,20 +2094,22 @@ try:
 				if installedVersion and installedVersion != version:
 					success, message = subscription.removeFont(fontID)
 					if success == False:
-						return success, message, b64publisherURL
+						return success, message, b64publisherURL, fonts
 
 				# Install new font
 				success, message = subscription.installFont(fontID, version)
 
 				if success == False:
-					return success, message, b64publisherURL
+					return success, message, b64publisherURL, fonts
 
-			return True, None, b64publisherURL
+			return True, None, b64publisherURL, fonts
 
 
 		def installFonts_consumer(self, delayedResult):
 
-			success, message, b64publisherURL = delayedResult.get()
+			success, message, b64publisherURL, fonts = delayedResult.get()
+
+			self.setFontStatuses(fonts)
 
 			if success:
 
@@ -2111,11 +2117,13 @@ try:
 
 			else:
 
+				for b64publisherURL, b64subscriptionURL, b64fontID, version in fonts:
+					self.javaScript('$(".font.%s").removeClass("loading");' % b64fontID)
 				self.errorMessage(message)
 
 			self.setSideBarHTML()
 			self.setBadges()
-			self.setPublisherHTML(b64publisherURL)
+#			self.setPublisherHTML(b64publisherURL)
 
 
 		def updateAllFonts(self, evt, publisherB64ID, subscriptionB64ID):
@@ -2162,12 +2170,44 @@ try:
 			self.installFonts(fonts)
 
 
+		def setFontStatuses(self, fonts):
+
+			for line in fonts:
+
+				b64publisherURL = line[0]
+				b64subscriptionURL = line[1]
+				b64fontID = line[2]
+
+				subscription = client.publisher(self.b64decode(b64publisherURL)).subscription(self.b64decode(b64subscriptionURL))
+				font = subscription.fontByID(self.b64decode(b64fontID))
+				installedVersion = subscription.installedFontVersion(font=font)
+
+				self.javaScript('$(".font.%s").removeClass("loading");' % b64fontID)
+				self.javaScript('$(".font.%s").removeClass("installed");' % b64fontID)
+				self.javaScript('$(".font.%s").removeClass("installed");' % b64fontID)
+				self.javaScript('$(".font.%s").removeClass("notInstalled");' % b64fontID)
+				self.javaScript('$(".font.%s").removeClass("notInstalled");' % b64fontID)
+				if installedVersion:
+					self.javaScript('$(".font.%s").addClass("installed");' % b64fontID)
+				else:
+					self.javaScript('$(".font.%s").addClass("notInstalled");' % b64fontID)
+
+				html = self.fontInstalledText(font)
+				html = html.replace('"', '\'')
+				html = html.replace('\n', '')
+				html = localizeString(html, html = True)
+				html = self.replaceHTML(html)
+				self.javaScript('$(".font.%s .installedText").html("%s");' % (b64fontID, html))
+
+
 		def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
 
-			self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
-			self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
-			self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
-			self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
+			self.selectFont(b64fontID)
+			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
+			# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
+			# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
+			# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
+			# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
 
 			startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID]]]))
 
@@ -2175,10 +2215,11 @@ try:
 
 			for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
 
-				self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
-				self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
-				self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
-				self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
+				self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
 
 			startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([fonts]))
 
@@ -2197,15 +2238,17 @@ try:
 				success, message = subscription.removeFont(fontID)
 
 				if success == False:
-					return success, message, b64publisherURL
+					return success, message, b64publisherURL, fonts
 
 
-			return True, None, b64publisherURL
+			return True, None, b64publisherURL, fonts
 
 
 		def removeFonts_consumer(self, delayedResult):
 
-			success, message, b64publisherURL = delayedResult.get()
+			success, message, b64publisherURL, fonts = delayedResult.get()
+
+			self.setFontStatuses(fonts)
 
 			if success:
 
@@ -2220,7 +2263,7 @@ try:
 
 			self.setSideBarHTML()
 			self.setBadges()
-			self.setPublisherHTML(b64publisherURL)
+#			self.setPublisherHTML(b64publisherURL)
 
 
 		def onContextMenu(self, x, y, target, b64ID):
@@ -2693,6 +2736,7 @@ try:
 			fontID = self.b64decode(b64ID)
 			client.currentPublisher().currentSubscription().set('currentFont', fontID)
 			font = client.currentPublisher().currentSubscription().fontByID(fontID)
+			subscription = font.parent.parent.parent.parent.parent
 
 
 			html = []
@@ -2758,6 +2802,9 @@ try:
 					if version.releaseDate:
 						html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
 					html.append('</p>')
+
+
+
 				html.append('</div>')
 
 
@@ -3207,7 +3254,7 @@ try:
 									for font in fonts:
 										installedVersion = subscription.installedFontVersion(font.uniqueID)
 
-										html.append('<div class="contextmenu font %s %s" id="%s">' % ('installed' if installedVersion else 'notInstalled', 'selected' if subscription.get('currentFont') == font.uniqueID else '', self.b64encode(font.uniqueID)))
+										html.append('<div class="contextmenu font %s %s %s" id="%s">' % (self.b64encode(font.uniqueID), 'installed' if installedVersion else 'notInstalled', 'selected' if subscription.get('currentFont') == font.uniqueID else '', self.b64encode(font.uniqueID)))
 										html.append('<div class="clear">')
 
 										html.append('<div class="left" style="width: 50%;">')
@@ -3219,38 +3266,36 @@ try:
 										if font.variableFont:
 											html.append('<span class="label var">OTVar</span>')
 										html.append('</div>') # .left
-										html.append('<div class="left">')
-										
-										if installedVersion:
-											html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getVersions()[-1].number else 'olderVersion', installedVersion))
-										else:
-											html.append('<span class="notInstalled" style="color: #%s;">#(Not Installed)</span>' % (selectedGrayFontTextColor.hex))
+
+										html.append('<div class="left installedText">')
+										html.append(self.fontInstalledText(font))
 										html.append('</div>') # .left
 
 										if font.purpose == 'desktop':
+
 											html.append('<div class="installButtons right">')
-											html.append('<div class="clear">')
-											html.append('<div class="installButton install right" style="display: %s;">' % ('none' if installedVersion else 'block'))
+											html.append('<div class="installButton status install">')
 											html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getVersions()[-1].number if font.getVersions() else ''))
 											html.append('✓ #(Install)')
 											html.append('</a>')
-											html.append('</div>') # .right
-											html.append('<div class="installButton remove right" style="display: %s;">' % ('block' if installedVersion else 'none'))
+											html.append('</div>') # installButton
+											html.append('<div class="installButton status remove">')
 											html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
 											html.append('✕ #(Remove)')
 											html.append('</a>')
-											html.append('</div>') # .right
-											html.append('</div>') # .clear
+											html.append('</div>') # installButton
 											html.append('</div>') # .installButtons
-											html.append('<div class="right">')
+
+											html.append('<div class="status loading right">')
 											html.append('<a class="status">')
 											html.append('''<img src="file://##htmlroot##/loading.gif" style="width: 50px; height: 13px; position: relative; top: 2px;">''')
 											html.append('</a>')
-											html.append('<div>')
+											html.append('</div>') # .right
+
+											html.append('<div class="more right">')
 											html.append('<a class="more">')
 											html.append('''<img src="file://##htmlroot##/more_lighter.svg" style="height: 8px; position: relative; top: 0px;">''')
 											html.append('</a>')
-											html.append('</div>')
 											html.append('</div>') # .right
 
 										html.append('</div>') # .clear
@@ -3352,6 +3397,19 @@ try:
 
 			# profile.disable()
 			# profile.print_stats(sort='time')
+
+		def fontInstalledText(self, font):
+
+			html = []
+
+			installedVersion = font.parent.parent.parent.parent.parent.installedFontVersion(font=font)
+
+			if installedVersion:
+				html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getVersions()[-1].number else 'olderVersion', installedVersion))
+			else:
+				html.append('<span class="notInstalled">#(Not Installed)</span>')
+			return ''.join(html)
+
 
 		def b64encode(self, string):
 

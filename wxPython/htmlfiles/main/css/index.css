@@ -94,10 +94,10 @@ input[type=button],input[type=submit],a.button {
 	margin-right: 0px;
 	cursor: pointer;
 	background-color: #58585A;
-	border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -khtml-border-radius:4px;
-	-webkit-appearance: none;
+/*	border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -khtml-border-radius:4px;
+*/	-webkit-appearance: none;
 	font-family: inherit;
-	color: #FFF !important;
+	color: #FFF;
 	display: inline-block;
 }
 
@@ -409,6 +409,21 @@ label {
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
+#topMessage {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	right: 0px;
+	z-index: 100;
+	background-color: rgba(0, 0, 0, .4);
+	color: rgba(255, 255, 255, .5);
+	padding: 10px;
+	text-align: right;
+
+}
+
+
+
 #main {
 
 	/*display: none;*/
@@ -467,7 +482,8 @@ label {
 
 #main .publisher .head .names .website {
 	color: #555;
-	margin-top: 2px;
+	margin-top: 5px;
+	margin-left: 2px;
 }
 
 #main .publisher .head .buttons {
@@ -588,11 +604,13 @@ label {
 }
 
 .section .button.installButton {
-	background-color: #97BF19;
+	background-color: white;
+	color: #97BF19;
 }
 
 .section .button.removeButton {
-	background-color: #E22122;
+	background-color: white;
+	color: #E22122;
 }
 
 /* ////////////// FONT ////////////// */
@@ -618,6 +636,7 @@ label {
 
 .font .installButtons {
 	display: none;
+	margin-right: -21px;
 }
 
 .font .notInstalled {
@@ -708,6 +727,83 @@ label {
 */}
 
 
+/* ////////////// METADATA ////////////// */
+
+
+
+#metadataWrapper {
+
+	display: block;
+	position: absolute;
+
+	right: 0px;
+	top: 0;
+	bottom: 0;
+	width: 0px;
+
+    height: 100%;
+
+    overflow-y: scroll;
+
+    z-index: 99;
+
+
+}
+
+#metadata {
+
+    background-color: #FFF;
+/*    height: 100%; */
+    width: 300px;
+    max-width: 300px;
+    overflow-x: hidden;
+
+}
+
+#metadata .inner {
+    width: 300px;
+    max-width: 300px;
+}
+
+
+#metadata .name {
+	padding: 18px 7px 7px 15px; /* top right bottom left */
+	font-size: 140%;
+/*	font-weight: bold;
+*/}
+
+#metadata .categories {
+	padding: 10px 7px 10px 15px; /* top right bottom left */
+}
+
+#metadata .categories .category {
+	display: inline-block;
+	margin-right: 8px;
+}
+
+#metadata .categories .category.selected {
+	font-weight: bold;
+}
+
+#metadata .categoryBody {
+    max-width: 300px;
+	word-wrap: normal;
+}
+
+#metadata .categoryBody.license, .categoryBody.information, .categoryBody.versions {
+	padding: 10px 7px 10px 15px; /* top right bottom left */
+}
+
+
+.fontBillboardLinks {
+	padding: 2px;
+	color: gray;
+}
+
+.fontBillboardLinks.selected {
+	color: black;
+	
+}
 
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
@@ -738,7 +834,10 @@ label {
 	font-size: 24pt;
 	margin-right: 20px;
 	margin-top: 20px;
+}
 
+#metadata .closePanelButton {
+	font-size: 10pt;
 }
 
 .closePanelButton a {

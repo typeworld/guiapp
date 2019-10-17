@@ -110,6 +110,12 @@ $( document ).ready(function() {
 	});
 
 
+	$(".font").on("click", function() {
+		debug('font clicked');
+		showMetadata();
+	});
+
+
 	$("#url").on('keyup', function() {
 		addUrl = $(this).val();
 	});
@@ -184,7 +190,18 @@ function hidePanel() {
 	python('self.panelVisible = False');
 	unregisterKeypress(27);
 	python('self.setSideBarHTML()');
-	
+
+}
+
+function showMetadata() {
+
+	$("#metadataWrapper").animate({width: 300}, 300);
+	$("#main").animate({right: 300}, 300);
+}
+
+function hideMetadata() {
+	$("#metadataWrapper").animate({width: 0}, 300);
+	$("#main").animate({right: 0}, 300);
 }
 
 function showCenterMessage(html, completeFunction) {

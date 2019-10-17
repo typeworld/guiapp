@@ -26,6 +26,8 @@ from multiprocessing.connection import Client
 from threading import Thread
 from ynlib.system import Execute
 
+from babel.dates import format_date
+
 import platform
 WIN = platform.system() == 'Windows'
 MAC = platform.system() == 'Darwin'
@@ -35,7 +37,7 @@ from ynlib.strings import *
 from ynlib.web import GetHTTP
 from ynlib.colors import Color
 
-from typeWorld.client import APIClient, JSON, AppKitNSUserDefaults
+from typeWorld.client import APIClient, JSON, AppKitNSUserDefaults, TypeWorldClientDelegate
 import typeWorld.api.base
 
 APPNAME = 'Type.World'
@@ -269,7 +271,25 @@ try:
 	else:
 		prefs = AppKitNSUserDefaults('world.type.clientapp' if DESIGNTIME else None)
 
-	client = APIClient(preferences = prefs)
+	class ClientDelegate(TypeWorldClientDelegate):
+		def fontWillInstall(self, font):
+			print('fontWillInstall', font)
+			assert type(font) == typeWorld.api.Font
+
+		def fontHasInstalled(self, success, message, font):
+			print('fontHasInstalled', success, message, font)
+			assert type(font) == typeWorld.api.Font
+
+		def fontWillUninstall(self, font):
+			print('fontWillUninstall', font)
+			assert type(font) == typeWorld.api.Font
+
+		def fontHasUninstalled(self, success, message, font):
+			print('fontHasUninstalled', success, message, font)
+			assert type(font) == typeWorld.api.Font
+
+	delegate = ClientDelegate()
+	client = APIClient(preferences = prefs, delegate = delegate)
 
 
 
@@ -730,6 +750,8 @@ try:
 
 
 
+
+
 	class AppFrame(wx.Frame):
 		def __init__(self, parent):        
 
@@ -740,6 +762,11 @@ try:
 
 			self.allowedToPullServerUpdates = True
 			self.allowCheckForURLInFile = True
+
+			self.delegate = delegate
+			self.delegate.parent = self
+
+
 
 
 			# Version adjustments
@@ -791,7 +818,7 @@ try:
 
 
 			# Window Size
-			minSize = [1000, 700]
+			minSize = [1100, 700]
 			if client.preferences.get('sizeMainWindow'):
 				size = list(client.preferences.get('sizeMainWindow'))
 
@@ -1954,7 +1981,6 @@ try:
 						dlg.Destroy()
 						
 						if result:
-
 							subscription.delete()
 
 							if publisher.subscriptions():
@@ -2629,6 +2655,122 @@ try:
 			self.setPublisherHTML(publisherB64ID)
 
 
+		def selectFont(self, b64ID):
+
+			fontID = self.b64decode(b64ID)
+			client.currentPublisher().currentSubscription().set('currentFont', fontID)
+			font = client.currentPublisher().currentSubscription().fontByID(fontID)
+
+			self.setMetadataHTML(b64ID)
+			self.javaScript("showMetadata();")
+
+
+		def showMetadataCategory(self, categoryName):
+			client.preferences.set('metadataCategory', categoryName)
+
+			subscription = client.currentPublisher().currentSubscription()
+			font = subscription.fontByID(subscription.get('currentFont'))
+
+			self.setMetadataHTML(self.b64encode(font.uniqueID))
+
+		def setFontImage(self, index):
+
+			index = int(index)
+			font = client.currentPublisher().currentSubscription().fontByID(client.currentPublisher().currentSubscription().get('currentFont'))
+			success, logo, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
+			if success:
+				data = "data:%s;base64,%s" % (mimeType, logo)
+			else:
+				data = font.parent.billboards[index]
+
+			self.javaScript('$("#fontBillboard").attr("src","%s");' % (data))
+			self.javaScript('$(".fontBillboardLinks").removeClass("selected");')
+			self.javaScript('$("#fontBillboardLink_%s").addClass("selected");' % index)
+			font.parent.parent.parent.parent.set('currentFontImage', int(index))
+
+		def setMetadataHTML(self, b64ID):
+
+			fontID = self.b64decode(b64ID)
+			client.currentPublisher().currentSubscription().set('currentFont', fontID)
+			font = client.currentPublisher().currentSubscription().fontByID(fontID)
+
+
+			html = []
+
+			if font.parent.billboards:
+
+				index = font.parent.parent.parent.parent.get('currentFontImage') or 0
+				if index > len(font.parent.billboards) - 1:
+					index = 0
+					font.parent.parent.parent.parent.set('currentFontImage', int(index))
+
+				html.append('<div style="max-height: 400px; height: 300px;">')
+
+				success, logo, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
+				if success:
+					html.append('<img id="fontBillboard" src="data:%s;base64,%s" style="width: 300px;">' % (mimeType, logo))
+				else:
+					html.append('<img id="fontBillboard" src="%s" style="width: 300px;">' % (font.parent.billboards[index]))
+
+
+				html.append('</div>')
+				if len(font.parent.billboards) > 1:
+					html.append('<div style="padding: 5px; text-align: center;">')
+					for i, billboard in enumerate(font.parent.billboards):
+						html.append('<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="x-python://self.setFontImage(____%s____)" style="color: inherit;">•</a></span>' % (i, 'selected' if i == index else '', i))
+					html.append('</div>')
+
+			html.append('<div class="name">%s %s</div>' % (font.parent.name.getText(client.locale()), font.name.getText(client.locale())))
+			html.append('<div class="categories">')
+
+			for keyword, name, condition in (
+				('license', '#(License)', True),
+				('information', '#(Information)', font.parent.description),
+				('versions', '#(Versions)', True),
+#				('billboards', '#(Images)', font.parent.billboards),
+				):
+
+				if condition:
+					html.append('<div class="category %s"><a href="x-python://self.showMetadataCategory(____%s____)">%s&thinsp;→</a></div>' % ('selected' if client.preferences.get('metadataCategory') == keyword else '', keyword, name))
+
+			html.append('</div>')
+
+			html.append('<div class="categoryBody %s">' % (client.preferences.get('metadataCategory')))
+
+			if client.preferences.get('metadataCategory') == 'license':
+				for usedLicense in font.usedLicenses:
+					license = usedLicense.getLicense()
+					html.append('<div>')
+					html.append('<p>%s<br />' % license.name.getText(client.locale()))
+					html.append('<a href="%s">%s&thinsp;↗︎</a></p>' % (license.URL, license.URL))
+					html.append('</div>')
+
+
+			if client.preferences.get('metadataCategory') == 'information' and font.parent.description:
+				text, locale = font.parent.description.getTextAndLocale()
+				html.append('%s' % text)
+
+			if client.preferences.get('metadataCategory') == 'versions':
+				html.append('<div>')
+				for version in reversed(font.getVersions()):
+					html.append('<p><b>#(Version) %s</b><br />' % version.number)
+					html.append('%s' % version.description.getText(client.locale()))
+					if version.releaseDate:
+						html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
+					html.append('</p>')
+				html.append('</div>')
+
+
+			html.append('</div>')
+
+			html = ''.join(html)
+			html = html.replace('"', '\'')
+			html = html.replace('\n', '')
+			html = localizeString(html)
+			html = self.replaceHTML(html)
+			js = '$("#metadata .content").html("' + html + '");'
+			self.javaScript(js)
+
 
 		def setPublisherHTML(self, b64ID = None):
 
@@ -2931,7 +3073,29 @@ try:
 					for foundry in command.foundries:
 
 
-						html.append('<div class="foundry">')
+						## STYLING
+
+						# font-selection color
+						foundryBackgroundColor = Color(hex=foundry.backgroundColor or 'AAAAAA')
+						selectedFontBackgroundColor = foundryBackgroundColor.desaturate(.5)
+
+						if selectedFontBackgroundColor.darkHalf():
+							selectedFontTextColor = Color(hex='FFFFFF')
+							selectedGrayFontTextColor = selectedFontBackgroundColor.lighten(.7)
+						else:
+							selectedFontTextColor = Color(hex='000000')
+							selectedGrayFontTextColor = selectedFontBackgroundColor.darken(.7)
+
+
+						html.append('<style>')
+						html.append('#%s.foundry .font.selected {' % self.b64encode(foundry.uniqueID))
+						html.append('background-color: #%s;' % (selectedFontBackgroundColor.hex))
+						html.append('color: #%s;' % (selectedFontTextColor.hex))
+						html.append('}')
+						html.append('</style>')
+
+
+						html.append('<div class="foundry" id="%s">' % self.b64encode(foundry.uniqueID))
 						html.append('<div class="head clear" style="background-color: %s;">' % ('#' + Color(hex=foundry.backgroundColor or 'DDDDDD').desaturate(0 if self.IsActive() else 1).hex if foundry.backgroundColor else 'none'))
 
 
@@ -3041,7 +3205,9 @@ try:
 									html.append('</div>') # .title
 
 									for font in fonts:
-										html.append('<div class="contextmenu font" id="%s">' % self.b64encode(font.uniqueID))
+										installedVersion = subscription.installedFontVersion(font.uniqueID)
+
+										html.append('<div class="contextmenu font %s %s" id="%s">' % ('installed' if installedVersion else 'notInstalled', 'selected' if subscription.get('currentFont') == font.uniqueID else '', self.b64encode(font.uniqueID)))
 										html.append('<div class="clear">')
 
 										html.append('<div class="left" style="width: 50%;">')
@@ -3054,12 +3220,11 @@ try:
 											html.append('<span class="label var">OTVar</span>')
 										html.append('</div>') # .left
 										html.append('<div class="left">')
-										installedVersion = subscription.installedFontVersion(font.uniqueID)
 										
 										if installedVersion:
 											html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getVersions()[-1].number else 'olderVersion', installedVersion))
 										else:
-											html.append('<span class="notInstalled">#(Not Installed)</span>')
+											html.append('<span class="notInstalled" style="color: #%s;">#(Not Installed)</span>' % (selectedGrayFontTextColor.hex))
 										html.append('</div>') # .left
 
 										if font.purpose == 'desktop':
@@ -3079,7 +3244,7 @@ try:
 											html.append('</div>') # .installButtons
 											html.append('<div class="right">')
 											html.append('<a class="status">')
-											html.append('''<img src="file://##htmlroot##/loading.gif" style="height: 13px; position: relative; top: 2px;">''')
+											html.append('''<img src="file://##htmlroot##/loading.gif" style="width: 50px; height: 13px; position: relative; top: 2px;">''')
 											html.append('</a>')
 											html.append('<div>')
 											html.append('<a class="more">')
@@ -3139,6 +3304,11 @@ try:
 				});
 
 
+				$("#main .font").click(function() {
+					$("#main .font").removeClass('selected');
+					$(this).addClass('selected');
+					python("self.selectFont(____' + $(this).attr('id') + '____)");
+				});
 
 			</script>''' % (b64ID, b64ID, b64ID))
 
@@ -3174,7 +3344,11 @@ try:
 				self.setBadges()
 				agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
+			if subscription.get('currentFont'):
+				self.selectFont(self.b64encode(subscription.get('currentFont')))
+
 			self.javaScript("showMain();")
+
 
 			# profile.disable()
 			# profile.print_stats(sort='time')
@@ -3228,7 +3402,6 @@ try:
 
 					if publisher.subscriptions():
 						name, language = publisher.name(locale = client.locale())
-
 
 						if language in ('ar', 'he'):
 							direction = 'rtl'

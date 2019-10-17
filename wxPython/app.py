@@ -2801,6 +2801,18 @@ try:
 					html.append('%s' % version.description.getText(client.locale()))
 					if version.releaseDate:
 						html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
+					# html.append('<div class="installButtons right">')
+					html.append('<div class="installButton status install">')
+					html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), version.number))
+					html.append('✓ #(Install)')
+					html.append('</a>')
+					html.append('</div>') # installButton
+					# html.append('<div class="installButton status remove">')
+					# html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
+					# html.append('✕ #(Remove)')
+					# html.append('</a>')
+					# html.append('</div>') # installButton
+					# html.append('</div>') # .installButtons
 					html.append('</p>')
 
 

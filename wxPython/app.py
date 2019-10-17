@@ -2144,7 +2144,8 @@ try:
 					for foundry in command.foundries:
 						for family in foundry.families:
 							for font in family.fonts:
-								if font.isOutdated():
+								installedFontVersion = subscription.installedFontVersion(font = font)
+								if installedFontVersion and subscription.installedFontVersion(font = font) != font.getVersions()[-1].number:
 									fonts.append([publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
 
 			elif subscriptionB64ID:
@@ -2164,7 +2165,8 @@ try:
 				for foundry in command.foundries:
 					for family in foundry.families:
 						for font in family.fonts:
-							if font.isOutdated():
+							installedFontVersion = subscription.installedFontVersion(font = font)
+							if installedFontVersion and subscription.installedFontVersion(font = font) != font.getVersions()[-1].number:
 								fonts.append([publisherB64ID, subscriptionB64ID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
 
 			self.installFonts(fonts)

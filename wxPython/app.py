@@ -2192,6 +2192,18 @@ try:
 				else:
 					self.javaScript('$(".font.%s").addClass("notInstalled");' % b64fontID)
 
+
+				# metadata bar
+				self.javaScript('$(".font.%s .version .status.install").show();' % b64fontID)
+				self.javaScript('$(".font.%s .version .status.remove").hide();' % b64fontID)
+				self.javaScript('$(".font.%s .version .label.installedVersion").hide();' % b64fontID)
+
+				if installedVersion:
+					self.javaScript('$(".font.%s .version.%s .status.install").hide();' % (b64fontID, self.versionEncode(installedVersion)))
+					self.javaScript('$(".font.%s .version.%s .status.remove").show();' % (b64fontID, self.versionEncode(installedVersion)))
+					self.javaScript('$(".font.%s .version.%s .label.installedVersion").show();' % (b64fontID, self.versionEncode(installedVersion)))
+
+
 				html = self.fontInstalledText(font)
 				html = html.replace('"', '\'')
 				html = html.replace('\n', '')
@@ -2738,7 +2750,7 @@ try:
 			client.currentPublisher().currentSubscription().set('currentFont', fontID)
 			font = client.currentPublisher().currentSubscription().fontByID(fontID)
 			subscription = font.parent.parent.parent.parent.parent
-
+			installedVersion = subscription.installedFontVersion(font.uniqueID)
 
 			html = []
 
@@ -2765,6 +2777,7 @@ try:
 						html.append('<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="x-python://self.setFontImage(____%s____)" style="color: inherit;">•</a></span>' % (i, 'selected' if i == index else '', i))
 					html.append('</div>')
 
+			html.append('<div class="font %s">' % (self.b64encode(font.uniqueID)))
 			html.append('<div class="name">%s %s</div>' % (font.parent.name.getText(client.locale()), font.name.getText(client.locale())))
 			html.append('<div class="categories">')
 
@@ -2798,30 +2811,29 @@ try:
 			if client.preferences.get('metadataCategory') == 'versions':
 				html.append('<div>')
 				for version in reversed(font.getVersions()):
-					html.append('<p><b>#(Version) %s</b><br />' % version.number)
+					html.append('<div class="version %s">' % self.versionEncode(version.number))
+					html.append('<p><b>#(Version) %s</b> <span class="label installedVersion %s" style="display: %s;">#(Installed)</span><br />' % (version.number, 'latestVersion' if version.number == font.getVersions()[-1].number else 'olderVersion', 'inline' if version.number == installedVersion else 'none'))
 					html.append('%s' % version.description.getText(client.locale()))
 					if version.releaseDate:
 						html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
-					# html.append('<div class="installButtons right">')
-					html.append('<div class="installButton status install">')
+					
+					html.append('<div class="installButton status install" style="display: %s; margin-top: -3px;">' % ('block' if version.number != installedVersion else 'none'))
 					html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), version.number))
 					html.append('✓ #(Install)')
 					html.append('</a>')
 					html.append('</div>') # installButton
-					# html.append('<div class="installButton status remove">')
-					# html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
-					# html.append('✕ #(Remove)')
-					# html.append('</a>')
-					# html.append('</div>') # installButton
-					# html.append('</div>') # .installButtons
+					html.append('<div class="installButton status remove" style="display: %s; margin-top: -3px;">' % ('none' if version.number != installedVersion else 'block'))
+					html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
+					html.append('✕ #(Remove)')
+					html.append('</a>')
+					html.append('</div>') # installButton
 					html.append('</p>')
-
-
+					html.append('</div>') # .version
 
 				html.append('</div>')
-
-
-			html.append('</div>')
+			
+			html.append('</div>') # .categories
+			html.append('</div>') # .font
 
 			html = ''.join(html)
 			html = html.replace('"', '\'')
@@ -3423,6 +3435,9 @@ try:
 				html.append('<span class="notInstalled">#(Not Installed)</span>')
 			return ''.join(html)
 
+
+		def versionEncode(self, version):
+			return version.replace('.', '_')
 
 		def b64encode(self, string):
 

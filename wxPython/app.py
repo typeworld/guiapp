@@ -2570,18 +2570,19 @@ try:
 
 		def reloadSubscription_worker(self, subscription):
 
-			success, message = subscription.update()
-			return success, message, subscription
+			success, message, changes = subscription.update()
+			return success, message, changes, subscription
 
 
 		def reloadSubscription_consumer(self, delayedResult):
-			success, message, subscription = delayedResult.get()
+			success, message, changes, subscription = delayedResult.get()
 			b64publisherID = self.b64encode(subscription.parent.canonicalURL)
 
 			if success:
-				if client.preferences.get('currentPublisher') == subscription.parent.canonicalURL:
-					self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
-				self.setSideBarHTML()
+				if changes:
+					if client.preferences.get('currentPublisher') == subscription.parent.canonicalURL:
+						self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
+					self.setSideBarHTML()
 				# self.javaScript("$('#sidebar #%s').addClass('selected');" % b64publisherID)
 				# self.javaScript("$('#sidebar #%s').addClass('selected');" % self.b64encode(subscription.url))
 
@@ -4177,7 +4178,7 @@ try:
 								for subscription in publisher.subscriptions():
 
 									startTime = time.time()
-									success, message = subscription.update()
+									success, message, changes = subscription.update()
 
 									totalSuccess = totalSuccess and success   
 

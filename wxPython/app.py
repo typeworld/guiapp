@@ -2102,18 +2102,18 @@ try:
 				if success == False:
 					return success, message, b64publisherURL, fonts
 
-			return True, None, b64publisherURL, fonts
+			return True, None, b64publisherURL, subscription, fonts
 
 
 		def installFonts_consumer(self, delayedResult):
 
-			success, message, b64publisherURL, fonts = delayedResult.get()
+			success, message, b64publisherURL, subscription, fonts = delayedResult.get()
 
 			self.setFontStatuses(fonts)
 
 			if success:
 
-				pass
+				self.reloadSubscription(None, None, subscription = subscription)
 
 			else:
 
@@ -2252,7 +2252,7 @@ try:
 				success, message = subscription.removeFont(fontID)
 
 				if success == False:
-					return success, message, b64publisherURL, fonts
+					return success, message, b64publisherURL, subscription, fonts
 
 
 			return True, None, b64publisherURL, fonts
@@ -2260,13 +2260,13 @@ try:
 
 		def removeFonts_consumer(self, delayedResult):
 
-			success, message, b64publisherURL, fonts = delayedResult.get()
+			success, message, b64publisherURL, subscription, fonts = delayedResult.get()
 
 			self.setFontStatuses(fonts)
 
 			if success:
 
-				pass
+				self.reloadSubscription(None, None, subscription = subscription)
 
 			else:
 
@@ -2545,8 +2545,6 @@ try:
 
 
 		def reloadSubscription(self, evt, b64ID, subscription = None):
-
-
 
 			if subscription:
 				pass

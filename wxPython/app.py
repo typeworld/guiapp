@@ -1058,8 +1058,8 @@ try:
 			print(success, message)
 
 			self.setSideBarHTML()
-			if client.currentPublisher():
-				self.setPublisherHTML(self.b64encode(client.currentPublisher().canonicalURL))
+			if client.preferences.get('currentPublisher'):
+				self.setPublisherHTML(self.b64encode(client.publisher(client.preferences.get('currentPublisher')).canonicalURL))
 			self.setBadges()
 
 			if success:
@@ -1869,7 +1869,7 @@ try:
 
 						client.preferences.set('currentPublisher', invitation.canonicalURL)
 						self.setSideBarHTML()
-						self.setPublisherHTML(self.b64encode(client.currentPublisher().canonicalURL))
+						self.setPublisherHTML(self.b64encode(client.publisher(client.preferences.get('currentPublisher')).canonicalURL))
 						self.setBadges()
 
 			else:
@@ -2714,8 +2714,10 @@ try:
 		def selectFont(self, b64ID):
 
 			fontID = self.b64decode(b64ID)
-			client.currentPublisher().currentSubscription().set('currentFont', fontID)
-			font = client.currentPublisher().currentSubscription().fontByID(fontID)
+			publisher = client.publisher(client.preferences.get('currentPublisher'))
+			subscription = publisher.subscription(publisher.get('currentSubscription'))
+			subscription.set('currentFont', fontID)
+			font = subscription.fontByID(fontID)
 
 			self.setMetadataHTML(b64ID)
 			self.javaScript("showMetadata();")
@@ -2724,7 +2726,8 @@ try:
 		def showMetadataCategory(self, categoryName):
 			client.preferences.set('metadataCategory', categoryName)
 
-			subscription = client.currentPublisher().currentSubscription()
+			publisher = client.publisher(client.preferences.get('currentPublisher'))
+			subscription = publisher.subscription(publisher.get('currentSubscription'))
 			font = subscription.fontByID(subscription.get('currentFont'))
 
 			self.setMetadataHTML(self.b64encode(font.uniqueID))
@@ -2732,7 +2735,9 @@ try:
 		def setFontImage(self, index):
 
 			index = int(index)
-			font = client.currentPublisher().currentSubscription().fontByID(client.currentPublisher().currentSubscription().get('currentFont'))
+			publisher = client.publisher(client.preferences.get('currentPublisher'))
+			subscription = publisher.subscription(publisher.get('currentSubscription'))
+			font = subscription.fontByID(client.publisher(subscription.get('currentFont')))
 			success, logo, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
 			if success:
 				data = "data:%s;base64,%s" % (mimeType, logo)
@@ -2747,8 +2752,10 @@ try:
 		def setMetadataHTML(self, b64ID):
 
 			fontID = self.b64decode(b64ID)
-			client.currentPublisher().currentSubscription().set('currentFont', fontID)
-			font = client.currentPublisher().currentSubscription().fontByID(fontID)
+			publisher = client.publisher(client.preferences.get('currentPublisher'))
+			subscription = publisher.subscription(publisher.get('currentSubscription'))
+			subscription.set('currentFont', fontID)
+			font = subscription.fontByID(fontID)
 			subscription = font.parent.parent.parent.parent.parent
 			installedVersion = subscription.installedFontVersion(font.uniqueID)
 
@@ -3001,7 +3008,7 @@ try:
 
 
 				publisher = client.publisher(ID)
-				subscription = publisher.currentSubscription()
+				subscription = publisher.subscription(publisher.get('currentSubscription'))
 
 				success, message = subscription.protocol.rootCommand()
 				if success:
@@ -3455,6 +3462,8 @@ try:
 
 			return s
 
+
+
 		def setSideBarHTML(self):
 			# Set publishers
 
@@ -3467,7 +3476,7 @@ try:
 
 
 			else:
-				if not client.currentPublisher() and client.publishers():
+				if not client.preferences.get('currentPublisher') and client.publishers():
 					client.preferences.set('currentPublisher', client.publishers()[0].canonicalURL)
 					self.setActiveSubscription(self.b64encode(client.publishers()[0].canonicalURL), self.b64encode(client.publishers()[0].subscriptions()[0].url))
 
@@ -3551,7 +3560,7 @@ try:
 
 								amountInstalledFonts = subscription.amountInstalledFonts()
 								amountOutdatedFonts = subscription.amountOutdatedFonts()
-								selected = subscription.url == publisher.currentSubscription().url
+								selected = subscription.url == publisher.subscription(publisher.get('currentSubscription')).url
 
 								html.append('<div>')
 		#                        html.append('<a class="subscription" href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))

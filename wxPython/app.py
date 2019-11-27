@@ -1218,6 +1218,21 @@ try:
 			self.setSideBarHTML()
 
 
+		def createUserAccount(self, name, email, password1, password2):
+
+			success, message = client.createUserAccount(name, email, password1, password2)
+			if not success:
+				self.errorMessage(message)
+			else:
+				self.onPreferences(None)
+
+
+		def logIn(self, email, password):
+			success, message = client.logInUserAccount(email, password)
+			if not success:
+				self.errorMessage(message)
+			else:
+				self.onPreferences(None)
 
 		def onPreferences(self, event):
 
@@ -1278,7 +1293,51 @@ try:
 				html.append('<p>')
 				html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
 			else:
-				html.append('#(NoUserAccountLinked)<br />#(PleaseCreateUserAccountExplanation)')
+
+#				html.append('#(NoUserAccountLinked)<br />#(PleaseCreateUserAccountExplanation)')
+
+
+				html.append('<div>')
+				html.append('<b>#(Create Account)</b>')
+				html.append('<input type="text" name="createAccountUserName" id="createAccountUserName"')
+				html.append('<br />')
+				html.append('<input type="text" name="createAccountUserEmail" id="createAccountUserEmail"')
+				html.append('<br />')
+				html.append('<input type="password" name="createAccountUserPassword" id="createAccountUserPassword"')
+				html.append('<br />')
+				html.append('<input type="password" name="createAccountUserPassword2" id="createAccountUserPassword2"')
+				html.append('</div>')
+
+				html.append('<p>')
+				html.append('<a id="createAccountButton" class="button">#(Create Account)</a>')
+				html.append('</p>')
+				html.append('''<script>$("#preferences #createAccountButton").click(function() {
+
+				python("self.createUserAccount(____" + $("#preferences #createAccountUserName").val() + "____, ____" + $("#preferences #createAccountUserEmail").val() + "____, ____" + $("#preferences #createAccountUserPassword").val() + "____, ____" + $("#preferences #createAccountUserPassword2").val() + "____)");
+				 
+			});</script>''')
+
+
+				html.append('<div>')
+				html.append('<b>#(Log In)</b>')
+				html.append('<input type="text" name="loginUserEmail" id="loginUserEmail"')
+				html.append('<br />')
+				html.append('<input type="password" name="loginUserPassword" id="loginUserPassword"')
+				html.append('</div>')
+
+				html.append('<p>')
+				html.append('<a id="loginButton" class="button">#(Log In)</a>')
+				html.append('</p>')
+				html.append('''<script>$("#preferences #loginButton").click(function() {
+
+				python("self.logIn(____" + $("#preferences #loginUserEmail").val() + "____, ____" + $("#preferences #loginUserPassword").val() + "____)");
+				 
+			});</script>''')
+
+
+
+
+
 			html.append('</p>')
 			html.append('''<script>$("#preferences #unlinkAppButton").click(function() {
 

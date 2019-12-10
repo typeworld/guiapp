@@ -99,6 +99,7 @@ if WIN and DEBUG:
 
 
 def log(message):
+	# print('log(): %s' % message)
 	if DEBUG:
 		if WIN:
 			logging.debug(message)
@@ -273,19 +274,19 @@ try:
 
 	class ClientDelegate(TypeWorldClientDelegate):
 		def fontWillInstall(self, font):
-			print('fontWillInstall', font)
+			# print('fontWillInstall', font)
 			assert type(font) == typeWorld.api.Font
 
 		def fontHasInstalled(self, success, message, font):
-			print('fontHasInstalled', success, message, font)
+			# print('fontHasInstalled', success, message, font)
 			assert type(font) == typeWorld.api.Font
 
 		def fontWillUninstall(self, font):
-			print('fontWillUninstall', font)
+			# print('fontWillUninstall', font)
 			assert type(font) == typeWorld.api.Font
 
 		def fontHasUninstalled(self, success, message, font):
-			print('fontHasUninstalled', success, message, font)
+			# print('fontHasUninstalled', success, message, font)
 			assert type(font) == typeWorld.api.Font
 
 		def subscriptionUpdateNotificationHasBeenReceived(self, subscription):
@@ -1005,7 +1006,7 @@ try:
 
 		def onClose(self, event):
 
-			print('onClose()')
+			# print('onClose()')
 
 			if self.panelVisible:
 				self.javaScript('hidePanel();')
@@ -1036,7 +1037,6 @@ try:
 			if WIN:
 				pywinsparkle.win_sparkle_cleanup()
 
-
 			self.Destroy()
 
 
@@ -1060,7 +1060,7 @@ try:
 
 			success, message = delayedResult.get()
 
-			print(success, message)
+			# print(success, message)
 
 			self.setSideBarHTML()
 			if client.preferences.get('currentPublisher'):
@@ -1422,7 +1422,7 @@ try:
 
 		def setSubscriptionPreference(self, url, key, value):
 
-			print('setSubscriptionPreference()', url, key, value)
+			# print('setSubscriptionPreference()', url, key, value)
 
 			for publisher in client.publishers():
 				for subscription in publisher.subscriptions():
@@ -1611,7 +1611,7 @@ try:
 				client.downloadSubscriptions()
 
 
-			print('showSubscriptionInvitations()')
+			# print('showSubscriptionInvitations()')
 
 			url = self.b64decode(b64ID)
 
@@ -2639,13 +2639,12 @@ try:
 					if subscription and subscription.exists:
 						break
 
-
 			if subscription:
 
 				b64publisherID = self.b64encode(subscription.parent.canonicalURL)
 				b64subscriptionID = self.b64encode(subscription.url)
 
-				self.log('reloadSubscription(%s, %s, %s)' % (subscription.parent.canonicalURL, subscription.url, subscription.name()))
+				# self.log('reloadSubscription(%s, %s, %s)' % (subscription.parent.canonicalURL, subscription.url, subscription.name()))
 
 	#            self.javaScript("startAnimation();")
 

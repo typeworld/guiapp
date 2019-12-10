@@ -288,6 +288,11 @@ try:
 			print('fontHasUninstalled', success, message, font)
 			assert type(font) == typeWorld.api.Font
 
+		def subscriptionUpdateNotificationHasBeenReceived(self, subscription):
+#			print('PULLED FROM SERVER: subscriptionHasUpdated(%s)' % subscription)
+			assert type(subscription) == typeWorld.client.APISubscription
+			self.app.frame.reloadSubscriptionFromClient(subscription)
+
 	delegate = ClientDelegate()
 	client = APIClient(preferences = prefs, delegate = delegate)
 
@@ -2575,6 +2580,11 @@ try:
 
 		def autoReloadSubscriptions(self):
 
+			for publisher in client.publishers():
+				for subscription in publisher.subscriptions():
+					subscription.googlePubsubSetup()
+
+
 			if WIN:
 				path = os.path.expanduser('~/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Type.World.lnk')
 				if os.path.exists(path):
@@ -2603,7 +2613,20 @@ try:
 			self.pullServerUpdates()
 
 
-		def reloadSubscription(self, evt, b64ID, subscription = None):
+		def reloadSubscriptionFromClient(self, subscription):
+			startWorker(self.reloadSubscriptionFromClient_consumer, self.reloadSubscriptionFromClient_worker, wargs=(subscription, ))
+
+		def reloadSubscriptionFromClient_worker(self, subscription):
+			return subscription
+
+		def reloadSubscriptionFromClient_consumer(self, delayedResult):
+			# self.log('PULLED FROM SERVER: %s' % (subscription))
+			subscription = delayedResult.get()
+			self.reloadSubscription(None, subscription = subscription)
+
+		def reloadSubscription(self, evt, b64ID = None, subscription = None):
+
+#			self.log('reloadSubscription(%s, %s)' % (b64ID, subscription))
 
 			if subscription:
 				pass
@@ -4381,6 +4404,7 @@ try:
 
 
 		app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = None)
+		client.delegate.app = app
 	#	app = MyApp(redirect = False, filename = None)
 		app.MainLoop()
 

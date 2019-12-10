@@ -1757,8 +1757,8 @@ try:
 				code = urllib.parse.unquote(code)
 				if code.endswith('/'):
 					code = code[:-1]
-				code = code.replace('http//', 'http://')
-				code = code.replace('https//', 'https://')
+				# code = code.replace('http//', 'http://')
+				# code = code.replace('https//', 'https://')
 				code = code.replace('____', '\'')
 				code = code.replace("'", '\'')
 				# log('Python code:', code)
@@ -1844,8 +1844,8 @@ try:
 
 		def addSubscriptionViaDialog(self, url, username = None, password = None):
 
-			if url.startswith('typeworldapp'):
-				self.handleAppCommand(url.replace('typeworldapp://', '').replace('typeworldapp//', ''))
+			if url.startswith('typeworldapp://'):
+				self.handleAppCommand(url.replace('typeworldapp://', ''))
 
 			else:
 
@@ -1856,8 +1856,8 @@ try:
 
 			for protocol in typeWorld.api.base.PROTOCOLS:
 				url = url.replace(protocol + '//', protocol + '://')
-			url = url.replace('http//', 'http://')
-			url = url.replace('https//', 'https://')
+			# url = url.replace('http//', 'http://')
+			# url = url.replace('https//', 'https://')
 
 			# Check for known protocol
 			known = False

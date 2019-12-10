@@ -1766,7 +1766,10 @@ try:
 				evt.Veto()
 			elif uri.startswith('http://') or uri.startswith('https://'):
 				
-				webbrowser.open_new_tab('https://type.world/linkRedirect/?url=' + urllib.parse.quote(uri))
+#				server = 'https://type.world'
+#				server = 'https://typeworld.appspot.com'
+				server = client.mothership.replace('/api', '/linkRedirect')
+				webbrowser.open_new_tab(server + '?url=' + urllib.parse.quote_plus(uri))
 				evt.Veto()
 
 			elif uri.startswith('mailto:'):

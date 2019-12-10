@@ -2028,6 +2028,7 @@ try:
 			if result:
 
 				publisher.delete()
+				client.preferences.set('currentPublisher', '')
 				self.setSideBarHTML()
 				self.javaScript("hideMain();")
 
@@ -2051,6 +2052,7 @@ try:
 							subscription.delete()
 
 							if publisher.subscriptions():
+								publisher.set('currentSubscription', publisher.subscriptions()[0].url)
 								self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
 			self.setSideBarHTML()
 

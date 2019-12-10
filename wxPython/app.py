@@ -295,7 +295,7 @@ try:
 			self.app.frame.reloadSubscriptionFromClient(subscription)
 
 	delegate = ClientDelegate()
-	client = APIClient(preferences = prefs, delegate = delegate)
+	client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui')
 
 
 
@@ -4240,6 +4240,7 @@ try:
 		log('lock() from within intercom()')
 		try:
 			returnObject = None
+			client.mode = 'headless'
 
 			if not commands[0] in intercomCommands:
 				log('Intercom: Command %s not registered' % (commands[0]))

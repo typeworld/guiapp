@@ -294,9 +294,12 @@ try:
 			assert type(subscription) == typeWorld.client.APISubscription
 			self.app.frame.reloadSubscriptionFromClient(subscription)
 
-	delegate = ClientDelegate()
-	client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui')
+		def userAccountUpdateNotificationHasBeenReceived(self):
+			print('userAccountUpdateNotificationHasBeenReceived()')
+			self.app.frame.pullServerUpdates(force = True)
 
+	delegate = ClientDelegate()
+	client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui', pubSubSubscriptions = True)
 
 
 	def agent(command):
@@ -1069,6 +1072,7 @@ try:
 
 			if success:
 				subscriptionsUpdatedNotification(message)
+				agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
 				self.javaScript('$("#userWrapper .alert").hide();')
 				self.javaScript('$("#userWrapper .noAlert").show();')
@@ -1077,7 +1081,6 @@ try:
 
 				self.javaScript('$("#userWrapper .alert").show();')
 				self.javaScript('$("#userWrapper .noAlert").hide();')
-
 
 
 
@@ -1093,7 +1096,7 @@ try:
 			if self.active:
 				self.log('onActivate()')
 
-				self.pullServerUpdates()
+				# self.pullServerUpdates()
 
 				resize = False
 
@@ -1426,7 +1429,7 @@ try:
 
 			for publisher in client.publishers():
 				for subscription in publisher.subscriptions():
-					if subscription.exists and subscription.url == url:
+					if subscription.exists and subscription.protocol.unsecretURL() == url:
 
 						if value == 'true':
 							value = True
@@ -1446,14 +1449,14 @@ try:
 
 			for publisher in client.publishers():
 				for subscription in publisher.subscriptions():
-					if subscription.exists and subscription.url == self.b64decode(b64ID):
+					if subscription.exists and subscription.protocol.unsecretURL() == self.b64decode(b64ID):
 
 
 						html = []
 
 						html.append('<h2>#(Subscription)</h2>')
 						html.append('<p>URL: <em>')
-						html.append(subscription.url) # .replace('secretKey', '<span style="color: orange;">secretKey</span>')
+						html.append(subscription.protocol.unsecretURL()) # .replace('secretKey', '<span style="color: orange;">secretKey</span>')
 						html.append('</em></p>')
 
 
@@ -1504,7 +1507,7 @@ try:
 							html.append('<p>')
 
 							for invitation in client.acceptedInvitations():
-								if invitation.url == subscription.url:
+								if invitation.url == subscription.protocol.unsecretURL():
 
 									if invitation.invitedByUserEmail or invitation.invitedByUserName:
 										html.append('#(Invited by) <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">')
@@ -1560,7 +1563,7 @@ try:
 			subscription = None
 			for publisher in client.publishers():
 				for s in publisher.subscriptions():
-					if s.exists and s.url == self.b64decode(b64ID):
+					if s.exists and s.protocol.unsecretURL() == self.b64decode(b64ID):
 						subscription = s
 						break
 
@@ -1582,7 +1585,7 @@ try:
 			subscription = None
 			for publisher in client.publishers():
 				for s in publisher.subscriptions():
-					if s.exists and s.url == self.b64decode(b64ID):
+					if s.exists and s.protocol.unsecretURL() == self.b64decode(b64ID):
 						subscription = s
 						break
 
@@ -1617,13 +1620,13 @@ try:
 
 			for publisher in client.publishers():
 				for subscription in publisher.subscriptions():
-					if subscription.exists and subscription.url == self.b64decode(b64ID):
+					if subscription.exists and subscription.protocol.unsecretURL() == self.b64decode(b64ID):
 
 						html = []
 
 						html.append('<h2>#(Invitations)</h2>')
 						html.append('<p>URL: <em>')
-						html.append(subscription.url) # .replace('secretKey', '<span style="color: orange;">secretKey</span>')
+						html.append(subscription.protocol.unsecretURL()) # .replace('secretKey', '<span style="color: orange;">secretKey</span>')
 						html.append('</em></p>')
 
 						success, message = subscription.protocol.rootCommand()
@@ -1801,9 +1804,8 @@ try:
 
 				for publisher in client.publishers():
 					for subscription in publisher.subscriptions():
-						# print (subscription.url, url)
-						if subscription.url == url.replace('typeworld://json+', ''):
-							self.setActiveSubscription(self.b64encode(publisher.canonicalURL), self.b64encode(subscription.url))
+						if subscription.protocol.unsecretURL() == url:
+							self.setActiveSubscription(self.b64encode(publisher.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()))
 							return
 
 				self.javaScript("showCenterMessage('%s');" % localizeString('#(Loading Subscription)'))
@@ -1956,7 +1958,7 @@ try:
 					url = invitation.url
 					for publisher in client.publishers():
 						for subscription in publisher.subscriptions():
-							if url == subscription.url:
+							if url == subscription.protocol.unsecretURL():
 
 								name = publisher.name(locale = client.locale())[0] + ' (' + subscription.name(locale=client.locale()) + ')'
 
@@ -2040,7 +2042,7 @@ try:
 
 			for publisher in client.publishers():
 				for subscription in publisher.subscriptions():
-					if subscription.url == self.b64decode(b64ID):
+					if subscription.protocol.unsecretURL() == self.b64decode(b64ID):
 
 
 						dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Remove X)').replace('%name%', localizeString(subscription.name(client.locale()))), wx.YES_NO | wx.ICON_QUESTION)
@@ -2052,7 +2054,7 @@ try:
 							subscription.delete()
 
 							if publisher.subscriptions():
-								publisher.set('currentSubscription', publisher.subscriptions()[0].url)
+								publisher.set('currentSubscription', publisher.subscriptions()[0].protocol.unsecretURL())
 								self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
 			self.setSideBarHTML()
 
@@ -2163,13 +2165,13 @@ try:
 				if installedVersion and installedVersion != version:
 					success, message = subscription.removeFont(fontID)
 					if success == False:
-						return success, message, b64publisherURL, fonts
+						return success, message, b64publisherURL, subscription, fonts
 
 				# Install new font
 				success, message = subscription.installFont(fontID, version)
 
 				if success == False:
-					return success, message, b64publisherURL, fonts
+					return success, message, b64publisherURL, subscription, fonts
 
 			return True, None, b64publisherURL, subscription, fonts
 
@@ -2182,7 +2184,8 @@ try:
 
 			if success:
 
-				self.reloadSubscription(None, None, subscription = subscription)
+				if subscription.hasProtectedFonts():
+					self.reloadSubscription(None, None, subscription = subscription)
 
 			else:
 
@@ -2202,7 +2205,7 @@ try:
 			if publisherB64ID:
 				publisher = client.publisher(self.b64decode(publisherB64ID))
 				for subscription in publisher.subscriptions():
-					subscriptionB64ID = self.b64encode(subscription.url)
+					subscriptionB64ID = self.b64encode(subscription.protocol.unsecretURL())
 
 					success, message = subscription.protocol.installableFontsCommand()
 					if success:
@@ -2221,7 +2224,7 @@ try:
 				
 				for publisher in client.publishers():
 					for subscription in publisher.subscriptions():
-						if subscription.url == self.b64decode(subscriptionB64ID):
+						if subscription.protocol.unsecretURL() == self.b64decode(subscriptionB64ID):
 							publisherB64ID = self.b64encode(publisher.canonicalURL)
 							break
 
@@ -2324,7 +2327,7 @@ try:
 					return success, message, b64publisherURL, subscription, fonts
 
 
-			return True, None, b64publisherURL, fonts
+			return True, None, b64publisherURL, subscription, fonts
 
 
 		def removeFonts_consumer(self, delayedResult):
@@ -2335,7 +2338,8 @@ try:
 
 			if success:
 
-				self.reloadSubscription(None, None, subscription = subscription)
+				if subscription.hasProtectedFonts():
+					self.reloadSubscription(None, None, subscription = subscription)
 
 			else:
 
@@ -2369,7 +2373,7 @@ try:
 				else:
 					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Update Subscription)'))
 					menu.Append(item)
-					menu.Bind(wx.EVT_MENU, partial(self.reloadSubscription, b64ID = self.b64encode(publisher.subscriptions()[0].url), subscription = None), item)
+					menu.Bind(wx.EVT_MENU, partial(self.reloadSubscription, b64ID = self.b64encode(publisher.subscriptions()[0].protocol.unsecretURL()), subscription = None), item)
 
 				if publisher.amountOutdatedFonts():
 					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Update All Fonts)'))
@@ -2385,11 +2389,11 @@ try:
 				if len(publisher.subscriptions()) == 1:
 					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Subscription Preferences)'))
 					menu.Append(item)
-					menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionPreferences, b64ID = self.b64encode(publisher.subscriptions()[0].url)), item)
+					menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionPreferences, b64ID = self.b64encode(publisher.subscriptions()[0].protocol.unsecretURL())), item)
 
 					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Invite Users)'))
 					menu.Append(item)
-					menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionInvitations, b64ID = self.b64encode(publisher.subscriptions()[0].url)), item)
+					menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionInvitations, b64ID = self.b64encode(publisher.subscriptions()[0].protocol.unsecretURL())), item)
 
 				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Show in Finder)'))
 				menu.Append(item)
@@ -2414,7 +2418,7 @@ try:
 
 				for publisher in client.publishers():
 					for subscription in publisher.subscriptions():
-						if subscription.url == self.b64decode(b64ID):
+						if subscription.protocol.unsecretURL() == self.b64decode(b64ID):
 							if publisher.amountOutdatedFonts():
 								item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Update All Fonts)'))
 								menu.Append(item)
@@ -2480,7 +2484,7 @@ try:
 												installHere = menu
 											else:
 												installHere = subMenu
-											installHere.Bind(wx.EVT_MENU, partial(self.installFontFromMenu, b64publisherURL = self.b64encode(publisher.canonicalURL), b64subscriptionURL = self.b64encode(subscription.url), b64fontID = b64ID, version = version.number), item)
+											installHere.Bind(wx.EVT_MENU, partial(self.installFontFromMenu, b64publisherURL = self.b64encode(publisher.canonicalURL), b64subscriptionURL = self.b64encode(subscription.protocol.unsecretURL()), b64fontID = b64ID, version = version.number), item)
 											subMenu.Append(item)
 
 
@@ -2570,7 +2574,6 @@ try:
 			subprocess.call(["open", "-R", path])
 
 
-
 		def reloadPublisher(self, evt, b64ID):
 
 			# log('reloadPublisher()')
@@ -2585,9 +2588,10 @@ try:
 
 		def autoReloadSubscriptions(self):
 
+			client.pubSubSetup()
 			for publisher in client.publishers():
 				for subscription in publisher.subscriptions():
-					subscription.googlePubsubSetup()
+					subscription.pubSubSetup()
 
 
 			if WIN:
@@ -2595,27 +2599,25 @@ try:
 				if os.path.exists(path):
 					os.remove(path)
 
-			# Preference is set to check automatically
-			if int(client.preferences.get('reloadSubscriptionsInterval')) != -1:
+			# # Preference is set to check automatically
+			# if int(client.preferences.get('reloadSubscriptionsInterval')) != -1:
 
-				# Has never been checked, set to long time ago
-				if not client.preferences.get('reloadSubscriptionsLastPerformed'):
-					client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) - 10)
+			# 	# Has never been checked, set to long time ago
+			# 	if not client.preferences.get('reloadSubscriptionsLastPerformed'):
+			# 		client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) - 10)
 
-				# See if we should check now
-				if int(client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')):
+			# 	# See if we should check now
+			# 	if int(client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')):
 
-					self.log('Automatically reloading subscriptions...')
+			# 		self.log('Automatically reloading subscriptions...')
 
-					client.prepareUpdate()
+			# 		client.prepareUpdate()
 
-					for publisher in client.publishers():
-						for subscription in publisher.subscriptions():
-							self.reloadSubscription(None, None, subscription)
+			# 		for publisher in client.publishers():
+			# 			for subscription in publisher.subscriptions():
+			# 				self.reloadSubscription(None, None, subscription)
 
-			agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
-			self.pullServerUpdates()
 
 
 		def reloadSubscriptionFromClient(self, subscription):
@@ -2647,11 +2649,8 @@ try:
 			if subscription:
 
 				b64publisherID = self.b64encode(subscription.parent.canonicalURL)
-				b64subscriptionID = self.b64encode(subscription.url)
+				b64subscriptionID = self.b64encode(subscription.protocol.unsecretURL())
 
-				# self.log('reloadSubscription(%s, %s, %s)' % (subscription.parent.canonicalURL, subscription.url, subscription.name()))
-
-	#            self.javaScript("startAnimation();")
 
 				# Publisher
 				self.javaScript("$('#sidebar #%s.publisher .reloadAnimation').show();" % b64publisherID)
@@ -2681,22 +2680,20 @@ try:
 					if client.preferences.get('currentPublisher') == subscription.parent.canonicalURL:
 						self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
 					self.setSideBarHTML()
-				# self.javaScript("$('#sidebar #%s').addClass('selected');" % b64publisherID)
-				# self.javaScript("$('#sidebar #%s').addClass('selected');" % self.b64encode(subscription.url))
 
 				# Hide alert
 				self.javaScript("$('#sidebar #%s .alert').hide();" % b64publisherID)
-				self.javaScript("$('#sidebar #%s .alert').hide();" % self.b64encode(subscription.url))
+				self.javaScript("$('#sidebar #%s .alert').hide();" % self.b64encode(subscription.protocol.unsecretURL()))
 			
 			else:	
 				# Show alert
 #				if subscription.updatingProblem():
 				self.javaScript("$('#sidebar #%s .alert').show();" % b64publisherID)
-				self.javaScript("$('#sidebar #%s .alert ').show();" % self.b64encode(subscription.url))
+				self.javaScript("$('#sidebar #%s .alert ').show();" % self.b64encode(subscription.protocol.unsecretURL()))
 
 			# Subscription
-			self.javaScript("$('#sidebar #%s.subscription .reloadAnimation').hide();" % (self.b64encode(subscription.url)))
-			self.javaScript("$('#sidebar #%s.subscription .badges').show();" % (self.b64encode(subscription.url)))
+			self.javaScript("$('#sidebar #%s.subscription .reloadAnimation').hide();" % (self.b64encode(subscription.protocol.unsecretURL())))
+			self.javaScript("$('#sidebar #%s.subscription .badges').show();" % (self.b64encode(subscription.protocol.unsecretURL())))
 
 			if subscription.parent.stillUpdating() == False:
 				# Publisher
@@ -2726,7 +2723,7 @@ try:
 
 			for publisher in client.publishers():
 				for subscription in publisher.subscriptions():
-					if subscription.url == self.b64decode(b64subscriptionID):
+					if subscription.protocol.unsecretURL() == self.b64decode(b64subscriptionID):
 						message = subscription.updatingProblem()
 						if subscription.updatingProblem():
 							self.errorMessage(message)
@@ -2790,10 +2787,11 @@ try:
 		def setActiveSubscription(self, publisherB64ID, subscriptionB64ID):
 
 			publisherID = self.b64decode(publisherB64ID)
-			repositoryID = self.b64decode(subscriptionB64ID)
+			subscriptionID = self.b64decode(subscriptionB64ID)
 
 			publisher = client.publisher(publisherID)
-			publisher.set('currentSubscription', repositoryID)
+			subscription = publisher.subscription(subscriptionID)
+			publisher.set('currentSubscription', subscription.protocol.unsecretURL())
 			self.setPublisherHTML(publisherB64ID)
 
 
@@ -2842,7 +2840,7 @@ try:
 			subscription = publisher.subscription(publisher.get('currentSubscription'))
 			subscription.set('currentFont', fontID)
 			font = subscription.fontByID(fontID)
-			subscription = font.parent.parent.parent.parent.parent
+			subscription = font.parent.parent.parent.parent.subscription
 			installedVersion = subscription.installedFontVersion(font.uniqueID)
 
 			html = []
@@ -2911,12 +2909,12 @@ try:
 						html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
 					
 					html.append('<div class="installButton status install" style="display: %s; margin-top: -3px;">' % ('block' if version.number != installedVersion else 'none'))
-					html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), version.number))
+					html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID), version.number))
 					html.append('✓ #(Install)')
 					html.append('</a>')
 					html.append('</div>') # installButton
 					html.append('<div class="installButton status remove" style="display: %s; margin-top: -3px;">' % ('none' if version.number != installedVersion else 'block'))
-					html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
+					html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID)))
 					html.append('✕ #(Remove)')
 					html.append('</a>')
 					html.append('</div>') # installButton
@@ -2976,7 +2974,9 @@ try:
 						html.append('<div class="vertCenterMiddle">')
 						html.append('<div class="vertCenterInner">')
 
-						html.append('<div class="name">%s%s</div>' % (typeWorld.api.base.MultiLanguageText(json = invitation.publisherName).getText(client.locale()), (' (%s)' % typeWorld.api.base.MultiLanguageText(json = invitation.subscriptionName).getText(client.locale()) if invitation.subscriptionName else '')))
+						name = typeWorld.api.base.MultiLanguageText(dict = invitation.publisherName)
+						subscriptionName = typeWorld.api.base.MultiLanguageText(dict = invitation.subscriptionName)
+						html.append('<div class="name">%s%s</div>' % (name.getText(client.locale()), (' (%s)' % subscriptionName.getText(client.locale()) if invitation.subscriptionName else '')))
 						if invitation.website:
 							html.append('<p>')
 							html.append('<div class="website"><a href="%s">%s</a></div>' % (invitation.website, invitation.website))
@@ -3003,7 +3003,7 @@ try:
 
 						html.append('<div style="margin-top: 15px;">')
 
-						html.append('<a class="acceptInvitation" id="%s">' % invitation.ID)
+						html.append('<a class="acceptInvitation" id="%s" href="x-python://self.acceptInvitation(____%s____)">' % (invitation.ID, invitation.ID))
 						html.append('<div class="clear invitationButton accept">')
 						html.append('<div class="symbol">')
 						html.append('✓')
@@ -3016,7 +3016,7 @@ try:
 
 #						html.append('&nbsp;&nbsp;')
 
-						html.append('<a class="declineInvitation" id="%s">' % invitation.ID)
+						html.append('<a class="declineInvitation" id="%s" href="x-python://self.declineInvitation(____%s____)">' % (invitation.ID, invitation.ID))
 						html.append('<div class="clear invitationButton decline">')
 						html.append('<div class="symbol">')
 						html.append('✕')
@@ -3046,19 +3046,19 @@ try:
 						html.append('</div>') # .publisher
 
 
-						html.append('''<script>
+			# 			html.append('''<script>
 
 
-			$("#main .publisher a.acceptInvitation").click(function() {
-				python("self.acceptInvitation(" + $(this).attr('id') + ")");
-			});
+			# $("#main .publisher a.acceptInvitation").click(function() {
+			# 	python("self.acceptInvitation('" + $(this).attr('id') + "')");
+			# });
 
-			$("#main .publisher a.declineInvitation").click(function() {
-				python("self.declineInvitation(" + $(this).attr("id") + ")");
-			});
+			# $("#main .publisher a.declineInvitation").click(function() {
+			# 	python("self.declineInvitation('" + $(this).attr("id") + "')");
+			# });
 
 
-							</script>''')
+			# 				</script>''')
 
 
 				# Print HTML
@@ -3094,16 +3094,22 @@ try:
 
 
 				publisher = client.publisher(ID)
-				subscription = publisher.subscription(publisher.get('currentSubscription'))
+				if publisher.subscriptions() and not publisher.get('currentSubscription'):
+					publisher.set('currentSubscription', publisher.subscriptions()[0].protocol.unsecretURL())
 
-				success, message = subscription.protocol.rootCommand()
-				if success:
-					rootCommand = message
+				if publisher.get('currentSubscription'):
+					subscription = publisher.subscription(publisher.get('currentSubscription'))
 				else:
-					rootCommand = None
-
-
+					subscription = None
+					
 				if subscription and subscription.exists:
+
+
+					success, message = subscription.protocol.rootCommand()
+					if success:
+						rootCommand = message
+					else:
+						rootCommand = None
 
 
 					html.append('<div class="publisher" id="%s">' % (b64ID))
@@ -3163,7 +3169,7 @@ try:
 				});
 			});
 
-							</script>''' % self.b64encode(subscription.url))
+							</script>''' % self.b64encode(subscription.protocol.unsecretURL()))
 
 
 
@@ -3232,7 +3238,7 @@ try:
 				});
 			});
 
-							</script>''' % self.b64encode(subscription.url))
+							</script>''' % self.b64encode(subscription.protocol.unsecretURL()))
 
 
 					for foundry in command.foundries:
@@ -3352,14 +3358,14 @@ try:
 
 										if amountInstalled < len(fonts):
 											html.append('<div class="install installButton right">')
-											html.append('<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+											html.append('<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">' % (self.b64encode(ID), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
 											html.append('✓ #(Install All)')
 											html.append('</a>')
 											html.append('</div>') # .installButton
 
 										if amountInstalled > 0:
 											html.append('<div class="remove installButton right">')
-											html.append('<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">' % (self.b64encode(ID), self.b64encode(subscription.url), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+											html.append('<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">' % (self.b64encode(ID), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
 											html.append('✕ #(Remove All)')
 											html.append('</a>')
 											html.append('</div>') # .installButton
@@ -3393,12 +3399,12 @@ try:
 
 											html.append('<div class="installButtons right">')
 											html.append('<div class="installButton status install">')
-											html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID), font.getVersions()[-1].number if font.getVersions() else ''))
+											html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID), font.getVersions()[-1].number if font.getVersions() else ''))
 											html.append('✓ #(Install)')
 											html.append('</a>')
 											html.append('</div>') # installButton
 											html.append('<div class="installButton status remove">')
-											html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.url), self.b64encode(font.uniqueID)))
+											html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID)))
 											html.append('✕ #(Remove)')
 											html.append('</a>')
 											html.append('</div>') # installButton
@@ -3502,13 +3508,13 @@ try:
 				self.javaScript("$('#sidebar #%s.publisher').addClass('selected');" % b64ID)
 
 				if subscription:
-					self.javaScript("$('#sidebar #%s.subscription').addClass('selected');" % self.b64encode(subscription.url))
+					self.javaScript("$('#sidebar #%s.subscription').addClass('selected');" % self.b64encode(subscription.protocol.unsecretURL()))
 
 				self.setBadges()
 				agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
-			if subscription.get('currentFont'):
-				self.selectFont(self.b64encode(subscription.get('currentFont')))
+				if subscription and subscription.get('currentFont'):
+					self.selectFont(self.b64encode(subscription.get('currentFont')))
 
 			self.javaScript("showMain();")
 
@@ -3520,7 +3526,8 @@ try:
 
 			html = []
 
-			installedVersion = font.parent.parent.parent.parent.parent.installedFontVersion(font=font)
+			subscription = font.parent.parent.parent.parent.subscription
+			installedVersion = subscription.installedFontVersion(font=font)
 
 			if installedVersion:
 				html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getVersions()[-1].number else 'olderVersion', installedVersion))
@@ -3564,7 +3571,7 @@ try:
 			else:
 				if not client.preferences.get('currentPublisher') and client.publishers():
 					client.preferences.set('currentPublisher', client.publishers()[0].canonicalURL)
-					self.setActiveSubscription(self.b64encode(client.publishers()[0].canonicalURL), self.b64encode(client.publishers()[0].subscriptions()[0].url))
+					self.setActiveSubscription(self.b64encode(client.publishers()[0].canonicalURL), self.b64encode(client.publishers()[0].subscriptions()[0].protocol.unsecretURL()))
 
 
 			html = []
@@ -3646,11 +3653,10 @@ try:
 
 								amountInstalledFonts = subscription.amountInstalledFonts()
 								amountOutdatedFonts = subscription.amountOutdatedFonts()
-								selected = subscription.url == publisher.subscription(publisher.get('currentSubscription')).url
+								selected = subscription.protocol.unsecretURL() == publisher.subscription(publisher.get('currentSubscription')).protocol.unsecretURL()
 
 								html.append('<div>')
-		#                        html.append('<a class="subscription" href="x-python://self.setActiveSubscription(____%s____, ____%s____)">' % (b64ID, self.b64encode(subscription.url)))
-								html.append('<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s" publisherID="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.url), b64ID))
+								html.append('<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s" publisherID="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.protocol.unsecretURL()), b64ID))
 								html.append('<div class="name">')
 								html.append(subscription.name(locale=client.locale()))
 								html.append('</div>')
@@ -3681,7 +3687,7 @@ try:
 									html.append('</div>') # .badges
 
 								html.append('<div class="alert" style="display: %s;">' % ('block' if subscription.updatingProblem() else 'none'))
-								html.append('<a href="x-python://self.displaySubscriptionSidebarAlert(____%s____)">' % self.b64encode(subscription.url))
+								html.append('<a href="x-python://self.displaySubscriptionSidebarAlert(____%s____)">' % self.b64encode(subscription.protocol.unsecretURL()))
 								html.append('⚠️')
 								html.append('</a>')
 								html.append('</div>') # .alert
@@ -4415,3 +4421,4 @@ try:
 
 except:
 	log(traceback.format_exc())
+	print(traceback.format_exc())

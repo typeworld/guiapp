@@ -646,6 +646,13 @@ label {
 
 }
 
+.font .expiryText {
+
+}
+
+.font .expiryText .countdown {
+	color: red;
+}
 
 
 /* ######## Installation statuses ############ */

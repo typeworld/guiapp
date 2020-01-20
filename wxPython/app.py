@@ -1015,13 +1015,34 @@ try:
 				self.javaScript('hidePanel();')
 			else:
 
+
 				self.onQuit(event)
+
 
 		def onQuit(self, event):
 
+
+			expiringInstalledFonts = client.expiringInstalledFonts()
+
+			if expiringInstalledFonts:
+
+				dlg = wx.MessageDialog(None, localizeString("You have installed %s font(s) that are under active expiration. Quitting the app will remove these fonts. Do you want to continue?" % len(expiringInstalledFonts)), localizeString("Active expiration fonts"), wx.YES_NO | wx.ICON_QUESTION)
+				dlg.SetYesNoLabels(localizeString('#(Remove and Quit)'), localizeString('#(Cancel)'))
+				result = dlg.ShowModal()
+				if result == wx.ID_YES:
+
+					for font in expiringInstalledFonts:
+						success, message = font.parent.parent.parent.parent.subscription.removeFont(font.uniqueID)
+						if not success:
+							self.errorMessage(message, 'Error deleting fonts')
+							return
+
+				else:
+					return
+
 			self.active = False
 
-			log('onQuit()')
+			# log('onQuit()')
 
 			while locked():
 				log('Waiting for locks to disappear')
@@ -2286,10 +2307,25 @@ try:
 				self.javaScript('$(".font.%s .installedText").html("%s");' % (b64fontID, html))
 
 
+		def checkFontExpirations(self):
+
+			fonts = []
+
+			for publisher in client.publishers():
+				for subscription in publisher.subscriptions():
+					for font in subscription.installedFonts():
+						if font.expiry and time.time() > font.expiry:
+
+							fonts.append([self.b64encode(publisher.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID)])
+
+			if fonts:
+				self.removeFonts(fonts)
+
+
 		def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
 
 			self.selectFont(b64fontID)
-			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
+#			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
 			# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
 			# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
 			# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
@@ -3395,6 +3431,14 @@ try:
 										html.append(self.fontInstalledText(font))
 										html.append('</div>') # .left
 
+										expiry = ''
+										if font.expiryDuration:
+											expiry = '%s\'' % font.expiryDuration
+										if expiry:
+											html.append('<div class="left expiryText">')
+											html.append('⏲<span class="countdownMinutes" timestamp="%s">%s</span>' % (font.expiry, expiry))
+											html.append('</div>') # .left
+
 										if font.purpose == 'desktop':
 
 											html.append('<div class="installButtons right">')
@@ -3506,6 +3550,7 @@ try:
 				self.javaScript("$('#sidebar .publisher').removeClass('selected');")
 				self.javaScript("$('#sidebar .subscription').removeClass('selected');")
 				self.javaScript("$('#sidebar #%s.publisher').addClass('selected');" % b64ID)
+				self.javaScript("recalcMinutesCountdown();");
 
 				if subscription:
 					self.javaScript("$('#sidebar #%s.subscription').addClass('selected');" % self.b64encode(subscription.protocol.unsecretURL()))
@@ -3653,7 +3698,10 @@ try:
 
 								amountInstalledFonts = subscription.amountInstalledFonts()
 								amountOutdatedFonts = subscription.amountOutdatedFonts()
-								selected = subscription.protocol.unsecretURL() == publisher.subscription(publisher.get('currentSubscription')).protocol.unsecretURL()
+								if publisher.get('currentSubscription'):
+									selected = subscription.protocol.unsecretURL() == publisher.subscription(publisher.get('currentSubscription')).protocol.unsecretURL()
+								else:
+									selected = False
 
 								html.append('<div>')
 								html.append('<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s" publisherID="%s">' % ('selected' if selected else '', 'en', 'ltr', self.b64encode(subscription.protocol.unsecretURL()), b64ID))

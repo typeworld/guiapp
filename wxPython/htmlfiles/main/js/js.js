@@ -79,6 +79,36 @@ function unregisterKeypress(key) {
 	keypressFunctions[key] = null;
 }
 
+
+function recalcMinutesCountdown() {
+
+	$(".countdownMinutes").each(function() {
+
+		timestamp = parseFloat($(this).attr('timestamp'));
+		if (timestamp) {
+			min = parseInt(parseFloat((timestamp - parseFloat(Date.now() / 1000))) / 60);
+			if (min < 0) {
+				min = '0';
+			}
+			else if (min < 1) {
+				min = '<1';
+			}
+
+			$(this).html(min + "'");
+			$(this).addClass('countdown');
+		}
+		else {
+			$(this).removeClass('countdown');
+
+		}
+    	
+  	});
+
+  	python('self.checkFontExpirations()');
+
+	setTimeout(function () { recalcMinutesCountdown(); }, 10000);
+}
+
 $( document ).ready(function() {
 
 	// Automatically reload subscriptions
@@ -96,6 +126,11 @@ $( document ).ready(function() {
 	};
 
 	setTimeout(function () { autoReloadSubscriptions(true); }, 2000); // First load after 2 seconds
+
+
+	setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
+
+
 
 	$(document).bind("contextmenu",function(evt){
 		contextmenu(evt);

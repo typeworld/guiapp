@@ -2054,6 +2054,7 @@ try:
 				client.preferences.set('currentPublisher', '')
 				self.setSideBarHTML()
 				self.javaScript("hideMain();")
+				self.javaScript("hideMetadata();")
 
 			self.allowedToPullServerUpdates = True
 
@@ -2077,6 +2078,10 @@ try:
 							if publisher.subscriptions():
 								publisher.set('currentSubscription', publisher.subscriptions()[0].protocol.unsecretURL())
 								self.setPublisherHTML(self.b64encode(publisher.canonicalURL))
+							else:
+								self.javaScript("hideMain();")
+								self.javaScript("hideMetadata();")
+
 			self.setSideBarHTML()
 
 			self.allowedToPullServerUpdates = True
@@ -2940,7 +2945,8 @@ try:
 				for version in reversed(font.getVersions()):
 					html.append('<div class="version %s">' % self.versionEncode(version.number))
 					html.append('<p><b>#(Version) %s</b> <span class="label installedVersion %s" style="display: %s;">#(Installed)</span><br />' % (version.number, 'latestVersion' if version.number == font.getVersions()[-1].number else 'olderVersion', 'inline' if version.number == installedVersion else 'none'))
-					html.append('%s' % version.description.getText(client.locale()))
+					if version.description:
+						html.append('%s' % version.description.getText(client.locale()))
 					if version.releaseDate:
 						html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
 					

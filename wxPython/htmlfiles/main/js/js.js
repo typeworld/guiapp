@@ -87,7 +87,7 @@ function recalcMinutesCountdown() {
 		timestamp = parseFloat($(this).attr('timestamp'));
 		if (timestamp) {
 			min = parseInt(parseFloat((timestamp - parseFloat(Date.now() / 1000))) / 60);
-			if (min < 0) {
+			if (min <= 0) {
 				min = '0';
 			}
 			else if (min < 1) {

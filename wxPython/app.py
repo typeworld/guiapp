@@ -3026,7 +3026,7 @@ try:
 
 						if invitation.foundries or invitation.families or invitation.fonts:
 							html.append('<p>')
-							html.append('%s #(Foundry/ies), %s #(Typeface/s), %s #(Font/s)' % (invitation.foundries or 0, invitation.families or 0, invitation.fonts or 0))
+							html.append('%s #(Foundry/ies), %s #(Families/s), %s #(Font/s)' % (invitation.foundries or 0, invitation.families or 0, invitation.fonts or 0))
 							html.append('</p>')
 
 						html.append('<p>')

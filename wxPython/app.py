@@ -1864,7 +1864,7 @@ try:
 					if success:
 						self.setSideBarHTML()
 						self.javaScript('hidePanel();')
-						self.message('#(justLinkedUserAccount)')
+						self.message('#(JustLinkedUserAccount)')
 
 
 
@@ -2559,24 +2559,24 @@ try:
 
 
 					html.append('<h2>%s (%s)</h2>' % (publisher.name(client.locale())[0], publisher.get('type')))
-					if publisher.get('type') == 'GitHub':
+					# if publisher.get('type') == 'GitHub':
 
-						# Rate limits
-						limits, responses = publisher.readGitHubResponse('https://api.github.com/rate_limit')
-						limits = json.loads(limits)
+					# 	# Rate limits
+					# 	limits, responses = publisher.readGitHubResponse('https://api.github.com/rate_limit')
+					# 	limits = json.loads(limits)
 
-						html.append('<p>')
-						html.append('#(Username)<br />')
-						html.append('<input type="text" id="username" value="%s">' % (publisher.get('username') or ''))
-						html.append('#(Password)<br />')
-						html.append('<input type="password" id="password" value="%s">' % (publisher.getPassword(publisher.get('username')) if publisher.get('username') else ''))
-						html.append('</p>')
-						html.append('<p>')
-						html.append('#(GitHubRequestLimitExplanation)<br />')
-						html.append(localizeString('#(GitHubRequestLimitRemainderExplanation)').replace('%requests%', str(limits['rate']['remaining'])).replace('%time%', datetime.datetime.fromtimestamp(limits['rate']['reset']).strftime('%Y-%m-%d %H:%M:%S')))
-						html.append('</p>')
-						html.append('<script>$("#publisherPreferences #username").blur(function() { setPublisherPreference("%s", "username", $("#publisherPreferences #username").val());});</script>' % (b64ID))
-						html.append('<script>$("#publisherPreferences #password").blur(function() { if ($("#publisherPreferences #username").val()) { setPublisherPassword("%s", $("#publisherPreferences #username").val(), $("#publisherPreferences #password").val()); }});</script>' % (b64ID))
+					# 	html.append('<p>')
+					# 	html.append('#(Username)<br />')
+					# 	html.append('<input type="text" id="username" value="%s">' % (publisher.get('username') or ''))
+					# 	html.append('#(Password)<br />')
+					# 	html.append('<input type="password" id="password" value="%s">' % (publisher.getPassword(publisher.get('username')) if publisher.get('username') else ''))
+					# 	html.append('</p>')
+					# 	html.append('<p>')
+					# 	html.append('#(GitHubRequestLimitExplanation)<br />')
+					# 	html.append(localizeString('#(GitHubRequestLimitRemainderExplanation)').replace('%requests%', str(limits['rate']['remaining'])).replace('%time%', datetime.datetime.fromtimestamp(limits['rate']['reset']).strftime('%Y-%m-%d %H:%M:%S')))
+					# 	html.append('</p>')
+					# 	html.append('<script>$("#publisherPreferences #username").blur(function() { setPublisherPreference("%s", "username", $("#publisherPreferences #username").val());});</script>' % (b64ID))
+					# 	html.append('<script>$("#publisherPreferences #password").blur(function() { if ($("#publisherPreferences #username").val()) { setPublisherPassword("%s", $("#publisherPreferences #username").val(), $("#publisherPreferences #password").val()); }});</script>' % (b64ID))
 
 
 

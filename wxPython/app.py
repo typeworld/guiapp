@@ -1305,9 +1305,9 @@ try:
 				elif client.userEmail():
 					html.append('<b>%s</b>' % (client.userEmail()))
 				html.append('</p>')
-				html.append('<p>')
-				html.append('#(Account Last Synchronized): %s' % (NaturalRelativeWeekdayTimeAndDate(client.preferences.get('lastServerSync'), locale = client.locale()[0]) if client.preferences.get('lastServerSync') else 'Never'))
-				html.append('</p>')
+				# html.append('<p>')
+				# html.append('#(Account Last Synchronized): %s' % (NaturalRelativeWeekdayTimeAndDate(client.preferences.get('lastServerSync'), locale = client.locale()[0]) if client.preferences.get('lastServerSync') else 'Never'))
+				# html.append('</p>')
 				html.append('<h2>#(Unlink User Account)</h2>')
 				html.append('<p>')
 				html.append('#(UnlinkUserAccountExplanation)')

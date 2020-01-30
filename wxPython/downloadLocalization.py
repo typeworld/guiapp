@@ -5,8 +5,7 @@ from ynlib.web import GetHTTP
 from ynlib.files import WriteToFile, ReadFromFile
 import json
 
-#j = GetHTTP('https://type.world/downloadLocalization')
-j = GetHTTP('http://127.0.0.1:8080/downloadLocalization')
+j = GetHTTP('https://type.world/downloadLocalization?authKey=8KW8jyBtEW3my2U')
 
 a = json.loads(j)
 

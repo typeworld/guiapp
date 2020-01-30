@@ -14,6 +14,7 @@ for path in (
 		'app.py',
 		'/Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeWorld/client/__init__.py',
 		'/Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeWorld/test.py',
+		'/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/InternetAccessPolicy.strings',
 	):
 	
 	if not path.startswith('/'):

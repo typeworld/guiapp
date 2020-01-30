@@ -519,13 +519,6 @@ try:
 		log('unlock() from within uninstallAgent()')
 
 
-
-	def localize(key, html = False):
-		string = locales.localize(key, client.locale())
-		if html:
-			string = string.replace('\n', '<br />')
-		return string
-
 	def localizeString(string, html = False, replace = {}):
 		string = locales.localizeString(string, languages = client.locale(), html = html)
 		if replace:
@@ -912,17 +905,17 @@ try:
 
 			# Exit
 			menu = wx.Menu()
-			m_opensubscription = menu.Append(wx.ID_OPEN, "%s...%s" % (localize('Add Subscription'), '\tCtrl+O' if MAC else ''))#\tCtrl-O
+			m_opensubscription = menu.Append(wx.ID_OPEN, "%s...%s" % (localizeString('#(Add Subscription)'), '\tCtrl+O' if MAC else ''))#\tCtrl-O
 			self.Bind(wx.EVT_MENU, self.showAddSubscription, m_opensubscription)
 	#        m_opensubscription.SetAccel(wx.AcceleratorEntry(wx.ACCEL_CTRL,  ord('o')))
 
 
-			m_CheckForUpdates = menu.Append(wx.NewId(), "%s..." % (localize('Check for App Updates')))
+			m_CheckForUpdates = menu.Append(wx.NewId(), "%s..." % (localizeString('#(Check for App Updates)')))
 			self.Bind(wx.EVT_MENU, self.onCheckForUpdates, m_CheckForUpdates)
 			if MAC:
-				m_closewindow = menu.Append(wx.ID_CLOSE, "%s\tCtrl+W" % (localize('Close Window')))
+				m_closewindow = menu.Append(wx.ID_CLOSE, "%s\tCtrl+W" % (localizeString('#(Close Window)')))
 				self.Bind(wx.EVT_MENU, self.onClose, m_closewindow)
-			m_exit = menu.Append(wx.ID_EXIT, "%s\t%s" % (localize('Exit'), 'Ctrl-Q' if MAC else 'Alt-F4'))
+			m_exit = menu.Append(wx.ID_EXIT, "%s\t%s" % (localizeString('#(Exit)'), 'Ctrl-Q' if MAC else 'Alt-F4'))
 			self.Bind(wx.EVT_MENU, self.onQuit, m_exit)
 
 			# m_InstallAgent = menu.Append(wx.NewId(), "Install Agent")
@@ -931,38 +924,38 @@ try:
 			# self.Bind(wx.EVT_MENU, self.uninstallAgent, m_RemoveAgent)
 
 
-			menuBar.Append(menu, "&%s" % (localize('File')))
+			menuBar.Append(menu, "&%s" % (localizeString('#(File)')))
 
 			# Edit
 			# if 'wxMac' in wx.PlatformInfo and wx.VERSION >= (3,0):
 			#   wx.ID_COPY = wx.NewId()
 			#   wx.ID_PASTE = wx.NewId()
 			editMenu = wx.Menu()
-			editMenu.Append(wx.ID_UNDO, "%s\tCtrl-Z" % (localize('Undo')))
+			editMenu.Append(wx.ID_UNDO, "%s\tCtrl-Z" % (localizeString('#(Undo)')))
 			editMenu.AppendSeparator()
-			editMenu.Append(wx.ID_SELECTALL, "%s\tCtrl-A" % (localize('Select All')))
-			editMenu.Append(wx.ID_COPY, "%s\tCtrl-C" % (localize('Copy')))
-			editMenu.Append(wx.ID_CUT, "%s\tCtrl-X" % (localize('Cut')))
-			editMenu.Append(wx.ID_PASTE, "%s\tCtrl-V" % (localize('Paste')))
+			editMenu.Append(wx.ID_SELECTALL, "%s\tCtrl-A" % (localizeString('#(Select All)')))
+			editMenu.Append(wx.ID_COPY, "%s\tCtrl-C" % (localizeString('#(Copy)')))
+			editMenu.Append(wx.ID_CUT, "%s\tCtrl-X" % (localizeString('#(Cut)')))
+			editMenu.Append(wx.ID_PASTE, "%s\tCtrl-V" % (localizeString('#(Paste)')))
 
 			if WIN:
 				editMenu.AppendSeparator()
-				m_prefs = editMenu.Append(wx.ID_PREFERENCES, "&%s\tCtrl-I" % (localize('Preferences')))
+				m_prefs = editMenu.Append(wx.ID_PREFERENCES, "&%s\tCtrl-I" % (localizeString('#(Preferences)')))
 				self.Bind(wx.EVT_MENU, self.onPreferences, m_prefs)
 
 
 
-			menuBar.Append(editMenu, "&%s" % (localize('Edit')))
+			menuBar.Append(editMenu, "&%s" % (localizeString('#(Edit)')))
 
 			menu = wx.Menu()
-			m_about = menu.Append(wx.ID_ABOUT, "&%s %s" % (localize('About'), APPNAME))
+			m_about = menu.Append(wx.ID_ABOUT, "&%s %s" % (localizeString('#(About)'), APPNAME))
 			self.Bind(wx.EVT_MENU, self.onAbout, m_about)
 			if MAC:
-				m_prefs = menu.Append(wx.ID_PREFERENCES, "&%s\tCtrl-," % (localize('Preferences')))
+				m_prefs = menu.Append(wx.ID_PREFERENCES, "&%s\tCtrl-," % (localizeString('#(Preferences)')))
 				self.Bind(wx.EVT_MENU, self.onPreferences, m_prefs)        
 
 			# menuBar.Append(menu, "Type.World")
-			menuBar.Append(menu, "&%s" % (localize('Help')))
+			menuBar.Append(menu, "&%s" % (localizeString('#(Help)')))
 
 			self.SetMenuBar(menuBar)
 

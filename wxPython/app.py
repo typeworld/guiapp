@@ -1268,28 +1268,28 @@ try:
 
 			html = []
 
-			# Update Interval
-			html.append('<h2>#(Update Interval)</h2>')
-			html.append('<p>#(UpdateIntervalExplanation)</p>')
-			html.append('<p>')
-			html.append('<select id="updateIntervalChoice" style="">')
-			for code, name in (
-				(-1, '#(Manually)'),
-				(1 * 60, '#(Minutely)'),
-				(1 * 60 * 60, '#(Hourly)'),
-				(24 * 60 * 60, '#(Daily)'),
-				(7 * 24 * 60 * 60, '#(Weekly)'),
-				(30 * 24 * 60 * 60, '#(Monthly)'),
-			):
-				html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(client.preferences.get('reloadSubscriptionsInterval')) else '', name))
-			html.append('</select>')
-			html.append('<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
-			html.append('</p>')
-			html.append('<p>')
-			html.append('#(Last Check): %s' % NaturalRelativeWeekdayTimeAndDate(client.preferences.get('reloadSubscriptionsLastPerformed'), locale = client.locale()[0]))
-			html.append('</p>')
+			# # Update Interval
+			# html.append('<h2>#(Update Interval)</h2>')
+			# html.append('<p>#(UpdateIntervalExplanation)</p>')
+			# html.append('<p>')
+			# html.append('<select id="updateIntervalChoice" style="">')
+			# for code, name in (
+			# 	(-1, '#(Manually)'),
+			# 	(1 * 60, '#(Minutely)'),
+			# 	(1 * 60 * 60, '#(Hourly)'),
+			# 	(24 * 60 * 60, '#(Daily)'),
+			# 	(7 * 24 * 60 * 60, '#(Weekly)'),
+			# 	(30 * 24 * 60 * 60, '#(Monthly)'),
+			# ):
+			# 	html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(client.preferences.get('reloadSubscriptionsInterval')) else '', name))
+			# html.append('</select>')
+			# html.append('<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
+			# html.append('</p>')
+			# html.append('<p>')
+			# html.append('#(Last Check): %s' % NaturalRelativeWeekdayTimeAndDate(client.preferences.get('reloadSubscriptionsLastPerformed'), locale = client.locale()[0]))
+			# html.append('</p>')
 
-			html.append('<hr>')
+			# html.append('<hr>')
 			# html.append('<hr>')
 			# html.append('<hr>')
 			# html.append('<hr>')

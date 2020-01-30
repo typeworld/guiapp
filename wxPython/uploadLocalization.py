@@ -2,7 +2,7 @@
 
 ## This file parses all localized keywords from a bunch of relevant files and 
 
-import os, re, keyring, urllib, urllib.request, certifi, ssl
+import os, re, keyring, urllib, urllib.request, certifi, ssl, json
 sslcontext = ssl.create_default_context(cafile=certifi.where())
 MOTHERSHIP = 'https://typeworld2.appspot.com'
 #MOTHERSHIP = 'http://127.0.0.1:8080'
@@ -41,6 +41,8 @@ for path in (
 
 			if ',' in keyword:
 				print('ALARM ALARM ALARM ALARM: Comma in %s' % keyword)
+
+
 
 if not 'TRAVIS' in os.environ: authKey = keyring.get_password(MOTHERSHIP, 'revokeAppInstance')
 else: authKey = os.environ['REVOKEAPPINSTANCEAUTHKEY']

@@ -521,13 +521,13 @@ try:
 
 
 	def localize(key, html = False):
-		string = locales.localize('world.type.guiapp', key, client.locale())
+		string = locales.localize(key, client.locale())
 		if html:
 			string = string.replace('\n', '<br />')
 		return string
 
 	def localizeString(string, html = False, replace = {}):
-		string = locales.localizeString('world.type.guiapp', string, languages = client.locale(), html = html)
+		string = locales.localizeString(string, languages = client.locale(), html = html)
 		if replace:
 			for key in replace:
 				string = string.replace('%' + key + '%', str(replace[key]))

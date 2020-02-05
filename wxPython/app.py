@@ -316,10 +316,18 @@ try:
 
 			assert self.theme in ('light', 'dark')
 
+			# Apply default colors
 			colors = typeWorld.api.StylingDataType().exampleData()[self.theme]
 			for key in colors:
 				if 'Color' in key:
 					setattr(self, key, Color(hex=colors[key]))
+
+			# Apply custom colors
+			if self.theme in self.foundry.styling:
+				colors = self.foundry.styling[self.theme]
+				for key in colors:
+					if 'Color' in key:
+						setattr(self, key, Color(hex=colors[key]))
 
 			self.logoURL = None
 
@@ -416,7 +424,7 @@ try:
 
 #$ID.foundry {
 	background-color: #$backgroundColor;
-	color: #$headerTextColor;
+	color: #$textColor;
 }
 
 #$ID.foundry a {

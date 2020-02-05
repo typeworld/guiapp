@@ -25,6 +25,7 @@ from wx.lib.delayedresult import startWorker
 from multiprocessing.connection import Client
 from threading import Thread
 from ynlib.system import Execute
+from string import Template
 
 from babel.dates import format_date
 
@@ -67,10 +68,11 @@ else:
 
 if MAC:
 	import objc
-	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp, NSObject, NSUserNotification, NSUserNotificationCenter
+	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp, NSObject, NSUserNotification, NSUserNotificationCenter, NSDistributedNotificationCenter, NSNotification
 	from AppKit import NSView, NSRect, NSPoint, NSSize, NSMakeRect, NSColor, NSRectFill, NSToolbar
 	from AppKit import NSRunningApplication
 	from AppKit import NSScreen
+	from AppKit import NSUserDefaults
 
 	NSUserNotificationCenterDelegate = objc.protocolNamed('NSUserNotificationCenterDelegate')
 	class NotificationDelegate(NSObject, protocols=[NSUserNotificationCenterDelegate]):
@@ -78,9 +80,14 @@ if MAC:
 		def userNotificationCenter_didActivateNotification_(self, center, aNotification):
 			pass
 
-	notificationCenter = NSUserNotificationCenter.defaultUserNotificationCenter()
-	notificationCenterDelegate = NotificationDelegate.alloc().init()
-	notificationCenter.setDelegate_(notificationCenterDelegate)
+	userNotificationCenter = NSUserNotificationCenter.defaultUserNotificationCenter()
+	userNotificationCenterDelegate = NotificationDelegate.alloc().init()
+	userNotificationCenter.setDelegate_(userNotificationCenterDelegate)
+
+	# Dark Mode
+	class DarkModeDelegate(NSObject):
+		def darkModeChanged_(self, sender):
+			self.app.applyDarkMode()
 
 
 if WIN:
@@ -295,12 +302,199 @@ try:
 			self.app.frame.reloadSubscriptionFromClient(subscription)
 
 		def userAccountUpdateNotificationHasBeenReceived(self):
-			print('userAccountUpdateNotificationHasBeenReceived()')
+			# print('userAccountUpdateNotificationHasBeenReceived()')
 			self.app.frame.pullServerUpdates(force = True)
 
 	delegate = ClientDelegate()
 	client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui', pubSubSubscriptions = True)
 
+
+	class FoundryStyling(object):
+		def __init__(self, foundry, theme):
+			self.foundry = foundry
+			self.theme = theme
+
+			assert self.theme in ('light', 'dark')
+
+			colors = typeWorld.api.StylingDataType().exampleData()[self.theme]
+			for key in colors:
+				if 'Color' in key:
+					setattr(self, key, Color(hex=colors[key]))
+
+			self.logoURL = None
+
+			# Additionally calculated colors
+			self.hoverColor = None
+			self.hoverButtonColor = None
+			self.hoverButtonTextColor = None
+			self.selectionHoverColor = None
+			self.selectionButtonColor = None
+			self.selectionButtonTextColor = None
+			self.inactiveButtonColor = None
+			self.inactiveButtonTextColor = None
+			self.informationViewInactiveButtonColor = None
+			self.informationViewInactiveButtonTextColor = None
+
+			# Automatic adjustments
+
+			# Hover Color
+			if self.backgroundColor.darkHalf():
+				self.hoverColor = self.backgroundColor.lighten(.05)
+				self.hoverButtonColor = self.hoverColor.lighten(.1)
+				self.hoverButtonTextColor = self.hoverColor.lighten(.8)
+			else:
+				self.hoverColor = self.backgroundColor.darken(.05)
+				self.hoverButtonColor = self.hoverColor.darken(.1)
+				self.hoverButtonTextColor = self.hoverColor.darken(.8)
+
+			# Selection Hover Color
+			if self.selectionColor.darkHalf():
+				self.selectionHoverColor = self.selectionColor.lighten(.1)
+			else:
+				self.selectionHoverColor = self.selectionColor.darken(.1)
+
+			# Selection Button Color
+			if self.selectionColor.darkHalf():
+				self.selectionButtonColor = self.selectionHoverColor.lighten(.1)
+				self.selectionButtonTextColor = self.selectionButtonColor.lighten(.8)
+			else:
+				self.selectionButtonColor = self.selectionHoverColor.darken(.1)
+				self.selectionButtonTextColor = self.selectionButtonColor.darken(.8)
+
+			# Inactive Button Color
+			if self.backgroundColor.darkHalf():
+				self.inactiveButtonColor = self.backgroundColor.lighten(.15)
+				self.inactiveButtonTextColor = self.inactiveButtonColor.lighten(.2)
+			else:
+				self.inactiveButtonColor = self.backgroundColor.darken(.15)
+				self.inactiveButtonTextColor = self.inactiveButtonColor.darken(.2)
+
+			# Information View Inactive Button Color
+			if self.informationViewBackgroundColor.darkHalf():
+				self.informationViewInactiveButtonColor = self.informationViewBackgroundColor.lighten(.15)
+				self.informationViewInactiveButtonTextColor = self.informationViewInactiveButtonColor.lighten(.2)
+			else:
+				self.informationViewInactiveButtonColor = self.informationViewBackgroundColor.darken(.15)
+				self.informationViewInactiveButtonTextColor = self.informationViewInactiveButtonColor.darken(.2)
+
+
+		def logo(self):
+
+			if self.foundry.styling:
+				if self.theme in self.foundry.styling:
+					if 'logo' in self.foundry.styling[self.theme]:
+						self.logoURL = self.foundry.styling[self.theme]['logo']
+
+				# Fallback, take any
+				if not self.logoURL:
+					for themeName in self.foundry.styling:
+						if 'logo' in self.foundry.styling[themeName]:
+							self.logoURL = self.foundry.styling[themeName]['logo']
+
+				return self.logoURL
+
+		def foundryView(self, ID):
+
+			tpl = Template('''<style>
+
+#$ID.foundry .head {
+	background-color: #$headerColor;
+	color: #$headerTextColor;
+}
+
+#$ID.foundry .head a {
+	color: #$headerLinkColor;
+}
+
+#$ID.foundry {
+	background-color: #$backgroundColor;
+	color: #$headerTextColor;
+}
+
+#$ID.foundry a {
+	color: #$linkColor;
+}
+
+#$ID.foundry .font.selected {
+	background-color: #$selectionColor;
+	color: #$selectionTextColor;
+}
+
+#$ID.foundry .font.selected a.button, #$ID.foundry .font.selected.hover a.button {
+	background-color: #$selectionButtonColor;
+	color: #$selectionButtonTextColor;
+}
+
+#$ID.foundry a.button {
+	background-color: #$buttonColor;
+	color: #$buttonTextColor;
+}
+
+#$ID.foundry a.button.inactive {
+	background-color: #$inactiveButtonColor;
+	color: #$inactiveButtonTextColor;
+}
+
+#$ID.foundry .font.hover, #$ID.foundry .section.hover {
+	background-color: #$hoverColor;
+}
+
+#$ID.foundry .font.hover.selected {
+	background-color: #$selectionHoverColor;
+}
+
+#$ID.foundry .font.hover a.button {
+	background-color: #$hoverButtonColor;
+	color: #$hoverButtonTextColor;
+}
+
+					</style>''')
+
+			r = {'ID': ID}
+			for key in self.__dict__:
+				if 'Color' in key:
+					r[key] = getattr(self, key).hex
+
+			css = tpl.safe_substitute(r)
+			return css
+
+
+
+		def informationView(self):
+
+			tpl = Template('''<style>
+							#metadataWrapper {
+								background-color: #$informationViewBackgroundColor;
+								color: #$informationViewTextColor;
+							}
+
+							#metadataWrapper a {
+								color: #$informationViewLinkColor;
+							}
+
+							#metadataWrapper a.button {
+								background-color: #$informationViewButtonColor;
+								color: #$informationViewButtonTextColor;
+							}
+
+							#metadataWrapper a.button.inactive {
+								background-color: #$informationViewInactiveButtonColor;
+								color: #$informationViewInactiveButtonTextColor;
+							}
+
+						</style>''')
+
+
+			r = {}
+			for key in self.__dict__:
+				if 'Color' in key:
+					r[key] = getattr(self, key).hex
+
+			css = tpl.safe_substitute(r)
+			return css
+
+
+# ''' + str(self.selectionHoverColor.hex) + '''
 
 	def agent(command):
 		
@@ -897,7 +1091,8 @@ try:
 			log('AppFrame.__init__() finished')
 
 		def onMouseDown(self, event):
-			print(event)
+			# print(event)
+			pass
 
 
 		def setMenuBar(self):
@@ -1145,25 +1340,21 @@ try:
 				if WIN and self.allowCheckForURLInFile:
 					self.checkForURLInFile()
 
-				# if MAC:
-				# 	self.applyDarkMode()
+				if MAC:
+
+					self.applyDarkMode()
+
+
 
 		def applyDarkMode(self):
 
 			if platform.mac_ver()[0].split('.') > '10.14.0'.split('.'):
-				from AppKit import NSUserDefaults
-
-				if NSUserDefaults.standardUserDefaults().objectForKey_('AppleInterfaceStyle') == 'Dark':
-					self.javaScript('$("#main").css("background-color", "#000");')
-					self.javaScript('$("#main").css("color", "#fff");')
-					self.javaScript('$("#main .publisher .font.hover, #main .publisher .section.hover").css("background-color", "#070707");')
-
-				else:
-					self.javaScript('$("#main").css("background-color", "#fff");')
-					self.javaScript('$("#main").css("color", "#000");')
-					self.javaScript('$("#main .publisher .font.hover, #main .publisher .section.hover").css("background-color", "#F7F7F7");')
-
-
+				
+				if client.preferences.get('currentPublisher'):
+					publisher = client.publisher(client.preferences.get('currentPublisher'))
+					subscription = publisher.subscription(publisher.get('currentSubscription'))
+					self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
+					self.setMetadataHTML(self.b64encode(subscription.get('currentFont')))
 
 
 		def onResize(self, event):
@@ -2856,9 +3047,9 @@ try:
 			publisher = client.publisher(client.preferences.get('currentPublisher'))
 			subscription = publisher.subscription(publisher.get('currentSubscription'))
 			font = subscription.fontByID(client.publisher(subscription.get('currentFont')))
-			success, logo, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
+			success, billboard, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
 			if success:
-				data = "data:%s;base64,%s" % (mimeType, logo)
+				data = "data:%s;base64,%s" % (mimeType, billboard)
 			else:
 				data = font.parent.billboards[index]
 
@@ -2874,10 +3065,23 @@ try:
 			subscription = publisher.subscription(publisher.get('currentSubscription'))
 			subscription.set('currentFont', fontID)
 			font = subscription.fontByID(fontID)
+			foundry = font.parent.parent
 			subscription = font.parent.parent.parent.parent.subscription
 			installedVersion = subscription.installedFontVersion(font.uniqueID)
 
 			html = []
+
+
+
+			#metadata
+
+			theme = 'light'
+			if NSUserDefaults.standardUserDefaults().objectForKey_('AppleInterfaceStyle') == 'Dark':
+				theme = 'dark'
+
+			styling = FoundryStyling(foundry, theme)
+			html.append(styling.informationView())
+
 
 			if font.parent.billboards:
 
@@ -2888,9 +3092,9 @@ try:
 
 				html.append('<div style="max-height: 400px; height: 300px;">')
 
-				success, logo, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
+				success, billboard, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
 				if success:
-					html.append('<img id="fontBillboard" src="data:%s;base64,%s" style="width: 300px;">' % (mimeType, logo))
+					html.append('<img id="fontBillboard" src="data:%s;base64,%s" style="width: 300px;">' % (mimeType, billboard))
 				else:
 					html.append('<img id="fontBillboard" src="%s" style="width: 300px;">' % (font.parent.billboards[index]))
 
@@ -2914,7 +3118,13 @@ try:
 				):
 
 				if condition:
-					html.append('<div class="category %s"><a href="x-python://self.showMetadataCategory(____%s____)">%s&thinsp;→</a></div>' % ('selected' if client.preferences.get('metadataCategory') == keyword else '', keyword, name))
+					html.append('<div class="category %s">' % ('selected' if client.preferences.get('metadataCategory') == keyword else ''))
+					if client.preferences.get('metadataCategory') != keyword:
+						html.append('<a href="x-python://self.showMetadataCategory(____%s____)">' % keyword)
+					html.append('%s&thinsp;→' % name)
+					if client.preferences.get('metadataCategory') != keyword:
+						html.append('</a>')
+					html.append('</div>')
 
 			html.append('</div>')
 
@@ -3276,38 +3486,26 @@ try:
 							</script>''' % self.b64encode(subscription.protocol.unsecretURL()))
 
 
+
 					for foundry in command.foundries:
 
+						theme = 'light'
+						if NSUserDefaults.standardUserDefaults().objectForKey_('AppleInterfaceStyle') == 'Dark':
+							theme = 'dark'
 
 						## STYLING
+						styling = FoundryStyling(foundry, theme)
+						logoURL = styling.logo()
+						html.append(styling.foundryView(self.b64encode(foundry.uniqueID)))
 
-						# font-selection color
-						foundryBackgroundColor = Color(hex=foundry.backgroundColor or 'AAAAAA')
-						selectedFontBackgroundColor = foundryBackgroundColor.desaturate(.5)
-
-						if selectedFontBackgroundColor.darkHalf():
-							selectedFontTextColor = Color(hex='FFFFFF')
-							selectedGrayFontTextColor = selectedFontBackgroundColor.lighten(.7)
-						else:
-							selectedFontTextColor = Color(hex='000000')
-							selectedGrayFontTextColor = selectedFontBackgroundColor.darken(.7)
-
-
-						html.append('<style>')
-						html.append('#%s.foundry .font.selected {' % self.b64encode(foundry.uniqueID))
-						html.append('background-color: #%s;' % (selectedFontBackgroundColor.hex))
-						html.append('color: #%s;' % (selectedFontTextColor.hex))
-						html.append('}')
-						html.append('</style>')
-
+						backgroundColorFoundryStyling = FoundryStyling(foundry.parent.foundries[-1], theme)
+						html.append('''<style> #main { background-color: #%s; } </style>''' % backgroundColorFoundryStyling.backgroundColor.hex)
 
 						html.append('<div class="foundry" id="%s">' % self.b64encode(foundry.uniqueID))
-						html.append('<div class="head clear" style="background-color: %s;">' % ('#' + Color(hex=foundry.backgroundColor or 'DDDDDD').desaturate(0 if self.IsActive() else 1).hex if foundry.backgroundColor else 'none'))
+						html.append('<div class="head clear">')
 
-
-
-						if foundry.logo:
-							success, logo, mimeType = subscription.resourceByURL(foundry.logo, binary = True)
+						if logoURL:
+							success, logo, mimeType = subscription.resourceByURL(logoURL, binary = True)
 							if success:
 								html.append('<div class="logo">')
 								html.append('<img src="data:%s;base64,%s" style="width: 100px; height: 100px;" />' % (mimeType, logo))
@@ -3377,7 +3575,7 @@ try:
 										completeSetName = setName + ', '
 									completeSetName += typeWorld.api.base.FILEEXTENSIONNAMES[formatName]
 
-									html.append('<div class="section" id="%s">' % completeSetName)
+									html.append('<div class="section %s" id="%s">' % ('multipleFonts' if len(fonts) > 1 else '', completeSetName))
 
 									html.append('<div class="title clear">')
 									html.append('<div class="left">%s</div>' % completeSetName)
@@ -3865,6 +4063,10 @@ try:
 
 				self.SetTitle('')
 
+				# self.darkModeDetection = DarkModeDetection.alloc().initWithFrame_(NSMakeRect(0, 0, 40, 40))
+				# self.darkModeDetection.app = self
+				# print('darkModeDetection created', self.darkModeDetection)
+
 
 			self.setSideBarHTML()
 
@@ -3913,6 +4115,12 @@ try:
 			# if MAC:
 	#			sparkle.checkForUpdatesInBackground()
 				# sparkle.setAutomaticallyChecksForUpdates_(True)
+
+			if MAC:
+
+				delegate = DarkModeDelegate.alloc().init()
+				delegate.app = self
+				NSDistributedNotificationCenter.defaultCenter().addObserver_selector_name_object_(delegate, delegate.darkModeChanged_, 'AppleInterfaceThemeChangedNotification', None)
 
 
 		def checkForURLInFile(self):
@@ -4242,19 +4450,6 @@ try:
 				frame.CentreOnScreen()
 
 		
-
-				# if MAC:
-
-				# 	from AppKit import NSObject, NSDistributedNotificationCenter
-				# 	class darkModeDelegate(NSObject):
-				# 		def darkModeChanged_(self, sender):
-				# 			log('darkmodeChanged', sender)
-
-				# 	delegate = darkModeDelegate.alloc().init()
-
-				# 	NSDistributedNotificationCenter.defaultCenter().addObserver_selector_name_object_(delegate, delegate.darkModeChanged_, 'AppleInterfaceThemeChangedNotification', None)
-
-
 
 
 			return True

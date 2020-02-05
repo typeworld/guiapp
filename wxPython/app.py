@@ -436,6 +436,10 @@ try:
 	color: #$selectionTextColor;
 }
 
+#$ID.foundry .font .inactive {
+	color: #$sectionTitleColor;
+}
+
 #$ID.foundry .font.selected .inactive {
 	color: #$selectionInactiveTextColor;
 }

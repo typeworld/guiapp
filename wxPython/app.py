@@ -330,10 +330,14 @@ try:
 			self.selectionHoverColor = None
 			self.selectionButtonColor = None
 			self.selectionButtonTextColor = None
+			self.selectionInactiveTextColor = None
 			self.inactiveButtonColor = None
 			self.inactiveButtonTextColor = None
 			self.informationViewInactiveButtonColor = None
 			self.informationViewInactiveButtonTextColor = None
+			self.sectionTitleColor = None
+
+
 
 			# Automatic adjustments
 
@@ -342,16 +346,20 @@ try:
 				self.hoverColor = self.backgroundColor.lighten(.05)
 				self.hoverButtonColor = self.hoverColor.lighten(.1)
 				self.hoverButtonTextColor = self.hoverColor.lighten(.8)
+				self.sectionTitleColor = self.backgroundColor.lighten(.4)
 			else:
 				self.hoverColor = self.backgroundColor.darken(.05)
 				self.hoverButtonColor = self.hoverColor.darken(.1)
 				self.hoverButtonTextColor = self.hoverColor.darken(.8)
+				self.sectionTitleColor = self.backgroundColor.darken(.4)
 
 			# Selection Hover Color
 			if self.selectionColor.darkHalf():
 				self.selectionHoverColor = self.selectionColor.lighten(.1)
+				self.selectionInactiveTextColor = self.selectionColor.lighten(.3)
 			else:
 				self.selectionHoverColor = self.selectionColor.darken(.1)
+				self.selectionInactiveTextColor = self.selectionColor.darken(.3)
 
 			# Selection Button Color
 			if self.selectionColor.darkHalf():
@@ -420,6 +428,10 @@ try:
 	color: #$selectionTextColor;
 }
 
+#$ID.foundry .font.selected .inactive {
+	color: #$selectionInactiveTextColor;
+}
+
 #$ID.foundry .font.selected a.button, #$ID.foundry .font.selected.hover a.button {
 	background-color: #$selectionButtonColor;
 	color: #$selectionButtonTextColor;
@@ -437,6 +449,10 @@ try:
 
 #$ID.foundry .font.hover, #$ID.foundry .section.hover {
 	background-color: #$hoverColor;
+}
+
+#$ID.foundry .section .title .name {
+	color: #$sectionTitleColor;
 }
 
 #$ID.foundry .font.hover.selected {
@@ -3578,7 +3594,7 @@ try:
 									html.append('<div class="section %s" id="%s">' % ('multipleFonts' if len(fonts) > 1 else '', completeSetName))
 
 									html.append('<div class="title clear">')
-									html.append('<div class="left">%s</div>' % completeSetName)
+									html.append('<div class="name left">%s</div>' % completeSetName)
 
 									if len(fonts) > 1:
 
@@ -3774,7 +3790,7 @@ try:
 			if installedVersion:
 				html.append('#(Installed): <span class="label installedVersion %s">%s</a>' % ('latestVersion' if installedVersion == font.getVersions()[-1].number else 'olderVersion', installedVersion))
 			else:
-				html.append('<span class="notInstalled">#(Not Installed)</span>')
+				html.append('<span class="inactive notInstalled">#(Not Installed)</span>')
 			return ''.join(html)
 
 

@@ -551,7 +551,7 @@ label {
 	margin-right: -25px;
 }
 
-#main .publisher .family .section .title {
+#main .publisher .family .section .title .name {
 	padding-top: 5px;
 	padding-bottom: 5px;
 
@@ -566,7 +566,8 @@ label {
     padding-bottom: 8px;
 /*    padding-left: 20px;
     padding-right: 20px;
-*/    color: #999;
+*//*    color: #999;
+*/
 }
 
 .section .installButtons {

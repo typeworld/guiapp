@@ -16,9 +16,9 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/patrons', 
                 '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', 
                 # Sparkle < 1.12.0
-                '/Users/yanone/Code/dsa_pub.pem',
+                '/Users/yanone/Code/Certificates/Type.World Sparkle/dsa_pub.pem',
             ], #, 'appbadge.docktileplugin'
-           'packages': ['certifi'],
+           'packages': ['certifi'], # , 'google-api-core', 'google-cloud-pubsub'
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {
@@ -26,7 +26,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 'CFBundleShortVersionString':version, # must be in X.X.X format
                 'CFBundleVersion': version,
                 'CFBundleIdentifier':'world.type.guiapp', #optional
-                'NSHumanReadableCopyright': '@ Yanone 2018', #optional
+                'NSHumanReadableCopyright': '@ Yanone 2020', #optional
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default
                 'NSDockTilePlugIn': '@executable_path/../Resources/AppBadge.docktileplugin',
 #                'NSDockTilePlugIn': 'appbadge.docktileplugin',
@@ -68,6 +68,6 @@ setup(
 
 
 # Attention: Hack!
-os.chdir('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.6/lib-dynload/wx/')
+os.chdir('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/lib-dynload/wx/')
 for file in ['libwx_baseu-3.0.0.4.0.dylib', 'libwx_osx_cocoau_core-3.0.0.4.0.dylib', 'libwx_osx_cocoau_webview-3.0.0.4.0.dylib', 'libwx_baseu_net-3.0.0.4.0.dylib']:
     assert os.system('ln -s ../../../../../Frameworks/%s %s' % (file, file)) == 0

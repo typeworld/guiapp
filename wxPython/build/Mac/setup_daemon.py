@@ -22,7 +22,7 @@ setup(
                 'CFBundleShortVersionString':version, # must be in X.X.X format
                 'CFBundleVersion': version,
                 'CFBundleIdentifier':'world.type.agent', #optional
-                'NSHumanReadableCopyright': '@ Yanone 2018', #optional
+                'NSHumanReadableCopyright': '@ Yanone 2020', #optional
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default
                 'LSUIElement': True, # daemon mode, no dock icon
                 },

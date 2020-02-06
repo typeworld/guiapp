@@ -5,10 +5,9 @@ from subprocess import Popen,PIPE,STDOUT
 
 version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 'r').read().strip()
 findSymlinks = 'find -L ~/Code/TypeWorldApp/dist/Type.World.app -type l'
-sparkle = '/Users/yanone/Code/Sparkle/Sparkle.framework'
+sparkle = '/Users/yanone/Code/Sparkle/Sparkle-1.22.0/Sparkle.framework'
 
 flavour = sys.argv[-1]
-
 
 _list = [
 ['Remove old build folder', 'rm -rf /Users/yanone/Code/TypeWorldApp/build/*', None, ''],
@@ -17,26 +16,35 @@ _list = [
 # ['Python build', '/Users/yanone/Library/Python/3.6/bin/pyinstaller --windowed --onedir /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup_pyinstaller.spec', None, ''],
 
 # Agent
-['Agent build', '/usr/local/bin/python3 /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup_daemon.py py2app', None, ''],
-['Signing inner components', 'codesign -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app/Contents/Frameworks/Python.framework/Versions/3.6"', None, 'nosign'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app/Contents/MacOS/python"', None, 'nosign'],
-['Signing app', 'codesign -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app"', None, 'nosign'],
+['Agent build', 'python /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup_daemon.py py2app', None, ''],
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app/Contents/Frameworks/Python.framework/Versions/3.6"', None, 'nosign'],
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app/Contents/MacOS/python"', None, 'nosign'],
+['Signing app', 'codesign --deep -s "Jan Gerner" -f "/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app"', None, 'nosign'],
 ['Zipping agent', 'tar -cjf /Users/yanone/Code/TypeWorldApp/dist/agent.tar.bz2 -C "/Users/yanone/Code/TypeWorldApp/dist/" "Type.World Agent.app"', None, ''],
 
 # Main app
-['Main App build', '/usr/local/bin/python3 /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup.py py2app', None, ''],
+['Main App build', 'python /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup.py py2app', None, ''],
 ['Copying Sparkle', 'cp -R %s /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/' % sparkle],
 ['Copying Docktileplugin', 'cp -R /Users/yanone/Code/py/git/typeWorld/guiapp/appbadge/AppBadge.docktileplugin /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/'],
 ['Copying agent', 'cp /Users/yanone/Code/TypeWorldApp/dist/agent.tar.bz2 /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/', None, ''],
-['Unlink site.pyo', 'unlink ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.6/site.pyo', None, ''],
-['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu-3.0.0.4.0.dylib', None, 'nosign'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_core-3.0.0.4.0.dylib', None, 'nosign'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_webview-3.0.0.4.0.dylib', None, 'nosign'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu_net-3.0.0.4.0.dylib', None, 'nosign'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Python.framework/Versions/3.6', None, 'nosign'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Sparkle.framework/Versions/A', None, 'nosign'],
-['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/MacOS/python', None, 'nosign'],
-['Signing app', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app', None, 'nosign'],
+['Unlink site.pyo', 'unlink ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/site.pyo', None, ''],
+
+['Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0-py3.8-nspkg.pth /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/lib-dynload', None, ''],
+['Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0.dist-info /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/lib-dynload', None, ''],
+['Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/lib-dynload', None, ''],
+['Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0.dist-info /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/lib-dynload', None, ''],
+
+['Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeWorld/client/typeworld2-cfd080814f09.json /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources', None, ''],
+
+
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu-3.0.0.4.0.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_core-3.0.0.4.0.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_webview-3.0.0.4.0.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu_net-3.0.0.4.0.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Python.framework/Versions/3.6', None, 'nosign'],
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Sparkle.framework/Versions/A', None, 'nosign'],
+# ['Signing inner components', 'codesign -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/MacOS/python', None, 'nosign'],
+['Signing app', 'codesign --deep -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app', None, 'nosign'],
 ['Verify signature', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dist/Type.World.app', None, 'nosign'],
 ['Verify signature', 'codesign --verify --deep --strict --verbose=20 ~/Code/TypeWorldApp/dist/Type.World.app', findSymlinks, 'nosign'],
 ['Verify signature', 'spctl -a -t exec -vvvv ~/Code/TypeWorldApp/dist/Type.World.app', findSymlinks, 'nosign'],

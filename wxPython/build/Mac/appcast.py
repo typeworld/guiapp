@@ -10,18 +10,16 @@ from ynlib.system import Execute
 
 version = Execute('cat /Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt')
 dmgFolder = os.path.expanduser('~/Code/TypeWorldApp/dmg')
-dsaFolder = os.path.expanduser('~/Code/TypeWorldApp/dsa')
+# dsaFolder = os.path.expanduser('~/Code/TypeWorldApp/dsa')
 
 
-
-
-def getDSA(file):
-	path = '"%s/Code/Sparkle/bin/old_dsa_scripts/sign_update" "%s" "%s/Code/dsa_priv.pem"' % (os.path.expanduser('~'), file, os.path.expanduser('~'))
-	print(path)
-	dsa = Execute(path).decode()
-	print(dsa)
-	dsa = dsa.replace(' ', '').replace('\n', '')
-	return dsa
+# def getDSA(file):
+# 	path = '"%s/Code/Sparkle/bin/old_dsa_scripts/sign_update" "%s" "%s/Code/Certificates/Type.World Sparkle/dsa_priv.pem"' % (os.path.expanduser('~'), file, os.path.expanduser('~'))
+# 	print(path)
+# 	dsa = Execute(path).decode()
+# 	print(dsa)
+# 	dsa = dsa.replace(' ', '').replace('\n', '')
+# 	return dsa
 
 def getEdDSA(file):
 	path = '"%s/Code/Sparkle/bin/sign_update" "%s"' % (os.path.expanduser('~'), file)
@@ -109,7 +107,7 @@ for OS in ('windows', 'mac'):
 			else:
 				sparkleOS = ''
 
-			lines.append('\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '" ' + sparkleOS + 'sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" ' + getEdDSA(os.path.join(dmgFolder, file)) + ' sparkle:dsaSignature="' + getDSA(os.path.join(dmgFolder, file)) + '" type="application/octet-stream" />')
+			lines.append('\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '" ' + sparkleOS + 'sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" ' + getEdDSA(os.path.join(dmgFolder, file)) + ' type="application/octet-stream" />')
 
 			if OS == 'mac':
 				# Deltas
@@ -121,8 +119,8 @@ for OS in ('windows', 'mac'):
 						path = os.path.expanduser("~/Code/TypeWorldApp/dmg/" + delta)
 						previousVersion = delta.replace('TypeWorldApp.' + version + '-', '').replace('.delta', '')
 						length = str(int(os.stat(path).st_size))
-						dsa = getDSA(os.path.join(dmgFolder, delta))
-						deltas.append('\t\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '&amp;deltaFrom=' + previousVersion + '" sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" sparkle:deltaFrom="' + previousVersion + '" length="' + length + '" sparkle:dsaSignature="' + dsa + '" type="application/octet-stream" />')
+						# dsa = getDSA(os.path.join(dmgFolder, delta))
+						deltas.append('\t\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '&amp;deltaFrom=' + previousVersion + '" sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" sparkle:deltaFrom="' + previousVersion + '" length="' + length + '" type="application/octet-stream" />')
 
 				if deltas:
 					lines.append('\t<sparkle:deltas>')

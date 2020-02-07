@@ -10,7 +10,7 @@ If you want to run this code directly, you need to install [wxPython](https://wi
 
 Further:
 
-`pip install modulegraph macholib`
+`pip install modulegraph macholib dmgbuild`
 
 # Translations
 
@@ -23,4 +23,4 @@ Instead, please get in touch and I'll note your participation:
 
 # Build
 
-Install "Developer ID Certificate" code signing certificate through XCode -> Account
+Install "Developer ID Certificate" code signing certificate through XCode -> Account.

@@ -18,7 +18,8 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 # Sparkle < 1.12.0
                 '/Users/yanone/Code/Certificates/Type.World Sparkle/dsa_pub.pem',
             ], #, 'appbadge.docktileplugin'
-           'packages': ['certifi'], # , 'google-api-core', 'google-cloud-pubsub'
+           'packages': ['certifi', 
+              'encodings', 'codecs', 'io', 'abc', 'os', 'stat'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {
@@ -28,8 +29,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 'CFBundleIdentifier':'world.type.guiapp', #optional
                 'NSHumanReadableCopyright': '@ Yanone 2020', #optional
                 'CFBundleDevelopmentRegion': 'English', #optional - English is default
-                'NSDockTilePlugIn': '@executable_path/../Resources/AppBadge.docktileplugin',
-#                'NSDockTilePlugIn': 'appbadge.docktileplugin',
+                # 'NSDockTilePlugIn': '@executable_path/../Resources/AppBadge.docktileplugin',
                 'CFBundleURLTypes': [{'CFBundleURLName': 'Type.World Font Installation Protocols', 'CFBundleURLSchemes': ['typeworld', 'typeworldapp']}],
 #                'LSUIElement': True, # No dock icon
 
@@ -40,7 +40,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 # Sparkle < 1.20.0
                 'SUPublicDSAKeyFile': 'dsa_pub.pem',
                 # Sparkle >= 1.20.1
-                'SUPublicEDKey': 'WCzTmqV1rYPS/fi26Os2vmQGsfshmsOqGJY5wANr4r0=',
+                'SUPublicEDKey': 'IqLvpa980dAYzn9P6ttJiBgMQTpI58G6lchzLC9Q8aA=',
 
                 'SUAllowsAutomaticUpdates': True,
                 },

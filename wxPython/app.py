@@ -318,6 +318,9 @@ try:
 					print('currentPublisher reset')
 			self.app.frame.setSideBarHTML()
 
+		def subscriptionWasAdded(self, publisher, subscription):
+			if not client.preferences.get('currentPublisher'):
+				self.app.frame.setPublisherHTML(self.app.frame.b64encode(publisher.canonicalURL))
 
 	delegate = ClientDelegate()
 	client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui', pubSubSubscriptions = True)
@@ -2131,7 +2134,7 @@ try:
 					break
 
 			if not known:
-				return False, 'Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS), None
+				return False, 'Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS), None, None
 
 			success, message, publisher, subscription = client.addSubscription(url, username, password)
 			return success, message, publisher, subscription

@@ -55,7 +55,7 @@ import typeWorld.api.base
 
 APPNAME = 'Type.World'
 APPVERSION = 'n/a'
-DEBUG = False
+DEBUG = True
 BUILDSTAGE = 'alpha'
 PULLSERVERUPDATEINTERVAL = 60
 
@@ -306,6 +306,19 @@ try:
 			# print('userAccountUpdateNotificationHasBeenReceived()')
 			self.app.frame.pullServerUpdates(force = True)
 
+		def subscriptionWasDeleted(self, subscription):
+			print('subscriptionWasDeleted(%s)' % subscription)
+			self.app.frame.setSideBarHTML()
+
+		def publisherWasDeleted(self, publisher):
+			print('publisherWasDeleted(%s)' % publisher)
+			if client.preferences.get('currentPublisher'):
+				if not client.publishers():
+					client.preferences.set('currentPublisher', '')
+					print('currentPublisher reset')
+			self.app.frame.setSideBarHTML()
+
+
 	delegate = ClientDelegate()
 	client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui', pubSubSubscriptions = True)
 
@@ -492,26 +505,27 @@ try:
 		def informationView(self):
 
 			tpl = Template('''<style>
-							#metadataWrapper {
-								background-color: #$informationViewBackgroundColor;
-								color: #$informationViewTextColor;
-							}
 
-							#metadataWrapper a {
-								color: #$informationViewLinkColor;
-							}
+#metadataWrapper {
+	background-color: #$informationViewBackgroundColor;
+	color: #$informationViewTextColor;
+}
 
-							#metadataWrapper a.button {
-								background-color: #$informationViewButtonColor;
-								color: #$informationViewButtonTextColor;
-							}
+#metadataWrapper a {
+	color: #$informationViewLinkColor;
+}
 
-							#metadataWrapper a.button.inactive {
-								background-color: #$informationViewInactiveButtonColor;
-								color: #$informationViewInactiveButtonTextColor;
-							}
+#metadataWrapper a.button {
+	background-color: #$informationViewButtonColor;
+	color: #$informationViewButtonTextColor !important;
+}
 
-						</style>''')
+#metadataWrapper a.button.inactive {
+	background-color: #$informationViewInactiveButtonColor;
+	color: #$informationViewInactiveButtonTextColor;
+}
+
+</style>''')
 
 
 			r = {}
@@ -3842,8 +3856,9 @@ try:
 
 			if client.preferences.get('currentPublisher') == 'pendingInvitations' and not client.preferences.get('pendingInvitations'):
 				client.preferences.set('currentPublisher', '')
-				self.javaScript("hideMain();")
 
+			if not client.preferences.get('currentPublisher'):
+				self.javaScript("hideMain();")
 
 			else:
 				if not client.preferences.get('currentPublisher') and client.publishers():
@@ -4079,7 +4094,7 @@ try:
 			self.javaScript(js)
 
 			if client.user():
-				self.javaScript('$("#userBadge #userName").html("%s");' % (client.userEmail() or (client.user()[:20] + '...')))
+				self.javaScript('$("#userBadge #userName").html("%s");' % (client.userEmail() or 'no email found')) # (client.user()[:20] + '...')
 				self.javaScript('$("#userBadge").show();')
 			else:
 				self.javaScript('$("#userBadge").hide();')

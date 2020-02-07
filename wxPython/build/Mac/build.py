@@ -67,10 +67,10 @@ def signApp(path, bundleType = 'app'):
 			executeCommands([command])
 
 	commands = (
-		('Signing Outer App', 'codesign --options runtime --deep -s "Jan Gerner" -f "%s"' % path, True if bundleType in ['app', 'plugin'] else False),
-		('Verify signature', 'codesign -dv --verbose=4 "%s"' % path, True if bundleType in ['app', 'plugin'] else False),
-		('Verify signature', 'codesign --verify --deep --strict --verbose=20 "%s"' % path, True if bundleType in ['app', 'plugin'] else False),
-		('Verify signature', 'spctl -a -t exec -vvvv "%s"' % path, True if bundleType in ['app'] else False)
+		('Signing Outer App', 'codesign --options runtime --deep -s "Jan Gerner" -f "%s"' % path, bundleType in ['app', 'plugin']),
+		('Verify signature', 'codesign -dv --verbose=4 "%s"' % path, bundleType in ['app', 'plugin']),
+		('Verify signature', 'codesign --verify --deep --strict --verbose=20 "%s"' % path, bundleType in ['app', 'plugin']),
+		('Verify signature', 'spctl -a -t exec -vvvv "%s"' % path, bundleType in ['app'])
 		)
 	executeCommands(commands)
 

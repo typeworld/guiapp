@@ -7,7 +7,7 @@ os.system('rm -rf ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version)
 
 options = {'py2app': {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
            'iconfile': '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/tw.icns',
-           'includes': ['ynlib'],#, 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
+           'includes': ['ynlib', 'importlib_metadata'],#, 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
            'frameworks': ['Python.framework'],
            'resources': [
                 '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/InternetAccessPolicy.plist', 
@@ -19,7 +19,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 '/Users/yanone/Code/Certificates/Type.World Sparkle/dsa_pub.pem',
             ], #, 'appbadge.docktileplugin'
            'packages': ['certifi', 
-              'encodings', 'codecs', 'io', 'abc', 'os', 'stat'],
+              'encodings', 'codecs', 'io', 'abc', 'os', 'stat', 'typeWorld', 'keyring', 'importlib'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {

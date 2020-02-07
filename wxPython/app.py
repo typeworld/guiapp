@@ -13,6 +13,18 @@ except:
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+# Mac executable
+if 'app.py' in __file__ and '/Contents/MacOS/python' in sys.executable:
+	DESIGNTIME = False
+	RUNTIME = True
+
+elif not 'app.py' in __file__:
+	DESIGNTIME = False
+	RUNTIME = True
+
+else:
+	DESIGNTIME = True
+	RUNTIME = False
 
 import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, ctypes, semver, platform, logging, certifi
 from threading import Thread
@@ -50,18 +62,6 @@ PULLSERVERUPDATEINTERVAL = 60
 global app
 app = None
 
-# Mac executable
-if 'app.py' in __file__ and '/Contents/MacOS/python' in sys.executable:
-	DESIGNTIME = False
-	RUNTIME = True
-
-elif not 'app.py' in __file__:
-	DESIGNTIME = False
-	RUNTIME = True
-
-else:
-	DESIGNTIME = True
-	RUNTIME = False
 
 
 
@@ -1129,7 +1129,7 @@ try:
 
 			# Exit
 			menu = wx.Menu()
-			m_opensubscription = menu.Append(wx.ID_OPEN, "%s...%s" % (localizeString('#(Add Subscription)'), '\tCtrl+O' if MAC else ''))#\tCtrl-O
+			m_opensubscription = menu.Append(wx.ID_OPEN, "%s...%s" % (localizeString('#(Add Subscription)'), '\tCtrl+O'))#\tCtrl-O
 			self.Bind(wx.EVT_MENU, self.showAddSubscription, m_opensubscription)
 	#        m_opensubscription.SetAccel(wx.AcceleratorEntry(wx.ACCEL_CTRL,  ord('o')))
 
@@ -1146,7 +1146,6 @@ try:
 			# self.Bind(wx.EVT_MENU, self.installAgent, m_InstallAgent)
 			# m_RemoveAgent = menu.Append(wx.NewIdRef(count=1), "Remove Agent")
 			# self.Bind(wx.EVT_MENU, self.uninstallAgent, m_RemoveAgent)
-
 
 			menuBar.Append(menu, "&%s" % (localizeString('#(File)')))
 
@@ -4105,6 +4104,8 @@ try:
 				# self.darkModeDetection.app = self
 				# print('darkModeDetection created', self.darkModeDetection)
 
+			if WIN:
+				self.javaScript("$('#atomButton .centerInner').css('padding-top', '72px');")
 
 			self.setSideBarHTML()
 
@@ -4122,6 +4123,17 @@ try:
 
 			if WIN and self.allowCheckForURLInFile:
 				self.checkForURLInFile()
+
+			if MAC:
+
+				delegate = DarkModeDelegate.alloc().init()
+				delegate.app = self
+				NSDistributedNotificationCenter.defaultCenter().addObserver_selector_name_object_(delegate, delegate.darkModeChanged_, 'AppleInterfaceThemeChangedNotification', None)
+
+			startWorker(self.onLoadDetached_consumer, self.onLoadDetached_worker)
+
+
+		def onLoadDetached_worker(self):
 
 			for message in self.messages:
 				self.message(message)
@@ -4149,16 +4161,13 @@ try:
 					restartAgent(2)
 
 			self.pullServerUpdates(force = True)
-			# Set up Sparkle
-			# if MAC:
-	#			sparkle.checkForUpdatesInBackground()
-				# sparkle.setAutomaticallyChecksForUpdates_(True)
 
-			if MAC:
 
-				delegate = DarkModeDelegate.alloc().init()
-				delegate.app = self
-				NSDistributedNotificationCenter.defaultCenter().addObserver_selector_name_object_(delegate, delegate.darkModeChanged_, 'AppleInterfaceThemeChangedNotification', None)
+		def onLoadDetached_consumer(self, delayedResult):
+
+			pass
+
+
 
 
 		def checkForURLInFile(self):

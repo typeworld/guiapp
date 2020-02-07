@@ -258,8 +258,9 @@ try:
 
 		if MAC:
 			try:
-				plist = plistlib.readPlist(os.path.join(os.path.dirname(__file__), '..', 'Info.plist'))
-				APPVERSION = plist['CFBundleShortVersionString']
+				with open(os.path.join(os.path.dirname(__file__), '..', 'Info.plist'), 'rb') as f:
+					plist = plistlib.load(f)
+					APPVERSION = plist['CFBundleShortVersionString']
 			except:
 				pass
 
@@ -1133,7 +1134,7 @@ try:
 	#        m_opensubscription.SetAccel(wx.AcceleratorEntry(wx.ACCEL_CTRL,  ord('o')))
 
 
-			m_CheckForUpdates = menu.Append(wx.NewId(), "%s..." % (localizeString('#(Check for App Updates)')))
+			m_CheckForUpdates = menu.Append(wx.NewIdRef(count=1), "%s..." % (localizeString('#(Check for App Updates)')))
 			self.Bind(wx.EVT_MENU, self.onCheckForUpdates, m_CheckForUpdates)
 			if MAC:
 				m_closewindow = menu.Append(wx.ID_CLOSE, "%s\tCtrl+W" % (localizeString('#(Close Window)')))
@@ -1141,9 +1142,9 @@ try:
 			m_exit = menu.Append(wx.ID_EXIT, "%s\t%s" % (localizeString('#(Exit)'), 'Ctrl-Q' if MAC else 'Alt-F4'))
 			self.Bind(wx.EVT_MENU, self.onQuit, m_exit)
 
-			# m_InstallAgent = menu.Append(wx.NewId(), "Install Agent")
+			# m_InstallAgent = menu.Append(wx.NewIdRef(count=1), "Install Agent")
 			# self.Bind(wx.EVT_MENU, self.installAgent, m_InstallAgent)
-			# m_RemoveAgent = menu.Append(wx.NewId(), "Remove Agent")
+			# m_RemoveAgent = menu.Append(wx.NewIdRef(count=1), "Remove Agent")
 			# self.Bind(wx.EVT_MENU, self.uninstallAgent, m_RemoveAgent)
 
 
@@ -1151,8 +1152,8 @@ try:
 
 			# Edit
 			# if 'wxMac' in wx.PlatformInfo and wx.VERSION >= (3,0):
-			#   wx.ID_COPY = wx.NewId()
-			#   wx.ID_PASTE = wx.NewId()
+			#   wx.ID_COPY = wx.NewIdRef(count=1)
+			#   wx.ID_PASTE = wx.NewIdRef(count=1)
 			editMenu = wx.Menu()
 			editMenu.Append(wx.ID_UNDO, "%s\tCtrl-Z" % (localizeString('#(Undo)')))
 			editMenu.AppendSeparator()
@@ -1372,6 +1373,14 @@ try:
 
 					self.applyDarkMode()
 
+		def theme(self):
+			if MAC:
+				if NSUserDefaults.standardUserDefaults().objectForKey_('AppleInterfaceStyle') == 'Dark':
+					return 'dark'
+				else:
+					return 'light'
+			else:
+				return 'light'
 
 
 		def applyDarkMode(self):
@@ -1383,6 +1392,10 @@ try:
 					subscription = publisher.subscription(publisher.get('currentSubscription'))
 					self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
 					self.setMetadataHTML(self.b64encode(subscription.get('currentFont')))
+
+				self.javaScript("$('body').removeClass('light');")
+				self.javaScript("$('body').removeClass('dark');")
+				self.javaScript("$('body').addClass('%s');" % self.theme())
 
 
 		def onResize(self, event):
@@ -2620,41 +2633,41 @@ try:
 				menu = wx.Menu()
 
 				if len(publisher.subscriptions()) > 1:
-					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Update All Subscriptions)'))
+					item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Update All Subscriptions)'))
 					menu.Append(item)
 					menu.Bind(wx.EVT_MENU, partial(self.reloadPublisher, b64ID = b64ID), item)
 				else:
-					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Update Subscription)'))
+					item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Update Subscription)'))
 					menu.Append(item)
 					menu.Bind(wx.EVT_MENU, partial(self.reloadSubscription, b64ID = self.b64encode(publisher.subscriptions()[0].protocol.unsecretURL()), subscription = None), item)
 
 				if publisher.amountOutdatedFonts():
-					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Update All Fonts)'))
+					item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Update All Fonts)'))
 					menu.Append(item)
 					menu.Bind(wx.EVT_MENU, partial(self.updateAllFonts, publisherB64ID = b64ID, subscriptionB64ID = None), item)
 
 
 				if publisher.get('type') == 'GitHub':
-					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Publisher Preferences)'))
+					item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Publisher Preferences)'))
 					menu.Append(item)
 					menu.Bind(wx.EVT_MENU, partial(self.showPublisherPreferences, b64ID = b64ID), item)
 
 				if len(publisher.subscriptions()) == 1:
-					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Subscription Preferences)'))
+					item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Subscription Preferences)'))
 					menu.Append(item)
 					menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionPreferences, b64ID = self.b64encode(publisher.subscriptions()[0].protocol.unsecretURL())), item)
 
-					item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Invite Users)'))
+					item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Invite Users)'))
 					menu.Append(item)
 					menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionInvitations, b64ID = self.b64encode(publisher.subscriptions()[0].protocol.unsecretURL())), item)
 
-				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Show in Finder)'))
+				item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Show in Finder)'))
 				menu.Append(item)
 				menu.Bind(wx.EVT_MENU, partial(self.showPublisherInFinder, b64ID = b64ID), item)
 
 				menu.AppendSeparator()
 
-				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Remove)'))
+				item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Remove)'))
 				menu.Append(item)
 				menu.Bind(wx.EVT_MENU, partial(self.removePublisher, b64ID = b64ID), item)
 
@@ -2665,7 +2678,7 @@ try:
 			elif 'contextmenu subscription' in target:
 				menu = wx.Menu()
 
-				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Update Subscription)'))
+				item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Update Subscription)'))
 				menu.Append(item)
 				menu.Bind(wx.EVT_MENU, partial(self.reloadSubscription, b64ID = b64ID, subscription = None), item)
 
@@ -2673,22 +2686,22 @@ try:
 					for subscription in publisher.subscriptions():
 						if subscription.protocol.unsecretURL() == self.b64decode(b64ID):
 							if publisher.amountOutdatedFonts():
-								item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Update All Fonts)'))
+								item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Update All Fonts)'))
 								menu.Append(item)
 								menu.Bind(wx.EVT_MENU, partial(self.updateAllFonts, publisherB64ID = None, subscriptionB64ID = b64ID), item)
 							break
 
-				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Subscription Preferences)'))
+				item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Subscription Preferences)'))
 				menu.Append(item)
 				menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionPreferences, b64ID = b64ID), item)
 
-				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Invite Users)'))
+				item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Invite Users)'))
 				menu.Append(item)
 				menu.Bind(wx.EVT_MENU, partial(self.showSubscriptionInvitations, b64ID = b64ID), item)
 
 				menu.AppendSeparator()
 
-				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Remove)'))
+				item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Remove)'))
 				menu.Append(item)
 				menu.Bind(wx.EVT_MENU, partial(self.removeSubscription, b64ID = b64ID), item)
 
@@ -2717,21 +2730,21 @@ try:
 									if font.uniqueID == fontID:
 
 										if subscription.installedFontVersion(font.uniqueID):
-											item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Show in Finder)'))
+											item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Show in Finder)'))
 											menu.Bind(wx.EVT_MENU, partial(self.showFontInFinder, subscription = subscription, fontID = fontID), item)
 											menu.Append(item)
 
 										# create a submenu
 										subMenu = wx.Menu()
-										menu.AppendMenu(wx.NewId(), localizeString('#(Install Version)'), subMenu)
+										menu.AppendMenu(wx.NewIdRef(count=1), localizeString('#(Install Version)'), subMenu)
 
 										for version in font.getVersions():
 
 											if subscription.installedFontVersion(font.uniqueID) == version.number:
-												item = wx.MenuItem(subMenu, wx.NewId(), str(version.number), "", wx.ITEM_RADIO)
+												item = wx.MenuItem(subMenu, wx.NewIdRef(count=1), str(version.number), "", wx.ITEM_RADIO)
 
 											else:
-												item = wx.MenuItem(subMenu, wx.NewId(), str(version.number))
+												item = wx.MenuItem(subMenu, wx.NewIdRef(count=1), str(version.number))
 
 											if WIN:
 												installHere = menu
@@ -2752,7 +2765,7 @@ try:
 
 				menu = wx.Menu()
 
-				item = wx.MenuItem(menu, wx.NewId(), localizeString('#(Preferences)'))
+				item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString('#(Preferences)'))
 				menu.Append(item)
 				menu.Bind(wx.EVT_MENU, self.onPreferences, item)
 
@@ -3103,10 +3116,7 @@ try:
 
 			#metadata
 
-			theme = 'light'
-			if NSUserDefaults.standardUserDefaults().objectForKey_('AppleInterfaceStyle') == 'Dark':
-				theme = 'dark'
-
+			theme = self.theme()
 			styling = FoundryStyling(foundry, theme)
 			html.append(styling.informationView())
 
@@ -3517,9 +3527,7 @@ try:
 
 					for foundry in command.foundries:
 
-						theme = 'light'
-						if NSUserDefaults.standardUserDefaults().objectForKey_('AppleInterfaceStyle') == 'Dark':
-							theme = 'dark'
+						theme = self.theme()
 
 						## STYLING
 						styling = FoundryStyling(foundry, theme)
@@ -4082,6 +4090,8 @@ try:
 
 			self.log('MyApp.frame.onLoad()')
 			self.fullyLoaded = True
+
+			self.applyDarkMode()
 
 			if MAC:
 				self.javaScript("$('.sidebar').css('padding-top', '32px');")

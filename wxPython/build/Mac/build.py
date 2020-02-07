@@ -11,7 +11,7 @@ version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 
 findSymlinks = 'find -L ~/Code/TypeWorldApp/dist/Type.World.app -type l'
 sparkle = '/Users/yanone/Code/Sparkle/Sparkle.framework'
 
-profile = 'nosign'
+profile = 'nosign' # 'normal'
 
 def executeCommands(commands):
 	for description, command, mustSucceed in commands:
@@ -80,7 +80,7 @@ executeCommands((
 	('Agent build', 'python3 /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup_daemon.py py2app', True),
 ))
 
-if profile != 'nosign':
+if profile in ['normal']:
 	signApp('/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app')
 
 executeCommands((
@@ -90,7 +90,7 @@ executeCommands((
 	# ('Copying Docktileplugin', 'cp -R /Users/yanone/Code/py/git/typeWorld/guiapp/appbadge/AppBadge.docktileplugin /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/', True),
 ))
 
-if profile != 'nosign':
+if profile in ['normal']:
 	signApp('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app')
 
 executeCommands((
@@ -102,7 +102,7 @@ executeCommands((
 	('Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeWorld/client/typeworld2-cfd080814f09.json /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources', True),
 ))
 
-if profile != 'nosign':
+if profile in ['normal']:
 
 	executeCommands((
 		('Extract compressed Python', 'ditto -x -k /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python37.zip /Users/yanone/Desktop/zip', True),
@@ -115,7 +115,6 @@ if profile != 'nosign':
 		('Delete zip folder', 'rm -r /Users/yanone/Desktop/zip', True),
 	))
 
-if profile != 'nosign':
 	signApp('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app')
 
 print('Finished successfully.')

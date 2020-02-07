@@ -93,11 +93,11 @@ input[type=button],input[type=submit],a.button {
 	margin-bottom: 6px; 
 	margin-right: 0px;
 	cursor: pointer;
-	background-color: #58585A;
+	background-color: #197AA3;
 /*	border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -khtml-border-radius:4px;
 */	-webkit-appearance: none;
 	font-family: inherit;
-	color: #FFF;
+	color: #FFF !important;
 	display: inline-block;
 }
 
@@ -120,6 +120,12 @@ input[type=submit]+input[type=submit], input[type=submit]+.no-print input[type=b
 .button.secondary, a.button.secondary, input[type=button].secondary {
 	background-color: rgba(0, 0, 0, .2) !important;
 	color: rgba(0, 0, 0, .2) !important;
+}
+
+
+.dark .button.secondary, .dark a.button.secondary, .dark input[type=button].secondary {
+	background-color: rgba(255, 255, 255, .2) !important;
+	color: rgba(255, 255, 255, .2) !important;
 }
 
 input[type=button].important,input[type=submit].important,.button.important {
@@ -423,6 +429,15 @@ label {
 }
 
 
+body {
+    background-color: #FFF;
+}
+
+body.dark {
+    background-color: #262626;
+	color: 999999;
+}
+
 
 #main {
 
@@ -435,12 +450,10 @@ label {
 	right: 0px;
 
     height: 100%;
-    background-color: #FFF;
 
     overflow-y: scroll;
 
 }
-
 
 #main .foundry {
 
@@ -922,6 +935,11 @@ label {
 
 }
 
+.dark #welcome {
+    background-color: #262626;
+    color: #999999;
+}
+
 .panel {
 
 	display: none;
@@ -948,8 +966,18 @@ label {
 
 }
 
+
+.dark .panel {
+    background-color: #1A1A1A;
+    color: #999999;
+}
+
 .panel a {
 	color: #259CD3;
+}
+
+.dark .panel a {
+	color: #C07F07;
 }
 
 .panel .centerOuter {

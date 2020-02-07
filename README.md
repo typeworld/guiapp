@@ -24,3 +24,7 @@ Instead, please get in touch and I'll note your participation:
 # Build
 
 Install "Developer ID Certificate" code signing certificate through XCode -> Account.
+
+# Test
+
+Run compiled app in Python virtual environment to check for missing dependencies.

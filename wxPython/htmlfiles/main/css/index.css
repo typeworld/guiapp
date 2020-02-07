@@ -31,6 +31,7 @@ body {
     font-size: 10pt;
     line-height: 14pt;
     margin: none;
+    color: #444;
 }
 
 a {
@@ -51,7 +52,15 @@ h1, h2, h3, h4, h5, h6 {
 	font-weight: normal;
 	margin-bottom: 15px;
 	margin-top: 10px;
+
+	color: #000;
 }
+
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+
+	color: #FFF;
+}
+
 
 p + h1, p + h2, p + h3, p + h4, p + h5, p + h6 {
 	margin-top: 25px;
@@ -84,10 +93,10 @@ select {
 
 input[type=button],input[type=submit],a.button {
 	width: auto;
-	padding-top: 6px;
+	padding-top: 5px;
 	padding-bottom: 6px;
-	padding-left: 10px;
-	padding-right: 10px;
+	padding-left: 14px;
+	padding-right: 14px;
 	margin-top: 8px;
 	margin-left: 0px;
 	margin-bottom: 6px; 
@@ -101,10 +110,6 @@ input[type=button],input[type=submit],a.button {
 	display: inline-block;
 }
 
-a.button {
-	padding-top: 3px;
-	padding-bottom: 4px;
-}
 input[type=button]+input[type=button], input[type=button]+input[type=submit], input[type=button]+.button,
 input[type=submit]+input[type=submit], input[type=submit]+input[type=button], input[type=submit]+.button,
 .button+.button, .button+input[type=button], .button+input[type=submit],
@@ -119,13 +124,13 @@ input[type=submit]+input[type=submit], input[type=submit]+.no-print input[type=b
 
 .button.secondary, a.button.secondary, input[type=button].secondary {
 	background-color: rgba(0, 0, 0, .2) !important;
-	color: rgba(0, 0, 0, .2) !important;
+	color: rgba(0, 0, 0, .3) !important;
 }
 
 
 .dark .button.secondary, .dark a.button.secondary, .dark input[type=button].secondary {
 	background-color: rgba(255, 255, 255, .2) !important;
-	color: rgba(255, 255, 255, .2) !important;
+	color: rgba(255, 255, 255, .3) !important;
 }
 
 input[type=button].important,input[type=submit].important,.button.important {

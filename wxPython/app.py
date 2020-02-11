@@ -1547,8 +1547,8 @@ try:
 
 			# User
 			html.append('<h2>#(Type.World User Account)</h2>')
-			html.append('<p>')
 			if client.user():
+				html.append('<p>')
 				html.append('#(Linked User Account): ')
 				if client.userName() and client.userEmail():
 					html.append('<b>%s</b> (%s)' % (client.userName(), client.userEmail()))
@@ -1564,18 +1564,29 @@ try:
 				html.append('</p>')
 				html.append('<p>')
 				html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
+				html.append('</p>')
 			else:
 
 #				html.append('#(NoUserAccountLinked)<br />#(PleaseCreateUserAccountExplanation)')
 
+				html.append('<div class="clear">')
+				html.append('<div style="float: left; width: 47%; margin-right: 6%;">')
 
 				html.append('<div>')
-				html.append('<b>#(Create Account)</b>')
+				html.append('<h4>#(Create Account)</h4>')
+				html.append('#(Name)')
+				html.append('<br />')
 				html.append('<input type="text" name="createAccountUserName" id="createAccountUserName"')
+				html.append('<br />')
+				html.append('#(Email Address)')
 				html.append('<br />')
 				html.append('<input type="text" name="createAccountUserEmail" id="createAccountUserEmail"')
 				html.append('<br />')
+				html.append('#(Password)')
+				html.append('<br />')
 				html.append('<input type="password" name="createAccountUserPassword" id="createAccountUserPassword"')
+				html.append('<br />')
+				html.append('#(Repeat Password)')
 				html.append('<br />')
 				html.append('<input type="password" name="createAccountUserPassword2" id="createAccountUserPassword2"')
 				html.append('</div>')
@@ -1589,10 +1600,17 @@ try:
 				 
 			});</script>''')
 
+				html.append('</div>') # .clear
+				html.append('</div>') # .floatleft
+				html.append('<div style="float: left; width: 47%;">')
 
 				html.append('<div>')
-				html.append('<b>#(Log In)</b>')
+				html.append('<h4>#(Log In To Existing Account)</h4>')
+				html.append('#(Email Address)')
+				html.append('<br />')
 				html.append('<input type="text" name="loginUserEmail" id="loginUserEmail"')
+				html.append('<br />')
+				html.append('#(Password)')
 				html.append('<br />')
 				html.append('<input type="password" name="loginUserPassword" id="loginUserPassword"')
 				html.append('</div>')
@@ -1606,16 +1624,19 @@ try:
 				 
 			});</script>''')
 
+				html.append('</div>') # .floatleft
+				html.append('</div>') # .clear
+				html.append('</div>') # .clear
 
 
 
-
-			html.append('</p>')
 			html.append('''<script>$("#preferences #unlinkAppButton").click(function() {
 
 				python("self.unlinkUserAccount()");
 				 
 			});</script>''')
+
+
 
 			html.append('<hr>')
 

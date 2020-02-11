@@ -13,8 +13,13 @@ setup(
 #           'includes': ['locales'],
  #          'excludes': [],
  #          'frameworks': ['Python.framework'],
-           'resources': ['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/MacSystemTrayIcon.pdf', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/MacSystemTrayIcon_Notification.pdf', '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales'], #, 'appbadge.docktileplugin'
-           # 'packages': ['certifi'],
+           'resources': [
+              '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/MacSystemTrayIcon.pdf', 
+              '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/MacSystemTrayIcon_Notification.pdf', 
+              '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', 
+              '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/intercom', 
+            ], #, 'appbadge.docktileplugin'
+           'packages': ['pystray'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {

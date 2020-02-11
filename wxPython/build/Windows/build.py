@@ -24,16 +24,17 @@ def executeCommands(commands):
 			sys.exit(666)
 
 
-def PID():
+def PID(PROCNAME):
     import psutil
-    PROCNAME = "TypeWorld.exe"
     for proc in psutil.process_iter():
         if proc.name() == PROCNAME and proc.pid != os.getpid():
             return proc.pid
 
-pid = PID()
-if pid:
+pid = PID("TypeWorld.exe")
+if PID("TypeWorld.exe"):
 	raise RuntimeError('Type.World seems to be running.')
+if PID("TypeWorld Taskbar Agent.exe"):
+	raise RuntimeError('Type.World Taskbar Agent seems to be running.')
 
 from subprocess import Popen,PIPE,STDOUT
 flavour = sys.argv[-1]
@@ -45,6 +46,18 @@ profile = 'nosign' # 'normal'
 executeCommands([
 ['Python build', 'python Z:\\Code\\py\\git\\typeworld\\guiapp\\wxPython\\build\\Windows\\setup.py build', True],
 ['Add Windows App Manifest', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\mt.exe" -manifest "Z:\\Code\\py\\git\\typeworld\\guiapp\\wxPython\\build\\Windows\\windowsAppManifest.xml" -outputresource:Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld.exe;#1' % version, True],
+
+['Copy Google Code', 'xcopy C:\\Python36\\Lib\\site-packages\\googleapis_common_protos-1.6.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\0.1.7-alpha\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y', True],
+['Copy Google Code', 'xcopy C:\\Python36\\Lib\\site-packages\\google Z:\\Code\\TypeWorldApp\\apps\\Windows\\0.1.7-alpha\\lib\\google  /s /e /h /I /y', True],
+['Copy Google Code', 'xcopy C:\\Python36\\Lib\\site-packages\\google_api_core-1.14.3.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\0.1.7-alpha\\lib\\google_api_core-1.14.3.dist-info  /s /e /h /I /y', True],
+['Copy Google Code', 'xcopy C:\\Python36\\Lib\\site-packages\\google_auth-1.11.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\0.1.7-alpha\\lib\\google_auth-1.11.0.dist-info  /s /e /h /I /y', True],
+['Copy Google Code', 'xcopy C:\\Python36\\Lib\\site-packages\\google_cloud_pubsub-1.0.2.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\0.1.7-alpha\\lib\\google_cloud_pubsub-1.0.2.dist-info  /s /e /h /I /y', True],
+['Copy Google Code', 'xcopy C:\\Python36\\Lib\\site-packages\\googleapis_common_protos-1.6.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\0.1.7-alpha\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y', True],
+
+['Copy importlib_metadata', 'xcopy C:\\Python36\\Lib\\site-packages\\importlib_metadata Z:\\Code\\TypeWorldApp\\apps\\Windows\\0.1.7-alpha\\lib\\importlib_metadata  /s /e /h /I /y', True],
+['Copy importlib_metadata', 'xcopy C:\\Python36\\Lib\\site-packages\\importlib_metadata-1.5.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\0.1.7-alpha\\lib\\importlib_metadata-1.5.0.dist-info  /s /e /h /I /y', True],
+
+
 #['Signing TypeWorld.exe', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /debug /fd SHA256 /a /n "Open Source Developer, Jan Gerner" "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld.exe"' % version, None, 'nosign'],
 #['Signing TypeWorld Taskbar Agent.exe', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /debug /fd SHA256 /a /n "Open Source Developer, Jan Gerner" "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Taskbar Agent.exe"' % version, profile in ['normal']],
 #['Signing TypeWorld Subscription Opener.exe', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /debug /fd SHA256 /a /n "Open Source Developer, Jan Gerner" "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Subscription Opener.exe"' % version, profile in ['normal']],

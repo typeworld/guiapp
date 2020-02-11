@@ -80,6 +80,8 @@ executeCommands((
 	('Agent build', 'python3 /Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/build/Mac/setup_daemon.py py2app', True),
 ))
 
+# sys.exit(0)
+
 if profile in ['normal']:
 	signApp('/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app')
 

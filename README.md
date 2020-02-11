@@ -10,7 +10,7 @@ If you want to run this code directly, you need to install [wxPython](https://wi
 
 Further:
 
-`pip install modulegraph macholib dmgbuild`
+`pip install modulegraph macholib dmgbuild pystray`
 
 # Translations
 

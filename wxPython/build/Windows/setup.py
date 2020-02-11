@@ -32,6 +32,7 @@ setup(  name = "Type.World",
                 os.path.join(baseFolder, 'locales'), 
                 os.path.join(baseFolder, 'icon'),
                 os.path.join(baseFolder, 'patrons'),
+                os.path.join(baseFolder, 'intercom'),
                 ],
           'excludes': ['win32ctypes'],
           'packages': ['packaging', 'grpc', 'requests', 'idna', 'pyasn1', 'rsa', 'cachetools', 'grpc', 'cryptography', 'pyasn1_modules', 'typeWorld', 'keyring', 'babel'], # 'google-api-core', 'google-cloud-pubsub'

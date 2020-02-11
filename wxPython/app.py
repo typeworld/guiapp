@@ -112,7 +112,7 @@ def log(message):
 			logging.debug(message)
 		if MAC:
 			from AppKit import NSLog
-			NSLog('Type.World App: %s' % message)
+			NSLog(f'Type.World App: {message}')
 
 
 
@@ -581,6 +581,8 @@ try:
 		if MAC:
 			agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
 			os.system('"%s" &' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent'))
+
+			unlock()
 
 			# import subprocess
 			# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
@@ -1202,16 +1204,14 @@ try:
 
 
 		def javaScript(self, script):
-	#        log()
 			if self.fullyLoaded:
 				if threading.current_thread() == self.thread:
 					# log('JavaScript Executed:')
 					# log(str(script)[:100])
 					self.html.RunScript(script)
 				else:
-					pass
-	#                log('JavaScript called from another thread:')
-	#                log(str(script.encode())[:100], '...')
+					log('JavaScript called from another thread: %s' % script[:100])
+#					log(str(script.encode())[:100], '...')
 
 
 
@@ -4150,6 +4150,13 @@ try:
 
 			startWorker(self.onLoadDetached_consumer, self.onLoadDetached_worker)
 
+			app = wx.GetApp()
+			if app.startWithCommand:
+				commands = app.startWithCommand.split(' ')
+				if command[0] == 'javaScript':
+					code = base64.b64decode(commands[1].encode()).decode()
+					self.javaScript(code)
+
 
 		def onLoadDetached_worker(self):
 
@@ -4522,7 +4529,7 @@ try:
 	#class MyNSApp(NSApp):
 
 
-	intercomCommands = ['amountOutdatedFonts', 'startListener', 'killAgent', 'restartAgent', 'uninstallAgent', 'searchAppUpdate', 'daemonStart', 'pullServerUpdate']
+	intercomCommands = ['amountOutdatedFonts', 'startListener', 'killAgent', 'restartAgent', 'uninstallAgent', 'searchAppUpdate', 'daemonStart', 'pullServerUpdate', 'javaScript']
 
 
 	def listenerFunction():
@@ -4564,15 +4571,30 @@ try:
 				log('Intercom: Command %s not registered' % (commands[0]))
 
 			else:
-				log('Intercom called with command: %s' % commands[0])
+				log('Intercom called with commands: %s' % commands)
 
-				if commands[0] == 'pullServerUpdate':
+				# if commands[0] == 'pullServerUpdate':
 
-					# Sync subscriptions
-					if not client.preferences.get('lastServerSync') or client.preferences.get('lastServerSync') < time.time() - PULLSERVERUPDATEINTERVAL:
-						success, message = client.downloadSubscriptions()
-						if success:
-							subscriptionsUpdatedNotification(message)
+				# 	# Sync subscriptions
+				# 	if not client.preferences.get('lastServerSync') or client.preferences.get('lastServerSync') < time.time() - PULLSERVERUPDATEINTERVAL:
+				# 		success, message = client.downloadSubscriptions()
+				# 		if success:
+				# 			subscriptionsUpdatedNotification(message)
+
+
+				if commands[0] == 'javaScript':
+
+					app = wx.GetApp()
+
+					if app:
+						code = base64.b64decode(commands[1].encode()).decode()
+						log(f'Calling javaScript({code})')
+						app.frame.javaScript(code)
+
+					else:
+						app = MyApp(redirect = False, filename = None, startWithCommand = ' '.join(commands))
+						app.MainLoop()
+
 
 
 				if commands[0] == 'amountOutdatedFonts':
@@ -4660,7 +4682,6 @@ try:
 
 
 					if MAC:
-						global app
 						app = MyApp(redirect = False, filename = None, startWithCommand = 'checkForUpdateInformation')
 						app.MainLoop()
 

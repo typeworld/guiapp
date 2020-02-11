@@ -1405,9 +1405,11 @@ try:
 				
 				if client.preferences.get('currentPublisher'):
 					publisher = client.publisher(client.preferences.get('currentPublisher'))
-					subscription = publisher.subscription(publisher.get('currentSubscription'))
 					self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
-					self.setMetadataHTML(self.b64encode(subscription.get('currentFont')))
+					if publisher.get('currentSubscription'):
+						subscription = publisher.subscription(publisher.get('currentSubscription'))
+						if subscription.get('currentFont'):
+							self.setMetadataHTML(self.b64encode(subscription.get('currentFont')))
 
 				self.javaScript("$('body').removeClass('light');")
 				self.javaScript("$('body').removeClass('dark');")

@@ -5,9 +5,22 @@ from ynlib.web import GetHTTP
 from ynlib.files import WriteToFile, ReadFromFile
 import json
 
-j = GetHTTP('https://type.world/downloadLocalization?authKey=8KW8jyBtEW3my2U')
+print('Calling server...')
+
+url = 'https://type.world/downloadLocalization?authKey=8KW8jyBtEW3my2U'
+j = GetHTTP(url)
+
+print('Received response...')
 
 a = json.loads(j)
+locales = []
+for keyword in a:
+	for locale in a[keyword]:
+		if not locale in locales:
+			locales.append(locale)
+
+print('Received locales:', locales)
+
 
 path = os.path.join(os.path.dirname(__file__), 'locales', 'localization.json')
 WriteToFile(path, json.dumps(a))

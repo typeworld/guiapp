@@ -192,6 +192,7 @@ function showMain() {
 function hideMain() {
 	$('#welcome').slideDown();
 	$('#main').slideUp();
+	hideMetadata();
 }
 
 function showAbout() {

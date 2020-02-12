@@ -3213,8 +3213,11 @@ try:
 					html.append('<div>')
 					html.append('<p>%s<br />' % license.name.getText(client.locale()))
 					html.append('<a href="%s">%s&thinsp;↗︎</a></p>' % (license.URL, license.URL))
+					if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
+						html.append('<p>')
+						html.append('#(Seats Installed): <b>' + localizeString('#(%x% out of %y%)', replace = {'x': usedLicense.seatsInstalled, 'y': usedLicense.seatsAllowed}) + '</b>')
+						html.append('</p>')
 					html.append('</div>')
-
 
 			if client.preferences.get('metadataCategory') == 'information' and font.parent.description:
 				text, locale = font.parent.description.getTextAndLocale()

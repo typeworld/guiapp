@@ -1576,19 +1576,19 @@ try:
 				html.append('<h4>#(Create Account)</h4>')
 				html.append('#(Name)')
 				html.append('<br />')
-				html.append('<input type="text" name="createAccountUserName" id="createAccountUserName"')
+				html.append('<input type="text" name="createAccountUserName" id="createAccountUserName" placeholder="#(John Doe)">')
 				html.append('<br />')
 				html.append('#(Email Address)')
 				html.append('<br />')
-				html.append('<input type="text" name="createAccountUserEmail" id="createAccountUserEmail"')
+				html.append('<input type="text" name="createAccountUserEmail" id="createAccountUserEmail" placeholder="#(johndoe@gmail.com)">')
 				html.append('<br />')
 				html.append('#(Password)')
 				html.append('<br />')
-				html.append('<input type="password" name="createAccountUserPassword" id="createAccountUserPassword"')
+				html.append('<input type="password" name="createAccountUserPassword" id="createAccountUserPassword">')
 				html.append('<br />')
 				html.append('#(Repeat Password)')
 				html.append('<br />')
-				html.append('<input type="password" name="createAccountUserPassword2" id="createAccountUserPassword2"')
+				html.append('<input type="password" name="createAccountUserPassword2" id="createAccountUserPassword2">')
 				html.append('</div>')
 
 				html.append('<p>')
@@ -1600,7 +1600,6 @@ try:
 				 
 			});</script>''')
 
-				html.append('</div>') # .clear
 				html.append('</div>') # .floatleft
 				html.append('<div style="float: left; width: 47%;">')
 
@@ -1608,16 +1607,21 @@ try:
 				html.append('<h4>#(Log In To Existing Account)</h4>')
 				html.append('#(Email Address)')
 				html.append('<br />')
-				html.append('<input type="text" name="loginUserEmail" id="loginUserEmail"')
+				html.append('<input type="text" name="loginUserEmail" id="loginUserEmail" placeholder="#(johndoe@gmail.com)">')
 				html.append('<br />')
 				html.append('#(Password)')
 				html.append('<br />')
-				html.append('<input type="password" name="loginUserPassword" id="loginUserPassword"')
+				html.append('<input type="password" name="loginUserPassword" id="loginUserPassword">')
 				html.append('</div>')
 
 				html.append('<p>')
 				html.append('<a id="loginButton" class="button">#(Log In)</a>')
 				html.append('</p>')
+
+				html.append('<p>')
+				html.append('<a href="https://type.world/resetpassword">#(I Forgot My Password) ↗</a>')
+				html.append('</p>')
+
 				html.append('''<script>$("#preferences #loginButton").click(function() {
 
 				python("self.logIn(____" + $("#preferences #loginUserEmail").val() + "____, ____" + $("#preferences #loginUserPassword").val() + "____)");
@@ -1625,7 +1629,6 @@ try:
 			});</script>''')
 
 				html.append('</div>') # .floatleft
-				html.append('</div>') # .clear
 				html.append('</div>') # .clear
 
 
@@ -3140,124 +3143,127 @@ try:
 
 		def setMetadataHTML(self, b64ID):
 
-			fontID = self.b64decode(b64ID)
-			publisher = client.publisher(client.preferences.get('currentPublisher'))
-			subscription = publisher.subscription(publisher.get('currentSubscription'))
-			subscription.set('currentFont', fontID)
-			font = subscription.fontByID(fontID)
-			foundry = font.parent.parent
-			subscription = font.parent.parent.parent.parent.subscription
-			installedVersion = subscription.installedFontVersion(font.uniqueID)
+			if b64ID:
 
-			html = []
+				fontID = self.b64decode(b64ID)
+				publisher = client.publisher(client.preferences.get('currentPublisher'))
+				subscription = publisher.subscription(publisher.get('currentSubscription'))
+				subscription.set('currentFont', fontID)
+				font = subscription.fontByID(fontID)
 
+				foundry = font.parent.parent
+				subscription = font.parent.parent.parent.parent.subscription
+				installedVersion = subscription.installedFontVersion(font.uniqueID)
 
-
-			#metadata
-
-			theme = self.theme()
-			styling = FoundryStyling(foundry, theme)
-			html.append(styling.informationView())
+				html = []
 
 
-			if font.parent.billboards:
 
-				index = font.parent.parent.parent.parent.get('currentFontImage') or 0
-				if index > len(font.parent.billboards) - 1:
-					index = 0
-					font.parent.parent.parent.parent.set('currentFontImage', int(index))
+				#metadata
 
-				html.append('<div style="max-height: 400px; height: 300px;">')
+				theme = self.theme()
+				styling = FoundryStyling(foundry, theme)
+				html.append(styling.informationView())
 
-				success, billboard, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
-				if success:
-					html.append('<img id="fontBillboard" src="data:%s;base64,%s" style="width: 300px;">' % (mimeType, billboard))
-				else:
-					html.append('<img id="fontBillboard" src="%s" style="width: 300px;">' % (font.parent.billboards[index]))
 
+				if font.parent.billboards:
+
+					index = font.parent.parent.parent.parent.get('currentFontImage') or 0
+					if index > len(font.parent.billboards) - 1:
+						index = 0
+						font.parent.parent.parent.parent.set('currentFontImage', int(index))
+
+					html.append('<div style="max-height: 400px; height: 300px;">')
+
+					success, billboard, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
+					if success:
+						html.append('<img id="fontBillboard" src="data:%s;base64,%s" style="width: 300px;">' % (mimeType, billboard))
+					else:
+						html.append('<img id="fontBillboard" src="%s" style="width: 300px;">' % (font.parent.billboards[index]))
+
+
+					html.append('</div>')
+					if len(font.parent.billboards) > 1:
+						html.append('<div style="padding: 5px; text-align: center;">')
+						for i, billboard in enumerate(font.parent.billboards):
+							html.append('<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="x-python://self.setFontImage(____%s____)" style="color: inherit;">•</a></span>' % (i, 'selected' if i == index else '', i))
+						html.append('</div>')
+
+				html.append('<div class="font %s">' % (self.b64encode(font.uniqueID)))
+				html.append('<div class="name">%s %s</div>' % (font.parent.name.getText(client.locale()), font.name.getText(client.locale())))
+				html.append('<div class="categories">')
+
+				for keyword, name, condition in (
+					('license', '#(License)', True),
+					('information', '#(Information)', font.parent.description),
+					('versions', '#(Versions)', True),
+	#				('billboards', '#(Images)', font.parent.billboards),
+					):
+
+					if condition:
+						html.append('<div class="category %s">' % ('selected' if client.preferences.get('metadataCategory') == keyword else ''))
+						if client.preferences.get('metadataCategory') != keyword:
+							html.append('<a href="x-python://self.showMetadataCategory(____%s____)">' % keyword)
+						html.append('%s&thinsp;→' % name)
+						if client.preferences.get('metadataCategory') != keyword:
+							html.append('</a>')
+						html.append('</div>')
 
 				html.append('</div>')
-				if len(font.parent.billboards) > 1:
-					html.append('<div style="padding: 5px; text-align: center;">')
-					for i, billboard in enumerate(font.parent.billboards):
-						html.append('<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="x-python://self.setFontImage(____%s____)" style="color: inherit;">•</a></span>' % (i, 'selected' if i == index else '', i))
-					html.append('</div>')
 
-			html.append('<div class="font %s">' % (self.b64encode(font.uniqueID)))
-			html.append('<div class="name">%s %s</div>' % (font.parent.name.getText(client.locale()), font.name.getText(client.locale())))
-			html.append('<div class="categories">')
+				html.append('<div class="categoryBody %s">' % (client.preferences.get('metadataCategory')))
 
-			for keyword, name, condition in (
-				('license', '#(License)', True),
-				('information', '#(Information)', font.parent.description),
-				('versions', '#(Versions)', True),
-#				('billboards', '#(Images)', font.parent.billboards),
-				):
+				if client.preferences.get('metadataCategory') == 'license':
+					for usedLicense in font.usedLicenses:
+						license = usedLicense.getLicense()
+						html.append('<div>')
+						html.append('<p>%s<br />' % license.name.getText(client.locale()))
+						html.append('<a href="%s">%s&thinsp;↗︎</a></p>' % (license.URL, license.URL))
+						if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
+							html.append('<p>')
+							html.append('#(Seats Installed): <b>' + localizeString('#(%x% out of %y%)', replace = {'x': usedLicense.seatsInstalled, 'y': usedLicense.seatsAllowed}) + '</b>')
+							html.append('</p>')
+						html.append('</div>')
 
-				if condition:
-					html.append('<div class="category %s">' % ('selected' if client.preferences.get('metadataCategory') == keyword else ''))
-					if client.preferences.get('metadataCategory') != keyword:
-						html.append('<a href="x-python://self.showMetadataCategory(____%s____)">' % keyword)
-					html.append('%s&thinsp;→' % name)
-					if client.preferences.get('metadataCategory') != keyword:
-						html.append('</a>')
-					html.append('</div>')
+				if client.preferences.get('metadataCategory') == 'information' and font.parent.description:
+					text, locale = font.parent.description.getTextAndLocale()
+					html.append('%s' % text)
 
-			html.append('</div>')
-
-			html.append('<div class="categoryBody %s">' % (client.preferences.get('metadataCategory')))
-
-			if client.preferences.get('metadataCategory') == 'license':
-				for usedLicense in font.usedLicenses:
-					license = usedLicense.getLicense()
+				if client.preferences.get('metadataCategory') == 'versions':
 					html.append('<div>')
-					html.append('<p>%s<br />' % license.name.getText(client.locale()))
-					html.append('<a href="%s">%s&thinsp;↗︎</a></p>' % (license.URL, license.URL))
-					if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
-						html.append('<p>')
-						html.append('#(Seats Installed): <b>' + localizeString('#(%x% out of %y%)', replace = {'x': usedLicense.seatsInstalled, 'y': usedLicense.seatsAllowed}) + '</b>')
+					for version in reversed(font.getVersions()):
+						html.append('<div class="version %s">' % self.versionEncode(version.number))
+						html.append('<p><b>#(Version) %s</b> <span class="label installedVersion %s" style="display: %s;">#(Installed)</span><br />' % (version.number, 'latestVersion' if version.number == font.getVersions()[-1].number else 'olderVersion', 'inline' if version.number == installedVersion else 'none'))
+						if version.description:
+							html.append('%s' % version.description.getText(client.locale()))
+						if version.releaseDate:
+							html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
+						
+						html.append('<div class="installButton status install" style="display: %s; margin-top: -3px;">' % ('block' if version.number != installedVersion else 'none'))
+						html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID), version.number))
+						html.append('✓ #(Install)')
+						html.append('</a>')
+						html.append('</div>') # installButton
+						html.append('<div class="installButton status remove" style="display: %s; margin-top: -3px;">' % ('none' if version.number != installedVersion else 'block'))
+						html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID)))
+						html.append('✕ #(Remove)')
+						html.append('</a>')
+						html.append('</div>') # installButton
 						html.append('</p>')
+						html.append('</div>') # .version
+
 					html.append('</div>')
+				
+				html.append('</div>') # .categories
+				html.append('</div>') # .font
 
-			if client.preferences.get('metadataCategory') == 'information' and font.parent.description:
-				text, locale = font.parent.description.getTextAndLocale()
-				html.append('%s' % text)
-
-			if client.preferences.get('metadataCategory') == 'versions':
-				html.append('<div>')
-				for version in reversed(font.getVersions()):
-					html.append('<div class="version %s">' % self.versionEncode(version.number))
-					html.append('<p><b>#(Version) %s</b> <span class="label installedVersion %s" style="display: %s;">#(Installed)</span><br />' % (version.number, 'latestVersion' if version.number == font.getVersions()[-1].number else 'olderVersion', 'inline' if version.number == installedVersion else 'none'))
-					if version.description:
-						html.append('%s' % version.description.getText(client.locale()))
-					if version.releaseDate:
-						html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
-					
-					html.append('<div class="installButton status install" style="display: %s; margin-top: -3px;">' % ('block' if version.number != installedVersion else 'none'))
-					html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID), version.number))
-					html.append('✓ #(Install)')
-					html.append('</a>')
-					html.append('</div>') # installButton
-					html.append('<div class="installButton status remove" style="display: %s; margin-top: -3px;">' % ('none' if version.number != installedVersion else 'block'))
-					html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID)))
-					html.append('✕ #(Remove)')
-					html.append('</a>')
-					html.append('</div>') # installButton
-					html.append('</p>')
-					html.append('</div>') # .version
-
-				html.append('</div>')
-			
-			html.append('</div>') # .categories
-			html.append('</div>') # .font
-
-			html = ''.join(html)
-			html = html.replace('"', '\'')
-			html = html.replace('\n', '')
-			html = localizeString(html)
-			html = self.replaceHTML(html)
-			js = '$("#metadata .content").html("' + html + '");'
-			self.javaScript(js)
+				html = ''.join(html)
+				html = html.replace('"', '\'')
+				html = html.replace('\n', '')
+				html = localizeString(html)
+				html = self.replaceHTML(html)
+				js = '$("#metadata .content").html("' + html + '");'
+				self.javaScript(js)
 
 
 		def setPublisherHTML(self, b64ID = None):

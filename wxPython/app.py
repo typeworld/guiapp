@@ -410,6 +410,11 @@ try:
 				self.informationViewInactiveButtonColor = self.informationViewBackgroundColor.darken(.15)
 				self.informationViewInactiveButtonTextColor = self.informationViewInactiveButtonColor.darken(.2)
 
+			if self.informationViewLinkColor.darkHalf():
+				self.informationViewLinkColor_Darker = self.informationViewLinkColor.lighten(.15)
+			else:
+				self.informationViewLinkColor_Darker = self.informationViewLinkColor.darken(.15)
+
 
 		def logo(self):
 
@@ -528,7 +533,13 @@ try:
 	color: #$informationViewInactiveButtonTextColor;
 }
 
+
+
 </style>''')
+
+# #metadataWrapper svg path {
+# 	fill: #$informationViewLinkColor;
+# }
 
 
 			r = {}
@@ -1458,7 +1469,7 @@ try:
 
 
 			# Print HTML
-			html = ''.join(html)
+			html = ''.join(map(str, html))
 			html = self.replaceHTML(html)
 			html = localizeString(html, html = True)
 			html = html.replace('"', '\'')
@@ -1700,7 +1711,7 @@ try:
 			});</script>''')
 
 			# Print HTML
-			html = ''.join(html)
+			html = ''.join(map(str, html))
 			html = html.replace('"', '\'')
 			html = localizeString(html, html = True)
 			html = html.replace('\n', '')
@@ -1833,7 +1844,7 @@ try:
 
 
 						# Print HTML
-						html = ''.join(html)
+						html = ''.join(map(str, html))
 						html = html.replace('"', '\'')
 						html = localizeString(html, html = True)
 						html = html.replace('\n', '')
@@ -2028,7 +2039,7 @@ try:
 
 
 						# Print HTML
-						html = ''.join(html)
+						html = ''.join(map(str, html))
 						html = html.replace('"', '\'')
 						html = localizeString(html, html = True)
 						html = html.replace('\n', '')
@@ -2418,6 +2429,10 @@ try:
 			self.selectFont(b64fontID)
 			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
 
+			self.javaScript('$("#metadata .seatsInstalled").fadeTo(500, .1);')
+#			self.javaScript('$("#metadata .seatsInstalled").html("×");')
+
+
 			# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
 			# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
 			# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
@@ -2427,6 +2442,7 @@ try:
 
 
 		def installFonts(self, fonts):
+
 
 			for b64publisherURL, b64subscriptionURL, b64fontID, version in fonts:
 
@@ -2597,6 +2613,7 @@ try:
 		def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
 
 			self.selectFont(b64fontID)
+			self.javaScript('$("#metadata .seatsInstalled").fadeTo(500, .1);')
 #			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
 			# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
 			# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
@@ -2848,7 +2865,7 @@ try:
 
 
 					# Print HTML
-					html = ''.join(html)
+					html = ''.join(map(str, html))
 					html = html.replace('"', '\'')
 					html = html.replace('\n', '')
 					html = localizeString(html)
@@ -2984,10 +3001,9 @@ try:
 			b64publisherID = self.b64encode(subscription.parent.canonicalURL)
 
 			if success:
-				if changes:
-					if client.preferences.get('currentPublisher') == subscription.parent.canonicalURL:
-						self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
-					self.setSideBarHTML()
+				if client.preferences.get('currentPublisher') == subscription.parent.canonicalURL:
+					self.setPublisherHTML(self.b64encode(subscription.parent.canonicalURL))
+				self.setSideBarHTML()
 
 				# Hide alert
 				self.javaScript("$('#sidebar #%s .alert').hide();" % b64publisherID)
@@ -3083,7 +3099,7 @@ try:
 			html = []
 
 			# Print HTML
-			html = ''.join(html)
+			html = ''.join(map(str, html))
 			html = html.replace('"', '\'')
 			html = html.replace('\n', '')
 			html = localizeString(html)
@@ -3201,7 +3217,7 @@ try:
 					):
 
 					if condition:
-						html.append('<div class="category %s">' % ('selected' if client.preferences.get('metadataCategory') == keyword else ''))
+						html.append('<div class="category %s %s">' % ('selected' if client.preferences.get('metadataCategory') == keyword else '', keyword))
 						if client.preferences.get('metadataCategory') != keyword:
 							html.append('<a href="x-python://self.showMetadataCategory(____%s____)">' % keyword)
 						html.append('%s&thinsp;→' % name)
@@ -3215,13 +3231,76 @@ try:
 
 				if client.preferences.get('metadataCategory') == 'license':
 					for usedLicense in font.usedLicenses:
+
+						# if usedLicense.upgradeURL:
+						# html.append('<div style="width: 90%; text-align: center; margin-top: 25px; margin-bottom: 35px; margin-right: 30px;">')
+						# html.append(f'<div style="display: inline-block; width: 50px;"><a href="{usedLicense.upgradeURL}">')
+						# html.append('<img src="file://##htmlroot##/seatallowance.svg" style="width: 100px;">')
+						# html.append('</div>')
+						# html.append('<p>')
+						# html.append('#(Upgrade License)&thinsp;↗︎')
+						# html.append('</p></a>')
+						# html.append('</div>')
+
+							# html.append('<div style="width: 90%; text-align: center; margin-top: 25px; margin-bottom: 35px; margin-right: 30px;">')
+							# html.append(f'<div style="display: inline-block; width: 50px;"><a href="{usedLicense.upgradeURL}">')
+							# html.append(open(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'upgradeicon.svg')).read())
+							# html.append('</div>')
+							# html.append('<p>')
+							# html.append('#(Upgrade License)&thinsp;↗︎')
+							# html.append('</p></a>')
+							# html.append('</div>')
+
+						if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
+							licenseLink = usedLicense.upgradeURL is not None
+#							licenseLink = False
+							
+							if licenseLink:
+								html.append(f'<a href="{usedLicense.upgradeURL}">')
+							html.append('<div class="clear" style="width: 90%; margin-bottom: -20px;">')
+							html.append('<div style="float: left; width: %s; min-width: 110px; text-align: center;">' % ('30%' if licenseLink else '100%'))
+
+							html.append('<div style="display: inline-block; width: 100px; ">')
+							html.append('<img src="file://##htmlroot##/seatallowance.svg" style="width: 100px;">')
+
+							html.append('<div style="width: 100px; position: relative; top: -80px; left; 0px; margin-left: -4px; margin-bottom: -35px;  ">')
+							html.append('<div class="seatsInstalled" style="position: relative; width: 30px; left: 21px; top: 2px; text-align: right; color: black !important;">')
+							html.append(usedLicense.seatsInstalled)
+							html.append('</div>')
+							html.append('<div style="position: relative; width: 30px; left: 57px; top: 2px; text-align: left; color: black !important;">')
+							html.append(usedLicense.seatsAllowed)
+							html.append('</div>')
+							html.append('</div>')
+
+							html.append('</div>')
+
+							html.append('</div>') # .float left # image
+
+							if licenseLink:
+								html.append('<div style="float: left; width: 140px; height: 100px; text-align: left; display: table;">')
+								html.append('<div style="display: table-cell; vertical-align: middle; ">')
+								html.append('#(Upgrade License)&thinsp;↗︎')
+								html.append('</div>')
+								html.append('</div>') # .float left
+							html.append('</div>') # .clear
+
+							if licenseLink:
+								html.append('</a>')
+
+						elif usedLicense.upgradeURL:
+							html.append(f'<a class="button" href="{usedLicense.upgradeURL}">')
+							html.append('#(Upgrade License)&thinsp;↗︎')
+							html.append('</a>')
+
+
+
 						license = usedLicense.getLicense()
 						html.append('<div>')
 						html.append('<p>%s<br />' % license.name.getText(client.locale()))
 						html.append('<a href="%s">%s&thinsp;↗︎</a></p>' % (license.URL, license.URL))
 						if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
 							html.append('<p>')
-							html.append('#(Seats Installed): <b>' + localizeString('#(%x% out of %y%)', replace = {'x': usedLicense.seatsInstalled, 'y': usedLicense.seatsAllowed}) + '</b>')
+							html.append('#(Seats Installed): <b>' + localizeString('#(%x% out of %y%)', replace = {'x': f'<span class="seatsInstalled">{usedLicense.seatsInstalled}</span>', 'y': usedLicense.seatsAllowed}) + '</b>')
 							html.append('</p>')
 						html.append('</div>')
 
@@ -3257,7 +3336,7 @@ try:
 				html.append('</div>') # .categories
 				html.append('</div>') # .font
 
-				html = ''.join(html)
+				html = ''.join(map(str, html))
 				html = html.replace('"', '\'')
 				html = html.replace('\n', '')
 				html = localizeString(html)
@@ -3393,7 +3472,7 @@ try:
 
 
 				# Print HTML
-				html = ''.join(html)
+				html = ''.join(map(str, html))
 				html = html.replace('"', '\'')
 				html = html.replace('\n', '')
 				html = localizeString(html)
@@ -3818,7 +3897,7 @@ try:
 
 
 				# Print HTML
-				html = ''.join(html)
+				html = ''.join(map(str, html))
 				html = html.replace('"', '\'')
 				html = html.replace('\n', '')
 				html = localizeString(html, html = True)
@@ -4118,7 +4197,7 @@ try:
 
 
 			# Print HTML
-			html = ''.join(html)
+			html = ''.join(map(str, html))
 			html = html.replace('"', '\'')
 			html = localizeString(html, html = True)
 			html = html.replace('\n', '')

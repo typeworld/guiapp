@@ -138,7 +138,7 @@ var rampDurationStop = 50.0;
 
 $(document).ready(function() {
 
-	$('#atom')
+	// $('#atom')
 
 	$('#atomButton').hover(function() {
 	    startAnimation();

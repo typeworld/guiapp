@@ -2503,7 +2503,7 @@ try:
 
 				for b64publisherURL, b64subscriptionURL, b64fontID, version in fonts:
 					self.javaScript('$(".font.%s").removeClass("loading");' % b64fontID)
-				self.errorMessage(message)
+				self.errorMessage(message, subscription = subscription)
 
 			self.setSideBarHTML()
 			self.setBadges()
@@ -3078,8 +3078,11 @@ try:
 			result = dlg.ShowModal()
 			dlg.Destroy()
 
-			# if keepString == '#(response.loginRequired)' and :
-			# 	webbrowser.open(uri, new=1)
+			if keepString == '#(response.loginRequired)' and subscription and subscription.protocol.rootCommand()[1].loginURL:
+				url = subscription.protocol.rootCommand()[1].loginURL
+				url = addAttributeToURL(url, 'subscriptionID=%s' % typeWorld.client.URL(subscription.url).subscriptionID)
+				print(url)
+				webbrowser.open(url, new=1)
 
 
 		def message(self, message, title = ''):

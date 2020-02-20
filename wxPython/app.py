@@ -340,11 +340,12 @@ try:
 					setattr(self, key, Color(hex=colors[key]))
 
 			# Apply custom colors
-			if self.theme in self.foundry.styling:
-				colors = self.foundry.styling[self.theme]
-				for key in colors:
-					if 'Color' in key:
-						setattr(self, key, Color(hex=colors[key]))
+			if self.foundry.styling:
+				if self.theme in self.foundry.styling:
+					colors = self.foundry.styling[self.theme]
+					for key in colors:
+						if 'Color' in key:
+							setattr(self, key, Color(hex=colors[key]))
 
 			self.logoURL = None
 
@@ -2174,6 +2175,7 @@ try:
 				return False, 'Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS), None, None
 
 			success, message, publisher, subscription = client.addSubscription(url, username, password)
+
 			return success, message, publisher, subscription
 
 
@@ -2211,6 +2213,7 @@ try:
 			self.javaScript('$("#addSubscriptionFormSubmitAnimation").hide();')
 
 			self.javaScript('hideCenterMessage();')
+
 
 		def acceptInvitation(self, ID):
 
@@ -3055,23 +3058,28 @@ try:
 							self.errorMessage('No error message defined :/')
 
 
-		def errorMessage(self, message, title = ''):
+		def errorMessage(self, message, title = '', subscription = None):
 
 			if type(message) in (list, tuple):
 				assert len(message) == 2
-				message, title = message
+				string, title = message
 
 			elif type(message) == typeWorld.api.base.MultiLanguageText:
-				message = message.getText(locale = client.locale())
+				string = message.getText(locale = client.locale())
 
-			log(message)
+			else:
+				string = message
 
-			message = localizeString(message)
+			keepString = string
+			string = localizeString(string)
 			title = localizeString(title)
 
-			dlg = wx.MessageDialog(self, message or 'No message defined', title, wx.ICON_ERROR)
+			dlg = wx.MessageDialog(self, string or 'No message defined', title, wx.ICON_ERROR)
 			result = dlg.ShowModal()
 			dlg.Destroy()
+
+			# if keepString == '#(response.loginRequired)' and :
+			# 	webbrowser.open(uri, new=1)
 
 
 		def message(self, message, title = ''):
@@ -3167,174 +3175,176 @@ try:
 				subscription.set('currentFont', fontID)
 				font = subscription.fontByID(fontID)
 
-				foundry = font.parent.parent
-				subscription = font.parent.parent.parent.parent.subscription
-				installedVersion = subscription.installedFontVersion(font.uniqueID)
-
 				html = []
 
+				if font:
+					foundry = font.parent.parent
+					subscription = font.parent.parent.parent.parent.subscription
+					installedVersion = subscription.installedFontVersion(font.uniqueID)
 
 
-				#metadata
-
-				theme = self.theme()
-				styling = FoundryStyling(foundry, theme)
-				html.append(styling.informationView())
 
 
-				if font.parent.billboards:
+					#metadata
 
-					index = font.parent.parent.parent.parent.get('currentFontImage') or 0
-					if index > len(font.parent.billboards) - 1:
-						index = 0
-						font.parent.parent.parent.parent.set('currentFontImage', int(index))
+					theme = self.theme()
+					styling = FoundryStyling(foundry, theme)
+					html.append(styling.informationView())
 
-					html.append('<div style="max-height: 400px; height: 300px;">')
 
-					success, billboard, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
-					if success:
-						html.append('<img id="fontBillboard" src="data:%s;base64,%s" style="width: 300px;">' % (mimeType, billboard))
-					else:
-						html.append('<img id="fontBillboard" src="%s" style="width: 300px;">' % (font.parent.billboards[index]))
+					if font.parent.billboards:
 
+						index = font.parent.parent.parent.parent.get('currentFontImage') or 0
+						if index > len(font.parent.billboards) - 1:
+							index = 0
+							font.parent.parent.parent.parent.set('currentFontImage', int(index))
+
+						html.append('<div style="max-height: 400px; height: 300px;">')
+
+						success, billboard, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
+						if success:
+							html.append('<img id="fontBillboard" src="data:%s;base64,%s" style="width: 300px;">' % (mimeType, billboard))
+						else:
+							html.append('<img id="fontBillboard" src="%s" style="width: 300px;">' % (font.parent.billboards[index]))
+
+
+						html.append('</div>')
+						if len(font.parent.billboards) > 1:
+							html.append('<div style="padding: 5px; text-align: center;">')
+							for i, billboard in enumerate(font.parent.billboards):
+								html.append('<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="x-python://self.setFontImage(____%s____)" style="color: inherit;">•</a></span>' % (i, 'selected' if i == index else '', i))
+							html.append('</div>')
+
+					html.append('<div class="font %s">' % (self.b64encode(font.uniqueID)))
+					html.append('<div class="name">%s %s</div>' % (font.parent.name.getText(client.locale()), font.name.getText(client.locale())))
+					html.append('<div class="categories">')
+
+					for keyword, name, condition in (
+						('license', '#(License)', True),
+						('information', '#(Information)', font.parent.description),
+						('versions', '#(Versions)', True),
+		#				('billboards', '#(Images)', font.parent.billboards),
+						):
+
+						if condition:
+							html.append('<div class="category %s %s">' % ('selected' if client.preferences.get('metadataCategory') == keyword else '', keyword))
+							if client.preferences.get('metadataCategory') != keyword:
+								html.append('<a href="x-python://self.showMetadataCategory(____%s____)">' % keyword)
+							html.append('%s&thinsp;→' % name)
+							if client.preferences.get('metadataCategory') != keyword:
+								html.append('</a>')
+							html.append('</div>')
 
 					html.append('</div>')
-					if len(font.parent.billboards) > 1:
-						html.append('<div style="padding: 5px; text-align: center;">')
-						for i, billboard in enumerate(font.parent.billboards):
-							html.append('<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="x-python://self.setFontImage(____%s____)" style="color: inherit;">•</a></span>' % (i, 'selected' if i == index else '', i))
-						html.append('</div>')
 
-				html.append('<div class="font %s">' % (self.b64encode(font.uniqueID)))
-				html.append('<div class="name">%s %s</div>' % (font.parent.name.getText(client.locale()), font.name.getText(client.locale())))
-				html.append('<div class="categories">')
+					html.append('<div class="categoryBody %s">' % (client.preferences.get('metadataCategory')))
 
-				for keyword, name, condition in (
-					('license', '#(License)', True),
-					('information', '#(Information)', font.parent.description),
-					('versions', '#(Versions)', True),
-	#				('billboards', '#(Images)', font.parent.billboards),
-					):
+					if client.preferences.get('metadataCategory') == 'license':
+						for usedLicense in font.usedLicenses:
 
-					if condition:
-						html.append('<div class="category %s %s">' % ('selected' if client.preferences.get('metadataCategory') == keyword else '', keyword))
-						if client.preferences.get('metadataCategory') != keyword:
-							html.append('<a href="x-python://self.showMetadataCategory(____%s____)">' % keyword)
-						html.append('%s&thinsp;→' % name)
-						if client.preferences.get('metadataCategory') != keyword:
-							html.append('</a>')
-						html.append('</div>')
-
-				html.append('</div>')
-
-				html.append('<div class="categoryBody %s">' % (client.preferences.get('metadataCategory')))
-
-				if client.preferences.get('metadataCategory') == 'license':
-					for usedLicense in font.usedLicenses:
-
-						# if usedLicense.upgradeURL:
-						# html.append('<div style="width: 90%; text-align: center; margin-top: 25px; margin-bottom: 35px; margin-right: 30px;">')
-						# html.append(f'<div style="display: inline-block; width: 50px;"><a href="{usedLicense.upgradeURL}">')
-						# html.append('<img src="file://##htmlroot##/seatallowance.svg" style="width: 100px;">')
-						# html.append('</div>')
-						# html.append('<p>')
-						# html.append('#(Upgrade License)&thinsp;↗︎')
-						# html.append('</p></a>')
-						# html.append('</div>')
-
+							# if usedLicense.upgradeURL:
 							# html.append('<div style="width: 90%; text-align: center; margin-top: 25px; margin-bottom: 35px; margin-right: 30px;">')
 							# html.append(f'<div style="display: inline-block; width: 50px;"><a href="{usedLicense.upgradeURL}">')
-							# html.append(open(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'upgradeicon.svg')).read())
+							# html.append('<img src="file://##htmlroot##/seatallowance.svg" style="width: 100px;">')
 							# html.append('</div>')
 							# html.append('<p>')
 							# html.append('#(Upgrade License)&thinsp;↗︎')
 							# html.append('</p></a>')
 							# html.append('</div>')
 
-						if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
-							licenseLink = usedLicense.upgradeURL is not None
-#							licenseLink = False
-							
-							if licenseLink:
-								html.append(f'<a href="{usedLicense.upgradeURL}">')
-							html.append('<div class="clear" style="width: 90%; margin-bottom: -20px;">')
-							html.append('<div style="float: left; width: %s; min-width: 110px; text-align: center;">' % ('30%' if licenseLink else '100%'))
+								# html.append('<div style="width: 90%; text-align: center; margin-top: 25px; margin-bottom: 35px; margin-right: 30px;">')
+								# html.append(f'<div style="display: inline-block; width: 50px;"><a href="{usedLicense.upgradeURL}">')
+								# html.append(open(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'upgradeicon.svg')).read())
+								# html.append('</div>')
+								# html.append('<p>')
+								# html.append('#(Upgrade License)&thinsp;↗︎')
+								# html.append('</p></a>')
+								# html.append('</div>')
 
-							html.append('<div style="display: inline-block; width: 100px; ">')
-							html.append('<img src="file://##htmlroot##/seatallowance.svg" style="width: 100px;">')
+							if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
+								licenseLink = usedLicense.upgradeURL is not None
+	#							licenseLink = False
+								
+								if licenseLink:
+									html.append(f'<a href="{usedLicense.upgradeURL}">')
+								html.append('<div class="clear" style="width: 90%; margin-bottom: -20px;">')
+								html.append('<div style="float: left; width: %s; min-width: 110px; text-align: center;">' % ('30%' if licenseLink else '100%'))
 
-							html.append('<div style="width: 100px; position: relative; top: -80px; left; 0px; margin-left: -4px; margin-bottom: -35px;  ">')
-							html.append('<div class="seatsInstalled" style="position: relative; width: 30px; left: 21px; top: 2px; text-align: right; color: black !important;">')
-							html.append(usedLicense.seatsInstalled)
-							html.append('</div>')
-							html.append('<div style="position: relative; width: 30px; left: 57px; top: 2px; text-align: left; color: black !important;">')
-							html.append(usedLicense.seatsAllowed)
-							html.append('</div>')
-							html.append('</div>')
+								html.append('<div style="display: inline-block; width: 100px; ">')
+								html.append('<img src="file://##htmlroot##/seatallowance.svg" style="width: 100px;">')
 
-							html.append('</div>')
-
-							html.append('</div>') # .float left # image
-
-							if licenseLink:
-								html.append('<div style="float: left; width: 140px; height: 100px; text-align: left; display: table;">')
-								html.append('<div style="display: table-cell; vertical-align: middle; ">')
-								html.append('#(Upgrade License)&thinsp;↗︎')
+								html.append('<div style="width: 100px; position: relative; top: -%spx; left; 0px; margin-left: -4px; margin-bottom: -35px;  ">' % (80 if MAC else 82))
+								html.append('<div class="seatsInstalled" style="position: relative; width: 30px; left: 21px; top: 2px; text-align: right; color: black !important;">')
+								html.append(usedLicense.seatsInstalled)
 								html.append('</div>')
-								html.append('</div>') # .float left
-							html.append('</div>') # .clear
+								html.append('<div style="position: relative; width: 30px; left: 57px; top: 2px; text-align: left; color: black !important;">')
+								html.append(usedLicense.seatsAllowed)
+								html.append('</div>')
+								html.append('</div>')
 
-							if licenseLink:
+								html.append('</div>')
+
+								html.append('</div>') # .float left # image
+
+								if licenseLink:
+									html.append('<div style="float: left; width: 140px; height: 100px; text-align: left; display: table;">')
+									html.append('<div style="display: table-cell; vertical-align: middle; ">')
+									html.append('#(Upgrade License)&thinsp;↗︎')
+									html.append('</div>')
+									html.append('</div>') # .float left
+								html.append('</div>') # .clear
+
+								if licenseLink:
+									html.append('</a>')
+
+							elif usedLicense.upgradeURL:
+								html.append(f'<a class="button" href="{usedLicense.upgradeURL}">')
+								html.append('#(Upgrade License)&thinsp;↗︎')
 								html.append('</a>')
 
-						elif usedLicense.upgradeURL:
-							html.append(f'<a class="button" href="{usedLicense.upgradeURL}">')
-							html.append('#(Upgrade License)&thinsp;↗︎')
-							html.append('</a>')
 
 
+							license = usedLicense.getLicense()
+							html.append('<div>')
+							html.append('<p>%s<br />' % license.name.getText(client.locale()))
+							html.append('<a href="%s">%s&thinsp;↗︎</a></p>' % (license.URL, license.URL))
+							if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
+								html.append('<p>')
+								html.append('#(Seats Installed): <b>' + localizeString('#(%x% out of %y%)', replace = {'x': f'<span class="seatsInstalled">{usedLicense.seatsInstalled}</span>', 'y': usedLicense.seatsAllowed}) + '</b>')
+								html.append('</p>')
+							html.append('</div>')
 
-						license = usedLicense.getLicense()
+					if client.preferences.get('metadataCategory') == 'information' and font.parent.description:
+						text, locale = font.parent.description.getTextAndLocale()
+						html.append('%s' % text)
+
+					if client.preferences.get('metadataCategory') == 'versions':
 						html.append('<div>')
-						html.append('<p>%s<br />' % license.name.getText(client.locale()))
-						html.append('<a href="%s">%s&thinsp;↗︎</a></p>' % (license.URL, license.URL))
-						if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
-							html.append('<p>')
-							html.append('#(Seats Installed): <b>' + localizeString('#(%x% out of %y%)', replace = {'x': f'<span class="seatsInstalled">{usedLicense.seatsInstalled}</span>', 'y': usedLicense.seatsAllowed}) + '</b>')
+						for version in reversed(font.getVersions()):
+							html.append('<div class="version %s">' % self.versionEncode(version.number))
+							html.append('<p><b>#(Version) %s</b> <span class="label installedVersion %s" style="display: %s;">#(Installed)</span><br />' % (version.number, 'latestVersion' if version.number == font.getVersions()[-1].number else 'olderVersion', 'inline' if version.number == installedVersion else 'none'))
+							if version.description:
+								html.append('%s' % version.description.getText(client.locale()))
+							if version.releaseDate:
+								html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
+							
+							html.append('<div class="installButton status install" style="display: %s; margin-top: -3px;">' % ('block' if version.number != installedVersion else 'none'))
+							html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID), version.number))
+							html.append('✓ #(Install)')
+							html.append('</a>')
+							html.append('</div>') # installButton
+							html.append('<div class="installButton status remove" style="display: %s; margin-top: -3px;">' % ('none' if version.number != installedVersion else 'block'))
+							html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID)))
+							html.append('✕ #(Remove)')
+							html.append('</a>')
+							html.append('</div>') # installButton
 							html.append('</p>')
+							html.append('</div>') # .version
+
 						html.append('</div>')
-
-				if client.preferences.get('metadataCategory') == 'information' and font.parent.description:
-					text, locale = font.parent.description.getTextAndLocale()
-					html.append('%s' % text)
-
-				if client.preferences.get('metadataCategory') == 'versions':
-					html.append('<div>')
-					for version in reversed(font.getVersions()):
-						html.append('<div class="version %s">' % self.versionEncode(version.number))
-						html.append('<p><b>#(Version) %s</b> <span class="label installedVersion %s" style="display: %s;">#(Installed)</span><br />' % (version.number, 'latestVersion' if version.number == font.getVersions()[-1].number else 'olderVersion', 'inline' if version.number == installedVersion else 'none'))
-						if version.description:
-							html.append('%s' % version.description.getText(client.locale()))
-						if version.releaseDate:
-							html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
-						
-						html.append('<div class="installButton status install" style="display: %s; margin-top: -3px;">' % ('block' if version.number != installedVersion else 'none'))
-						html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID), version.number))
-						html.append('✓ #(Install)')
-						html.append('</a>')
-						html.append('</div>') # installButton
-						html.append('<div class="installButton status remove" style="display: %s; margin-top: -3px;">' % ('none' if version.number != installedVersion else 'block'))
-						html.append('<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID)))
-						html.append('✕ #(Remove)')
-						html.append('</a>')
-						html.append('</div>') # installButton
-						html.append('</p>')
-						html.append('</div>') # .version
-
-					html.append('</div>')
-				
-				html.append('</div>') # .categories
-				html.append('</div>') # .font
+					
+					html.append('</div>') # .categories
+					html.append('</div>') # .font
 
 				html = ''.join(map(str, html))
 				html = html.replace('"', '\'')
@@ -4130,9 +4140,6 @@ try:
 				# html.append('</div>')
 				html.append('</div>') # .badges
 				html.append('</div>')
-
-
-
 
 
 	#// :not(.selected)

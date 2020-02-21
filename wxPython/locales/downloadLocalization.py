@@ -22,7 +22,7 @@ for keyword in a:
 print('Received locales:', locales)
 
 
-path = os.path.join(os.path.dirname(__file__), 'locales', 'localization.json')
+path = os.path.join(os.path.dirname(__file__), 'localization.json')
 WriteToFile(path, json.dumps(a))
 
 
@@ -46,9 +46,9 @@ for word in a:
 
 # Little Snitch Internet Access Policy
 import locales
-strings = ReadFromFile(os.path.join(os.path.dirname(__file__), 'build', 'Mac', 'InternetAccessPolicy.strings'))
+strings = ReadFromFile(os.path.join(os.path.dirname(__file__), '..', 'build', 'Mac', 'InternetAccessPolicy.strings'))
 
-folder = os.path.join(os.path.dirname(__file__), 'build', 'Mac', 'Little Snitch Translations')
+folder = os.path.join(os.path.dirname(__file__), '..', 'build', 'Mac', 'Little Snitch Translations')
 os.system('rm -rf "%s"' % folder)
 os.makedirs(folder)
 

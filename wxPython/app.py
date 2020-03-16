@@ -2507,7 +2507,7 @@ try:
 
 			self.setSideBarHTML()
 			self.setBadges()
-#			self.setPublisherHTML(b64publisherURL)
+			self.setPublisherHTML(b64publisherURL)
 
 
 		def updateAllFonts(self, evt, publisherB64ID, subscriptionB64ID):
@@ -2678,7 +2678,7 @@ try:
 
 			self.setSideBarHTML()
 			self.setBadges()
-#			self.setPublisherHTML(b64publisherURL)
+			self.setPublisherHTML(b64publisherURL)
 
 
 		def onContextMenu(self, x, y, target, b64ID):

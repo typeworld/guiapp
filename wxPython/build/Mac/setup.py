@@ -19,7 +19,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
                 '/Users/yanone/Code/Certificates/Type.World Sparkle/dsa_pub.pem',
             ], #, 'appbadge.docktileplugin'
            'packages': ['certifi', 
-              'encodings', 'codecs', 'io', 'abc', 'os', 'stat', 'typeWorld', 'keyring', 'importlib', 'pystray'],
+              'encodings', 'codecs', 'io', 'abc', 'os', 'stat', 'typeWorld', 'keyring', 'importlib', 'pystray', 'babel'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {

@@ -30,7 +30,7 @@ import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plist
 from threading import Thread
 import threading
 import wx.html2
-import locales, patrons
+import locales
 import urllib.request, urllib.parse, urllib.error, time
 from functools import partial
 from wx.lib.delayedresult import startWorker
@@ -2436,16 +2436,7 @@ try:
 
 			self.selectFont(b64fontID)
 			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
-
 			self.javaScript('$("#metadata .seatsInstalled").fadeTo(500, .1);')
-#			self.javaScript('$("#metadata .seatsInstalled").html("×");')
-
-
-			# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
-			# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
-			# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
-			# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
-
 			startWorker(self.installFonts_consumer, self.installFonts_worker, wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID, version]]]))
 
 

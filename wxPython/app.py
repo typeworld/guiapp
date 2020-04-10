@@ -2457,7 +2457,7 @@ try:
 
 		def installFonts_worker(self, fonts):
 
-			self.log(fonts)
+			fontsBySubscription = {}
 
 			for b64publisherURL, b64subscriptionURL, b64fontID, version in fonts:
 
@@ -2468,6 +2468,14 @@ try:
 				publisher = client.publisher(publisherURL)
 				subscription = publisher.subscription(subscriptionURL)
 
+
+				if subscription.fontByID(fontID):
+
+					if not subscription in fontsBySubscription:
+						fontsBySubscription[subscription] = []
+
+					fontsBySubscription[subscription].append([fontID, version])
+
 				# Remove other installed versions
 				installedVersion = subscription.installedFontVersion(fontID)
 				if installedVersion and installedVersion != version:
@@ -2475,12 +2483,15 @@ try:
 					if success == False:
 						return success, message, b64publisherURL, subscription, fonts
 
+			for subscription in fontsBySubscription:
+
 				# Install new font
-				success, message = subscription.installFont(fontID, version)
+				success, message = subscription.installFonts(fontsBySubscription[subscription])
 
 				if success == False:
 					return success, message, b64publisherURL, subscription, fonts
 
+			# TODO: differentiate between b64publisherURLs here, as fonts could be from different publishers. Works for now, until fonts can be mixed in collections
 			return True, None, b64publisherURL, subscription, fonts
 
 
@@ -2492,14 +2503,89 @@ try:
 
 			if success:
 
-				if subscription.hasProtectedFonts():
-					self.reloadSubscription(None, None, subscription = subscription)
+				pass
 
 			else:
 
 				for b64publisherURL, b64subscriptionURL, b64fontID, version in fonts:
 					self.javaScript('$(".font.%s").removeClass("loading");' % b64fontID)
 				self.errorMessage(message, subscription = subscription)
+
+			self.setSideBarHTML()
+			self.setBadges()
+			self.setPublisherHTML(b64publisherURL)
+
+
+		def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
+
+			self.selectFont(b64fontID)
+			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
+			self.javaScript('$("#metadata .seatsInstalled").fadeTo(500, .1);')
+			startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID]]]))
+
+		def removeFonts(self, fonts):
+
+			for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
+
+				self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
+				# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
+
+			startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([fonts]))
+
+
+		def removeFonts_worker(self, fonts):
+
+			fontsBySubscription = {}
+
+			for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
+
+				publisherURL = self.b64decode(b64publisherURL)
+				subscriptionURL = self.b64decode(b64subscriptionURL)
+				fontID = self.b64decode(b64fontID)
+
+				publisher = client.publisher(publisherURL)
+				subscription = publisher.subscription(subscriptionURL)
+
+
+				if subscription.fontByID(fontID):
+
+					if not subscription in fontsBySubscription:
+						fontsBySubscription[subscription] = []
+
+					fontsBySubscription[subscription].append(fontID)
+
+			for subscription in fontsBySubscription:
+
+				# Install new font
+				success, message = subscription.removeFonts(fontsBySubscription[subscription])
+
+				if success == False:
+					return success, message, b64publisherURL, subscription, fonts
+
+			# TODO: differentiate between b64publisherURLs here, as fonts could be from different publishers. Works for now, until fonts can be mixed in collections
+			return True, None, b64publisherURL, subscription, fonts
+
+
+
+		def removeFonts_consumer(self, delayedResult):
+
+			success, message, b64publisherURL, subscription, fonts = delayedResult.get()
+
+			self.setFontStatuses(fonts)
+
+			if success:
+
+				pass
+
+			else:
+
+				if type(message) == str:
+					self.errorMessage(message)
+				else:
+					self.errorMessage('Server: %s' % message.getText(client.locale()))
 
 			self.setSideBarHTML()
 			self.setBadges()
@@ -2609,72 +2695,6 @@ try:
 				self.removeFonts(fonts)
 
 
-		def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
-
-			self.selectFont(b64fontID)
-			self.javaScript('$("#metadata .seatsInstalled").fadeTo(500, .1);')
-#			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
-			# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
-			# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
-			# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
-			# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
-
-			startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID]]]))
-
-		def removeFonts(self, fonts):
-
-			for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
-
-				self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
-				# self.javaScript('$("#%s.font").find("a.installButton").hide();' % b64fontID)
-				# self.javaScript('$("#%s.font").find("a.removeButton").hide();' % b64fontID)
-				# self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
-				# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
-
-			startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([fonts]))
-
-
-		def removeFonts_worker(self, fonts):
-
-			for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
-
-				publisherURL = self.b64decode(b64publisherURL)
-				subscriptionURL = self.b64decode(b64subscriptionURL)
-				fontID = self.b64decode(b64fontID)
-
-				publisher = client.publisher(publisherURL)
-				subscription = publisher.subscription(subscriptionURL)
-
-				success, message = subscription.removeFont(fontID)
-
-				if success == False:
-					return success, message, b64publisherURL, subscription, fonts
-
-
-			return True, None, b64publisherURL, subscription, fonts
-
-
-		def removeFonts_consumer(self, delayedResult):
-
-			success, message, b64publisherURL, subscription, fonts = delayedResult.get()
-
-			self.setFontStatuses(fonts)
-
-			if success:
-
-				if subscription.hasProtectedFonts():
-					self.reloadSubscription(None, None, subscription = subscription)
-
-			else:
-
-				if type(message) == str:
-					self.errorMessage(message)
-				else:
-					self.errorMessage('Server: %s' % message.getText(client.locale()))
-
-			self.setSideBarHTML()
-			self.setBadges()
-			self.setPublisherHTML(b64publisherURL)
 
 
 		def onContextMenu(self, x, y, target, b64ID):

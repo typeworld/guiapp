@@ -51,7 +51,7 @@ from ynlib.web import GetHTTP
 from ynlib.colors import Color
 
 from typeWorld.client import APIClient, JSON, AppKitNSUserDefaults, TypeWorldClientDelegate
-import typeWorld.api.base
+import typeWorld.api
 
 APPNAME = 'Type.World'
 APPVERSION = 'n/a'
@@ -2159,20 +2159,20 @@ try:
 
 		def addSubscription_worker(self, url, username, password):
 
-			for protocol in typeWorld.api.base.PROTOCOLS:
+			for protocol in typeWorld.api.PROTOCOLS:
 				url = url.replace(protocol + '//', protocol + '://')
 			# url = url.replace('http//', 'http://')
 			# url = url.replace('https//', 'https://')
 
 			# Check for known protocol
 			known = False
-			for protocol in typeWorld.api.base.PROTOCOLS:
+			for protocol in typeWorld.api.PROTOCOLS:
 				if url.startswith(protocol):
 					known = True
 					break
 
 			if not known:
-				return False, 'Unknown protocol. Known are: %s' % (typeWorld.api.base.PROTOCOLS), None, None
+				return False, 'Unknown protocol. Known are: %s' % (typeWorld.api.PROTOCOLS), None, None
 
 			success, message, publisher, subscription = client.addSubscription(url, username, password)
 
@@ -3064,7 +3064,7 @@ try:
 				assert len(message) == 2
 				string, title = message
 
-			elif type(message) == typeWorld.api.base.MultiLanguageText:
+			elif type(message) == typeWorld.api.MultiLanguageText:
 				string = message.getText(locale = client.locale())
 
 			else:
@@ -3091,7 +3091,7 @@ try:
 				assert len(message) == 2
 				message, title = message
 
-			elif type(message) == typeWorld.api.base.MultiLanguageText:
+			elif type(message) == typeWorld.api.MultiLanguageText:
 				message = message.getText(locale = client.locale())
 
 			log(message)
@@ -3397,8 +3397,8 @@ try:
 						html.append('<div class="vertCenterMiddle">')
 						html.append('<div class="vertCenterInner">')
 
-						name = typeWorld.api.base.MultiLanguageText(dict = invitation.publisherName)
-						subscriptionName = typeWorld.api.base.MultiLanguageText(dict = invitation.subscriptionName)
+						name = typeWorld.api.MultiLanguageText(dict = invitation.publisherName)
+						subscriptionName = typeWorld.api.MultiLanguageText(dict = invitation.subscriptionName)
 						html.append('<div class="name">%s%s</div>' % (name.getText(client.locale()), (' (%s)' % subscriptionName.getText(client.locale()) if invitation.subscriptionName else '')))
 						if invitation.website:
 							html.append('<p>')
@@ -3749,7 +3749,7 @@ try:
 									completeSetName = ''
 									if setName:
 										completeSetName = setName + ', '
-									completeSetName += typeWorld.api.base.FILEEXTENSIONNAMES[formatName]
+									completeSetName += typeWorld.api.FILEEXTENSIONNAMES[formatName]
 
 									html.append('<div class="section %s" id="%s">' % ('multipleFonts' if len(fonts) > 1 else '', completeSetName))
 

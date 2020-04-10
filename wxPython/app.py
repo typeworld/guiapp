@@ -322,6 +322,11 @@ try:
 			if not client.preferences.get('currentPublisher'):
 				self.app.frame.setPublisherHTML(self.app.frame.b64encode(publisher.canonicalURL))
 
+		def subscriptionWasUpdated(self, publisher, subscription):
+			print('subscriptionWasUpdated', publisher, subscription)
+			if client.preferences.get('currentPublisher') == publisher.canonicalURL and publisher.get('currentSubscription') == subscription.url:
+				self.app.frame.setPublisherHTML(self.app.frame.b64encode(publisher.canonicalURL))
+
 	delegate = ClientDelegate()
 	client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui', pubSubSubscriptions = True)
 

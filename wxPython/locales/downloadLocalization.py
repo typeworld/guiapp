@@ -45,7 +45,7 @@ for word in a:
 
 
 # Little Snitch Internet Access Policy
-import locales
+from __init__ import localizeString
 strings = ReadFromFile(os.path.join(os.path.dirname(__file__), '..', 'build', 'Mac', 'InternetAccessPolicy.strings'))
 
 folder = os.path.join(os.path.dirname(__file__), '..', 'build', 'Mac', 'Little Snitch Translations')
@@ -54,6 +54,6 @@ os.makedirs(folder)
 
 for language in languages:
 	os.makedirs(os.path.join(folder, '%s.lproj' % language))
-	WriteToFile(os.path.join(folder, '%s.lproj' % language, 'InternetAccessPolicy.strings'), locales.localizeString(strings, languages = [language]))
+	WriteToFile(os.path.join(folder, '%s.lproj' % language, 'InternetAccessPolicy.strings'), localizeString(strings, languages = [language]))
 
 print('Done.')

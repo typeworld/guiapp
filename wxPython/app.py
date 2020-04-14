@@ -39,7 +39,8 @@ from threading import Thread
 from ynlib.system import Execute
 from string import Template
 
-from babel.dates import format_date
+from babel.dates import format_date, format_time
+from datetime import datetime
 
 import platform
 WIN = platform.system() == 'Windows'
@@ -1501,7 +1502,7 @@ try:
 
 			if success:
 
-				self.onPreferences(None, 'userAccountPreferences')
+				self.onPreferences(None, 'userAccount')
 				if client.preferences.get('currentPublisher'):
 					self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
 
@@ -1518,7 +1519,7 @@ try:
 			if not success:
 				self.errorMessage(message)
 			else:
-				self.onPreferences(None, 'userAccountPreferences')
+				self.onPreferences(None, 'userAccount')
 
 
 		def logIn(self, email, password):
@@ -1526,7 +1527,43 @@ try:
 			if not success:
 				self.errorMessage(message)
 			else:
-				self.onPreferences(None, 'userAccountPreferences')
+				self.onPreferences(None, 'userAccount')
+
+
+		def revokeAppInstance(self, anonymousAppID):
+
+			dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Revoke App)'), wx.YES_NO | wx.ICON_QUESTION)
+			dlg.SetYesNoLabels(localizeString('#(Revoke)'), localizeString('#(Cancel)'))
+			result = dlg.ShowModal() == wx.ID_YES
+			dlg.Destroy()
+			
+			if result:
+
+				success, response = client.revokeAppInstance(anonymousAppID)
+				if success:
+					self.onPreferences(None, 'linkedApps')
+
+				else:
+					self.errorMessage(response, '#(Revoke App)')
+
+
+		def reactivateAppInstance(self, anonymousAppID):
+
+			dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Reactivate App)'), wx.YES_NO | wx.ICON_QUESTION)
+			dlg.SetYesNoLabels(localizeString('#(Reactivate)'), localizeString('#(Cancel)'))
+			result = dlg.ShowModal() == wx.ID_YES
+			dlg.Destroy()
+			
+			if result:
+
+				success, response = client.reactivateAppInstance(anonymousAppID)
+				if success:
+					self.onPreferences(None, 'linkedApps')
+
+				else:
+					self.errorMessage(response, '#(Reactivate App)')
+
+
 
 		def onPreferences(self, event, section = 'generalPreferences'):
 
@@ -1538,17 +1575,20 @@ try:
 
 			html.append('<div class="tabs clear">')
 
-			for keyword, title in (
-				('generalPreferences', localizeString('#(Preferences)')),
-				('userAccountPreferences', localizeString('#(User Account)')),
+			for keyword, title, condition in (
+				('generalPreferences', localizeString('#(Preferences)'), True),
+				('userAccount', localizeString('#(User Account)'), True),
+				('linkedApps', localizeString('#(Linked Apps)'), client.user()),
 				):
-				html.append('<div class="tab %s">' % ('active' if section == keyword else ''))
-				if keyword != section:
-					html.append('<a href="x-python://self.onPreferences(None, ____%s____)">' % keyword)
-				html.append(title)
-				if keyword != section:
-					html.append('</a>') # .tab
-				html.append('</div>') # .tab
+
+				if condition:
+					html.append('<div class="tab %s">' % ('active' if section == keyword else ''))
+					if keyword != section:
+						html.append('<a href="x-python://self.onPreferences(None, ____%s____)">' % keyword)
+					html.append(title)
+					if keyword != section:
+						html.append('</a>')
+					html.append('</div>') # .tab
 
 			html.append('</div>') # .tabs
 
@@ -1558,7 +1598,111 @@ try:
 			html.append('<div class="body inner">')
 
 
-			if section == 'userAccountPreferences':
+			if section == 'linkedApps':
+
+				html.append('''<style>
+
+
+
+
+
+					</style>''')
+
+				
+				success, instances = client.linkedAppInstances()
+				if not success:
+					html.append(instances)
+
+				else:
+					for instance in instances:
+						html.append('<div class="appInstance clear" style="margin-bottom: 20px;">')
+
+						# html.append(instance.anonymousAppID)
+						# html.append('</div>') # .appInstance
+
+
+						html.append('<div style="float: left; width: 100px; margin-left: 20px;">')
+
+						image = instance.image
+						if image:
+							html.append(f'<img src="{os.path.join(os.path.dirname(__file__), "htmlfiles", "machineModels", image)}" style="width: 80px; margin-top: 10px;">')
+
+						html.append('</div>')
+						html.append('<div style="float: left; width: 350px;">') 
+
+						html.append('<p>')
+
+						html.append('<b>')
+						html.append(instance.machineNodeName or instance.machineHumanReadableName or instance.anonymousAppID)
+						html.append('</b>')
+						if instance.anonymousAppID == client.anonymousAppID():
+							html.append(' <i>(#(This app))</i>')
+						html.append('<br />')
+
+						if instance.machineModelIdentifier and instance.machineModelIdentifier.startswith('Parallels') or instance.machineHumanReadableName and instance.machineHumanReadableName.startswith('Parallels'):
+							html.append('Parallels Desktop Virtual Machine')
+							html.append('<br />')
+						else:
+							if instance.machineHumanReadableName:
+								html.append(instance.machineHumanReadableName)
+								html.append('<br />')
+						if instance.machineSpecsDescription:
+							html.append(instance.machineSpecsDescription)
+							html.append('<br />')
+						if instance.machineOSVersion:
+							if instance.machineOSVersion.startswith('mac'):
+								src = 'other/apple.svg'
+							elif instance.machineOSVersion.startswith('Windows'):
+								src = 'other/windows.svg'
+							else:
+								src = None
+							if src:
+								html.append(f'<img src="{os.path.join(os.path.dirname(__file__), "htmlfiles", "machineModels", src)}" style="width: 16px; position: relative; top: 3px; margin-right: 5px;">')
+							html.append(instance.machineOSVersion)
+
+						if instance.revoked:
+							html.append('<br />')
+							html.append('<div>')
+							html.append('<span class_="box" style="background-color: orange; padding: 3px;">')
+							t = datetime.fromtimestamp(instance.revokedTime)
+							html.append('#(Revoked): %s %s' % (format_date(t, locale=client.locale()[0]), format_time(t, locale=client.locale()[0])))
+							html.append('</span>')
+							html.append('</div>')
+
+						else:
+							if instance.lastUsed:
+								if not instance.anonymousAppID == client.anonymousAppID():
+									html.append('<br />')
+									html.append('<span style="color: #888;">')
+									t = datetime.fromtimestamp(instance.lastUsed)
+									html.append('#(Last active): %s %s' % (format_date(t, locale=client.locale()[0]), format_time(t, locale=client.locale()[0])))
+
+
+								
+
+								html.append('</span>')
+						html.append('</p>')
+
+						html.append('</div>')
+
+
+						# Revoke/Activate
+						html.append('<div style="float: left; margin-left: 50px;">')
+
+						if not instance.anonymousAppID == client.anonymousAppID():
+							if instance.revoked:
+								html.append(f'<a class="button" href="x-python://self.reactivateAppInstance(____{instance.anonymousAppID}____)">#(Reactivate App)</a>')
+							else:
+								html.append(f'<a class="button" href="x-python://self.revokeAppInstance(____{instance.anonymousAppID}____)">#(Revoke App)</a>')
+						html.append('</div>') # Revoke/Activate
+
+
+
+						html.append('</div>') # .appInstance
+
+
+
+			if section == 'userAccount':
 
 				# User
 				html.append('<h2>#(Type.World User Account)</h2>')

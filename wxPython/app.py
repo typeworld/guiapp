@@ -1198,9 +1198,12 @@ try:
 			editMenu.Append(wx.ID_PASTE, "%s\tCtrl-V" % (localizeString('#(Paste)')))
 
 			if WIN:
+
 				editMenu.AppendSeparator()
+
 				m_prefs = editMenu.Append(wx.ID_PREFERENCES, "&%s\tCtrl-I" % (localizeString('#(Preferences)')))
 				self.Bind(wx.EVT_MENU, self.onPreferences, m_prefs)
+
 
 
 
@@ -1209,7 +1212,9 @@ try:
 			menu = wx.Menu()
 			m_about = menu.Append(wx.ID_ABOUT, "&%s %s" % (localizeString('#(About)'), APPNAME))
 			self.Bind(wx.EVT_MENU, self.onAbout, m_about)
+
 			if MAC:
+
 				m_prefs = menu.Append(wx.ID_PREFERENCES, "&%s\tCtrl-," % (localizeString('#(Preferences)')))
 				self.Bind(wx.EVT_MENU, self.onPreferences, m_prefs)        
 
@@ -1496,7 +1501,7 @@ try:
 
 			if success:
 
-				self.onPreferences(None)
+				self.onPreferences(None, 'userAccountPreferences')
 				if client.preferences.get('currentPublisher'):
 					self.setPublisherHTML(self.b64encode(client.preferences.get('currentPublisher')))
 
@@ -1513,7 +1518,7 @@ try:
 			if not success:
 				self.errorMessage(message)
 			else:
-				self.onPreferences(None)
+				self.onPreferences(None, 'userAccountPreferences')
 
 
 		def logIn(self, email, password):
@@ -1521,12 +1526,140 @@ try:
 			if not success:
 				self.errorMessage(message)
 			else:
-				self.onPreferences(None)
+				self.onPreferences(None, 'userAccountPreferences')
 
-		def onPreferences(self, event):
+		def onPreferences(self, event, section = 'generalPreferences'):
 
 
 			html = []
+
+			html.append('<div class="head">')
+
+
+			html.append('<div class="tabs clear">')
+
+			for keyword, title in (
+				('generalPreferences', localizeString('#(Preferences)')),
+				('userAccountPreferences', localizeString('#(User Account)')),
+				):
+				html.append('<div class="tab %s">' % ('active' if section == keyword else ''))
+				if keyword != section:
+					html.append('<a href="x-python://self.onPreferences(None, ____%s____)">' % keyword)
+				html.append(title)
+				if keyword != section:
+					html.append('</a>') # .tab
+				html.append('</div>') # .tab
+
+			html.append('</div>') # .tabs
+
+			html.append('</div>')
+
+
+			html.append('<div class="body inner">')
+
+
+			if section == 'userAccountPreferences':
+
+				# User
+				html.append('<h2>#(Type.World User Account)</h2>')
+				if client.user():
+					html.append('<p>')
+					html.append('#(Linked User Account): ')
+					if client.userName() and client.userEmail():
+						html.append('<b>%s</b> (%s)' % (client.userName(), client.userEmail()))
+					elif client.userEmail():
+						html.append('<b>%s</b>' % (client.userEmail()))
+					html.append('</p>')
+					# html.append('<p>')
+					# html.append('#(Account Last Synchronized): %s' % (NaturalRelativeWeekdayTimeAndDate(client.preferences.get('lastServerSync'), locale = client.locale()[0]) if client.preferences.get('lastServerSync') else 'Never'))
+					# html.append('</p>')
+					html.append('<h2>#(Unlink User Account)</h2>')
+					html.append('<p>')
+					html.append('#(UnlinkUserAccountExplanation)')
+					html.append('</p>')
+					html.append('<p>')
+					html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
+					html.append('</p>')
+				else:
+
+	#				html.append('#(NoUserAccountLinked)<br />#(PleaseCreateUserAccountExplanation)')
+
+					html.append('<div class="clear">')
+					html.append('<div style="float: left; width: 47%; margin-right: 6%;">')
+
+					html.append('<div>')
+					html.append('<h4>#(Create Account)</h4>')
+					html.append('#(Name)')
+					html.append('<br />')
+					html.append('<input type="text" name="createAccountUserName" id="createAccountUserName" placeholder="#(John Doe)">')
+					html.append('<br />')
+					html.append('#(Email Address)')
+					html.append('<br />')
+					html.append('<input type="text" name="createAccountUserEmail" id="createAccountUserEmail" placeholder="#(johndoe@gmail.com)">')
+					html.append('<br />')
+					html.append('#(Password)')
+					html.append('<br />')
+					html.append('<input type="password" name="createAccountUserPassword" id="createAccountUserPassword">')
+					html.append('<br />')
+					html.append('#(Repeat Password)')
+					html.append('<br />')
+					html.append('<input type="password" name="createAccountUserPassword2" id="createAccountUserPassword2">')
+					html.append('</div>')
+
+					html.append('<p>')
+					html.append('<a id="createAccountButton" class="button">#(Create Account)</a>')
+					html.append('</p>')
+					html.append('''<script>$("#preferences #createAccountButton").click(function() {
+
+					python("self.createUserAccount(____" + $("#preferences #createAccountUserName").val() + "____, ____" + $("#preferences #createAccountUserEmail").val() + "____, ____" + $("#preferences #createAccountUserPassword").val() + "____, ____" + $("#preferences #createAccountUserPassword2").val() + "____)");
+					 
+				});</script>''')
+
+					html.append('</div>') # .floatleft
+					html.append('<div style="float: left; width: 47%;">')
+
+					html.append('<div>')
+					html.append('<h4>#(Log In To Existing Account)</h4>')
+					html.append('#(Email Address)')
+					html.append('<br />')
+					html.append('<input type="text" name="loginUserEmail" id="loginUserEmail" placeholder="#(johndoe@gmail.com)">')
+					html.append('<br />')
+					html.append('#(Password)')
+					html.append('<br />')
+					html.append('<input type="password" name="loginUserPassword" id="loginUserPassword">')
+					html.append('</div>')
+
+					html.append('<p>')
+					html.append('<a id="loginButton" class="button">#(Log In)</a>')
+					html.append('</p>')
+
+					html.append('<p>')
+					html.append('<a href="https://type.world/resetpassword">#(I Forgot My Password) ↗</a>')
+					html.append('</p>')
+
+					html.append('''<script>$("#preferences #loginButton").click(function() {
+
+					python("self.logIn(____" + $("#preferences #loginUserEmail").val() + "____, ____" + $("#preferences #loginUserPassword").val() + "____)");
+					 
+				});</script>''')
+
+					html.append('</div>') # .floatleft
+					html.append('</div>') # .clear
+
+
+
+				html.append('''<script>$("#preferences #unlinkAppButton").click(function() {
+
+					python("self.unlinkUserAccount()");
+					 
+				});</script>''')
+
+
+
+
+
+
+			if section == 'generalPreferences':
 
 			# # Update Interval
 			# html.append('<h2>#(Update Interval)</h2>')
@@ -1562,159 +1695,70 @@ try:
 			# html.append('<hr>')
 			# html.append('<hr>')
 
-			# User
-			html.append('<h2>#(Type.World User Account)</h2>')
-			if client.user():
+
+
+				# html.append('<hr>')
+
+				# Agent
+				if WIN:
+					html.append('<h2>#(Icon in Menu Bar.Windows)</h2>')
+				if MAC:
+					html.append('<h2>#(Icon in Menu Bar.Mac)</h2>')
 				html.append('<p>')
-				html.append('#(Linked User Account): ')
-				if client.userName() and client.userEmail():
-					html.append('<b>%s</b> (%s)' % (client.userName(), client.userEmail()))
-				elif client.userEmail():
-					html.append('<b>%s</b>' % (client.userEmail()))
-				html.append('</p>')
-				# html.append('<p>')
-				# html.append('#(Account Last Synchronized): %s' % (NaturalRelativeWeekdayTimeAndDate(client.preferences.get('lastServerSync'), locale = client.locale()[0]) if client.preferences.get('lastServerSync') else 'Never'))
-				# html.append('</p>')
-				html.append('<h2>#(Unlink User Account)</h2>')
-				html.append('<p>')
-				html.append('#(UnlinkUserAccountExplanation)')
+				label = '#(Show Icon in Menu Bar' + ('.Windows' if WIN else '.Mac') + ')'
+				html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">%s</label></span>' % ('checked' if agentIsRunning() else '', label))
+				html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
 				html.append('</p>')
 				html.append('<p>')
-				html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
+				html.append('#(IconInMenuBarExplanation)')
 				html.append('</p>')
-			else:
 
-#				html.append('#(NoUserAccountLinked)<br />#(PleaseCreateUserAccountExplanation)')
+				html.append('<hr>')
 
-				html.append('<div class="clear">')
-				html.append('<div style="float: left; width: 47%; margin-right: 6%;">')
-
-				html.append('<div>')
-				html.append('<h4>#(Create Account)</h4>')
-				html.append('#(Name)')
-				html.append('<br />')
-				html.append('<input type="text" name="createAccountUserName" id="createAccountUserName" placeholder="#(John Doe)">')
-				html.append('<br />')
-				html.append('#(Email Address)')
-				html.append('<br />')
-				html.append('<input type="text" name="createAccountUserEmail" id="createAccountUserEmail" placeholder="#(johndoe@gmail.com)">')
-				html.append('<br />')
-				html.append('#(Password)')
-				html.append('<br />')
-				html.append('<input type="password" name="createAccountUserPassword" id="createAccountUserPassword">')
-				html.append('<br />')
-				html.append('#(Repeat Password)')
-				html.append('<br />')
-				html.append('<input type="password" name="createAccountUserPassword2" id="createAccountUserPassword2">')
-				html.append('</div>')
-
+				# Localization
+				systemLocale = client.systemLocale()
+				for code, name in locales.locales:
+					if code == systemLocale:
+						systemLocale = name
+						break
+				html.append('<h2>App Language</h2>')
 				html.append('<p>')
-				html.append('<a id="createAccountButton" class="button">#(Create Account)</a>')
+				html.append('<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Language (%s)</label></span>' % ('checked' if client.preferences.get('localizationType') == 'systemLocale' else '', systemLocale))
+				html.append('<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>')
 				html.append('</p>')
-				html.append('''<script>$("#preferences #createAccountButton").click(function() {
-
-				python("self.createUserAccount(____" + $("#preferences #createAccountUserName").val() + "____, ____" + $("#preferences #createAccountUserEmail").val() + "____, ____" + $("#preferences #createAccountUserPassword").val() + "____, ____" + $("#preferences #createAccountUserPassword2").val() + "____)");
-				 
-			});</script>''')
-
-				html.append('</div>') # .floatleft
-				html.append('<div style="float: left; width: 47%;">')
-
-				html.append('<div>')
-				html.append('<h4>#(Log In To Existing Account)</h4>')
-				html.append('#(Email Address)')
-				html.append('<br />')
-				html.append('<input type="text" name="loginUserEmail" id="loginUserEmail" placeholder="#(johndoe@gmail.com)">')
-				html.append('<br />')
-				html.append('#(Password)')
-				html.append('<br />')
-				html.append('<input type="password" name="loginUserPassword" id="loginUserPassword">')
-				html.append('</div>')
-
 				html.append('<p>')
-				html.append('<a id="loginButton" class="button">#(Log In)</a>')
+				html.append('<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Language (choose below). Requires app restart to take full effect.</label></span>' % ('checked' if client.preferences.get('localizationType') == 'customLocale' else ''))
+				html.append('<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>')
 				html.append('</p>')
-
 				html.append('<p>')
-				html.append('<a href="https://type.world/resetpassword">#(I Forgot My Password) ↗</a>')
+				html.append('<select id="customLocaleChoice" style="" onchange="">')
+				for code, name in locales.locales:
+					html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if code == client.preferences.get('customLocaleChoice') else '', name))
+				html.append('</select>')
+				html.append('''<script>$("#preferences #customLocaleChoice").click(function() {
+
+					setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());
+					 
+				});</script>''')
 				html.append('</p>')
 
-				html.append('''<script>$("#preferences #loginButton").click(function() {
+				html.append('<hr>')
 
-				python("self.logIn(____" + $("#preferences #loginUserEmail").val() + "____, ____" + $("#preferences #loginUserPassword").val() + "____)");
-				 
-			});</script>''')
+				# Reset Dialogs
+				html.append('<h2>#(Reset Dialogs)</h2>')
+				html.append('<p>')
+				html.append('<a id="resetDialogButton" class="button">#(ResetDialogsButton)</a>')
+				html.append('</p>')
+				html.append('''<script>$("#preferences #resetDialogButton").click(function() {
 
-				html.append('</div>') # .floatleft
-				html.append('</div>') # .clear
-
-
-
-			html.append('''<script>$("#preferences #unlinkAppButton").click(function() {
-
-				python("self.unlinkUserAccount()");
-				 
-			});</script>''')
+					python("self.resetDialogs()");
+					 
+				});</script>''')
 
 
+			html.append('</div>') # .inner
 
-			html.append('<hr>')
 
-			# Agent
-			if WIN:
-				html.append('<h2>#(Icon in Menu Bar.Windows)</h2>')
-			if MAC:
-				html.append('<h2>#(Icon in Menu Bar.Mac)</h2>')
-			html.append('<p>')
-			label = '#(Show Icon in Menu Bar' + ('.Windows' if WIN else '.Mac') + ')'
-			html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">%s</label></span>' % ('checked' if agentIsRunning() else '', label))
-			html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
-			html.append('</p>')
-			html.append('<p>')
-			html.append('#(IconInMenuBarExplanation)')
-			html.append('</p>')
-
-			html.append('<hr>')
-
-			# Localization
-			systemLocale = client.systemLocale()
-			for code, name in locales.locales:
-				if code == systemLocale:
-					systemLocale = name
-					break
-			html.append('<h2>App Language</h2>')
-			html.append('<p>')
-			html.append('<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Language (%s)</label></span>' % ('checked' if client.preferences.get('localizationType') == 'systemLocale' else '', systemLocale))
-			html.append('<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>')
-			html.append('</p>')
-			html.append('<p>')
-			html.append('<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Language (choose below). Requires app restart to take full effect.</label></span>' % ('checked' if client.preferences.get('localizationType') == 'customLocale' else ''))
-			html.append('<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>')
-			html.append('</p>')
-			html.append('<p>')
-			html.append('<select id="customLocaleChoice" style="" onchange="">')
-			for code, name in locales.locales:
-				html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if code == client.preferences.get('customLocaleChoice') else '', name))
-			html.append('</select>')
-			html.append('''<script>$("#preferences #customLocaleChoice").click(function() {
-
-				setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());
-				 
-			});</script>''')
-			html.append('</p>')
-
-			html.append('<hr>')
-
-			# Reset Dialogs
-			html.append('<h2>#(Reset Dialogs)</h2>')
-			html.append('<p>')
-			html.append('<a id="resetDialogButton" class="button">#(ResetDialogsButton)</a>')
-			html.append('</p>')
-			html.append('''<script>$("#preferences #resetDialogButton").click(function() {
-
-				python("self.resetDialogs()");
-				 
-			});</script>''')
 
 			# Print HTML
 			html = ''.join(map(str, html))
@@ -1722,7 +1766,7 @@ try:
 			html = localizeString(html, html = True)
 			html = html.replace('\n', '')
 			# print(html)
-			js = '$("#preferences .inner").html("<div>' + html + '</div>");'
+			js = '$("#preferences .centerOuter").html("<div>' + html + '</div>");'
 			self.javaScript(js)
 
 			self.javaScript('showPreferences();')
@@ -1861,6 +1905,27 @@ try:
 						self.javaScript(js)
 
 						self.javaScript('showPreferences();')
+
+		def showAppInstances(self, event):
+
+
+
+			html = []
+
+
+
+
+			# Print HTML
+			html = ''.join(map(str, html))
+			html = html.replace('"', '\'')
+			html = localizeString(html, html = True)
+			html = html.replace('\n', '')
+			html = self.replaceHTML(html)
+
+			js = '$("#preferences .inner").html("' + html + '");'
+			self.javaScript(js)
+
+			self.javaScript('showPreferences();')
 
 
 		def inviteUsers(self, b64ID, string):

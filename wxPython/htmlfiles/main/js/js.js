@@ -207,6 +207,12 @@ function showPreferences() {
 	python('self.panelVisible = True')
 }
 
+function showPreferences() {
+	$('#preferences').slideDown();
+	registerKeypress(27, function(){ hidePanel(); });
+	python('self.panelVisible = True')
+}
+
 function showPublisherPreferences() {
 	$('#publisherPreferences').slideDown();
 	registerKeypress(27, function(){ hidePanel(); });

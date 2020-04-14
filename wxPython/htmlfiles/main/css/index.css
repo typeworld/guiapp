@@ -901,11 +901,12 @@ body.dark {
 
 
 .closePanelButton {
-	color: #333;
+	color: #000;
 	text-align: right;
 	font-size: 24pt;
 	margin-right: 20px;
 	margin-top: 20px;
+	z-index: 300;
 }
 
 #metadata .closePanelButton {
@@ -913,7 +914,7 @@ body.dark {
 }
 
 .closePanelButton a {
-	color: #333 !important;
+	color: #000 !important;
 }
 
 
@@ -976,6 +977,46 @@ body.dark {
     background-color: #1A1A1A;
     color: #999999;
 }
+
+
+.panel .head {
+	height: 150px;
+	background-color: #333;
+	position: relative;
+	z-index: 200;
+}
+
+.panel .head .tabs {
+	position: absolute;
+	bottom: 0px;
+	padding-left: 80px;
+}
+
+.panel .head .tab {
+	float: left;
+	background-color: #444;
+
+	position: relative;
+	top: 10px;
+	padding: 20px;
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
+.panel .head .tab.active {
+    background-color: #EDEBDD;
+
+	top: 0px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.dark .panel .head .tab.active {
+    background-color: #1A1A1A;
+}
+
+
+
 
 .panel a {
 	color: #259CD3;

@@ -26,7 +26,7 @@ else:
 	DESIGNTIME = True
 	RUNTIME = False
 
-import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, ctypes, semver, platform, logging, certifi
+import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, platform, logging
 from threading import Thread
 import threading
 import wx.html2
@@ -42,7 +42,6 @@ from string import Template
 from babel.dates import format_date, format_time
 from datetime import datetime
 
-import platform
 WIN = platform.system() == 'Windows'
 MAC = platform.system() == 'Darwin'
 

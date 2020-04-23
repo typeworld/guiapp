@@ -40,7 +40,6 @@ from ynlib.system import Execute
 from string import Template
 
 from babel.dates import format_date, format_time
-from datetime import datetime
 
 WIN = platform.system() == 'Windows'
 MAC = platform.system() == 'Darwin'
@@ -1663,7 +1662,7 @@ try:
 							html.append('<br />')
 							html.append('<div>')
 							html.append('<span class_="box" style="background-color: orange; padding: 3px;">')
-							t = datetime.fromtimestamp(instance.revokedTime)
+							t = datetime.datetime.fromtimestamp(instance.revokedTime)
 							html.append('#(Revoked): %s %s' % (format_date(t, locale=client.locale()[0]), format_time(t, locale=client.locale()[0])))
 							html.append('</span>')
 							html.append('</div>')
@@ -1673,7 +1672,7 @@ try:
 								if not instance.anonymousAppID == client.anonymousAppID():
 									html.append('<br />')
 									html.append('<span style="color: #888;">')
-									t = datetime.fromtimestamp(instance.lastUsed)
+									t = datetime.datetime.fromtimestamp(instance.lastUsed)
 									html.append('#(Last active): %s %s' % (format_date(t, locale=client.locale()[0]), format_time(t, locale=client.locale()[0])))
 
 
@@ -3374,7 +3373,7 @@ try:
 			index = int(index)
 			publisher = client.publisher(client.preferences.get('currentPublisher'))
 			subscription = publisher.subscription(publisher.get('currentSubscription'))
-			font = subscription.fontByID(client.publisher(subscription.get('currentFont')))
+			font = subscription.fontByID(subscription.get('currentFont'))
 			success, billboard, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
 			if success:
 				data = "data:%s;base64,%s" % (mimeType, billboard)
@@ -3547,7 +3546,7 @@ try:
 							if version.description:
 								html.append('%s' % version.description.getText(client.locale()))
 							if version.releaseDate:
-								html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date(*map(int, version.releaseDate.split('-'))), locale=client.locale()[0]))
+								html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date.fromisoformat(version.releaseDate), locale=client.locale()[0]))
 							
 							html.append('<div class="installButton status install" style="display: %s; margin-top: -3px;">' % ('block' if version.number != installedVersion else 'none'))
 							html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID), version.number))

@@ -11,7 +11,7 @@ version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 
 findSymlinks = 'find -L ~/Code/TypeWorldApp/dist/Type.World.app -type l'
 sparkle = '/Users/yanone/Code/Sparkle/Sparkle.framework'
 
-profile = 'nosign' # 'normal'
+profile = 'normal' # 'normal'
 
 def executeCommands(commands):
 	for description, command, mustSucceed in commands:
@@ -118,6 +118,9 @@ if profile in ['normal']:
 	))
 
 	signApp('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app')
+
+if profile in ['nosign']:
+	print(f'WARNING: Apps aren’t signed (profile: {profile})')
 
 print('Finished successfully.')
 print()

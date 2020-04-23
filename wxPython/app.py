@@ -2586,46 +2586,40 @@ try:
 			pass
 
 
-		def installAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64setName, formatName):
+		def installAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64packageKeyword, formatName):
 
 			fonts = []
 
 			publisherID = self.b64decode(b64publisherID)
 			subscriptionID = self.b64decode(b64subscriptionID)
 			familyID = self.b64decode(b64familyID)
-			if b64setName:
-				setName = self.b64decode(b64setName)
-			else:
-				setName = None
+			packageKeyword = self.b64decode(b64packageKeyword)
 			publisher = client.publisher(publisherID)
 			subscription = publisher.subscription(subscriptionID)
 			family = subscription.familyByID(familyID)
 
 			for font in family.fonts:
-				if font.setName.getText(client.locale()) == setName and font.format == formatName:
+				if packageKeyword in font.getPackageKeywords() and font.format == formatName:
 					if not subscription.installedFontVersion(font.uniqueID):
 						fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
 
 			self.installFonts(fonts)
 
 
-		def removeAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64setName, formatName):
+		def removeAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64packageKeyword, formatName):
 
 			fonts = []
 
 			publisherID = self.b64decode(b64publisherID)
 			subscriptionID = self.b64decode(b64subscriptionID)
 			familyID = self.b64decode(b64familyID)
-			if b64setName:
-				setName = self.b64decode(b64setName)
-			else:
-				setName = None
+			packageKeyword = self.b64decode(b64packageKeyword)
 			publisher = client.publisher(publisherID)
 			subscription = publisher.subscription(subscriptionID)
 			family = subscription.familyByID(familyID)
 
 			for font in family.fonts:
-				if font.setName.getText(client.locale()) == setName and font.format == formatName:
+				if packageKeyword in font.getPackageKeywords() and font.format == formatName:
 					if subscription.installedFontVersion(font.uniqueID):
 						fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID)])
 
@@ -3959,28 +3953,25 @@ try:
 							html.append('</div>') # .title
 
 
-							for setName in family.setNames(client.locale()):
-								for formatName in family.formatsForSetName(setName, client.locale()):
+							for package in family.getPackages():
+								for formatName in package.getFormats():
 
-									fonts = []
 									amountInstalled = 0
-									for font in family.fonts:
-										if font.setName.getText(client.locale()) == setName and font.format == formatName:
-											fonts.append(font)
-											if subscription.installedFontVersion(font.uniqueID):
-												amountInstalled += 1
+									for font in package.fonts:
+										if subscription.installedFontVersion(font.uniqueID):
+											amountInstalled += 1
 
 									completeSetName = ''
-									if setName:
-										completeSetName = setName + ', '
+									if package.keyword != typeWorld.api.DEFAULT:
+										completeSetName += package.name.getText(client.locale()) + ', '
 									completeSetName += typeWorld.api.FILEEXTENSIONNAMES[formatName]
 
-									html.append('<div class="section %s" id="%s">' % ('multipleFonts' if len(fonts) > 1 else '', completeSetName))
+									html.append('<div class="section %s" id="%s">' % ('multipleFonts' if len(package.fonts) > 1 else '', completeSetName))
 
 									html.append('<div class="title clear">')
 									html.append('<div class="name left">%s</div>' % completeSetName)
 
-									if len(fonts) > 1:
+									if len(package.fonts) > 1:
 
 										html.append('<div class="more right" style="padding-top: 5px;">')
 										html.append('<img src="file://##htmlroot##/more_darker.svg" style="height: 8px; position: relative; top: 0px;">')
@@ -3989,16 +3980,16 @@ try:
 										html.append('<div class="installButtons right" style="padding-top: 5px;">')
 										html.append('<div class="clear">')
 
-										if amountInstalled < len(fonts):
+										if amountInstalled < len(package.fonts):
 											html.append('<div class="install installButton right">')
-											html.append('<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">' % (self.b64encode(ID), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+											html.append('<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">' % (self.b64encode(ID), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(family.uniqueID), self.b64encode(package.keyword), formatName))
 											html.append('✓ #(Install All)')
 											html.append('</a>')
 											html.append('</div>') # .installButton
 
 										if amountInstalled > 0:
 											html.append('<div class="remove installButton right">')
-											html.append('<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">' % (self.b64encode(ID), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(family.uniqueID), self.b64encode(setName) if setName else '', formatName))
+											html.append('<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">' % (self.b64encode(ID), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(family.uniqueID), self.b64encode(package.keyword), formatName))
 											html.append('✕ #(Remove All)')
 											html.append('</a>')
 											html.append('</div>') # .installButton
@@ -4008,7 +3999,7 @@ try:
 
 									html.append('</div>') # .title
 
-									for font in fonts:
+									for font in package.fonts:
 										installedVersion = subscription.installedFontVersion(font.uniqueID)
 
 										html.append('<div class="contextmenu font %s %s %s" id="%s">' % (self.b64encode(font.uniqueID), 'installed' if installedVersion else 'notInstalled', 'selected' if subscription.get('currentFont') == font.uniqueID else '', self.b64encode(font.uniqueID)))

@@ -39,8 +39,6 @@ from threading import Thread
 from ynlib.system import Execute
 from string import Template
 
-from babel.dates import format_date, format_time
-
 WIN = platform.system() == 'Windows'
 MAC = platform.system() == 'Darwin'
 
@@ -1662,8 +1660,7 @@ try:
 							html.append('<br />')
 							html.append('<div>')
 							html.append('<span class_="box" style="background-color: orange; padding: 3px;">')
-							t = datetime.datetime.fromtimestamp(instance.revokedTime)
-							html.append('#(Revoked): %s %s' % (format_date(t, locale=client.locale()[0]), format_time(t, locale=client.locale()[0])))
+							html.append('#(Revoked): %s %s' % (locales.formatDate(instance.revokedTime, client.locale()), locales.formatTime(instance.revokedTime, client.locale())))
 							html.append('</span>')
 							html.append('</div>')
 
@@ -1672,8 +1669,7 @@ try:
 								if not instance.anonymousAppID == client.anonymousAppID():
 									html.append('<br />')
 									html.append('<span style="color: #888;">')
-									t = datetime.datetime.fromtimestamp(instance.lastUsed)
-									html.append('#(Last active): %s %s' % (format_date(t, locale=client.locale()[0]), format_time(t, locale=client.locale()[0])))
+									html.append('#(Last active): %s %s' % (locales.formatDate(instance.lastUsed, client.locale()), locales.formatTime(instance.lastUsed, client.locale())))
 
 
 								
@@ -3546,8 +3542,8 @@ try:
 							if version.description:
 								html.append('%s' % version.description.getText(client.locale()))
 							if version.releaseDate:
-								html.append('<br /><span style="color: gray;">#(Published): %s</span>' % format_date(datetime.date.fromisoformat(version.releaseDate), locale=client.locale()[0]))
-							
+								html.append('<br /><span style="color: gray;">#(Published): %s</span>' % locales.formatDate(time.mktime(datetime.date.fromisoformat(version.releaseDate).timetuple()), client.locale()))
+
 							html.append('<div class="installButton status install" style="display: %s; margin-top: -3px;">' % ('block' if version.number != installedVersion else 'none'))
 							html.append('<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">' % (self.b64encode(subscription.parent.canonicalURL), self.b64encode(subscription.protocol.unsecretURL()), self.b64encode(font.uniqueID), version.number))
 							html.append('✓ #(Install)')

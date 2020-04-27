@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import re, os, sys#, markdown
+import re, os, sys, time, datetime
 import json
 
 # Adjust __file__ for Windows executable
@@ -51,3 +51,14 @@ def localizeString(source, languages = ['en'], html = False):
 if __name__ == '__main__':
 	print((localizeString('#(Remove X)', ['en'])))
 #	print localize('Add', ['de'])
+
+
+def formatTime(timestamp, languages = ['en']):
+
+	formatString = localizeString('#(FormatTimeString)', languages = languages).replace('//', '%')
+	return time.strftime(formatString, time.localtime(timestamp))
+
+def formatDate(timestamp, languages = ['en']):
+
+	formatString = localizeString('#(FormatDateString)', languages = languages).replace('//', '%')
+	return datetime.date.fromtimestamp(timestamp).strftime(formatString)

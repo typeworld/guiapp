@@ -31,6 +31,7 @@ from threading import Thread
 import threading
 import wx.html2
 import locales
+
 import urllib.request, urllib.parse, urllib.error, time
 from functools import partial
 from wx.lib.delayedresult import startWorker
@@ -100,17 +101,6 @@ if WIN and DEBUG:
 	if os.path.exists(filename):
 		os.remove(filename)
 	logging.basicConfig(filename=filename,level=logging.DEBUG)
-
-
-def log(message):
-	# print('log(): %s' % message)
-	if DEBUG:
-		if WIN:
-			logging.debug(message)
-		if MAC:
-			from AppKit import NSLog
-			NSLog(f'Type.World App: {message}')
-
 
 
 # print ('__file__', __file__)
@@ -273,7 +263,6 @@ try:
 	if WIN:
 		prefFile = os.path.join(prefDir, 'preferences.json')
 		prefs = JSON(prefFile)
-		# log('Preferences at %s' % prefFile)
 	else:
 		prefs = AppKitNSUserDefaults('world.type.clientapp' if DESIGNTIME else None)
 
@@ -609,7 +598,7 @@ try:
 		uninstallAgent()
 		installAgent()
 
-		log('Agent restarted')
+		client.log('Agent restarted')
 
 	def restartAgent(wait = 0):
 		restartAgentThread = Thread(target = restartAgentWorker, args=(wait, ))
@@ -630,7 +619,7 @@ try:
 
 
 						lock()
-						log('lock() from within installAgent()')
+						client.log('lock() from within installAgent()')
 
 						from AppKit import NSBundle
 						zipPath = NSBundle.mainBundle().pathForResource_ofType_('agent', 'tar.bz2')
@@ -691,13 +680,13 @@ try:
 					if not appIsRunning('TypeWorld Taskbar Agent.exe'):
 
 						lock()
-						log('lock() from within installAgent()')
+						client.log('lock() from within installAgent()')
 
 
 				#			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
 						file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
 						file_path = file_path.replace(r'\\Mac\Home', 'Z:')
-						log(file_path)
+						client.log(file_path)
 
 						import getpass
 						USER_NAME = getpass.getuser()
@@ -706,8 +695,8 @@ try:
 						bat_command = 'start "" "%s"' % file_path
 
 						from pathlib import Path
-						log(Path(file_path).exists())
-						log(os.path.exists(file_path))
+						client.log(Path(file_path).exists())
+						client.log(os.path.exists(file_path))
 
 						if not os.path.exists(os.path.dirname(bat_path)):
 							os.makedirs(os.path.dirname(bat_path))
@@ -720,20 +709,20 @@ try:
 
 				client.preferences.set('menuBarIcon', True)
 
-				log('installAgent() done')
+				client.log('installAgent() done')
 
 			except:
-				log(traceback.format_exc())
+				client.log(traceback.format_exc())
 
 				unlock()
-				log('unlock() from within installAgent() after traceback')
+				client.log('unlock() from within installAgent() after traceback')
 
 
 
 	def uninstallAgent():
 
 		lock()
-		log('lock() from within uninstallAgent()')
+		client.log('lock() from within uninstallAgent()')
 		try:
 			if MAC:
 
@@ -770,9 +759,9 @@ try:
 			client.preferences.set('menuBarIcon', False)
 
 		except:
-			log(traceback.format_exc())
+			client.log(traceback.format_exc())
 		unlock()
-		log('unlock() from within uninstallAgent()')
+		client.log('unlock() from within uninstallAgent()')
 
 
 	def localizeString(string, html = False, replace = {}):
@@ -814,12 +803,12 @@ try:
 
 		def waitForUpdateToFinish(app, updater, delegate):
 
-			log('Waiting for update loop to finish')
+			client.log('Waiting for update loop to finish')
 
 			while updater.updateInProgress():
 				time.sleep(1)
 
-			log('Update loop finished')
+			client.log('Update loop finished')
 
 			if delegate.downloadStarted == False:
 				delegate.destroyIfRemotelyCalled()
@@ -829,20 +818,20 @@ try:
 		class SparkleUpdateDelegate(NSObject):
 
 			def destroyIfRemotelyCalled(self):
-				log('Quitting because app was called remotely for an update')
+				client.log('Quitting because app was called remotely for an update')
 				global app
 				if app.startWithCommand:
 					if app.startWithCommand == 'checkForUpdateInformation':
 						app.frame.Destroy()
-						log('app.frame.Destroy()')
+						client.log('app.frame.Destroy()')
 
 			def updater_didAbortWithError_(self, updater, error):
-				log('sparkleUpdateDelegate.updater_didAbortWithError_()')
-				log(error)
+				client.log('sparkleUpdateDelegate.updater_didAbortWithError_()')
+				client.log(error)
 				self.destroyIfRemotelyCalled()
 
 			def userDidCancelDownload_(self, updater):
-				log('sparkleUpdateDelegate.userDidCancelDownload_()')
+				client.log('sparkleUpdateDelegate.userDidCancelDownload_()')
 				self.destroyIfRemotelyCalled()
 
 			def updater_didFindValidUpdate_(self, updater, appcastItem):
@@ -854,51 +843,51 @@ try:
 				waitForUpdateThread = Thread(target=waitForUpdateToFinish, args=(app, updater, self))
 				waitForUpdateThread.start()
 
-				log('sparkleUpdateDelegate.updater_didFindValidUpdate_() finished')
+				client.log('sparkleUpdateDelegate.updater_didFindValidUpdate_() finished')
 
 
 			def updaterDidNotFindUpdate_(self, updater):
-				log('sparkleUpdateDelegate.updaterDidNotFindUpdate_()')
+				client.log('sparkleUpdateDelegate.updaterDidNotFindUpdate_()')
 				self.updateFound = False
 				self.destroyIfRemotelyCalled()
 
 			# Not so important
 			def updater_didFinishLoadingAppcast_(self, updater, appcast):
-				log('sparkleUpdateDelegate.updater_didFinishLoadingAppcast_()')
+				client.log('sparkleUpdateDelegate.updater_didFinishLoadingAppcast_()')
 
 			def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
-				log('sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()')
+				client.log('sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()')
 
 			def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
-				log('sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()')
+				client.log('sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()')
 
 			def updater_willDownloadUpdate_withRequest_(self, updater, appcast, request):
 				self.downloadStarted = True
-				log('sparkleUpdateDelegate.updater_willDownloadUpdate_withRequest_()')
+				client.log('sparkleUpdateDelegate.updater_willDownloadUpdate_withRequest_()')
 
 			def updater_didDownloadUpdate_(self, updater, item):
-				log('sparkleUpdateDelegate.updater_didDownloadUpdate_()')
+				client.log('sparkleUpdateDelegate.updater_didDownloadUpdate_()')
 
 			def updater_failedToDownloadUpdate_error_(self, updater, item, error):
-				log('sparkleUpdateDelegate.updater_failedToDownloadUpdate_error_()')
+				client.log('sparkleUpdateDelegate.updater_failedToDownloadUpdate_error_()')
 
 			def updater_willExtractUpdate_(self, updater, item):
-				log('sparkleUpdateDelegate.updater_willExtractUpdate_()')
+				client.log('sparkleUpdateDelegate.updater_willExtractUpdate_()')
 
 			def updater_didExtractUpdate_(self, updater, item):
-				log('sparkleUpdateDelegate.updater_didExtractUpdate_()')
+				client.log('sparkleUpdateDelegate.updater_didExtractUpdate_()')
 
 			def updater_willInstallUpdate_(self, updater, item):
-				log('sparkleUpdateDelegate.updater_willInstallUpdate_()')
+				client.log('sparkleUpdateDelegate.updater_willInstallUpdate_()')
 
 			def updaterWillRelaunchApplication_(self, updater):
-				log('sparkleUpdateDelegate.updater_willInstallUpdate_()')
+				client.log('sparkleUpdateDelegate.updater_willInstallUpdate_()')
 
 			def updaterWillShowModalAlert_(self, updater):
-				log('sparkleUpdateDelegate.updaterWillShowModalAlert_()')
+				client.log('sparkleUpdateDelegate.updaterWillShowModalAlert_()')
 
 			def updaterDidShowModalAlert_(self, updater):
-				log('sparkleUpdateDelegate.updaterDidShowModalAlert_()')
+				client.log('sparkleUpdateDelegate.updaterDidShowModalAlert_()')
 
 		sparkleDelegate = SparkleUpdateDelegate.alloc().init()
 		sparkle.setDelegate_(sparkleDelegate)
@@ -915,46 +904,46 @@ try:
 				while self.updateInProgress:
 					time.sleep(1)
 
-				log('Update loop finished')
+				client.log('Update loop finished')
 
 				self.destroyIfRemotelyCalled()
 
 			def destroyIfRemotelyCalled(self):
-				log('Quitting because app was called remotely for an update')
+				client.log('Quitting because app was called remotely for an update')
 
 				# Do nothing here for Windows because we didn't create an app instance
 
 			def pywinsparkle_no_update_found(self):
 				""" when no update has been found, close the updater"""
-				log("No update found")
+				client.log("No update found")
 				self.updateInProgress = False
 
 
 			def pywinsparkle_found_update(self):
 				""" log that an update was found """
-				log("New Update Available")
+				client.log("New Update Available")
 				# self.updateInProgress = False
 
 
 			def pywinsparkle_encountered_error(self):
-				log("An error occurred")
+				client.log("An error occurred")
 				self.updateInProgress = False
 				self.destroyIfRemotelyCalled()
 
 
 			def pywinsparkle_update_cancelled(self):
 				""" when the update was cancelled, close the updater"""
-				log("Update was cancelled")
+				client.log("Update was cancelled")
 				self.updateInProgress = False
 
 			def pywinsparkle_shutdown(self):
 				""" The installer is being launched signal the updater to shutdown """
 				# actually shutdown the app here
-				log("Safe to shutdown before installing")
+				client.log("Safe to shutdown before installing")
 				self.updateInProgress = False
 
 			def check_with_ui(self):
-				log("check_with_ui()")
+				client.log("check_with_ui()")
 				self.updateInProgress = True
 
 				# waitForUpdateThread = Thread(target=self.waitForUpdateToFinish)
@@ -965,7 +954,7 @@ try:
 				self.waitForUpdateToFinish()
 
 			def check_without_ui(self):
-				log("check_without_ui()")
+				client.log("check_without_ui()")
 				self.updateInProgress = True
 
 				# waitForUpdateThread = Thread(target=self.waitForUpdateToFinish)
@@ -1139,7 +1128,7 @@ try:
 				# template.setExpiration(expiration) # One day
 				# notificationID = zroya.show(template)
 
-				self.log('Received SIGTERM or SIGINT')
+				client.log('Received SIGTERM or SIGINT')
 
 				self.onQuit(None)
 
@@ -1150,7 +1139,7 @@ try:
 
 
 
-			log('AppFrame.__init__() finished')
+			client.log('AppFrame.__init__() finished')
 
 		def onMouseDown(self, event):
 			# print(event)
@@ -1225,19 +1214,14 @@ try:
 		def javaScript(self, script):
 			if self.fullyLoaded:
 				if threading.current_thread() == self.thread:
-					# log('JavaScript Executed:')
-					# log(str(script)[:100])
 					self.html.RunScript(script)
 				else:
-					log('JavaScript called from another thread: %s' % script[:100])
-#					log(str(script.encode())[:100], '...')
+					client.log('JavaScript called from another thread: %s' % script[:100])
 
 
 
 			else:
 				pass
-	#            log('JavaScript Execution: Page not fully loaded:')
-	#            log(str(script.encode())[:100], '...')
 
 
 
@@ -1294,19 +1278,19 @@ try:
 
 			self.active = False
 
-			# log('onQuit()')
+			# client.log('onQuit()')
 
 			while locked():
-				log('Waiting for locks to disappear')
+				client.log('Waiting for locks to disappear')
 				time.sleep(.5)
 
 			try:
-				log('send closeListener command to self')
+				client.log('send closeListener command to self')
 				address = ('localhost', 65500)
 				myConn = Client(address)
 				myConn.send('closeListener')
 				myConn.close()
-				log('send closeListener command to self (finished)')
+				client.log('send closeListener command to self (finished)')
 			except ConnectionRefusedError:
 				pass
 
@@ -1367,7 +1351,7 @@ try:
 
 
 			if self.active:
-				self.log('onActivate()')
+				client.log('onActivate()')
 
 				# self.pullServerUpdates()
 
@@ -1607,7 +1591,11 @@ try:
 				
 				success, instances = client.linkedAppInstances()
 				if not success:
-					html.append(instances)
+					
+					if instances[0] == '#(response.appInstanceRevoked)':
+						html.append('This app instance is revoked an cannot access other app instance information.')
+					else:
+						html.append(instances)
 
 				else:
 					for instance in instances:
@@ -2272,7 +2260,7 @@ try:
 				# code = code.replace('https//', 'https://')
 				code = code.replace('____', '\'')
 				code = code.replace("'", '\'')
-				# log('Python code:', code)
+				# client.log('Python code:', code)
 				exec(code)
 				evt.Veto()
 			elif uri.startswith('http://') or uri.startswith('https://'):
@@ -2298,7 +2286,7 @@ try:
 
 
 		def onError(self, evt):
-			log('Error received from WebView: %s' % evt.GetString())
+			client.log('Error received from WebView: %s' % evt.GetString())
 	#       raise Exception(evt.GetString())
 
 
@@ -2324,7 +2312,7 @@ try:
 
 		def handleAppCommand(self, url):
 
-			log('handleAppCommand(%s)' % url)
+			client.log('handleAppCommand(%s)' % url)
 
 			parts = url.split('/')
 
@@ -2577,7 +2565,7 @@ try:
 
 
 		def publisherPreferences(self, i):
-			log(('publisherPreferences', i))
+			client.log(('publisherPreferences', i))
 			pass
 
 
@@ -2624,7 +2612,7 @@ try:
 
 		def installFontFromMenu(self, event, b64publisherURL, b64subscriptionURL, b64fontID, version):
 
-			self.log('installFontFromMenu()')
+			client.log('installFontFromMenu()')
 
 			self.installFont(b64publisherURL, b64subscriptionURL, b64fontID, version)
 
@@ -3094,7 +3082,7 @@ try:
 
 		def showPublisherInFinder(self, evt, b64ID):
 			
-			log('showPublisherInFinder()')
+			client.log('showPublisherInFinder()')
 			publisher = client.publisher(self.b64decode(b64ID))
 			path = publisher.folder()
 
@@ -3106,7 +3094,7 @@ try:
 
 		def showFontInFinder(self, evt, subscription, fontID):
 
-			log('showFontInFinder()')
+			client.log('showFontInFinder()')
 			font = subscription.fontByID(fontID)
 			version = subscription.installedFontVersion(fontID)
 			path = font.path(version, folder = None)
@@ -3117,7 +3105,7 @@ try:
 
 		def reloadPublisher(self, evt, b64ID):
 
-			# log('reloadPublisher()')
+			# client.log('reloadPublisher()')
 
 			client.prepareUpdate()
 
@@ -3150,7 +3138,7 @@ try:
 			# 	# See if we should check now
 			# 	if int(client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')):
 
-			# 		self.log('Automatically reloading subscriptions...')
+			# 		client.log('Automatically reloading subscriptions...')
 
 			# 		client.prepareUpdate()
 
@@ -3168,13 +3156,13 @@ try:
 			return subscription
 
 		def reloadSubscriptionFromClient_consumer(self, delayedResult):
-			# self.log('PULLED FROM SERVER: %s' % (subscription))
+			# client.client.log('PULLED FROM SERVER: %s' % (subscription))
 			subscription = delayedResult.get()
 			self.reloadSubscription(None, subscription = subscription)
 
 		def reloadSubscription(self, evt, b64ID = None, subscription = None):
 
-#			self.log('reloadSubscription(%s, %s)' % (b64ID, subscription))
+#			client.client.log('reloadSubscription(%s, %s)' % (b64ID, subscription))
 
 			if subscription:
 				pass
@@ -3243,7 +3231,7 @@ try:
 
 			if client.allSubscriptionsUpdated():
 				client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
-				self.log('Reset reloadSubscriptionsLastPerformed')
+				client.log('Reset reloadSubscriptionsLastPerformed')
 
 			agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
@@ -3307,7 +3295,7 @@ try:
 			elif type(message) == typeWorld.api.MultiLanguageText:
 				message = message.getText(locale = client.locale())
 
-			log(message)
+			client.log(message)
 
 			message = localizeString(message)
 			title = localizeString(title)
@@ -4422,7 +4410,7 @@ try:
 			html = localizeString(html, html = True)
 			html = html.replace('\n', '')
 			html = self.replaceHTML(html)
-	#        self.log(html)
+	#        client.log(html)
 			js = '$("#sidebar").html("' + html + '");'
 
 			self.javaScript(js)
@@ -4436,7 +4424,7 @@ try:
 
 		def onLoad(self, event):
 
-			self.log('MyApp.frame.onLoad()')
+			client.log('MyApp.frame.onLoad()')
 			self.fullyLoaded = True
 
 			self.applyDarkMode()
@@ -4513,7 +4501,7 @@ try:
 			if agentIsRunning():
 				agentVersion = agent('version')
 				if semver.compare(APPVERSION, agentVersion) == 1:
-					log('Agent is outdated (%s), needs restart.' % agentVersion)
+					client.log('Agent is outdated (%s), needs restart.' % agentVersion)
 					restartAgent(2)
 
 			self.pullServerUpdates(force = True)
@@ -4553,11 +4541,6 @@ try:
 
 			return True
 
-
-
-		def log(self, message):
-
-			log(message)
 
 
 		def setBadgeLabel(self, label):
@@ -4603,7 +4586,7 @@ try:
 		#       self.javaScript('$("#sidebar #%s .badge.outdated").hide();' % b64ID)
 
 		def debug(self, string):
-			self.log(string)
+			client.log(string)
 
 
 
@@ -4646,11 +4629,11 @@ try:
 			if MAC:
 				sparkle.checkForUpdatesInBackground()
 
-			log('sparkle.checkForUpdateInformation() finished')
+			client.log('sparkle.checkForUpdateInformation() finished')
 
 		def onClose(self, event = None):
 
-			log('UpdateFrame.onCLose()')
+			client.log('UpdateFrame.onCLose()')
 
 			self.Destroy()
 
@@ -4660,7 +4643,7 @@ try:
 		class NSAppDelegate(NSObject):
 			def applicationWillFinishLaunching_(self, notification):
 
-				log('applicationWillFinishLaunching_()')
+				client.log('applicationWillFinishLaunching_()')
 
 
 				try:
@@ -4676,11 +4659,11 @@ try:
 						NSApp().setActivationPolicy_(NSApplicationActivationPolicyAccessory)
 
 				except:
-					log(traceback.format_exc())
+					client.log(traceback.format_exc())
 
 			def applicationDidFinishLaunching_(self, notification):
 
-				log('applicationDidFinishLaunching_()')
+				client.log('applicationDidFinishLaunching_()')
 
 
 
@@ -4702,12 +4685,12 @@ try:
 			if MAC:
 				if self.startWithCommand == 'checkForUpdateInformation': # Otherwise MacOpenURL() wont work
 					NSApplication.sharedApplication().setDelegate_(NSAppDelegate.alloc().init())
-					log('set NSAppDelegate')
+					client.log('set NSAppDelegate')
 
 
 		def MacOpenURL(self, url):
 			
-			log('MyApp.MacOpenURL(%s)' % url)
+			client.log('MyApp.MacOpenURL(%s)' % url)
 
 			if self.frame.fullyLoaded:
 				self.frame.handleURL(url)
@@ -4721,7 +4704,7 @@ try:
 
 
 
-			log('self.startWithCommand: %s' % self.startWithCommand)
+			client.log('self.startWithCommand: %s' % self.startWithCommand)
 
 			if self.startWithCommand:
 
@@ -4806,7 +4789,7 @@ try:
 					w.setToolbar_(toolbar)
 
 
-				self.frame.log('MyApp.OnInit()')
+				client.log('MyApp.OnInit()')
 				
 				if MAC:
 					self.frame.nsapp = NSApp()
@@ -4886,23 +4869,23 @@ try:
 
 		listener.close()
 
-		log('Closed listener loop')
+		client.log('Closed listener loop')
 
 
 
 	def intercom(commands):
 
 		lock()
-		log('lock() from within intercom()')
+		client.log('lock() from within intercom()')
 		try:
 			returnObject = None
 			client.mode = 'headless'
 
 			if not commands[0] in intercomCommands:
-				log('Intercom: Command %s not registered' % (commands[0]))
+				client.log('Intercom: Command %s not registered' % (commands[0]))
 
 			else:
-				log('Intercom called with commands: %s' % commands)
+				client.log('Intercom called with commands: %s' % commands)
 
 				# if commands[0] == 'pullServerUpdate':
 
@@ -4947,7 +4930,7 @@ try:
 						# See if we should check now
 						if int(client.preferences.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(client.preferences.get('reloadSubscriptionsInterval')) or force:
 
-							log('now checking')
+							client.log('now checking')
 
 							client.prepareUpdate()
 
@@ -4960,17 +4943,17 @@ try:
 									totalSuccess = totalSuccess and success   
 
 									if not success:
-										log(message)
+										client.log(message)
 
-									log('updated %s (%1.2fs)' % (subscription, time.time() - startTime))
+									client.log('updated %s (%1.2fs)' % (subscription, time.time() - startTime))
 
 							# Reset
 							if client.allSubscriptionsUpdated():
-								log('resetting timing')
+								client.log('resetting timing')
 								client.preferences.set('reloadSubscriptionsLastPerformed', int(time.time()))
 
 
-					log('client.amountOutdatedFonts() %s' % (client.amountOutdatedFonts()))
+					client.log('client.amountOutdatedFonts() %s' % (client.amountOutdatedFonts()))
 
 
 
@@ -4979,12 +4962,12 @@ try:
 
 				if commands[0] == 'startListener':
 
-					log('about to start listener thread')
+					client.log('about to start listener thread')
 
 					listenerThread = Thread(target=listenerFunction)
 					listenerThread.start()
 
-					log('listener thread started')
+					client.log('listener thread started')
 
 				if commands[0] == 'killAgent':
 
@@ -5009,7 +4992,7 @@ try:
 
 				if commands[0] == 'searchAppUpdate':
 
-					log('Started checkForUpdateInformation()')
+					client.log('Started checkForUpdateInformation()')
 
 
 					if MAC:
@@ -5021,22 +5004,22 @@ try:
 						pywinsparkleDelegate.check_without_ui()
 
 
-					log('Finished checkForUpdateInformation()')
+					client.log('Finished checkForUpdateInformation()')
 
 				if commands[0] == 'daemonStart':
 
 					agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
 
 					unlock()
-					log('unlock() from within intercom()')
+					client.log('unlock() from within intercom()')
 
 
 		except:
-			log(traceback.format_exc())
+			client.log(traceback.format_exc())
 
 		unlock()
-		log('unlock() from within intercom()')
-		log('about to return reply: %s' % returnObject)
+		client.log('unlock() from within intercom()')
+		client.log('about to return reply: %s' % returnObject)
 		return returnObject
 
 
@@ -5045,7 +5028,7 @@ try:
 
 
 		# Output to STDOUT
-		log(intercom(sys.argv[1:]))
+		client.log(intercom(sys.argv[1:]))
 
 		sys.exit(0)
 
@@ -5079,5 +5062,5 @@ try:
 		app.MainLoop()
 
 except:
-	log(traceback.format_exc())
+	client.log(traceback.format_exc())
 	print(traceback.format_exc())

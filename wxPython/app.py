@@ -304,14 +304,14 @@ try:
 					print('currentPublisher reset')
 			self.app.frame.setSideBarHTML()
 
-		def subscriptionWasAdded(self, publisher, subscription):
+		def subscriptionWasAdded(self, subscription):
 			if not client.preferences.get('currentPublisher'):
-				self.app.frame.setPublisherHTML(self.app.frame.b64encode(publisher.canonicalURL))
+				self.app.frame.setPublisherHTML(self.app.frame.b64encode(subscription.parent.canonicalURL))
 
-		def subscriptionWasUpdated(self, publisher, subscription):
-			print('subscriptionWasUpdated', publisher, subscription)
-			if client.preferences.get('currentPublisher') == publisher.canonicalURL and publisher.get('currentSubscription') == subscription.url:
-				self.app.frame.setPublisherHTML(self.app.frame.b64encode(publisher.canonicalURL))
+		def subscriptionWasUpdated(self, subscription):
+			print('subscriptionWasUpdated', subscription.parent, subscription)
+			if client.preferences.get('currentPublisher') == subscription.parent.canonicalURL and subscription.parent.get('currentSubscription') == subscription.url:
+				self.app.frame.setPublisherHTML(self.app.frame.b64encode(subscription.parent.canonicalURL))
 
 	delegate = ClientDelegate()
 	client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui', pubSubSubscriptions = True)

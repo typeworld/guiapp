@@ -314,6 +314,12 @@ class ClientDelegate(TypeWorldClientDelegate):
 delegate = ClientDelegate()
 client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui', pubSubSubscriptions = True)
 
+
+###########################################################################################################################################################################################################
+###########################################################################################################################################################################################################
+###########################################################################################################################################################################################################
+
+
 class FoundryStyling(object):
 	def __init__(self, foundry, theme):
 		self.foundry = foundry
@@ -543,19 +549,22 @@ color: #$informationViewInactiveButtonTextColor;
 # ''' + str(self.selectionHoverColor.hex) + '''
 
 def agent(command):
-	
-	if agentIsRunning():
-		try:
-			address = ('localhost', 65501)
-			myConn = Client(address)
-			myConn.send(command)
-			response = myConn.recv()
-			myConn.close()
+	try:
+		
+		if agentIsRunning():
+			try:
+				address = ('localhost', 65501)
+				myConn = Client(address)
+				myConn.send(command)
+				response = myConn.recv()
+				myConn.close()
 
-			return response
-		except:
-			pass
+				return response
+			except:
+				pass
 
+	except:
+		client.handleTraceback()
 
 def agentIsRunning():
 
@@ -1544,355 +1553,359 @@ class AppFrame(wx.Frame):
 
 	def onPreferences(self, event, section = 'generalPreferences'):
 
+		try:
 
-		html = []
+			html = []
 
-		html.append('<div class="head">')
-
-
-		html.append('<div class="tabs clear">')
-
-		for keyword, title, condition in (
-			('generalPreferences', localizeString('#(Preferences)'), True),
-			('userAccount', localizeString('#(User Account)'), True),
-			('linkedApps', localizeString('#(Linked Apps)'), client.user()),
-			):
-
-			if condition:
-				html.append('<div class="tab %s">' % ('active' if section == keyword else ''))
-				if keyword != section:
-					html.append('<a href="x-python://self.onPreferences(None, ____%s____)">' % keyword)
-				html.append(title)
-				if keyword != section:
-					html.append('</a>')
-				html.append('</div>') # .tab
-
-		html.append('</div>') # .tabs
-
-		html.append('</div>')
+			html.append('<div class="head">')
 
 
-		html.append('<div class="body inner">')
+			html.append('<div class="tabs clear">')
+
+			for keyword, title, condition in (
+				('generalPreferences', localizeString('#(Preferences)'), True),
+				('userAccount', localizeString('#(User Account)'), True),
+				('linkedApps', localizeString('#(Linked Apps)'), client.user()),
+				):
+
+				if condition:
+					html.append('<div class="tab %s">' % ('active' if section == keyword else ''))
+					if keyword != section:
+						html.append('<a href="x-python://self.onPreferences(None, ____%s____)">' % keyword)
+					html.append(title)
+					if keyword != section:
+						html.append('</a>')
+					html.append('</div>') # .tab
+
+			html.append('</div>') # .tabs
+
+			html.append('</div>')
 
 
-		if section == 'linkedApps':
-
-			html.append('''<style>
+			html.append('<div class="body inner">')
 
 
+			if section == 'linkedApps':
+
+				html.append('''<style>
 
 
 
-				</style>''')
 
-			
-			success, instances = client.linkedAppInstances()
-			if not success:
+
+					</style>''')
+
 				
-				if instances[0] == '#(response.appInstanceRevoked)':
-					html.append('This app instance is revoked an cannot access other app instance information.')
-				else:
-					html.append(instances)
-
-			else:
-				for instance in instances:
-					html.append('<div class="appInstance clear" style="margin-bottom: 20px;">')
-
-					# html.append(instance.anonymousAppID)
-					# html.append('</div>') # .appInstance
-
-
-					html.append('<div style="float: left; width: 100px; margin-left: 20px;">')
-
-					image = instance.image
-					if image:
-						html.append(f'<img src="{os.path.join(os.path.dirname(__file__), "htmlfiles", "machineModels", image)}" style="width: 80px; margin-top: 10px;">')
-
-					html.append('</div>')
-					html.append('<div style="float: left; width: 350px;">') 
-
-					html.append('<p>')
-
-					html.append('<b>')
-					html.append(instance.machineNodeName or instance.machineHumanReadableName or instance.anonymousAppID)
-					html.append('</b>')
-					if instance.anonymousAppID == client.anonymousAppID():
-						html.append(' <i>(#(This app))</i>')
-					html.append('<br />')
-
-					if instance.machineModelIdentifier and instance.machineModelIdentifier.startswith('Parallels') or instance.machineHumanReadableName and instance.machineHumanReadableName.startswith('Parallels'):
-						html.append('Parallels Desktop Virtual Machine')
-						html.append('<br />')
+				success, instances = client.linkedAppInstances()
+				if not success:
+					
+					if instances[0] == '#(response.appInstanceRevoked)':
+						html.append('This app instance is revoked an cannot access other app instance information.')
 					else:
-						if instance.machineHumanReadableName:
-							html.append(instance.machineHumanReadableName)
-							html.append('<br />')
-					if instance.machineSpecsDescription:
-						html.append(instance.machineSpecsDescription)
-						html.append('<br />')
-					if instance.machineOSVersion:
-						if instance.machineOSVersion.startswith('mac'):
-							src = 'other/apple.svg'
-						elif instance.machineOSVersion.startswith('Windows'):
-							src = 'other/windows.svg'
-						else:
-							src = None
-						if src:
-							html.append(f'<img src="{os.path.join(os.path.dirname(__file__), "htmlfiles", "machineModels", src)}" style="width: 16px; position: relative; top: 3px; margin-right: 5px;">')
-						html.append(instance.machineOSVersion)
+						html.append(instances)
 
-					if instance.revoked:
+				else:
+					for instance in instances:
+						html.append('<div class="appInstance clear" style="margin-bottom: 20px;">')
+
+						# html.append(instance.anonymousAppID)
+						# html.append('</div>') # .appInstance
+
+
+						html.append('<div style="float: left; width: 100px; margin-left: 20px;">')
+
+						image = instance.image
+						if image:
+							html.append(f'<img src="{os.path.join(os.path.dirname(__file__), "htmlfiles", "machineModels", image)}" style="width: 80px; margin-top: 10px;">')
+
+						html.append('</div>')
+						html.append('<div style="float: left; width: 350px;">') 
+
+						html.append('<p>')
+
+						html.append('<b>')
+						html.append(instance.machineNodeName or instance.machineHumanReadableName or instance.anonymousAppID)
+						html.append('</b>')
+						if instance.anonymousAppID == client.anonymousAppID():
+							html.append(' <i>(#(This app))</i>')
 						html.append('<br />')
-						html.append('<div>')
-						html.append('<span class_="box" style="background-color: orange; padding: 3px;">')
-						html.append('#(Revoked): %s %s' % (locales.formatDate(instance.revokedTime, client.locale()), locales.formatTime(instance.revokedTime, client.locale())))
-						html.append('</span>')
+
+						if instance.machineModelIdentifier and instance.machineModelIdentifier.startswith('Parallels') or instance.machineHumanReadableName and instance.machineHumanReadableName.startswith('Parallels'):
+							html.append('Parallels Desktop Virtual Machine')
+							html.append('<br />')
+						else:
+							if instance.machineHumanReadableName:
+								html.append(instance.machineHumanReadableName)
+								html.append('<br />')
+						if instance.machineSpecsDescription:
+							html.append(instance.machineSpecsDescription)
+							html.append('<br />')
+						if instance.machineOSVersion:
+							if instance.machineOSVersion.startswith('mac'):
+								src = 'other/apple.svg'
+							elif instance.machineOSVersion.startswith('Windows'):
+								src = 'other/windows.svg'
+							else:
+								src = None
+							if src:
+								html.append(f'<img src="{os.path.join(os.path.dirname(__file__), "htmlfiles", "machineModels", src)}" style="width: 16px; position: relative; top: 3px; margin-right: 5px;">')
+							html.append(instance.machineOSVersion)
+
+						if instance.revoked:
+							html.append('<br />')
+							html.append('<div>')
+							html.append('<span class_="box" style="background-color: orange; padding: 3px;">')
+							html.append('#(Revoked): %s %s' % (locales.formatDate(instance.revokedTime, client.locale()), locales.formatTime(instance.revokedTime, client.locale())))
+							html.append('</span>')
+							html.append('</div>')
+
+						else:
+							if instance.lastUsed:
+								if not instance.anonymousAppID == client.anonymousAppID():
+									html.append('<br />')
+									html.append('<span style="color: #888;">')
+									html.append('#(Last active): %s %s' % (locales.formatDate(instance.lastUsed, client.locale()), locales.formatTime(instance.lastUsed, client.locale())))
+
+
+								
+
+								html.append('</span>')
+						html.append('</p>')
+
 						html.append('</div>')
 
-					else:
-						if instance.lastUsed:
-							if not instance.anonymousAppID == client.anonymousAppID():
-								html.append('<br />')
-								html.append('<span style="color: #888;">')
-								html.append('#(Last active): %s %s' % (locales.formatDate(instance.lastUsed, client.locale()), locales.formatTime(instance.lastUsed, client.locale())))
+
+						# Revoke/Activate
+						html.append('<div style="float: left; margin-left: 50px;">')
+
+						if not instance.anonymousAppID == client.anonymousAppID():
+							if instance.revoked:
+								html.append(f'<a class="button" href="x-python://self.reactivateAppInstance(____{instance.anonymousAppID}____)">#(Reactivate App)</a>')
+							else:
+								html.append(f'<a class="button" href="x-python://self.revokeAppInstance(____{instance.anonymousAppID}____)">#(Revoke App)</a>')
+						html.append('</div>') # Revoke/Activate
 
 
-							
 
-							html.append('</span>')
+						html.append('</div>') # .appInstance
+
+
+
+			if section == 'userAccount':
+
+				# User
+				html.append('<h2>#(Type.World User Account)</h2>')
+				if client.user():
+					html.append('<p>')
+					html.append('#(Linked User Account): ')
+					if client.userName() and client.userEmail():
+						html.append('<b>%s</b> (%s)' % (client.userName(), client.userEmail()))
+					elif client.userEmail():
+						html.append('<b>%s</b>' % (client.userEmail()))
 					html.append('</p>')
+					# html.append('<p>')
+					# html.append('#(Account Last Synchronized): %s' % (NaturalRelativeWeekdayTimeAndDate(client.get('lastServerSync'), locale = client.locale()[0]) if client.get('lastServerSync') else 'Never'))
+					# html.append('</p>')
+					html.append('<h2>#(Unlink User Account)</h2>')
+					html.append('<p>')
+					html.append('#(UnlinkUserAccountExplanation)')
+					html.append('</p>')
+					html.append('<p>')
+					html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
+					html.append('</p>')
+				else:
 
+	#				html.append('#(NoUserAccountLinked)<br />#(PleaseCreateUserAccountExplanation)')
+
+					html.append('<div class="clear">')
+					html.append('<div style="float: left; width: 47%; margin-right: 6%;">')
+
+					html.append('<div>')
+					html.append('<h4>#(Create Account)</h4>')
+					html.append('#(Name)')
+					html.append('<br />')
+					html.append('<input type="text" name="createAccountUserName" id="createAccountUserName" placeholder="#(John Doe)">')
+					html.append('<br />')
+					html.append('#(Email Address)')
+					html.append('<br />')
+					html.append('<input type="text" name="createAccountUserEmail" id="createAccountUserEmail" placeholder="#(johndoe@gmail.com)">')
+					html.append('<br />')
+					html.append('#(Password)')
+					html.append('<br />')
+					html.append('<input type="password" name="createAccountUserPassword" id="createAccountUserPassword">')
+					html.append('<br />')
+					html.append('#(Repeat Password)')
+					html.append('<br />')
+					html.append('<input type="password" name="createAccountUserPassword2" id="createAccountUserPassword2">')
 					html.append('</div>')
 
+					html.append('<p>')
+					html.append('<a id="createAccountButton" class="button">#(Create Account)</a>')
+					html.append('</p>')
+					html.append('''<script>$("#preferences #createAccountButton").click(function() {
 
-					# Revoke/Activate
-					html.append('<div style="float: left; margin-left: 50px;">')
+					python("self.createUserAccount(____" + $("#preferences #createAccountUserName").val() + "____, ____" + $("#preferences #createAccountUserEmail").val() + "____, ____" + $("#preferences #createAccountUserPassword").val() + "____, ____" + $("#preferences #createAccountUserPassword2").val() + "____)");
+					 
+				});</script>''')
 
-					if not instance.anonymousAppID == client.anonymousAppID():
-						if instance.revoked:
-							html.append(f'<a class="button" href="x-python://self.reactivateAppInstance(____{instance.anonymousAppID}____)">#(Reactivate App)</a>')
-						else:
-							html.append(f'<a class="button" href="x-python://self.revokeAppInstance(____{instance.anonymousAppID}____)">#(Revoke App)</a>')
-					html.append('</div>') # Revoke/Activate
+					html.append('</div>') # .floatleft
+					html.append('<div style="float: left; width: 47%;">')
 
+					html.append('<div>')
+					html.append('<h4>#(Log In To Existing Account)</h4>')
+					html.append('#(Email Address)')
+					html.append('<br />')
+					html.append('<input type="text" name="loginUserEmail" id="loginUserEmail" placeholder="#(johndoe@gmail.com)">')
+					html.append('<br />')
+					html.append('#(Password)')
+					html.append('<br />')
+					html.append('<input type="password" name="loginUserPassword" id="loginUserPassword">')
+					html.append('</div>')
 
+					html.append('<p>')
+					html.append('<a id="loginButton" class="button">#(Log In)</a>')
+					html.append('</p>')
 
-					html.append('</div>') # .appInstance
+					html.append('<p>')
+					html.append('<a href="https://type.world/resetpassword">#(I Forgot My Password) ↗</a>')
+					html.append('</p>')
 
+					html.append('''<script>$("#preferences #loginButton").click(function() {
 
+					python("self.logIn(____" + $("#preferences #loginUserEmail").val() + "____, ____" + $("#preferences #loginUserPassword").val() + "____)");
+					 
+				});</script>''')
 
-		if section == 'userAccount':
-
-			# User
-			html.append('<h2>#(Type.World User Account)</h2>')
-			if client.user():
-				html.append('<p>')
-				html.append('#(Linked User Account): ')
-				if client.userName() and client.userEmail():
-					html.append('<b>%s</b> (%s)' % (client.userName(), client.userEmail()))
-				elif client.userEmail():
-					html.append('<b>%s</b>' % (client.userEmail()))
-				html.append('</p>')
-				# html.append('<p>')
-				# html.append('#(Account Last Synchronized): %s' % (NaturalRelativeWeekdayTimeAndDate(client.preferences.get('lastServerSync'), locale = client.locale()[0]) if client.preferences.get('lastServerSync') else 'Never'))
-				# html.append('</p>')
-				html.append('<h2>#(Unlink User Account)</h2>')
-				html.append('<p>')
-				html.append('#(UnlinkUserAccountExplanation)')
-				html.append('</p>')
-				html.append('<p>')
-				html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
-				html.append('</p>')
-			else:
-
-#				html.append('#(NoUserAccountLinked)<br />#(PleaseCreateUserAccountExplanation)')
-
-				html.append('<div class="clear">')
-				html.append('<div style="float: left; width: 47%; margin-right: 6%;">')
-
-				html.append('<div>')
-				html.append('<h4>#(Create Account)</h4>')
-				html.append('#(Name)')
-				html.append('<br />')
-				html.append('<input type="text" name="createAccountUserName" id="createAccountUserName" placeholder="#(John Doe)">')
-				html.append('<br />')
-				html.append('#(Email Address)')
-				html.append('<br />')
-				html.append('<input type="text" name="createAccountUserEmail" id="createAccountUserEmail" placeholder="#(johndoe@gmail.com)">')
-				html.append('<br />')
-				html.append('#(Password)')
-				html.append('<br />')
-				html.append('<input type="password" name="createAccountUserPassword" id="createAccountUserPassword">')
-				html.append('<br />')
-				html.append('#(Repeat Password)')
-				html.append('<br />')
-				html.append('<input type="password" name="createAccountUserPassword2" id="createAccountUserPassword2">')
-				html.append('</div>')
-
-				html.append('<p>')
-				html.append('<a id="createAccountButton" class="button">#(Create Account)</a>')
-				html.append('</p>')
-				html.append('''<script>$("#preferences #createAccountButton").click(function() {
-
-				python("self.createUserAccount(____" + $("#preferences #createAccountUserName").val() + "____, ____" + $("#preferences #createAccountUserEmail").val() + "____, ____" + $("#preferences #createAccountUserPassword").val() + "____, ____" + $("#preferences #createAccountUserPassword2").val() + "____)");
-				 
-			});</script>''')
-
-				html.append('</div>') # .floatleft
-				html.append('<div style="float: left; width: 47%;">')
-
-				html.append('<div>')
-				html.append('<h4>#(Log In To Existing Account)</h4>')
-				html.append('#(Email Address)')
-				html.append('<br />')
-				html.append('<input type="text" name="loginUserEmail" id="loginUserEmail" placeholder="#(johndoe@gmail.com)">')
-				html.append('<br />')
-				html.append('#(Password)')
-				html.append('<br />')
-				html.append('<input type="password" name="loginUserPassword" id="loginUserPassword">')
-				html.append('</div>')
-
-				html.append('<p>')
-				html.append('<a id="loginButton" class="button">#(Log In)</a>')
-				html.append('</p>')
-
-				html.append('<p>')
-				html.append('<a href="https://type.world/resetpassword">#(I Forgot My Password) ↗</a>')
-				html.append('</p>')
-
-				html.append('''<script>$("#preferences #loginButton").click(function() {
-
-				python("self.logIn(____" + $("#preferences #loginUserEmail").val() + "____, ____" + $("#preferences #loginUserPassword").val() + "____)");
-				 
-			});</script>''')
-
-				html.append('</div>') # .floatleft
-				html.append('</div>') # .clear
+					html.append('</div>') # .floatleft
+					html.append('</div>') # .clear
 
 
 
-			html.append('''<script>$("#preferences #unlinkAppButton").click(function() {
+				html.append('''<script>$("#preferences #unlinkAppButton").click(function() {
 
-				python("self.unlinkUserAccount()");
-				 
-			});</script>''')
+					python("self.unlinkUserAccount()");
+					 
+				});</script>''')
 
 
 
 
 
 
-		if section == 'generalPreferences':
+			if section == 'generalPreferences':
 
-		# # Update Interval
-		# html.append('<h2>#(Update Interval)</h2>')
-		# html.append('<p>#(UpdateIntervalExplanation)</p>')
-		# html.append('<p>')
-		# html.append('<select id="updateIntervalChoice" style="">')
-		# for code, name in (
-		# 	(-1, '#(Manually)'),
-		# 	(1 * 60, '#(Minutely)'),
-		# 	(1 * 60 * 60, '#(Hourly)'),
-		# 	(24 * 60 * 60, '#(Daily)'),
-		# 	(7 * 24 * 60 * 60, '#(Weekly)'),
-		# 	(30 * 24 * 60 * 60, '#(Monthly)'),
-		# ):
-		# 	html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(client.preferences.get('reloadSubscriptionsInterval')) else '', name))
-		# html.append('</select>')
-		# html.append('<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
-		# html.append('</p>')
-		# html.append('<p>')
-		# html.append('#(Last Check): %s' % NaturalRelativeWeekdayTimeAndDate(client.preferences.get('reloadSubscriptionsLastPerformed'), locale = client.locale()[0]))
-		# html.append('</p>')
-
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-		# html.append('<hr>')
-
-
+			# # Update Interval
+			# html.append('<h2>#(Update Interval)</h2>')
+			# html.append('<p>#(UpdateIntervalExplanation)</p>')
+			# html.append('<p>')
+			# html.append('<select id="updateIntervalChoice" style="">')
+			# for code, name in (
+			# 	(-1, '#(Manually)'),
+			# 	(1 * 60, '#(Minutely)'),
+			# 	(1 * 60 * 60, '#(Hourly)'),
+			# 	(24 * 60 * 60, '#(Daily)'),
+			# 	(7 * 24 * 60 * 60, '#(Weekly)'),
+			# 	(30 * 24 * 60 * 60, '#(Monthly)'),
+			# ):
+			# 	html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if str(code) == str(client.get('reloadSubscriptionsInterval')) else '', name))
+			# html.append('</select>')
+			# html.append('<script>$("#preferences #updateIntervalChoice").click(function() {setPreference("reloadSubscriptionsInterval", $("#preferences #updateIntervalChoice").val());});</script>')
+			# html.append('</p>')
+			# html.append('<p>')
+			# html.append('#(Last Check): %s' % NaturalRelativeWeekdayTimeAndDate(client.get('reloadSubscriptionsLastPerformed'), locale = client.locale()[0]))
+			# html.append('</p>')
 
 			# html.append('<hr>')
-
-			# Agent
-			if WIN:
-				html.append('<h2>#(Icon in Menu Bar.Windows)</h2>')
-			if MAC:
-				html.append('<h2>#(Icon in Menu Bar.Mac)</h2>')
-			html.append('<p>')
-			label = '#(Show Icon in Menu Bar' + ('.Windows' if WIN else '.Mac') + ')'
-			html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">%s</label></span>' % ('checked' if agentIsRunning() else '', label))
-			html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
-			html.append('</p>')
-			html.append('<p>')
-			html.append('#(IconInMenuBarExplanation)')
-			html.append('</p>')
-
-			html.append('<hr>')
-
-			# Localization
-			systemLocale = client.systemLocale()
-			for code, name in locales.locales:
-				if code == systemLocale:
-					systemLocale = name
-					break
-			html.append('<h2>App Language</h2>')
-			html.append('<p>')
-			html.append('<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Language (%s)</label></span>' % ('checked' if client.preferences.get('localizationType') == 'systemLocale' else '', systemLocale))
-			html.append('<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>')
-			html.append('</p>')
-			html.append('<p>')
-			html.append('<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Language (choose below). Requires app restart to take full effect.</label></span>' % ('checked' if client.preferences.get('localizationType') == 'customLocale' else ''))
-			html.append('<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>')
-			html.append('</p>')
-			html.append('<p>')
-			html.append('<select id="customLocaleChoice" style="" onchange="">')
-			for code, name in locales.locales:
-				html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if code == client.preferences.get('customLocaleChoice') else '', name))
-			html.append('</select>')
-			html.append('''<script>$("#preferences #customLocaleChoice").click(function() {
-
-				setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());
-				 
-			});</script>''')
-			html.append('</p>')
-
-			html.append('<hr>')
-
-			# Reset Dialogs
-			html.append('<h2>#(Reset Dialogs)</h2>')
-			html.append('<p>')
-			html.append('<a id="resetDialogButton" class="button">#(ResetDialogsButton)</a>')
-			html.append('</p>')
-			html.append('''<script>$("#preferences #resetDialogButton").click(function() {
-
-				python("self.resetDialogs()");
-				 
-			});</script>''')
-
-
-		html.append('</div>') # .inner
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
+			# html.append('<hr>')
 
 
 
-		# Print HTML
-		html = ''.join(map(str, html))
-		html = html.replace('"', '\'')
-		html = localizeString(html, html = True)
-		html = html.replace('\n', '')
-		# print(html)
-		js = '$("#preferences .centerOuter").html("<div>' + html + '</div>");'
-		self.javaScript(js)
+				# html.append('<hr>')
 
-		self.javaScript('showPreferences();')
+				# Agent
+				if WIN:
+					html.append('<h2>#(Icon in Menu Bar.Windows)</h2>')
+				if MAC:
+					html.append('<h2>#(Icon in Menu Bar.Mac)</h2>')
+				html.append('<p>')
+				label = '#(Show Icon in Menu Bar' + ('.Windows' if WIN else '.Mac') + ')'
+				html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">%s</label></span>' % ('checked' if agentIsRunning() else '', label))
+				html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
+				html.append('</p>')
+				html.append('<p>')
+				html.append('#(IconInMenuBarExplanation)')
+				html.append('</p>')
+
+				html.append('<hr>')
+
+				# Localization
+				systemLocale = client.systemLocale()
+				for code, name in locales.locales:
+					if code == systemLocale:
+						systemLocale = name
+						break
+				html.append('<h2>App Language</h2>')
+				html.append('<p>')
+				html.append('<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Language (%s)</label></span>' % ('checked' if client.get('localizationType') == 'systemLocale' else '', systemLocale))
+				html.append('<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>')
+				html.append('</p>')
+				html.append('<p>')
+				html.append('<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Language (choose below). Requires app restart to take full effect.</label></span>' % ('checked' if client.get('localizationType') == 'customLocale' else ''))
+				html.append('<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>')
+				html.append('</p>')
+				html.append('<p>')
+				html.append('<select id="customLocaleChoice" style="" onchange="">')
+				for code, name in locales.locales:
+					html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if code == client.get('customLocaleChoice') else '', name))
+				html.append('</select>')
+				html.append('''<script>$("#preferences #customLocaleChoice").click(function() {
+
+					setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());
+					 
+				});</script>''')
+				html.append('</p>')
+
+				html.append('<hr>')
+
+				# Reset Dialogs
+				html.append('<h2>#(Reset Dialogs)</h2>')
+				html.append('<p>')
+				html.append('<a id="resetDialogButton" class="button">#(ResetDialogsButton)</a>')
+				html.append('</p>')
+				html.append('''<script>$("#preferences #resetDialogButton").click(function() {
+
+					python("self.resetDialogs()");
+					 
+				});</script>''')
+
+
+			html.append('</div>') # .inner
+
+
+
+			# Print HTML
+			html = ''.join(map(str, html))
+			html = html.replace('"', '\'')
+			html = localizeString(html, html = True)
+			html = html.replace('\n', '')
+			# print(html)
+			js = '$("#preferences .centerOuter").html("<div>' + html + '</div>");'
+			self.javaScript(js)
+
+			self.javaScript('showPreferences();')
+
+		except:
+			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def setSubscriptionPreference(self, url, key, value):

@@ -563,8 +563,7 @@ def agent(command):
 			except:
 				pass
 
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 def agentIsRunning():
 
@@ -583,8 +582,7 @@ def agentIsRunning():
 		if WIN:
 			return PID('TypeWorld Taskbar Agent.exe') is not None
 
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 
 def waitToLaunchAgent():
@@ -601,8 +599,7 @@ def waitToLaunchAgent():
 			# import subprocess
 			# subprocess.Popen(['"%s"' % os.path.join(agentPath, 'Contents', 'MacOS', 'Type.World Agent')])
 	#
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 def restartAgentWorker(wait):
 	try:
@@ -612,15 +609,13 @@ def restartAgentWorker(wait):
 		installAgent()
 
 		client.log('Agent restarted')
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 def restartAgent(wait = 0):
 	try:
 		restartAgentThread = Thread(target = restartAgentWorker, args=(wait, ))
 		restartAgentThread.start()
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 
 def installAgent():
@@ -735,8 +730,7 @@ def installAgent():
 				unlock()
 				client.log('unlock() from within installAgent() after traceback')
 
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 
 def uninstallAgent():
@@ -783,8 +777,7 @@ def uninstallAgent():
 			client.log(traceback.format_exc())
 		unlock()
 		client.log('unlock() from within uninstallAgent()')
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 
 def localizeString(string, html = False, replace = {}):
@@ -800,8 +793,7 @@ def localizeString(string, html = False, replace = {}):
 			string = string.replace('<p><br />', '<p>')
 		return string
 
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 
 # Sparkle Updating
@@ -1170,8 +1162,7 @@ class AppFrame(wx.Frame):
 
 			client.log('AppFrame.__init__() finished')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def onMouseDown(self, event):
 		# print(event)
@@ -1242,8 +1233,7 @@ class AppFrame(wx.Frame):
 
 			self.SetMenuBar(menuBar)
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def javaScript(self, script):
@@ -1253,8 +1243,7 @@ class AppFrame(wx.Frame):
 					self.html.RunScript(script)
 				else:
 					client.log('JavaScript called from another thread: %s' % script[:100])
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def publishersNames(self):
@@ -1266,8 +1255,7 @@ class AppFrame(wx.Frame):
 				name, language = endpoint.latestVersion().name.getTextAndLocale(locale = client.locale())
 				publishers.append((i, name, language))
 			return publishers
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def onCheckForUpdates(self, event):
@@ -1278,8 +1266,7 @@ class AppFrame(wx.Frame):
 			elif WIN:
 				pywinsparkleDelegate.check_with_ui()
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def onClose(self, event):
 		try:
@@ -1287,8 +1274,7 @@ class AppFrame(wx.Frame):
 				self.javaScript('hidePanel();')
 			else:
 				self.onQuit(event)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def onQuit(self, event):
@@ -1335,8 +1321,7 @@ class AppFrame(wx.Frame):
 
 			self.Destroy()
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def pullServerUpdates(self, force = False):
@@ -1345,15 +1330,13 @@ class AppFrame(wx.Frame):
 			if not client.get('lastServerSync') or client.get('lastServerSync') < time.time() - PULLSERVERUPDATEINTERVAL or force:
 				if self.allowedToPullServerUpdates:
 					startWorker(self.pullServerUpdates_consumer, self.pullServerUpdates_worker)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def pullServerUpdates_worker(self):
 		try:
 			return client.downloadSubscriptions()
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def pullServerUpdates_consumer(self, delayedResult):
@@ -1380,8 +1363,7 @@ class AppFrame(wx.Frame):
 				self.javaScript('$("#userWrapper .alert").show();')
 				self.javaScript('$("#userWrapper .noAlert").hide();')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -1389,8 +1371,7 @@ class AppFrame(wx.Frame):
 		try:
 			if client.get('currentPublisher'):
 				self.setPublisherHTML(self.b64encode(client.get('currentPublisher')))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def onActivate(self, event):
 		try:
@@ -1436,8 +1417,7 @@ class AppFrame(wx.Frame):
 				if MAC:
 
 					self.applyDarkMode()
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def theme(self):
 		try:
@@ -1448,8 +1428,7 @@ class AppFrame(wx.Frame):
 					return 'light'
 			else:
 				return 'light'
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def applyDarkMode(self):
@@ -1467,8 +1446,7 @@ class AppFrame(wx.Frame):
 				self.javaScript("$('body').removeClass('light');")
 				self.javaScript("$('body').removeClass('dark');")
 				self.javaScript("$('body').addClass('%s');" % self.theme())
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def onResize(self, event):
@@ -1481,8 +1459,7 @@ class AppFrame(wx.Frame):
 				self.dragView.setFrameSize_(NSSize(self.GetSize()[0], 40))
 			client.set('sizeMainWindow', (self.GetSize()[0], self.GetSize()[1]))
 			event.Skip()
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def onAbout(self, event):
@@ -1524,14 +1501,12 @@ class AppFrame(wx.Frame):
 			self.javaScript(js)
 
 			self.javaScript('showAbout();')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def resetDialogs(self):
 		try:
 			client.set('seenDialogs', [])
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def unlinkUserAccount(self):
@@ -1549,8 +1524,7 @@ class AppFrame(wx.Frame):
 				self.errorMessage(message)
 
 			self.setSideBarHTML()
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def createUserAccount(self, name, email, password1, password2):
@@ -1561,8 +1535,7 @@ class AppFrame(wx.Frame):
 			else:
 				self.onPreferences(None, 'userAccount')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def logIn(self, email, password):
 		try:
@@ -1572,8 +1545,7 @@ class AppFrame(wx.Frame):
 			else:
 				self.onPreferences(None, 'userAccount')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def revokeAppInstance(self, anonymousAppID):
 
@@ -1592,8 +1564,7 @@ class AppFrame(wx.Frame):
 
 				else:
 					self.errorMessage(response, '#(Revoke App)')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def reactivateAppInstance(self, anonymousAppID):
@@ -1612,8 +1583,7 @@ class AppFrame(wx.Frame):
 
 				else:
 					self.errorMessage(response, '#(Reactivate App)')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -1970,8 +1940,7 @@ class AppFrame(wx.Frame):
 
 			self.javaScript('showPreferences();')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def setSubscriptionPreference(self, url, key, value):
@@ -1992,8 +1961,7 @@ class AppFrame(wx.Frame):
 						self.setSideBarHTML()
 
 						break
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def showSubscriptionPreferences(self, event, b64ID):
@@ -2108,8 +2076,7 @@ class AppFrame(wx.Frame):
 						self.javaScript(js)
 
 						self.javaScript('showPreferences();')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def inviteUsers(self, b64ID, string):
 		try:		
@@ -2130,8 +2097,7 @@ class AppFrame(wx.Frame):
 
 				else:
 					self.errorMessage(message)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def revokeUsers(self, b64ID, string):
@@ -2160,8 +2126,7 @@ class AppFrame(wx.Frame):
 
 						else:
 							self.errorMessage(message)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def showSubscriptionInvitations(self, event, b64ID, loadUpdates = False):
@@ -2307,8 +2272,7 @@ class AppFrame(wx.Frame):
 						self.javaScript(js)
 
 						self.javaScript('showPreferences();')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def onNavigating(self, evt):
@@ -2343,28 +2307,24 @@ class AppFrame(wx.Frame):
 			#   print code
 			#   exec(code)
 			#   evt.Veto()
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def onNavigated(self, evt):
 		try:
 			uri = evt.GetURL() # you may need to deal with unicode here
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def onError(self, evt):
 		try:
 			client.log('Error received from WebView: %s' % evt.GetString())
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def showAddSubscription(self, evt):
 		try:
 			self.javaScript('showAddSubscription();')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def handleURL(self, url, username = None, password = None):
@@ -2383,8 +2343,7 @@ class AppFrame(wx.Frame):
 
 			elif url.startswith('typeworldapp://') or url.startswith('typeworldapp//'):
 				self.handleAppCommand(url.replace('typeworldapp://', '').replace('typeworldapp//', ''))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def handleAppCommand(self, url):
 		try:
@@ -2419,8 +2378,7 @@ class AppFrame(wx.Frame):
 						self.message('#(JustLinkedUserAccount)')
 
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def addSubscriptionViaDialog(self, url, username = None, password = None):
 		try:
@@ -2431,8 +2389,7 @@ class AppFrame(wx.Frame):
 			else:
 
 				startWorker(self.addSubscription_consumer, self.addSubscription_worker, wargs=(url, username, password))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def addSubscription_worker(self, url, username, password):
@@ -2456,8 +2413,7 @@ class AppFrame(wx.Frame):
 			success, message, publisher, subscription = client.addSubscription(url, username, password)
 
 			return success, message, publisher, subscription
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def addSubscription_consumer(self, delayedResult):
@@ -2496,8 +2452,7 @@ class AppFrame(wx.Frame):
 
 			self.javaScript('hideCenterMessage();')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def acceptInvitation(self, ID):
 		try:
@@ -2506,16 +2461,14 @@ class AppFrame(wx.Frame):
 
 			startWorker(self.acceptInvitation_consumer, self.acceptInvitation_worker, wargs=(ID, ))
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def acceptInvitation_worker(self, ID):
 		try:
 
 			success, message = client.acceptInvitation(ID)
 			return success, message, ID
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def acceptInvitation_consumer(self, delayedResult):
@@ -2540,8 +2493,7 @@ class AppFrame(wx.Frame):
 				pass
 
 			self.javaScript('stopLoadingAnimation();')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def declineInvitation(self, ID):
@@ -2578,15 +2530,13 @@ class AppFrame(wx.Frame):
 					if result:
 						self.javaScript('startLoadingAnimation();')
 						startWorker(self.declineInvitation_consumer, self.declineInvitation_worker, wargs=(ID, ))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def declineInvitation_worker(self, ID):
 		try:
 			success, message = client.declineInvitation(ID)
 			return success, message, ID
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def declineInvitation_consumer(self, delayedResult):
@@ -2612,8 +2562,7 @@ class AppFrame(wx.Frame):
 
 			self.javaScript('stopLoadingAnimation();')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 			
 
@@ -2639,8 +2588,7 @@ class AppFrame(wx.Frame):
 				self.javaScript("hideMetadata();")
 
 			self.allowedToPullServerUpdates = True
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def removeSubscription(self, evt, b64ID):
 		try:
@@ -2670,15 +2618,13 @@ class AppFrame(wx.Frame):
 			self.setSideBarHTML()
 
 			self.allowedToPullServerUpdates = True
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def publisherPreferences(self, i):
 		try:
 			client.log(('publisherPreferences', i))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def installAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64packageKeyword, formatName):
@@ -2699,8 +2645,7 @@ class AppFrame(wx.Frame):
 						fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID), font.getVersions()[-1].number])
 
 			self.installFonts(fonts)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def removeAllFonts(self, b64publisherID, b64subscriptionID, b64familyID, b64packageKeyword, formatName):
@@ -2721,8 +2666,7 @@ class AppFrame(wx.Frame):
 						fonts.append([b64publisherID, b64subscriptionID, self.b64encode(font.uniqueID)])
 
 			self.removeFonts(fonts)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -2731,8 +2675,7 @@ class AppFrame(wx.Frame):
 			client.log('installFontFromMenu()')
 
 			self.installFont(b64publisherURL, b64subscriptionURL, b64fontID, version)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def installFont(self, b64publisherURL, b64subscriptionURL, b64fontID, version):
@@ -2741,8 +2684,7 @@ class AppFrame(wx.Frame):
 			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
 			self.javaScript('$("#metadata .seatsInstalled").fadeTo(500, .1);')
 			startWorker(self.installFonts_consumer, self.installFonts_worker, wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID, version]]]))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def installFonts(self, fonts):
@@ -2757,8 +2699,7 @@ class AppFrame(wx.Frame):
 				# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
 
 			startWorker(self.installFonts_consumer, self.installFonts_worker, wargs=([fonts]))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -2802,8 +2743,7 @@ class AppFrame(wx.Frame):
 
 			# TODO: differentiate between b64publisherURLs here, as fonts could be from different publishers. Works for now, until fonts can be mixed in collections
 			return True, None, b64publisherURL, subscription, fonts
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def installFonts_consumer(self, delayedResult):
@@ -2825,8 +2765,7 @@ class AppFrame(wx.Frame):
 			self.setSideBarHTML()
 			self.setBadges()
 			self.setPublisherHTML(b64publisherURL)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
@@ -2835,8 +2774,7 @@ class AppFrame(wx.Frame):
 			self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
 			self.javaScript('$("#metadata .seatsInstalled").fadeTo(500, .1);')
 			startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID]]]))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def removeFonts(self, fonts):
 		try:
@@ -2849,8 +2787,7 @@ class AppFrame(wx.Frame):
 				# self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
 
 			startWorker(self.removeFonts_consumer, self.removeFonts_worker, wargs=([fonts]))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def removeFonts_worker(self, fonts):
@@ -2884,8 +2821,7 @@ class AppFrame(wx.Frame):
 
 			# TODO: differentiate between b64publisherURLs here, as fonts could be from different publishers. Works for now, until fonts can be mixed in collections
 			return True, None, b64publisherURL, subscription, fonts
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -2909,8 +2845,7 @@ class AppFrame(wx.Frame):
 			self.setSideBarHTML()
 			self.setBadges()
 			self.setPublisherHTML(b64publisherURL)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def updateAllFonts(self, evt, publisherB64ID, subscriptionB64ID):
@@ -2958,8 +2893,7 @@ class AppFrame(wx.Frame):
 
 			self.installFonts(fonts)
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def setFontStatuses(self, fonts):
 		try:
@@ -3002,8 +2936,7 @@ class AppFrame(wx.Frame):
 				html = localizeString(html, html = True)
 				html = self.replaceHTML(html)
 				self.javaScript('$(".font.%s .installedText").html("%s");' % (b64fontID, html))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def checkFontExpirations(self):
@@ -3019,8 +2952,7 @@ class AppFrame(wx.Frame):
 
 			if fonts:
 				self.removeFonts(fonts)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -3179,8 +3111,7 @@ class AppFrame(wx.Frame):
 
 				self.PopupMenu(menu, wx.Point(int(x), int(y)))
 				menu.Destroy()
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -3227,8 +3158,7 @@ class AppFrame(wx.Frame):
 
 					self.javaScript('showPublisherPreferences();')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def showPublisherInFinder(self, evt, b64ID):
 		try:
@@ -3242,8 +3172,7 @@ class AppFrame(wx.Frame):
 
 			import subprocess
 			subprocess.call(["open", "-R", path])
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def showFontInFinder(self, evt, subscription, fontID):
 		try:
@@ -3255,8 +3184,7 @@ class AppFrame(wx.Frame):
 
 			import subprocess
 			subprocess.call(["open", "-R", path])
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def reloadPublisher(self, evt, b64ID):
@@ -3269,8 +3197,7 @@ class AppFrame(wx.Frame):
 			for subscription in publisher.subscriptions():
 				if subscription.exists:
 					self.reloadSubscription(None, None, subscription)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def autoReloadSubscriptions(self):
@@ -3304,31 +3231,27 @@ class AppFrame(wx.Frame):
 			# 			for subscription in publisher.subscriptions():
 			# 				self.reloadSubscription(None, None, subscription)
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
 	def reloadSubscriptionFromClient(self, subscription):
 		try:
 			startWorker(self.reloadSubscriptionFromClient_consumer, self.reloadSubscriptionFromClient_worker, wargs=(subscription, ))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def reloadSubscriptionFromClient_worker(self, subscription):
 		try:
 			return subscription
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def reloadSubscriptionFromClient_consumer(self, delayedResult):
 		try:
 			# client.client.log('PULLED FROM SERVER: %s' % (subscription))
 			subscription = delayedResult.get()
 			self.reloadSubscription(None, subscription = subscription)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def reloadSubscription(self, evt, b64ID = None, subscription = None):
 		try:
@@ -3361,8 +3284,7 @@ class AppFrame(wx.Frame):
 				self.javaScript("$('#sidebar #%s.subscription .badges').hide();" % b64subscriptionID)
 
 				startWorker(self.reloadSubscription_consumer, self.reloadSubscription_worker, wargs=(subscription, ))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -3372,8 +3294,7 @@ class AppFrame(wx.Frame):
 
 			success, message, changes = subscription.update()
 			return success, message, changes, subscription
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def reloadSubscription_consumer(self, delayedResult):
@@ -3411,15 +3332,13 @@ class AppFrame(wx.Frame):
 				client.log('Reset reloadSubscriptionsLastPerformed')
 
 			agent('amountOutdatedFonts %s' % client.amountOutdatedFonts())
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def displaySyncProblems(self):
 		try:
 			self.errorMessage('\n\n'.join(client.syncProblems()))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def displayPublisherSidebarAlert(self, b64publisherID):
@@ -3428,8 +3347,7 @@ class AppFrame(wx.Frame):
 
 			for message in publisher.updatingProblem():
 				self.errorMessage(message)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def displaySubscriptionSidebarAlert(self, b64subscriptionID):
 		try:
@@ -3443,8 +3361,7 @@ class AppFrame(wx.Frame):
 						else:
 							self.errorMessage('No error message defined :/')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def errorMessage(self, message, title = '', subscription = None):
 		try:
@@ -3471,8 +3388,7 @@ class AppFrame(wx.Frame):
 				url = subscription.protocol.rootCommand()[1].loginURL
 				url = addAttributeToURL(url, 'subscriptionID=%s' % typeWorld.client.URL(subscription.url).subscriptionID)
 				webbrowser.open(url, new=1)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def message(self, message, title = ''):
@@ -3493,8 +3409,7 @@ class AppFrame(wx.Frame):
 			dlg = wx.MessageDialog(self, message or 'No message defined', title)
 			result = dlg.ShowModal()
 			dlg.Destroy()
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def fontHTML(self, font):
 		try:
@@ -3511,8 +3426,7 @@ class AppFrame(wx.Frame):
 			html = self.replaceHTML(html)
 
 			return html
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def setActiveSubscription(self, publisherB64ID, subscriptionB64ID):
@@ -3525,8 +3439,7 @@ class AppFrame(wx.Frame):
 			subscription = publisher.subscription(subscriptionID)
 			publisher.set('currentSubscription', subscription.protocol.unsecretURL())
 			self.setPublisherHTML(publisherB64ID)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def selectFont(self, b64ID):
@@ -3540,8 +3453,7 @@ class AppFrame(wx.Frame):
 
 			self.setMetadataHTML(b64ID)
 			self.javaScript("showMetadata();")
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def showMetadataCategory(self, categoryName):
@@ -3553,8 +3465,7 @@ class AppFrame(wx.Frame):
 			font = subscription.fontByID(subscription.get('currentFont'))
 
 			self.setMetadataHTML(self.b64encode(font.uniqueID))
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def setFontImage(self, index):
 		try:
@@ -3574,8 +3485,7 @@ class AppFrame(wx.Frame):
 			self.javaScript('$("#fontBillboardLink_%s").addClass("selected");' % index)
 			font.parent.parent.parent.parent.set('currentFontImage', int(index))
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def setMetadataHTML(self, b64ID):
 		try:
@@ -3766,8 +3676,7 @@ class AppFrame(wx.Frame):
 				html = self.replaceHTML(html)
 				js = '$("#metadata .content").html("' + html + '");'
 				self.javaScript(js)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def setPublisherHTML(self, b64ID = None):
@@ -4349,8 +4258,7 @@ class AppFrame(wx.Frame):
 
 			# profile.disable()
 			# profile.print_stats(sort='time')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def fontInstalledText(self, font):
@@ -4366,15 +4274,13 @@ class AppFrame(wx.Frame):
 			else:
 				html.append('<span class="inactive notInstalled">#(Not Installed)</span>')
 			return ''.join(html)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def versionEncode(self, version):
 		try:
 			return version.replace('.', '_')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def b64encode(self, string):
 		try:
@@ -4383,8 +4289,7 @@ class AppFrame(wx.Frame):
 			s = b64.decode()
 
 			return s.replace('=', '-')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def b64decode(self, string):
 		try:
@@ -4393,8 +4298,7 @@ class AppFrame(wx.Frame):
 			s = b64.decode()
 
 			return s
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -4647,8 +4551,7 @@ class AppFrame(wx.Frame):
 			else:
 				self.javaScript('$("#userBadge").hide();')
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def onLoad(self, event):
 		try:
@@ -4705,8 +4608,7 @@ class AppFrame(wx.Frame):
 					code = base64.b64decode(commands[1].encode()).decode()
 					self.javaScript(code)
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def onLoadDetached_worker(self):
 
@@ -4739,15 +4641,13 @@ class AppFrame(wx.Frame):
 
 			self.pullServerUpdates(force = True)
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def onLoadDetached_consumer(self, delayedResult):
 
 		try:
 			pass
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -4781,8 +4681,7 @@ class AppFrame(wx.Frame):
 
 			return True
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def setBadgeLabel(self, label):
@@ -4794,8 +4693,7 @@ class AppFrame(wx.Frame):
 			if MAC and self._dockTile:
 				self._dockTile.display()
 				self._dockTile.setBadgeLabel_(label)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def replaceHTML(self, html):
 		try:
@@ -4809,8 +4707,7 @@ class AppFrame(wx.Frame):
 
 			html = html.replace('##htmlroot##', path)
 			return html
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def setBadges(self):
 		try:
@@ -4833,14 +4730,12 @@ class AppFrame(wx.Frame):
 		#       self.javaScript('$("#sidebar #%s .badge.outdated").show(); $("#sidebar #%s .badge.outdated").html("%s");' % (b64ID, b64ID, string))
 		#   else:
 		#       self.javaScript('$("#sidebar #%s .badge.outdated").hide();' % b64ID)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def debug(self, string):
 		try:
 			client.log(string)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -4854,8 +4749,7 @@ class DebugWindow(wx.Frame):
 			textarea = wx.TextCtrl(self, -1,
 									size=(500,300))
 			self.text = textarea
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 class UpdateFrame(wx.Frame):
@@ -4870,8 +4764,7 @@ class UpdateFrame(wx.Frame):
 				sparkle.checkForUpdatesInBackground()
 
 			client.log('sparkle.checkForUpdateInformation() finished')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def onClose(self, event = None):
 		try:
@@ -4879,8 +4772,7 @@ class UpdateFrame(wx.Frame):
 			client.log('UpdateFrame.onCLose()')
 
 			self.Destroy()
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -4905,16 +4797,14 @@ if MAC:
 
 				except:
 					client.log(traceback.format_exc())
-			except:
-				client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+			except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 		def applicationDidFinishLaunching_(self, notification):
 			try:
 
 				client.log('applicationDidFinishLaunching_()')
 
-			except:
-				client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+			except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 
@@ -4928,8 +4818,7 @@ class MyApp(wx.App):
 			self.startWithCommand = startWithCommand
 
 			super().__init__(redirect, filename, useBestVisual, clearSigInt)
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def OnPreInit(self):
@@ -4939,8 +4828,7 @@ class MyApp(wx.App):
 				if self.startWithCommand == 'checkForUpdateInformation': # Otherwise MacOpenURL() wont work
 					NSApplication.sharedApplication().setDelegate_(NSAppDelegate.alloc().init())
 					client.log('set NSAppDelegate')
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 
 	def MacOpenURL(self, url):
@@ -4954,8 +4842,7 @@ class MyApp(wx.App):
 
 			self.frame.Show()
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 	def OnInit(self):
 
@@ -5097,8 +4984,7 @@ class MyApp(wx.App):
 
 			return True
 
-		except:
-			client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
+		except: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name))
 
 #class MyNSApp(NSApp):
 
@@ -5133,8 +5019,7 @@ def listenerFunction():
 
 		client.log('Closed listener loop')
 
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 
 def intercom(commands):
@@ -5284,8 +5169,7 @@ def intercom(commands):
 		client.log('about to return reply: %s' % returnObject)
 		return returnObject
 
-	except:
-		client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
+	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 
 if len(sys.argv) > 1 and sys.argv[1] in intercomCommands:
@@ -5326,5 +5210,4 @@ else:
 	#	app = MyApp(redirect = False, filename = None)
 		app.MainLoop()
 
-	except:
-		client.handleTraceback()
+	except: client.handleTraceback()

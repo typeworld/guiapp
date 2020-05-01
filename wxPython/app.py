@@ -415,14 +415,14 @@ class FoundryStyling(object):
 
 		if self.foundry.styling:
 			if self.theme in self.foundry.styling:
-				if 'logo' in self.foundry.styling[self.theme]:
-					self.logoURL = self.foundry.styling[self.theme]['logo']
+				if 'logoURL' in self.foundry.styling[self.theme]:
+					self.logoURL = self.foundry.styling[self.theme]['logoURL']
 
 			# Fallback, take any
 			if not self.logoURL:
 				for themeName in self.foundry.styling:
-					if 'logo' in self.foundry.styling[themeName]:
-						self.logoURL = self.foundry.styling[themeName]['logo']
+					if 'logoURL' in self.foundry.styling[themeName]:
+						self.logoURL = self.foundry.styling[themeName]['logoURL']
 
 			return self.logoURL
 

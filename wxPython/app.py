@@ -26,7 +26,8 @@ else:
 	DESIGNTIME = True
 	RUNTIME = False
 
-import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, platform, logging, requests
+import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, platform, logging, time
+import requests # Unused in this file, but is necessary to include here for Mac py2app build. Otherwise the google* modules don’t function properly
 from threading import Thread
 import threading
 import wx.html2
@@ -59,7 +60,6 @@ PULLSERVERUPDATEINTERVAL = 60
 
 global app
 app = None
-
 
 
 if MAC:
@@ -262,12 +262,6 @@ elif RUNTIME:
 		APPVERSION += '-' + BUILDSTAGE
 
 
-if WIN:
-	prefFile = os.path.join(prefDir, 'preferences.json')
-	prefs = JSON(prefFile)
-else:
-	prefs = AppKitNSUserDefaults('world.type.clientapp' if DESIGNTIME else None)
-
 class ClientDelegate(TypeWorldClientDelegate):
 	def fontWillInstall(self, font):
 		# print('fontWillInstall', font)
@@ -316,7 +310,7 @@ class ClientDelegate(TypeWorldClientDelegate):
 			self.app.frame.setPublisherHTML(self.app.frame.b64encode(subscription.parent.canonicalURL))
 
 delegate = ClientDelegate()
-client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui', pubSubSubscriptions = True)
+client = None # set in startApp()
 
 
 ###########################################################################################################################################################################################################
@@ -1052,7 +1046,7 @@ if WIN:
 
 
 class AppFrame(wx.Frame):
-	def __init__(self, parent):        
+	def __init__(self):
 
 		try:
 
@@ -1132,7 +1126,7 @@ class AppFrame(wx.Frame):
 				size=[1000,700]
 			size[0] = max(size[0], minSize[0])
 			size[1] = max(size[1], minSize[1])
-			super(AppFrame, self).__init__(parent, size = size)
+			super(AppFrame, self).__init__(None, size = size)
 			self.SetMinSize(minSize)
 
 			self.Title = '%s %s' % (APPNAME, APPVERSION)
@@ -1155,7 +1149,6 @@ class AppFrame(wx.Frame):
 			### Menus
 			self.setMenuBar()
 			self.CentreOnScreen()
-			self.Show()
 
 
 			# Restart agent after restart
@@ -1311,7 +1304,7 @@ class AppFrame(wx.Frame):
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 
-	def onQuit(self, event):
+	def onQuit(self, event, withExitCode = None):
 		try:
 
 			expiringInstalledFonts = client.expiringInstalledFonts()
@@ -1352,6 +1345,9 @@ class AppFrame(wx.Frame):
 
 			if WIN:
 				pywinsparkle.win_sparkle_cleanup()
+
+			if withExitCode != None:
+				self.parent.exitCode = withExitCode
 
 			self.Destroy()
 
@@ -1489,7 +1485,8 @@ class AppFrame(wx.Frame):
 			# self.javaScript("$('.panel').css('height', '%spx');" % (size[1]))
 
 			if MAC:
-				self.dragView.setFrameSize_(NSSize(self.GetSize()[0], 40))
+				if hasattr(self, 'dragView'):
+					self.dragView.setFrameSize_(NSSize(self.GetSize()[0], 40))
 			client.set('sizeMainWindow', (self.GetSize()[0], self.GetSize()[1]))
 			event.Skip()
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
@@ -1631,6 +1628,7 @@ class AppFrame(wx.Frame):
 
 			html.append('<div class="tabs clear">')
 
+			# Tabs
 			for keyword, title, condition in (
 				('generalPreferences', localizeString('#(Preferences)'), True),
 				('userAccount', localizeString('#(User Account)'), True),
@@ -1638,7 +1636,7 @@ class AppFrame(wx.Frame):
 				):
 
 				if condition:
-					html.append('<div class="tab %s">' % ('active' if section == keyword else ''))
+					html.append('<div class="tab %s %s">' % (keyword, 'active' if section == keyword else ''))
 					if keyword != section:
 						html.append('<a href="x-python://self.onPreferences(None, ____%s____)">' % keyword)
 					html.append(title)
@@ -4638,14 +4636,120 @@ class AppFrame(wx.Frame):
 
 			startWorker(self.onLoadDetached_consumer, self.onLoadDetached_worker)
 
-			app = wx.GetApp()
-			if app.startWithCommand:
-				commands = app.startWithCommand.split(' ')
-				if command[0] == 'javaScript':
+			if self.parent.startWithCommand:
+				commands = self.parent.startWithCommand.split(' ')
+				if commands[0] == 'javaScript':
 					code = base64.b64decode(commands[1].encode()).decode()
 					self.javaScript(code)
 
+
+			if self.parent.startWithCommand == 'selftest':
+				self.parent.startWithCommand = None
+				self.selftest()
+
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
+
+
+	def selftest_worker(self, pythonCode = None, javaScriptCode = None):
+
+		try:
+			return pythonCode, javaScriptCode
+
+		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
+
+	def selftest_consumer(self, delayedResult):
+
+		try:
+			pythonCode, javaScriptCode = delayedResult.get()
+
+			if pythonCode != None:
+				exec(pythonCode, globals(), locals())
+
+			elif javaScriptCode != None:
+				self.javaScript(javaScriptCode)
+
+		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
+
+	def selftest_python(self, code):
+		startWorker(self.selftest_consumer, self.selftest_worker, wargs=(code, None))
+
+	def selftest_javascript(self, code):
+		startWorker(self.selftest_consumer, self.selftest_worker, wargs=(None, code)).join()
+
+	def sleep(self, seconds):
+		return startWorker(self.sleep_consumer, self.sleep_worker, wargs=(seconds, ))
+
+	def sleep_worker(self, seconds):
+		time.sleep(seconds)
+		return seconds
+
+	def sleep_consumer(self, delayedResult):
+		seconds = delayedResult.get()
+
+	def quitSelftest(self, message, exitCode):
+		print('selftest failed with:', message)
+		self.onQuit(None, withExitCode = exitCode)
+
+
+	def selftest(self):
+
+		try:
+
+			flatFreeSubscription = 'typeworld://json+https//typeworldserver.com/flatapi/q8JZfYn9olyUvcCOiqHq/'
+
+			# Delete User Account
+			success, message = client.deleteUserAccount('test1@type.world', '12345678')
+
+			# Create User Account
+			success, message = client.createUserAccount('Test User', 'test1@type.world', '12345678', '12345678')
+
+			condition = success == True
+			if not condition: return self.quitSelftest(message, 10)
+
+			# Add subscription
+			success, message, publisher, subscription = client.addSubscription(flatFreeSubscription)
+			condition = success == True
+			if not condition: return self.quitSelftest(message, 20)
+
+			font = subscription.protocol.installableFontsCommand()[1].foundries[0].families[0].fonts[0]
+
+			# Install font
+			success, message = subscription.installFonts([[font.uniqueID, font.getVersions()[-1].number]])
+			condition = success == False
+			if not condition: return self.quitSelftest(message, 30)
+
+			# Terms of Service
+			subscription.set('acceptedTermsOfService', True)
+			success, message = subscription.installFonts([[font.uniqueID, font.getVersions()[-1].number]])
+			condition = success == True
+			if not condition: return self.quitSelftest(message, 35)
+			condition = subscription.amountInstalledFonts() == 1
+			if not condition: return self.quitSelftest(f'subscription.amountInstalledFonts() = {subscription.amountInstalledFonts()}', 40)
+
+			# Uninstall font
+			success, message = subscription.removeFonts([font.uniqueID])
+			condition = success == True
+			if not condition: return self.quitSelftest(message, 50)
+			condition = subscription.amountInstalledFonts() == 0
+			if not condition: return self.quitSelftest(f'subscription.amountInstalledFonts() = {subscription.amountInstalledFonts()}', 60)
+
+			# Update
+			success, message, changed = subscription.update()
+			condition = success == True
+			if not condition: return self.quitSelftest(message, 70)
+
+			# Delete User Account
+			success, message = client.deleteUserAccount('test1@type.world', '12345678')
+			condition = success == True
+			if not condition: return self.quitSelftest(message, 80)
+
+			self.onQuit(None, withExitCode = 0)
+
+		except:
+			print(traceback.format_exc())
+			self.onQuit(None, withExitCode = 666)			
+
+
 
 	def onLoadDetached_worker(self):
 
@@ -4851,11 +4955,14 @@ if MAC:
 
 class MyApp(wx.App):
 
-	def __init__(self, redirect=False, filename=None, useBestVisual=False, clearSigInt=True, startWithCommand = None):
+	def __init__(self, redirect=False, filename=None, useBestVisual=False, clearSigInt=True):
 		try:
-			self.startWithCommand = startWithCommand
 
-			super().__init__(redirect, filename, useBestVisual, clearSigInt)
+			# Abuse unused "filename" as "startWithCommand"
+			self.startWithCommand = filename
+			self.exitCode = 0
+			super().__init__(redirect, None, useBestVisual, clearSigInt)
+
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 
@@ -4888,12 +4995,10 @@ class MyApp(wx.App):
 
 			client.log('self.startWithCommand: %s' % self.startWithCommand)
 
-			if self.startWithCommand:
+			if self.startWithCommand == 'checkForUpdateInformation':
 
-				if self.startWithCommand == 'checkForUpdateInformation':
-
-					if MAC:
-						self.frame = UpdateFrame(None)
+				if MAC:
+					self.frame = UpdateFrame(None)
 
 			else:
 
@@ -4905,8 +5010,11 @@ class MyApp(wx.App):
 					wreg.SetValueEx(key, current_file, 0, wreg.REG_DWORD, 11001)
 
 
-				frame = AppFrame(None)
+				frame = AppFrame()
 				self.frame = frame
+				self.frame.parent = self
+				self.frame.Show()
+
 
 				# Window Styling
 				if MAC:
@@ -5094,7 +5202,7 @@ def intercom(commands):
 					app.frame.javaScript(code)
 
 				else:
-					app = MyApp(redirect = False, filename = None, startWithCommand = ' '.join(commands))
+					app = MyApp(redirect = False, filename = ' '.join(commands))
 					app.MainLoop()
 
 
@@ -5184,7 +5292,7 @@ def intercom(commands):
 
 
 				if MAC:
-					app = MyApp(redirect = False, filename = None, startWithCommand = 'checkForUpdateInformation')
+					app = MyApp(redirect = False, filename = 'checkForUpdateInformation')
 					app.MainLoop()
 
 
@@ -5210,41 +5318,72 @@ def intercom(commands):
 	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
 
 
-if len(sys.argv) > 1 and sys.argv[1] in intercomCommands:
+def createClient(startWithCommand = None):
 
 
-	# Output to STDOUT
-	client.log(intercom(sys.argv[1:]))
-
-	sys.exit(0)
-
-else:
-
-	try:
-		# Prevent second start
-
+	if startWithCommand == 'selftest':
 		if WIN:
+			prefFile = os.path.join(prefDir, f'preferences.selftest.{int(time.time())}.json')
+			prefs = JSON(prefFile)
+		elif MAC:
+			prefs = AppKitNSUserDefaults(f'world.type.selftest.{int(time.time())}')
+	else:
+		if WIN:
+			prefFile = os.path.join(prefDir, 'preferences.json')
+			prefs = JSON(prefFile)
+		elif MAC:
+			prefs = AppKitNSUserDefaults('world.type.clientapp' if DESIGNTIME else None)
 
-			pid = PID('TypeWorld.exe')
+	global client
+	client = APIClient(preferences = prefs, delegate = delegate, mode = 'gui', pubSubSubscriptions = True)
 
-			if pid:
-
-				from pywinauto import Application
-				try:
-					app = Application().connect(process = pid)
-					app.top_window().set_focus()
-
-				except:
-					pass
-
-				sys.exit(1)
-
-		listenerThread = Thread(target=listenerFunction)
-		listenerThread.start()
+def startApp(startWithCommand = None):
 
 
-		app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = None)
-		client.delegate.app = app
-		app.MainLoop()
+	# Prevent duplicate start
+	if WIN:
+		pid = PID('TypeWorld.exe')
+		if pid:
+			from pywinauto import Application
+			try:
+				app = Application().connect(process = pid)
+				app.top_window().set_focus()
+			except:
+				pass
+			sys.exit(1)
 
-	except: client.handleTraceback()
+	# Start Intercom Server
+	listenerThread = Thread(target=listenerFunction)
+	listenerThread.start()
+
+	# Start App
+	app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = startWithCommand)
+	client.delegate.app = app
+
+	# Last call, no more code after this point
+	app.MainLoop()
+
+	print('app.exitCode:', app.exitCode)
+	sys.exit(app.exitCode)
+
+
+# Main Loop
+if __name__ == '__main__':
+
+
+	# Decide what to do on startup:
+
+	# Just start intercom, no GUI
+	if len(sys.argv) > 1 and sys.argv[1] in intercomCommands:
+		createClient()
+		client.log(intercom(sys.argv[1:]))
+
+	# Self Test
+	elif len(sys.argv) > 1 and sys.argv[1] == 'selftest':
+		createClient(startWithCommand = 'selftest')
+		startApp(startWithCommand = 'selftest')
+
+	# Normal App Window
+	else:
+		createClient()
+		startApp()

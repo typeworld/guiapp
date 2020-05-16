@@ -148,6 +148,11 @@ if 'normal' in profile:
 	if 'sign' in profile:
 		signApp('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app')
 
+	executeCommands((
+		('Self Test', '/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/MacOS/Type.World selftest', True),
+	))
+
+
 if not 'sign' in profile:
 	print(f'WARNING: Apps aren’t signed (profile: {profile})')
 

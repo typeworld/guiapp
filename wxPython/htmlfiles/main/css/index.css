@@ -1,3 +1,42 @@
+/* first assign web font */
+@font-face {
+	font-family: 'noname_sans';
+    src: url('noname/nonamesans-extralight-webfont.eot');
+    src: url('noname/nonamesans-extralight-webfont.eot?#iefix') format('embedded-opentype'),
+         url('noname/nonamesans-extralight-webfont.woff2') format('woff2'),
+         url('noname/nonamesans-extralight-webfont.woff') format('woff'),
+         url('noname/nonamesans-extralight-webfont.ttf') format('truetype');
+	font-weight: lighter;
+	font-style: normal;
+
+}
+
+@font-face {
+	font-family: 'noname_sans';
+    src: url('noname/nonamesans-regular-webfont.eot');
+    src: url('noname/nonamesans-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('noname/nonamesans-regular-webfont.woff2') format('woff2'),
+         url('noname/nonamesans-regular-webfont.woff') format('woff'),
+         url('noname/nonamesans-regular-webfont.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+
+}
+
+@font-face {
+	font-family: 'noname_sans';
+    src: url('noname/nonamesans-bold-webfont.eot');
+    src: url('noname/nonamesans-bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('noname/nonamesans-bold-webfont.woff2') format('woff2'),
+         url('noname/nonamesans-bold-webfont.woff') format('woff'),
+         url('noname/nonamesans-bold-webfont.ttf') format('truetype');
+	font-weight: bold;
+	font-style: normal;
+
+}
+
+
+
 /*---------------clear-------------*/
 .clear:after {
 content: ".";
@@ -926,6 +965,11 @@ body.dark {
 	/*display: none;*/
 	position:absolute;
 
+	font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif;
+	font-weight: lighter;
+    font-size: 24pt;
+    line-height: 120%;
+
 	left: 300px;
 	top: 0;
 	bottom: 0;
@@ -936,8 +980,6 @@ body.dark {
 
     overflow-y: scroll;
 
-    font-size: 18pt;
-    line-height: 24pt;
 
 }
 
@@ -1016,7 +1058,13 @@ body.dark {
 }
 
 
-
+.panel h2 {
+	font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif;
+	font-weight: lighter;
+    font-size: 24pt;
+    line-height: 120%;
+	
+}
 
 
 .panel a {

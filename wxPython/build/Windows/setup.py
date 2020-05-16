@@ -1,7 +1,7 @@
 import sys, os
 from cx_Freeze import setup, Executable
 
-version = open('Z:/Code/py/git/typeWorld/guiapp/currentVersion.txt', 'r').read().strip()
+version = open('Z:/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
 
 # GUI applications require a different base on Windows (the default is for a
 # console application).
@@ -10,7 +10,7 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
-baseFolder = 'Z:/Code/py/git/typeWorld/guiapp/wxPython'
+baseFolder = 'Z:/Code/py/git/typeworld/guiapp/wxPython'
 
 # Make dirs
 destinationFolder = os.path.join('Z:\\Code\\TypeWorldApp\\apps\\Windows', version)
@@ -35,7 +35,7 @@ setup(  name = "Type.World",
                 os.path.join(baseFolder, 'intercom'),
                 ],
           'excludes': ['win32ctypes'],
-          'packages': ['packaging', 'grpc', 'requests', 'idna', 'pyasn1', 'rsa', 'cachetools', 'grpc', 'cryptography', 'pyasn1_modules', 'typeWorld', 'keyring'], # 'google-api-core', 'google-cloud-pubsub'
+          'packages': ['packaging', 'grpc', 'requests', 'idna', 'pyasn1', 'rsa', 'cachetools', 'grpc', 'cryptography', 'pyasn1_modules', 'typeworld', 'keyring'], # 'google-api-core', 'google-cloud-pubsub'
           'optimize': 2,
           'build_exe': destinationFolder,
         }},

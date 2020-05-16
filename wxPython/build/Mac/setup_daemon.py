@@ -1,23 +1,23 @@
 from setuptools import setup
 import os
 
-version = open('/Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt', 'r').read().strip()
+version = open('/Users/yanone/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
 
 os.system('rm -rf ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version)
 
 setup(
-    app=['/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/daemon.py'],
+    app=['/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/daemon.py'],
     data_files=[],
     options={'py2app': {'argv_emulation': False, # this puts the names of dropped files into sys.argv when starting the app.
-           'iconfile': '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/tw.icns',
+           'iconfile': '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/icon/tw.icns',
 #           'includes': ['locales'],
  #          'excludes': [],
  #          'frameworks': ['Python.framework'],
            'resources': [
-              '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/MacSystemTrayIcon.pdf', 
-              '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/icon/MacSystemTrayIcon_Notification.pdf', 
-              '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/locales', 
-              '/Users/yanone/Code/py/git/typeWorld/guiapp/wxPython/intercom', 
+              '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/icon/MacSystemTrayIcon.pdf', 
+              '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/icon/MacSystemTrayIcon_Notification.pdf', 
+              '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/locales', 
+              '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/intercom', 
             ], #, 'appbadge.docktileplugin'
            'packages': ['pystray'],
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),

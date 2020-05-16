@@ -13,8 +13,8 @@ for path in (
 		'../htmlfiles/main/index.html',
 		'../app.py',
 		'additional translations.txt',
-		'/Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeWorld/client/__init__.py',
-		'/Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeWorld/test.py',
+		'/Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/client/__init__.py',
+		'/Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/test.py',
 		'/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/InternetAccessPolicy.strings',
 		'/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/locales/__init__.py',
 	):

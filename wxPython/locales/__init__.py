@@ -22,6 +22,19 @@ def makeHTML(string, html):
 #		string = markdown.markdown(string)
 	return string
 
+def supportedLocales():
+	supportedLocaleKeys = []
+	supportedLocales = []
+	for key in content:
+		for language in content[key]:
+			if not language in supportedLocaleKeys:
+				supportedLocaleKeys.append(language)
+	for localeKey, localeName in locales:
+		if localeKey in supportedLocaleKeys:
+			supportedLocales.append((localeKey, localeName)) 
+	return supportedLocales
+
+
 def localize(key, languages = ['en'], html = False):
 	'''\
 	Return localized version of key, if found. Otherwise try English, if found.u

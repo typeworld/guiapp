@@ -8,7 +8,7 @@ import os, glob, time, markdown
 from ynlib.files import WriteToFile, ReadFromFile
 from ynlib.system import Execute
 
-version = Execute('cat /Users/yanone/Code/py/git/typeWorld/guiapp/currentVersion.txt')
+version = Execute('cat /Users/yanone/Code/py/git/typeworld/guiapp/currentVersion.txt')
 dmgFolder = os.path.expanduser('~/Code/TypeWorldApp/dmg')
 # dsaFolder = os.path.expanduser('~/Code/TypeWorldApp/dsa')
 

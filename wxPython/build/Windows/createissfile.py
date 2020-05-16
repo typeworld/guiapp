@@ -1,11 +1,11 @@
 import os
 
 
-version = open('Z:/Code/py/git/typeWorld/guiapp/currentVersion.txt', 'r').read().strip()
+version = open('Z:/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
 
 # Write .iss
 
-iss = open('Z:/Code/py/git/typeWorld/guiapp/wxPython/build/Windows/TypeWorld.iss', 'w')
+iss = open('Z:/Code/py/git/typeworld/guiapp/wxPython/build/Windows/TypeWorld.iss', 'w')
 iss.write('''[Setup]
 AppName=Type.World
 AppVersion=%s

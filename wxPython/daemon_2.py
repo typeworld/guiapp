@@ -156,7 +156,7 @@ try:
 	from multiprocessing.connection import Client
 
 	from ynlib.system import Execute
-	import typeWorldClient
+	import typeworldClient
 
 	if MAC:
 		mainAppPath = str(NSWorkspace.sharedWorkspace().URLForApplicationWithBundleIdentifier_('world.type.guiapp'))[7:]
@@ -175,11 +175,11 @@ try:
 
 		if WIN:
 			prefFile = os.path.join(prefDir, 'preferences.json')
-			prefs = typeWorldClient.JSON(prefFile)
+			prefs = typeworldClient.JSON(prefFile)
 		else:
-			prefs = typeWorldClient.AppKitNSUserDefaults('world.type.guiapp')
+			prefs = typeworldClient.AppKitNSUserDefaults('world.type.guiapp')
 
-		client = typeWorldClient.APIClient(preferences = prefs)
+		client = typeworldClient.APIClient(preferences = prefs)
 
 		return client
 

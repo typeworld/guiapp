@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from intercom import *
 import intercom
-import typeWorld.client
+import typeworld.client
 
 class IntercomDelegate(intercom.IntercomDelegate):
 	def exitSignalCalled(self):
@@ -37,11 +37,11 @@ try:
 
 		if WIN:
 			prefFile = os.path.join(prefDir, 'preferences.json')
-			prefs = typeWorld.client.JSON(prefFile)
+			prefs = typeworld.client.JSON(prefFile)
 		else:
-			prefs = typeWorld.client.AppKitNSUserDefaults('world.type.guiapp')
+			prefs = typeworld.client.AppKitNSUserDefaults('world.type.guiapp')
 
-		client = typeWorld.client.APIClient(preferences = prefs, online = False)
+		client = typeworld.client.APIClient(preferences = prefs, online = False)
 
 		return client
 

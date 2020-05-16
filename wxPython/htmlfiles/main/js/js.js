@@ -34,7 +34,7 @@ function linkout(url) {
 }
 
 function setPreference(key, value) {
-    python('client.preferences.set(____' + key + '____, ____' + value + '____)');
+    python('client.set(____' + key + '____, ____' + value + '____)');
 }
 
 function setPublisherPreference(b64ID, key, value) {

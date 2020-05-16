@@ -26,7 +26,7 @@ else:
 	DESIGNTIME = True
 	RUNTIME = False
 
-import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, platform, logging
+import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, platform, logging, requests
 from threading import Thread
 import threading
 import wx.html2
@@ -48,8 +48,8 @@ from ynlib.strings import *
 from ynlib.web import GetHTTP
 from ynlib.colors import Color
 
-from typeWorld.client import APIClient, JSON, AppKitNSUserDefaults, TypeWorldClientDelegate
-import typeWorld.api
+from typeworld.client import APIClient, JSON, AppKitNSUserDefaults, TypeWorldClientDelegate, URL
+import typeworld.api
 
 APPNAME = 'Type.World'
 APPVERSION = 'n/a'
@@ -62,12 +62,16 @@ app = None
 
 
 
-
-
 if MAC:
 	import objc
-	from AppKit import NSString, NSUTF8StringEncoding, NSApplication, NSApp, NSObject, NSUserNotification, NSUserNotificationCenter, NSDistributedNotificationCenter, NSNotification
-	from AppKit import NSView, NSRect, NSPoint, NSSize, NSMakeRect, NSColor, NSRectFill, NSToolbar
+	# NSApplication = objc.lookUpClass("NSApplication")
+	from AppKit import NSApp
+	from AppKit import NSObject, NSUserNotification, NSUserNotificationCenter, NSDistributedNotificationCenter
+	from AppKit import NSView, NSToolbar
+	from Foundation import NSPoint, NSSize, NSMakeRect
+	# NSPoint = objc.lookUpClass("NSPoint")
+	# NSSize = objc.lookUpClass("NSSize")
+	# NSMakeRect = objc.lookUpClass("NSMakeRect")
 	from AppKit import NSRunningApplication
 	from AppKit import NSScreen
 	from AppKit import NSUserDefaults
@@ -267,23 +271,23 @@ else:
 class ClientDelegate(TypeWorldClientDelegate):
 	def fontWillInstall(self, font):
 		# print('fontWillInstall', font)
-		assert type(font) == typeWorld.api.Font
+		assert type(font) == typeworld.api.Font
 
 	def fontHasInstalled(self, success, message, font):
 		# print('fontHasInstalled', success, message, font)
-		assert type(font) == typeWorld.api.Font
+		assert type(font) == typeworld.api.Font
 
 	def fontWillUninstall(self, font):
 		# print('fontWillUninstall', font)
-		assert type(font) == typeWorld.api.Font
+		assert type(font) == typeworld.api.Font
 
 	def fontHasUninstalled(self, success, message, font):
 		# print('fontHasUninstalled', success, message, font)
-		assert type(font) == typeWorld.api.Font
+		assert type(font) == typeworld.api.Font
 
 	def subscriptionUpdateNotificationHasBeenReceived(self, subscription):
 #			print('PULLED FROM SERVER: subscriptionHasUpdated(%s)' % subscription)
-		assert type(subscription) == typeWorld.client.APISubscription
+		assert type(subscription) == typeworld.client.APISubscription
 		self.app.frame.reloadSubscriptionFromClient(subscription)
 
 	def userAccountUpdateNotificationHasBeenReceived(self):
@@ -328,7 +332,7 @@ class FoundryStyling(object):
 		assert self.theme in ('light', 'dark')
 
 		# Apply default colors
-		colors = typeWorld.api.StylingDataType().exampleData()[self.theme]
+		colors = typeworld.api.StylingDataType().exampleData()[self.theme]
 		for key in colors:
 			if 'Color' in key:
 				setattr(self, key, Color(hex=colors[key]))
@@ -738,43 +742,40 @@ def uninstallAgent():
 
 		lock()
 		client.log('lock() from within uninstallAgent()')
-		try:
-			if MAC:
+		if MAC:
 
-				plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
-				agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
+			plistPath = os.path.expanduser('~/Library/LaunchAgents/world.type.agent.plist')
+			agentPath = os.path.expanduser('~/Library/Application Support/Type.World/Type.World Agent.app')
 
-				# Kill running app
-				ID = 'world.type.agent'
-				# App is running, so activate it
-				apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
-				if apps:
-					mainApp = apps[0]
-					mainApp.terminate()
+			# Kill running app
+			ID = 'world.type.agent'
+			# App is running, so activate it
+			apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
+			if apps:
+				mainApp = apps[0]
+				mainApp.terminate()
 
-				# delete app bundle
-				if os.path.exists(agentPath):
-					os.system('rm -r "%s"' % agentPath)
+			# delete app bundle
+			if os.path.exists(agentPath):
+				os.system('rm -r "%s"' % agentPath)
 
-				# delete plist
-				if os.path.exists(plistPath):
-					os.system('rm "%s"' % plistPath)
+			# delete plist
+			if os.path.exists(plistPath):
+				os.system('rm "%s"' % plistPath)
 
-			if WIN:
+		if WIN:
 
-				agent('quit')
+			agent('quit')
 
-				import getpass
-				USER_NAME = getpass.getuser()
+			import getpass
+			USER_NAME = getpass.getuser()
 
-				bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\TypeWorld.bat' % USER_NAME
-				if os.path.exists(bat_path):
-					os.remove(bat_path)
+			bat_path = r'C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\TypeWorld.bat' % USER_NAME
+			if os.path.exists(bat_path):
+				os.remove(bat_path)
 
-			client.set('menuBarIcon', False)
+		client.set('menuBarIcon', False)
 
-		except:
-			client.log(traceback.format_exc())
 		unlock()
 		client.log('unlock() from within uninstallAgent()')
 	except: client.handleTraceback(sourceMethod = globals()[sys._getframe().f_code.co_name])
@@ -799,8 +800,6 @@ def localizeString(string, html = False, replace = {}):
 # Sparkle Updating
 
 if MAC and RUNTIME:
-	# URL to Appcast.xml, eg. https://yourserver.com/Appcast.xml
-	APPCAST_URL = 'https://type.world/downloads/guiapp/appcast.xml'
 	# Path to Sparkle's "Sparkle.framework" inside your app bundle
 
 	if '.app' in os.path.dirname(__file__):
@@ -814,9 +813,6 @@ if MAC and RUNTIME:
 	loadBundle('Sparkle', objc_namespace, bundle_path=sparkle_path)
 
 	sparkle = objc_namespace['SUUpdater'].sharedUpdater()
-#       sparkle.setAutomaticallyDownloadsUpdates_(True)
-	# NSURL = objc_namespace['NSURL']
-	# sparkle.setFeedURL_(NSURL.URLWithString_(APPCAST_URL))
 
 
 	def waitForUpdateToFinish(app, updater, delegate):
@@ -992,10 +988,48 @@ if WIN:
 			pywinsparkle.win_sparkle_set_shutdown_request_callback(self.pywinsparkle_shutdown)
 
 			# set application details
-			update_url = "https://type.world/downloads/guiapp/appcast_windows.xml"
+			update_url = "https://type.world/static/guiapp/appcast_windows.xml"
 			pywinsparkle.win_sparkle_set_appcast_url(update_url)
 			pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
 
+			pywinsparkle.win_sparkle_set_dsa_pub_pem('''-----BEGIN PUBLIC KEY-----
+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
+ziwuJDBJ75bzmLBh1nhU9olZNEUNIqxAmAw6
+-----END PUBLIC KEY-----
+''')
+		
 			# initialize
 			pywinsparkle.win_sparkle_init()
 
@@ -1160,7 +1194,7 @@ class AppFrame(wx.Frame):
 
 
 
-			client.log('AppFrame.__init__() finished')
+#			client.log('AppFrame.__init__() finished')
 
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
@@ -1289,11 +1323,11 @@ class AppFrame(wx.Frame):
 				result = dlg.ShowModal()
 				if result == wx.ID_YES:
 
-					for font in expiringInstalledFonts:
-						success, message = font.parent.parent.parent.parent.subscription.removeFont(font.uniqueID)
-						if not success:
-							self.errorMessage(message, 'Error deleting fonts')
-							return
+					fontIDs = [x.uniqueID for x in expiringInstalledFonts]
+					success, message = font.parent.parent.parent.parent.subscription.removeFonts(fontIDs)
+					if not success:
+						self.errorMessage(message, 'Error deleting fonts')
+						return
 
 				else:
 					return
@@ -1377,7 +1411,6 @@ class AppFrame(wx.Frame):
 		try:
 
 			if self.active:
-				client.log('onActivate()')
 
 				# self.pullServerUpdates()
 
@@ -1615,7 +1648,7 @@ class AppFrame(wx.Frame):
 
 			html.append('</div>') # .tabs
 
-			html.append('</div>')
+			html.append('</div>') #head
 
 
 			html.append('<div class="body inner">')
@@ -1623,15 +1656,7 @@ class AppFrame(wx.Frame):
 
 			if section == 'linkedApps':
 
-				html.append('''<style>
-
-
-
-
-
-					</style>''')
-
-				
+			
 				success, instances = client.linkedAppInstances()
 				if not success:
 					
@@ -1866,23 +1891,22 @@ class AppFrame(wx.Frame):
 
 
 
+
+				# # Agent
+				# if WIN:
+				# 	html.append('<h2>#(Icon in Menu Bar.Windows)</h2>')
+				# if MAC:
+				# 	html.append('<h2>#(Icon in Menu Bar.Mac)</h2>')
+				# html.append('<p>')
+				# label = '#(Show Icon in Menu Bar' + ('.Windows' if WIN else '.Mac') + ')'
+				# html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">%s</label></span>' % ('checked' if agentIsRunning() else '', label))
+				# html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
+				# html.append('</p>')
+				# html.append('<p>')
+				# html.append('#(IconInMenuBarExplanation)')
+				# html.append('</p>')
+
 				# html.append('<hr>')
-
-				# Agent
-				if WIN:
-					html.append('<h2>#(Icon in Menu Bar.Windows)</h2>')
-				if MAC:
-					html.append('<h2>#(Icon in Menu Bar.Mac)</h2>')
-				html.append('<p>')
-				label = '#(Show Icon in Menu Bar' + ('.Windows' if WIN else '.Mac') + ')'
-				html.append('<span><input id="menubar" type="checkbox" name="menubar" %s><label for="menubar">%s</label></span>' % ('checked' if agentIsRunning() else '', label))
-				html.append('<script>$("#preferences #menubar").click(function() { if($("#preferences #menubar").prop("checked")) { python("installAgent()"); } else { setCursor("wait", 2000); python("uninstallAgent()"); } });</script>')
-				html.append('</p>')
-				html.append('<p>')
-				html.append('#(IconInMenuBarExplanation)')
-				html.append('</p>')
-
-				html.append('<hr>')
 
 				# Localization
 				systemLocale = client.systemLocale()
@@ -1901,7 +1925,7 @@ class AppFrame(wx.Frame):
 				html.append('</p>')
 				html.append('<p>')
 				html.append('<select id="customLocaleChoice" style="" onchange="">')
-				for code, name in locales.locales:
+				for code, name in locales.supportedLocales():
 					html.append('<option value="%s" %s>%s</option>' % (code, 'selected' if code == client.get('customLocaleChoice') else '', name))
 				html.append('</select>')
 				html.append('''<script>$("#preferences #customLocaleChoice").click(function() {
@@ -1998,10 +2022,10 @@ class AppFrame(wx.Frame):
 
 						html.append('<p>')
 						html.append('#(Provided by) ')
-						if rootCommand.website:
-							html.append('<a href="%s" title="%s">' % (rootCommand.website, rootCommand.website))
+						if rootCommand.websiteURL:
+							html.append('<a href="%s" title="%s">' % (rootCommand.websiteURL, rootCommand.websiteURL))
 						html.append('<b>' + rootCommand.name.getText(client.locale()) + '</b>')
-						if rootCommand.website:
+						if rootCommand.websiteURL:
 							html.append('</a> ')
 						if userName or userEmail:
 							html.append('#(for) ')
@@ -2070,12 +2094,10 @@ class AppFrame(wx.Frame):
 						html = localizeString(html, html = True)
 						html = html.replace('\n', '')
 						html = self.replaceHTML(html)
-
-
-						js = '$("#preferences .inner").html("' + html + '");'
+						js = '$("#preferences .centerOuter").html("<div class=\'inner\'>' + html + '</div>");'
 						self.javaScript(js)
-
 						self.javaScript('showPreferences();')
+
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 	def inviteUsers(self, b64ID, string):
@@ -2168,10 +2190,10 @@ class AppFrame(wx.Frame):
 
 						html.append('<p>')
 						html.append('#(Provided by) ')
-						if rootCommand.website:
-							html.append('<a href="%s" title="%s">' % (rootCommand.website, rootCommand.website))
+						if rootCommand.websiteURL:
+							html.append('<a href="%s" title="%s">' % (rootCommand.websiteURL, rootCommand.websiteURL))
 						html.append('<b>' + rootCommand.name.getText(client.locale()) + '</b>')
-						if rootCommand.website:
+						if rootCommand.websiteURL:
 							html.append('</a> ')
 						if userName or userEmail:
 							html.append('#(for) ')
@@ -2266,13 +2288,27 @@ class AppFrame(wx.Frame):
 						html = localizeString(html, html = True)
 						html = html.replace('\n', '')
 						html = self.replaceHTML(html)
-
-
-						js = '$("#preferences .inner").html("' + html + '");'
+						js = '$("#preferences .centerOuter").html("<div class=\'inner\'>' + html + '</div>");'
 						self.javaScript(js)
-
 						self.javaScript('showPreferences();')
+
+
+						# # Print HTML
+						# html = ''.join(map(str, html))
+						# html = html.replace('"', '\'')
+						# html = localizeString(html, html = True)
+						# html = html.replace('\n', '')
+						# html = self.replaceHTML(html)
+
+
+						# js = '$("#preferences .inner").html("' + html + '");'
+						# self.javaScript(js)
+
+						# self.javaScript('showPreferences();')
+
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
+
+
 
 
 	def onNavigating(self, evt):
@@ -2294,7 +2330,7 @@ class AppFrame(wx.Frame):
 				
 	#				server = 'https://type.world'
 	#				server = 'https://typeworld.appspot.com'
-				server = client.mothership.replace('/api', '/linkRedirect')
+				server = client.mothership.replace('/v1', '/linkRedirect')
 				webbrowser.open_new_tab(server + '?url=' + urllib.parse.quote_plus(uri))
 				evt.Veto()
 
@@ -2395,20 +2431,20 @@ class AppFrame(wx.Frame):
 	def addSubscription_worker(self, url, username, password):
 		try:
 
-			for protocol in typeWorld.api.PROTOCOLS:
+			for protocol in typeworld.api.PROTOCOLS:
 				url = url.replace(protocol + '//', protocol + '://')
 			# url = url.replace('http//', 'http://')
 			# url = url.replace('https//', 'https://')
 
 			# Check for known protocol
 			known = False
-			for protocol in typeWorld.api.PROTOCOLS:
+			for protocol in typeworld.api.PROTOCOLS:
 				if url.startswith(protocol):
 					known = True
 					break
 
 			if not known:
-				return False, 'Unknown protocol. Known are: %s' % (typeWorld.api.PROTOCOLS), None, None
+				return False, 'Unknown protocol. Known are: %s' % (typeworld.api.PROTOCOLS), None, None
 
 			success, message, publisher, subscription = client.addSubscription(url, username, password)
 
@@ -2454,38 +2490,42 @@ class AppFrame(wx.Frame):
 
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
-	def acceptInvitation(self, ID):
+	def acceptInvitation(self, url):
 		try:
 
 			self.javaScript('startLoadingAnimation();')
 
-			startWorker(self.acceptInvitation_consumer, self.acceptInvitation_worker, wargs=(ID, ))
+			startWorker(self.acceptInvitation_consumer, self.acceptInvitation_worker, wargs=(url, ))
 
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
-	def acceptInvitation_worker(self, ID):
+	def acceptInvitation_worker(self, url):
 		try:
 
-			success, message = client.acceptInvitation(ID)
-			return success, message, ID
+			success, message = client.acceptInvitation(self.b64decode(url))
+			return success, message, url
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 
 	def acceptInvitation_consumer(self, delayedResult):
 		try:
 
-			success, message, ID = delayedResult.get()
+			success, message, url = delayedResult.get()
 
 			if success:
 
-				self.javaScript('$("#%s.invitation").slideUp();' % ID)
+				self.javaScript('$("#%s.invitation").slideUp();' % url)
 
 				for invitation in client.acceptedInvitations():
-					if invitation.ID == ID:
+					if invitation.url == self.b64decode(url):
 
-						client.set('currentPublisher', invitation.canonicalURL)
+						publisherURL = URL(invitation.canonicalURL).HTTPURL()
+						print('publisherURL', publisherURL)
+						client.set('currentPublisher', publisherURL)
+						publisher = client.publisher(publisherURL)
+						publisher.set('currentSubscription', invitation.url)
 						self.setSideBarHTML()
-						self.setPublisherHTML(self.b64encode(client.publisher(client.get('currentPublisher')).canonicalURL))
+						self.setPublisherHTML(self.b64encode(publisherURL))
 						self.setBadges()
 
 			else:
@@ -2496,17 +2536,15 @@ class AppFrame(wx.Frame):
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 
-	def declineInvitation(self, ID):
+	def declineInvitation(self, url):
 		try:
 			invitation = None
 
-
 			for invitation in client.acceptedInvitations():
-				if invitation.ID == ID:
-					url = invitation.url
+				if invitation.url == self.b64decode(url):
 					for publisher in client.publishers():
 						for subscription in publisher.subscriptions():
-							if url == subscription.protocol.unsecretURL():
+							if invitation.url == subscription.protocol.unsecretURL():
 
 								name = publisher.name(locale = client.locale())[0] + ' (' + subscription.name(locale=client.locale()) + ')'
 
@@ -2517,11 +2555,11 @@ class AppFrame(wx.Frame):
 					
 								if result:
 									self.javaScript('startLoadingAnimation();')
-									startWorker(self.declineInvitation_consumer, self.declineInvitation_worker, wargs=(ID, ))
+									startWorker(self.declineInvitation_consumer, self.declineInvitation_worker, wargs=(url, ))
 
 
 			for invitation in client.pendingInvitations():
-				if invitation.ID == ID:
+				if invitation.url == self.b64decode(url):
 					dlg = wx.MessageDialog(self, localizeString('#(Are you sure)'), localizeString('#(Decline Invitation)'), wx.YES_NO | wx.ICON_QUESTION)
 					dlg.SetYesNoLabels(localizeString('#(Remove)'), localizeString('#(Cancel)'))
 					result = dlg.ShowModal() == wx.ID_YES
@@ -2529,23 +2567,23 @@ class AppFrame(wx.Frame):
 		
 					if result:
 						self.javaScript('startLoadingAnimation();')
-						startWorker(self.declineInvitation_consumer, self.declineInvitation_worker, wargs=(ID, ))
+						startWorker(self.declineInvitation_consumer, self.declineInvitation_worker, wargs=(url, ))
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
-	def declineInvitation_worker(self, ID):
+	def declineInvitation_worker(self, url):
 		try:
-			success, message = client.declineInvitation(ID)
-			return success, message, ID
+			success, message = client.declineInvitation(self.b64decode(url))
+			return success, message, url
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 
 	def declineInvitation_consumer(self, delayedResult):
 		try:
-			success, message, ID = delayedResult.get()
+			success, message, url = delayedResult.get()
 
 			if success:
 
-				self.javaScript('$("#%s.invitation").slideUp();' % ID)
+				self.javaScript('$("#%s.invitation").slideUp();' % url)
 
 				if len(client.pendingInvitations()) == 0:
 					if client.publishers():
@@ -2729,7 +2767,7 @@ class AppFrame(wx.Frame):
 				# Remove other installed versions
 				installedVersion = subscription.installedFontVersion(fontID)
 				if installedVersion and installedVersion != version:
-					success, message = subscription.removeFont(fontID)
+					success, message = subscription.removeFonts([fontID])
 					if success == False:
 						return success, message, b64publisherURL, subscription, fonts
 
@@ -3163,7 +3201,6 @@ class AppFrame(wx.Frame):
 	def showPublisherInFinder(self, evt, b64ID):
 		try:
 			
-			client.log('showPublisherInFinder()')
 			publisher = client.publisher(self.b64decode(b64ID))
 			path = publisher.folder()
 
@@ -3171,19 +3208,20 @@ class AppFrame(wx.Frame):
 				os.makedirs(path)
 
 			import subprocess
-			subprocess.call(["open", "-R", path])
+			subprocess.call(["open", path])
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 	def showFontInFinder(self, evt, subscription, fontID):
 		try:
 
-			client.log('showFontInFinder()')
 			font = subscription.fontByID(fontID)
 			version = subscription.installedFontVersion(fontID)
-			path = font.path(version, folder = None)
+			folder = subscription.parent.folder()
+			font, path = subscription.fontPath(folder, fontID)
 
 			import subprocess
 			subprocess.call(["open", "-R", path])
+
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 
@@ -3370,7 +3408,7 @@ class AppFrame(wx.Frame):
 				assert len(message) == 2
 				string, title = message
 
-			elif type(message) == typeWorld.api.MultiLanguageText:
+			elif type(message) == typeworld.api.MultiLanguageText:
 				string = message.getText(locale = client.locale())
 
 			else:
@@ -3386,7 +3424,7 @@ class AppFrame(wx.Frame):
 
 			if keepString == '#(response.loginRequired)' and subscription and subscription.protocol.rootCommand()[1].loginURL:
 				url = subscription.protocol.rootCommand()[1].loginURL
-				url = addAttributeToURL(url, 'subscriptionID=%s' % typeWorld.client.URL(subscription.url).subscriptionID)
+				url = addAttributeToURL(url, 'subscriptionID=%s' % typeworld.client.URL(subscription.url).subscriptionID)
 				webbrowser.open(url, new=1)
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
@@ -3398,7 +3436,7 @@ class AppFrame(wx.Frame):
 				assert len(message) == 2
 				message, title = message
 
-			elif type(message) == typeWorld.api.MultiLanguageText:
+			elif type(message) == typeworld.api.MultiLanguageText:
 				message = message.getText(locale = client.locale())
 
 			client.log(message)
@@ -3474,11 +3512,11 @@ class AppFrame(wx.Frame):
 			publisher = client.publisher(client.get('currentPublisher'))
 			subscription = publisher.subscription(publisher.get('currentSubscription'))
 			font = subscription.fontByID(subscription.get('currentFont'))
-			success, billboard, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
+			success, billboard, mimeType = client.resourceByURL(font.parent.billboardURLs[index], binary = True)
 			if success:
 				data = "data:%s;base64,%s" % (mimeType, billboard)
 			else:
-				data = font.parent.billboards[index]
+				data = font.parent.billboardURLs[index]
 
 			self.javaScript('$("#fontBillboard").attr("src","%s");' % (data))
 			self.javaScript('$(".fontBillboardLinks").removeClass("selected");')
@@ -3515,26 +3553,26 @@ class AppFrame(wx.Frame):
 					html.append(styling.informationView())
 
 
-					if font.parent.billboards:
+					if font.parent.billboardURLs:
 
 						index = font.parent.parent.parent.parent.get('currentFontImage') or 0
-						if index > len(font.parent.billboards) - 1:
+						if index > len(font.parent.billboardURLs) - 1:
 							index = 0
 							font.parent.parent.parent.parent.set('currentFontImage', int(index))
 
 						html.append('<div style="max-height: 400px; height: 300px;">')
 
-						success, billboard, mimeType = client.resourceByURL(font.parent.billboards[index], binary = True)
+						success, billboard, mimeType = client.resourceByURL(font.parent.billboardURLs[index], binary = True)
 						if success:
 							html.append('<img id="fontBillboard" src="data:%s;base64,%s" style="width: 300px;">' % (mimeType, billboard))
 						else:
-							html.append('<img id="fontBillboard" src="%s" style="width: 300px;">' % (font.parent.billboards[index]))
+							html.append('<img id="fontBillboard" src="%s" style="width: 300px;">' % (font.parent.billboardURLs[index]))
 
 
 						html.append('</div>')
-						if len(font.parent.billboards) > 1:
+						if len(font.parent.billboardURLs) > 1:
 							html.append('<div style="padding: 5px; text-align: center;">')
-							for i, billboard in enumerate(font.parent.billboards):
+							for i, billboard in enumerate(font.parent.billboardURLs):
 								html.append('<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="x-python://self.setFontImage(____%s____)" style="color: inherit;">•</a></span>' % (i, 'selected' if i == index else '', i))
 							html.append('</div>')
 
@@ -3546,7 +3584,7 @@ class AppFrame(wx.Frame):
 						('license', '#(License)', True),
 						('information', '#(Information)', font.parent.description),
 						('versions', '#(Versions)', True),
-		#				('billboards', '#(Images)', font.parent.billboards),
+		#				('billboardURLs', '#(Images)', font.parent.billboardURLs),
 						):
 
 						if condition:
@@ -3584,7 +3622,7 @@ class AppFrame(wx.Frame):
 								# html.append('</p></a>')
 								# html.append('</div>')
 
-							if usedLicense.seatsAllowed != None and usedLicense.seatsInstalled != None:
+							if usedLicense.seatsAllowed or usedLicense.seatsInstalled:
 								licenseLink = usedLicense.upgradeURL is not None
 	#							licenseLink = False
 								
@@ -3598,10 +3636,10 @@ class AppFrame(wx.Frame):
 
 								html.append('<div style="width: 100px; position: relative; top: -%spx; left; 0px; margin-left: -4px; margin-bottom: -35px;  ">' % (80 if MAC else 82))
 								html.append('<div class="seatsInstalled" style="position: relative; width: 30px; left: 21px; top: 2px; text-align: right; color: black !important;">')
-								html.append(usedLicense.seatsInstalled)
+								html.append(usedLicense.seatsInstalled or 0)
 								html.append('</div>')
 								html.append('<div style="position: relative; width: 30px; left: 57px; top: 2px; text-align: left; color: black !important;">')
-								html.append(usedLicense.seatsAllowed)
+								html.append(usedLicense.seatsAllowed or 0)
 								html.append('</div>')
 								html.append('</div>')
 
@@ -3719,12 +3757,12 @@ class AppFrame(wx.Frame):
 						html.append('<div class="vertCenterMiddle">')
 						html.append('<div class="vertCenterInner">')
 
-						name = typeWorld.api.MultiLanguageText(dict = invitation.publisherName)
-						subscriptionName = typeWorld.api.MultiLanguageText(dict = invitation.subscriptionName)
+						name = typeworld.api.MultiLanguageText(dict = invitation.publisherName)
+						subscriptionName = typeworld.api.MultiLanguageText(dict = invitation.subscriptionName)
 						html.append('<div class="name">%s%s</div>' % (name.getText(client.locale()), (' (%s)' % subscriptionName.getText(client.locale()) if invitation.subscriptionName else '')))
-						if invitation.website:
+						if invitation.websiteURL:
 							html.append('<p>')
-							html.append('<div class="website"><a href="%s">%s</a></div>' % (invitation.website, invitation.website))
+							html.append('<div class="website"><a href="%s">%s</a></div>' % (invitation.websiteURL, invitation.websiteURL))
 							html.append('</p>')
 
 						if invitation.foundries or invitation.families or invitation.fonts:
@@ -3748,7 +3786,7 @@ class AppFrame(wx.Frame):
 
 						html.append('<div style="margin-top: 15px;">')
 
-						html.append('<a class="acceptInvitation" id="%s" href="x-python://self.acceptInvitation(____%s____)">' % (invitation.ID, invitation.ID))
+						html.append('<a class="acceptInvitation" id="%s" href="x-python://self.acceptInvitation(____%s____)">' % (self.b64encode(invitation.url), self.b64encode(invitation.url)))
 						html.append('<div class="clear invitationButton accept">')
 						html.append('<div class="symbol">')
 						html.append('✓')
@@ -3761,7 +3799,7 @@ class AppFrame(wx.Frame):
 
 	#						html.append('&nbsp;&nbsp;')
 
-						html.append('<a class="declineInvitation" id="%s" href="x-python://self.declineInvitation(____%s____)">' % (invitation.ID, invitation.ID))
+						html.append('<a class="declineInvitation" id="%s" href="x-python://self.declineInvitation(____%s____)">' % (self.b64encode(invitation.url), self.b64encode(invitation.url)))
 						html.append('<div class="clear invitationButton decline">')
 						html.append('<div class="symbol">')
 						html.append('✕')
@@ -3934,7 +3972,7 @@ class AppFrame(wx.Frame):
 						html.append('#(AcceptTermsOfServiceExplanation)')
 						html.append('</p>')
 						html.append('<p>')
-						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(rootCommand.termsOfServiceAgreement, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(rootCommand.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.protocol.url.subscriptionID)), localizeString('#(Read X)', replace = {'content': localizeString('#(Terms of Service)')})))
+						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(rootCommand.termsOfServiceURL, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(rootCommand.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.protocol.url.subscriptionID)), localizeString('#(Read X)', replace = {'content': localizeString('#(Terms of Service)')})))
 						html.append('</p>')
 
 						html.append('<p style="height: 5px;">&nbsp;</p>')
@@ -3946,7 +3984,7 @@ class AppFrame(wx.Frame):
 						html.append('#(AcceptPrivacyPolicyExplanation)')
 						html.append('</p>')
 						html.append('<p>')
-						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(rootCommand.privacyPolicy, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(rootCommand.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.protocol.url.subscriptionID)), localizeString('#(Read X)', replace = {'content': localizeString('#(Privacy Policy)')})))
+						html.append('<a href="%s">→ %s</a>' % (addAttributeToURL(rootCommand.privacyPolicyURL, 'locales=' + ','.join(client.locale()) + '&canonicalURL=' + urllib.parse.quote(rootCommand.canonicalURL) + '&subscriptionID=' + urllib.parse.quote(subscription.protocol.url.subscriptionID)), localizeString('#(Read X)', replace = {'content': localizeString('#(Privacy Policy)')})))
 						html.append('</p>')
 
 						html.append('</div>') # .one
@@ -4017,9 +4055,9 @@ class AppFrame(wx.Frame):
 
 
 						html.append('<div class="name">%s</div>' % (foundry.name.getText(client.locale())))
-						if foundry.website:
+						if foundry.websiteURL:
 							html.append('<p>')
-							html.append('<div class="website"><a href="%s">%s</a></div>' % (foundry.website, foundry.website))
+							html.append('<div class="website"><a href="%s">%s</a></div>' % (foundry.websiteURL, foundry.websiteURL))
 							html.append('</p>')
 
 						html.append('</div>') # .vertCenterInner
@@ -4066,9 +4104,9 @@ class AppFrame(wx.Frame):
 											amountInstalled += 1
 
 									completeSetName = ''
-									if package.keyword != typeWorld.api.DEFAULT:
+									if package.keyword != typeworld.api.DEFAULT:
 										completeSetName += package.name.getText(client.locale()) + ', '
-									completeSetName += typeWorld.api.FILEEXTENSIONNAMES[formatName]
+									completeSetName += typeworld.api.FILEEXTENSIONNAMES[formatName]
 
 									html.append('<div class="section %s" id="%s">' % ('multipleFonts' if len(package.fonts) > 1 else '', completeSetName))
 
@@ -4556,7 +4594,6 @@ class AppFrame(wx.Frame):
 	def onLoad(self, event):
 		try:
 
-			client.log('MyApp.frame.onLoad()')
 			self.fullyLoaded = True
 
 			self.applyDarkMode()
@@ -4617,20 +4654,21 @@ class AppFrame(wx.Frame):
 			for message in self.messages:
 				self.message(message)
 
-			# Ask to install agent
 			seenDialogs = client.get('seenDialogs') or []
-			if not 'installMenubarIcon' in seenDialogs:
 
-				# Menu Bar is actually running, so don't do anything
-				if not client.get('menuBarIcon'):
-					dlg = wx.MessageDialog(None, localizeString("#(InstallMenubarIconQuestion)"), localizeString("#(ShowMenuBarIcon)"),wx.YES_NO | wx.ICON_QUESTION)
-					dlg.SetYesNoLabels(localizeString('#(Yes)'), localizeString('#(No)'))
-					result = dlg.ShowModal()
-					if result == wx.ID_YES:
-						installAgent()
+			# # Ask to install agent
+			# if not 'installMenubarIcon' in seenDialogs:
 
-				seenDialogs.append('installMenubarIcon')
-				client.set('seenDialogs', seenDialogs)
+			# 	# Menu Bar is actually running, so don't do anything
+			# 	if not client.get('menuBarIcon'):
+			# 		dlg = wx.MessageDialog(None, localizeString("#(InstallMenubarIconQuestion)"), localizeString("#(ShowMenuBarIcon)"),wx.YES_NO | wx.ICON_QUESTION)
+			# 		dlg.SetYesNoLabels(localizeString('#(Yes)'), localizeString('#(No)'))
+			# 		result = dlg.ShowModal()
+			# 		if result == wx.ID_YES:
+			# 			installAgent()
+
+			# 	seenDialogs.append('installMenubarIcon')
+			# 	client.set('seenDialogs', seenDialogs)
 
 			# Reinstall agent if outdated
 			if agentIsRunning():
@@ -4697,7 +4735,7 @@ class AppFrame(wx.Frame):
 
 	def replaceHTML(self, html):
 		try:
-
+			global __file__
 			path = os.path.join(os.path.dirname(__file__), 'htmlfiles')
 			if WIN:
 				path = path.replace('\\', '/')
@@ -5207,7 +5245,6 @@ else:
 
 		app = MyApp(redirect = DEBUG and WIN and RUNTIME, filename = None)
 		client.delegate.app = app
-	#	app = MyApp(redirect = False, filename = None)
 		app.MainLoop()
 
 	except: client.handleTraceback()

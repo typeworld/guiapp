@@ -1,7 +1,8 @@
-import sys, os
+import sys, os, json
 from cx_Freeze import setup, Executable
 
 version = open('Z:/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
+profile = json.loads(open(os.path.join(os.path.dirname(__file__), 'buildProfile.json')).read())
 
 # GUI applications require a different base on Windows (the default is for a
 # console application).
@@ -22,6 +23,15 @@ destinationFolder = os.path.join('Z:\\Code\\TypeWorldApp\\apps\\Windows', versio
 # os.makedirs(destinationFolder)
 
 
+print(sys.argv)
+
+executables = [
+          Executable(os.path.join(baseFolder, "app.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico')),
+          Executable(os.path.join(baseFolder, "agent.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Subscription Opener.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico')),
+          ]
+if 'agent' in profile:
+    executables.append(Executable(os.path.join(baseFolder, "daemon.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Taskbar Agent.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico')))
+
 
 setup(  name = "Type.World",
         version = version.split('-')[0],
@@ -35,15 +45,11 @@ setup(  name = "Type.World",
                 os.path.join(baseFolder, 'intercom'),
                 ],
           'excludes': ['win32ctypes'],
-          'packages': ['packaging', 'grpc', 'requests', 'idna', 'pyasn1', 'rsa', 'cachetools', 'grpc', 'cryptography', 'pyasn1_modules', 'typeworld', 'keyring'], # 'google-api-core', 'google-cloud-pubsub'
+          'packages': ['typeworld', 'packaging', 'grpc', 'requests', 'idna', 'pyasn1', 'rsa', 'cachetools', 'grpc', 'cryptography', 'pyasn1_modules', 'typeworld', 'keyring', 'markdown2', 'pytz'], # 'google-api-core', 'google-cloud-pubsub'
           'optimize': 2,
           'build_exe': destinationFolder,
         }},
-        executables = [
-          Executable(os.path.join(baseFolder, "app.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico')),
-          Executable(os.path.join(baseFolder, "agent.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Subscription Opener.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico')),
-          Executable(os.path.join(baseFolder, "daemon.py"), base=base, copyright='Copyright 2018 by Yanone', targetName = 'TypeWorld Taskbar Agent.exe', icon=os.path.join(baseFolder, 'icon', 'tw.ico')),
-          ])
+        executables = executables)
 
 # setup(  name = "Type.World Subscription Opener",
 #         version = version.split('-')[0],

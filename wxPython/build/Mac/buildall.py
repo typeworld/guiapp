@@ -33,30 +33,16 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
         elif exitcode == 0 and printOutput:
             print(output)
 
+print(f'Building {version}')
+
 executeCommands((
-    ('Remove old .dmg', 'rm ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', False),
-    ('Create .dmg', 'dmgbuild -s /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/dmgbuild.py "Type.World App" ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', True),
-    ('Sign .dmg', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', True),
-    ('Verify .dmg', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', True),
+    ('Build', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/00-build.py', True),
+    ('Upload for notarization', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/01-notarize.py', True),
+    ('Wait for notarization', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/02-wait.py', True),
+    ('Pack', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/03-pack.py', True),
 ))
 
-notarization = executeCommands((
-   ('Upload for Notarization', 'xcrun altool --primary-bundle-id "Type.World" --notarize-app --username "post@yanone.de" --password "@keychain:Code Signing" --file ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', True),
-), returnOutput=True)
-
-RequestUUID = None
-for line in notarization.split('\n'):
-    if 'RequestUUID' in line:
-        RequestUUID = line.split('=')[1].strip()
-
-if not RequestUUID:
-    print('No RequestUUID returned')
-    sys.exit(1)
-
-f = open(os.path.join(os.path.dirname(__file__), 'world.type.guiapp.notarization.UUID'), 'w')
-f.write(RequestUUID)
-f.close()
-
+    
 
 print('Finished successfully.')
 print()

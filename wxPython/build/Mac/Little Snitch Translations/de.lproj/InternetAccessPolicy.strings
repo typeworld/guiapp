@@ -1,3 +1,3 @@
 "ApplicationDescription" = "Die Type.World-App ist eine Endnutzer-Anwendung für Schriften-Installationen über das Internet. Sie vereinfacht maßgeblich die Erfahrung der Schriftnutzung von teilnehmenden Schriftverlagen.";
-"Purpose" = "Die App ist eng mit dem dazugehörigen Web-Dienst auf https://type.world integriert.";
+"Purpose" = "Die App ist eng mit dem dazugehörigen Web-Dienst auf https://type.world integriert, sowie mit verschiedenen Diensten auf https://googleapis.com";
 "DenyConsequences" = "Wenn Du diese Verbindung verbietest, werden verschiedene wichtige Funktionalitäten der App behindert sein, so z.B. Herunterladen und Installieren von Schriften, das Synchronisieren deiner Nutzerkonten, oder die Software-Selbst-Aktualisierung.";

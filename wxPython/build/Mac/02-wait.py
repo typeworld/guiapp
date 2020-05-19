@@ -6,8 +6,6 @@ from subprocess import Popen,PIPE,STDOUT
 # - Actual command
 # - True if this command is essential to the build process (must exit with 0), otherwise False
 
-version = open('/Users/yanone/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
-
 def executeCommands(commands, printOutput = False, returnOutput = False):
     for description, command, mustSucceed in commands:
 
@@ -33,30 +31,34 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
         elif exitcode == 0 and printOutput:
             print(output)
 
-executeCommands((
-    ('Remove old .dmg', 'rm ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', False),
-    ('Create .dmg', 'dmgbuild -s /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/dmgbuild.py "Type.World App" ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', True),
-    ('Sign .dmg', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', True),
-    ('Verify .dmg', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', True),
-))
 
-notarization = executeCommands((
-   ('Upload for Notarization', 'xcrun altool --primary-bundle-id "Type.World" --notarize-app --username "post@yanone.de" --password "@keychain:Code Signing" --file ~/Code/TypeWorldApp/dist/TypeWorldApp.forNotarization.dmg', True),
-), returnOutput=True)
-
-RequestUUID = None
-for line in notarization.split('\n'):
-    if 'RequestUUID' in line:
-        RequestUUID = line.split('=')[1].strip()
+# RequestUUID
+RequestUUID = open(os.path.join(os.path.dirname(__file__), 'world.type.guiapp.notarization.UUID'), 'r').read()
 
 if not RequestUUID:
-    print('No RequestUUID returned')
+    print('No RequestUUID')
     sys.exit(1)
 
-f = open(os.path.join(os.path.dirname(__file__), 'world.type.guiapp.notarization.UUID'), 'w')
-f.write(RequestUUID)
-f.close()
+while True:
 
+    time.sleep(30)
+
+    check = executeCommands((
+        ('Check', f'xcrun altool --notarization-info {RequestUUID} --username "post@yanone.de" --password "@keychain:Code Signing"', True),
+    ), returnOutput = True)
+
+    if not RequestUUID in check:
+        print(f'No {RequestUUID} in xcrun altool --notarization-history')
+        sys.exit(1)
+
+    if 'Status: success' in check:
+        sys.exit(0)
+
+    if 'Status: invalid' in check:
+        print(check)
+        sys.exit(1)
+
+    
 
 print('Finished successfully.')
 print()

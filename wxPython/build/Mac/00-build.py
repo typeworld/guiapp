@@ -13,7 +13,7 @@ sparkle = '/Users/yanone/Code/Sparkle/Sparkle.framework'
 
 profile = ['normal', 'sign'] # normal/sign/agent
 
-def executeCommands(commands):
+def executeCommands(commands, returnOutput = False):
 	for description, command, mustSucceed in commands:
 
 		# Print which step we’re currently in

@@ -54,7 +54,7 @@ import typeworld.api
 
 APPNAME = 'Type.World'
 APPVERSION = 'n/a'
-DEBUG = True
+DEBUG = False
 BUILDSTAGE = 'alpha'
 PULLSERVERUPDATEINTERVAL = 60
 
@@ -982,7 +982,7 @@ if WIN:
 			pywinsparkle.win_sparkle_set_shutdown_request_callback(self.pywinsparkle_shutdown)
 
 			# set application details
-			update_url = "https://type.world/static/guiapp/appcast_windows.xml"
+			update_url = "https://api.type.world/appcast/world.type.guiapp/windows/"
 			pywinsparkle.win_sparkle_set_appcast_url(update_url)
 			pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
 

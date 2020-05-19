@@ -4,13 +4,17 @@
 <dict>
 	<key>ApplicationDescription</key>
 	<string>ApplicationDescription</string>
+	<key>DeveloperName</key>
+	<string>Yanone, Type.World</string>
+	<key>Website</key>
+	<string>https://type.world</string>	
 	<key>Connections</key>
 	<array>
 		<dict>
 			<key>IsIncoming</key>
 			<false/>
 			<key>Host</key>
-			<string>type.world</string>
+			<string>type.world, pubsub.googleapis.com, storage.googleapis.com, oauth2.googleapis.com</string>
 			<key>NetworkProtocol</key>
 			<string>TCP</string>
 			<key>Port</key>

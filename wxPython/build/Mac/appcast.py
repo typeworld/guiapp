@@ -23,12 +23,14 @@ dmgFolder = os.path.expanduser('~/Code/TypeWorldApp/dmg')
 
 def getEdDSA(file):
 	path = '"%s/Code/Sparkle/bin/sign_update" "%s"' % (os.path.expanduser('~'), file)
-	print(path)
 	dsa = Execute(path).decode()
-	print(dsa)
-#	dsa = dsa.replace(' ', '').replace('\n', '')
 	return dsa
 
+def getDSA(file):
+	path = '"%s/Code/Sparkle/bin/old_dsa_scripts/sign_update" "%s" "%s"' % (os.path.expanduser('~'), file, os.path.expanduser('~/Code/Certificates/Type.World Sparkle/dsa_priv.pem'))
+	dsa = Execute(path).decode()
+	dsa = dsa.replace(' ', '').replace('\n', '')
+	return f'sparkle:dsaSignature="{dsa}" length="0"'
 
 for OS in ('windows', 'mac'):
 
@@ -39,7 +41,7 @@ for OS in ('windows', 'mac'):
 
 
 	# Delete files that are older than half a year, and delete appcast.xml
-	print('Deleting old builds...')
+	# print('Deleting old builds...')
 	if os.path.exists(os.path.join(dmgFolder, appcastFilename)):
 		os.remove(os.path.join(dmgFolder, appcastFilename))
 	Execute('find ~/Code/TypeWorldApp/dmg/* -type f -mtime +30 -delete')
@@ -68,7 +70,7 @@ for OS in ('windows', 'mac'):
 	lines.append('<?xml version="1.0" standalone="yes"?>')
 	lines.append('<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">')
 	lines.append('<channel>')
-	lines.append('<title>Type.World</title>\n')
+	lines.append('\t<title>Type.World</title>')
 
 	os.chdir(os.path.expanduser("~/Code/TypeWorldApp/dmg"))
 	for file in reversed(sorted(glob.glob("*"))):
@@ -86,8 +88,8 @@ for OS in ('windows', 'mac'):
 			length = str(int(os.stat(path).st_size))
 #			dsa = getDSA(os.path.join(dmgFolder, file))
 
-			lines.append('<item>')
-			lines.append('\t<title>' + version + '</title>')
+			lines.append('\t<item>')
+			lines.append('\t\t<title>' + version + '</title>')
 
 			# Release notes
 			md_path = os.path.expanduser("~/Code/TypeWorldApp/changelog/" + version + '.md')
@@ -95,19 +97,25 @@ for OS in ('windows', 'mac'):
 				notes = ReadFromFile(md_path)
 				if notes:
 					notes += '\n\nPrevious release notes at [https://type.world/app/](https://type.world/app/)'
-					lines.append('\t<description><![CDATA[' + markdown.markdown(notes) + ']]></description>')
+					lines.append('\t\t<description><![CDATA[' + markdown.markdown(notes) + ']]></description>')
 
 			lines.append('\t<pubDate>' + time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime(os.path.getmtime(path))) + '</pubDate>')
 			
 			if OS == 'mac':
-				lines.append('\t<sparkle:minimumSystemVersion>10.7</sparkle:minimumSystemVersion>')
+				lines.append('\t\t<sparkle:minimumSystemVersion>10.7</sparkle:minimumSystemVersion>')
+				sparkleOS = ''
 
 			if OS == 'windows':
 				sparkleOS = ' sparkle:installerArguments="/SILENT /SP- /NOICONS /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS" sparkle:os="windows" '
 			else:
 				sparkleOS = ''
 
-			lines.append('\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '" ' + sparkleOS + 'sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" ' + getEdDSA(os.path.join(dmgFolder, file)) + ' type="application/octet-stream" />')
+			if OS == 'windows':
+				signature = getDSA(os.path.join(dmgFolder, file))
+			elif OS == 'mac':
+				signature = getEdDSA(os.path.join(dmgFolder, file))
+
+			lines.append('\t\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '" ' + sparkleOS + 'sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" ' + signature + ' type="application/octet-stream" />')
 
 			if OS == 'mac':
 				# Deltas
@@ -119,15 +127,14 @@ for OS in ('windows', 'mac'):
 						path = os.path.expanduser("~/Code/TypeWorldApp/dmg/" + delta)
 						previousVersion = delta.replace('TypeWorldApp.' + version + '-', '').replace('.delta', '')
 						length = str(int(os.stat(path).st_size))
-						# dsa = getDSA(os.path.join(dmgFolder, delta))
-						deltas.append('\t\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '&amp;deltaFrom=' + previousVersion + '" sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" sparkle:deltaFrom="' + previousVersion + '" length="' + length + '" type="application/octet-stream" />')
+						deltas.append('\t\t\t<enclosure url="https://type.world/downloadlink?ID=guiapp&amp;platform=' + OS + '&amp;version=' + version + '&amp;deltaFrom=' + previousVersion + '" sparkle:version="' + version + '" sparkle:shortVersionString="' + version + '" sparkle:deltaFrom="' + previousVersion + '" length="' + length + '" type="application/octet-stream" />')
 
 				if deltas:
-					lines.append('\t<sparkle:deltas>')
+					lines.append('\t\t<sparkle:deltas>')
 					lines.extend(deltas)
-					lines.append('\t</sparkle:deltas>')
+					lines.append('\t\t</sparkle:deltas>')
 
-			lines.append('</item>\n')
+			lines.append('\t</item>\n')
 
 	lines.append('</channel>')
 	lines.append('</rss>')

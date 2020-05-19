@@ -1,3 +1,3 @@
 "ApplicationDescription" = "The Type.World app is a front end application for over-the-web font installations. It greatly improves the font user experience for fonts distributed through participating publishers.";
-"Purpose" = "The app is deeply integrated with its complementary web service at https://type.world.";
+"Purpose" = "The app is deeply integrated with its complementary web service at https://type.world as well as various services provided by Google at https://googleapis.com";
 "DenyConsequences" = "If you deny this connection, various key functionalities of the app will be impaired, such as the download and installation of fonts, user account synchronization, and software self-updates.";

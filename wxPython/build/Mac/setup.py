@@ -24,7 +24,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
               # Dependencies of deepdiff
               'deepdiff', 'difflib', 'jsonpickle', 'decimal', '_pydecimal', 'numbers', 'ordered_set', 'ast'],
 
-              
+
            'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {
@@ -39,14 +39,9 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
 #                'LSUIElement': True, # No dock icon
 
                 # Sparkle
-                'SUFeedURL': 'https://type.world/static/guiapp/appcast.xml',
+                'SUFeedURL': 'https://api.type.world/appcast/world.type.guiapp/mac/',
+                'SUPublicEDKey': 'ZwplGI76S+oA1VLkFmyugupUgvom8oFWXDUZsNb0jBc=',
                 'SUEnableAutomaticChecks': True,
-
-                # Sparkle < 1.20.0
-                'SUPublicDSAKeyFile': 'dsa_pub.pem',
-                # Sparkle >= 1.20.1
-                'SUPublicEDKey': 'IqLvpa980dAYzn9P6ttJiBgMQTpI58G6lchzLC9Q8aA=',
-
                 'SUAllowsAutomaticUpdates': True,
                 },
            'strip': True,

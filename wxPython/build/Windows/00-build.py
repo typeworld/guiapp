@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-import os, sys
+import os, sys, json
+
+
+profile = json.loads(open(os.path.join(os.path.dirname(__file__), 'buildProfile.json')).read())
 
 
 def executeCommands(commands):
@@ -40,34 +43,46 @@ from subprocess import Popen,PIPE,STDOUT
 flavour = sys.argv[-1]
 
 version = open('Z:/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
-profile = 'nosign' # 'normal'
 
+if 'normal' in profile:
+	executeCommands([
+		['Python build', 'python Z:\\Code\\py\\git\\typeworld\\guiapp\\wxPython\\build\\Windows\\00-setup.py build', True],
+		['Add Windows App Manifest', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\mt.exe" -manifest "Z:\\Code\\py\\git\\typeworld\\guiapp\\wxPython\\build\\Windows\\windowsAppManifest.xml" -outputresource:Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld.exe;#1' % version, True],
 
-executeCommands([
-['Python build', 'python Z:\\Code\\py\\git\\typeworld\\guiapp\\wxPython\\build\\Windows\\setup.py build', True],
-['Add Windows App Manifest', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\mt.exe" -manifest "Z:\\Code\\py\\git\\typeworld\\guiapp\\wxPython\\build\\Windows\\windowsAppManifest.xml" -outputresource:Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld.exe;#1' % version, True],
+#		['Copy dsa_pub.pem', f'xcopy "Z:\\Code\\Certificates\\Type.World Sparkle\\dsa_pub.pem" Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\ /s /e /h /I /y', True],
 
-['Copy dsa_pub.pem', f'xcopy Z:\\Code\\Certificates\\Type.World Sparkle\\dsa_pub.pem Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\ /s /e /h /I /y', True],
+		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\googleapis_common_protos-1.6.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y', True],
+		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google  /s /e /h /I /y', True],
+		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_api_core-1.14.3.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_api_core-1.14.3.dist-info  /s /e /h /I /y', True],
+		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_auth-1.11.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_auth-1.11.0.dist-info  /s /e /h /I /y', True],
+		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_cloud_pubsub-1.0.2.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_cloud_pubsub-1.0.2.dist-info  /s /e /h /I /y', True],
+		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\googleapis_common_protos-1.6.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y', True],
 
-['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\googleapis_common_protos-1.6.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y', True],
-['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google  /s /e /h /I /y', True],
-['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_api_core-1.14.3.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_api_core-1.14.3.dist-info  /s /e /h /I /y', True],
-['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_auth-1.11.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_auth-1.11.0.dist-info  /s /e /h /I /y', True],
-['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_cloud_pubsub-1.0.2.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_cloud_pubsub-1.0.2.dist-info  /s /e /h /I /y', True],
-['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\googleapis_common_protos-1.6.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y', True],
+		['Copy ynlib', f'xcopy Z:\\Code\\py\\git\\ynlib\\Lib\\ynlib Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\ /s /e /h /I /y', True],
 
-['Copy importlib_metadata', f'xcopy C:\\Python36\\Lib\\site-packages\\importlib_metadata Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\importlib_metadata  /s /e /h /I /y', True],
-['Copy importlib_metadata', f'xcopy C:\\Python36\\Lib\\site-packages\\importlib_metadata-1.5.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\importlib_metadata-1.5.0.dist-info  /s /e /h /I /y', True],
+		['Copy importlib_metadata', f'xcopy C:\\Python36\\Lib\\site-packages\\importlib_metadata Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\importlib_metadata  /s /e /h /I /y', True],
+		['Copy importlib_metadata', f'xcopy C:\\Python36\\Lib\\site-packages\\importlib_metadata-1.5.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\importlib_metadata-1.5.0.dist-info  /s /e /h /I /y', True],
 
+	])
 
-['Signing TypeWorld.exe', 						'"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /a /n "Jan Gerner" "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld.exe"' % version, profile in ['normal']],
-['Signing TypeWorld Taskbar Agent.exe', 		'"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /a /n "Jan Gerner" "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Taskbar Agent.exe"' % version, profile in ['normal']],
-['Signing TypeWorld Subscription Opener.exe', 	'"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /a /n "Jan Gerner" "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Subscription Opener.exe"' % version, profile in ['normal']],
-['Verify signature', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" verify /pa /v "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld.exe"' % version, profile in ['normal']],
-['Verify signature', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" verify /pa /v "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Taskbar Agent.exe"' % version, profile in ['normal']],
-['Verify signature', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" verify /pa /v "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Subscription Opener.exe"' % version, profile in ['normal']],
-])
+if 'sign' in profile:
+	executeCommands([
+		['Signing TypeWorld.exe', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /a /n "Jan Gerner" "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld.exe"' % version, True],
+		['Signing TypeWorld Subscription Opener.exe', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /a /n "Jan Gerner" "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Subscription Opener.exe"' % version, True],
+		['Verify signature', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" verify /pa /v "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld.exe"' % version, True],
+		['Verify signature', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" verify /pa /v "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Subscription Opener.exe"' % version, True],
+	])
 
+	if 'agent' in profile:
+		executeCommands([
+			['Signing TypeWorld Taskbar Agent.exe', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /a /n "Jan Gerner" "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Taskbar Agent.exe"' % version, True],
+			['Verify signature', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17134.0\\x64\\signtool.exe" verify /pa /v "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld Taskbar Agent.exe"' % version, True],
+		])
+
+if 'normal' in profile:
+	executeCommands([
+		['App Self Test', f'"Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\TypeWorld.exe" selftest', True],
+	])
 
 print('Done.')
 

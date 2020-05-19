@@ -6,8 +6,6 @@ from subprocess import Popen,PIPE,STDOUT
 # - Actual command
 # - True if this command is essential to the build process (must exit with 0), otherwise False
 
-version = open('/Users/yanone/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
-
 def executeCommands(commands, printOutput = False, returnOutput = False):
     for description, command, mustSucceed in commands:
 

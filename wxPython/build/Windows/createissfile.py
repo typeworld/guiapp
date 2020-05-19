@@ -1,7 +1,11 @@
 import os
 
 
-version = open('Z:/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
+from ynlib.web import GetHTTP
+version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/')
+if version == 'n/a':
+    print('Can’t get version number')
+    sys.exit(1)
 
 # Write .iss
 

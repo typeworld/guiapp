@@ -6,7 +6,11 @@ from subprocess import Popen,PIPE,STDOUT
 # - Actual command
 # - True if this command is essential to the build process (must exit with 0), otherwise False
 
-version = open('/Users/yanone/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
+from ynlib.web import GetHTTP
+version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')
+if version == 'n/a':
+    print('Can’t get version number')
+    sys.exit(1)
 
 def executeCommands(commands, printOutput = False, returnOutput = False):
     for description, command, mustSucceed in commands:
@@ -36,10 +40,14 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
 print(f'Building {version}')
 
 executeCommands((
-    ('Build', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/00-build.py', True),
-    ('Upload for notarization', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/01-notarize.py', True),
-    ('Wait for notarization', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/02-wait.py', True),
-    ('Pack', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/03-pack.py', True),
+    ('Check if can upload to GCS', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-canupload.py', True),
+    ('Build', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-main.py', True),
+    ('Upload for notarization', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-notarize.py', True),
+    ('Wait for notarization', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-wait.py', True),
+    ('Pack', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-pack.py', True),
+    ('Check again if can upload to GCS', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-canupload.py', True),
+    ('Upload', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-upload.py', True),
+    ('Upload Sparkle signature', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-uploadsignature.py', True),
 ))
 
     

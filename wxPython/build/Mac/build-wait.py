@@ -51,13 +51,15 @@ while True:
         print(f'No {RequestUUID} in xcrun altool --notarization-history')
         sys.exit(1)
 
-    if 'Status: success' in check:
+    if RequestUUID in check and 'Status: success' in check:
         sys.exit(0)
 
-    if 'Status: invalid' in check:
+    if RequestUUID in check and 'Status: invalid' in check:
         print(check)
         sys.exit(1)
 
+    if RequestUUID in check and 'Status: in progress' in check:
+        pass
     
 
 print('Finished successfully.')

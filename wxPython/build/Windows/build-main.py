@@ -4,6 +4,12 @@ import os, sys, json
 
 profile = json.loads(open(os.path.join(os.path.dirname(__file__), 'buildProfile.json')).read())
 
+from ynlib.web import GetHTTP
+version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/')
+if version == 'n/a':
+    print('Can’t get version number')
+    sys.exit(1)
+
 
 def executeCommands(commands):
 	for description, command, mustSucceed in commands:
@@ -42,18 +48,16 @@ if PID("TypeWorld Taskbar Agent.exe"):
 from subprocess import Popen,PIPE,STDOUT
 flavour = sys.argv[-1]
 
-version = open('Z:/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
-
 if 'normal' in profile:
 	executeCommands([
-		['Python build', 'python Z:\\Code\\py\\git\\typeworld\\guiapp\\wxPython\\build\\Windows\\00-setup.py build', True],
+		['Python build', 'python Z:\\Code\\py\\git\\typeworld\\guiapp\\wxPython\\build\\Windows\\setup.py build', True],
 		['Add Windows App Manifest', '"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\mt.exe" -manifest "Z:\\Code\\py\\git\\typeworld\\guiapp\\wxPython\\build\\Windows\\windowsAppManifest.xml" -outputresource:Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s\\TypeWorld.exe;#1' % version, True],
 
 #		['Copy dsa_pub.pem', f'xcopy "Z:\\Code\\Certificates\\Type.World Sparkle\\dsa_pub.pem" Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\ /s /e /h /I /y', True],
 
 		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\googleapis_common_protos-1.6.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y', True],
 		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google  /s /e /h /I /y', True],
-		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_api_core-1.14.3.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_api_core-1.14.3.dist-info  /s /e /h /I /y', True],
+		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_api_core-1.17.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_api_core-1.17.0.dist-info  /s /e /h /I /y', True],
 		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_auth-1.11.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_auth-1.11.0.dist-info  /s /e /h /I /y', True],
 		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\google_cloud_pubsub-1.0.2.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\google_cloud_pubsub-1.0.2.dist-info  /s /e /h /I /y', True],
 		['Copy Google Code', f'xcopy C:\\Python36\\Lib\\site-packages\\googleapis_common_protos-1.6.0.dist-info Z:\\Code\\TypeWorldApp\\apps\\Windows\\{version}\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y', True],

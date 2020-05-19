@@ -6,7 +6,11 @@ from subprocess import Popen,PIPE,STDOUT
 # - Actual command
 # - True if this command is essential to the build process (must exit with 0), otherwise False
 
-version = open('/Users/yanone/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
+from ynlib.web import GetHTTP
+version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')
+if version == 'n/a':
+    print('Can’t get version number')
+    sys.exit(1)
 
 def executeCommands(commands, printOutput = False):
     for description, command, mustSucceed in commands:
@@ -39,7 +43,7 @@ executeCommands((
     ('Create .dmg', 'dmgbuild -s /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/dmgbuild.py "Type.World App" /Users/yanone/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, True),
     ('Sign .dmg', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, True),
     ('Verify .dmg', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, True),
-    ('Create appcast', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/appcast.py', True),
+#    ('Create appcast', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/appcast.py', True),
     ('Copy app to archive', 'cp -R ~/Code/TypeWorldApp/dist/Type.World.app ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version, True),
 ))
 

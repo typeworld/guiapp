@@ -1,7 +1,12 @@
 import sys, os, json
 from cx_Freeze import setup, Executable
 
-version = open('Z:/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
+from ynlib.web import GetHTTP
+version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/')
+if version == 'n/a':
+    print('Can’t get version number')
+    sys.exit(1)
+
 profile = json.loads(open(os.path.join(os.path.dirname(__file__), 'buildProfile.json')).read())
 
 # GUI applications require a different base on Windows (the default is for a

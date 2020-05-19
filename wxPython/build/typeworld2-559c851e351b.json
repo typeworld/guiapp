@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "typeworld2",
+  "private_key_id": "559c851e351b6b5b26c993bea6934eb92389c28a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDWKHjV35D+XUOr\noxq8iC7LwCaxCXyEFeddi7ZpW2x7HGs1WW3+iFPC0w+vfXuS/oWkbug1jfU7dblv\nwVgWzSJYLqNBS88Oy6ODl6qd36kbPJGpctvJRZGPVSi8YOqfS6ojAxfcHVPvJp3M\ns+UF2UhRI0HckR+O7kHbRMPDzrefHbB/Mm5m8CYlI37TDgCU0KnCxxb+Dp1fUDgU\n339cc//gXBUGUfQLqHUxAxQTajYw3TAwWgoOX1iaSeKowh8a6BstyNthLu+PZ8A7\n4yTpHp3d2o2cv4GM9lK3Yl9AgQcZ3caa/MEZmwGzf9ZSSe26RsTPcAeou8r0prxi\nsJTv3hupAgMBAAECggEAKTCdlR0r6RCNHG0BjnNu9LdfebuGXG1OE7r0ea0g30jn\nAdrSghs8aQNpR+qNowcbMzY1qV9FZItPAESiqbgIvAc0VTG8gG8AYyX/pd/HybpL\nldjGlx6vUW8ip6DIX50Q+yz0INzvMNcvkJilGwvgkeKDH2Y2OKpwtjiyom2W+Z5E\n+4VCYbFQ1TkCKziEc6QxiYzGuOwjURLazW4f/keOaBeq3jl9YyKxkVRKSUAtwr99\n9sM+xk7hprH/zR6mKS1hnWmkGj7E3TUGKyXtGIZoI2Km5A1adCy1ycV4ivN8EJtD\n/cT74TK88MznGht+wvKRuxojtsPUlv2mfh+p6JC/BQKBgQD5srz6gLlEGqijyUeA\n95IkSlKk45k7Aw1y2HVreVJIPyNF89vfPliBLQEk01vMrnUD+ye6C78470v4MeOr\n/m9TuO84IZZCFKDdzcvrUNvUUun2zHUg0m+cHl9KAiSmU2ogaYJdvD8lF1TJaobT\n8xykXKnh1geyne70HUvZ9qR3fwKBgQDbkB1aP93BMJAxXmk5XFzmjf8sd/IPDAPQ\nVuY4b5nFxbIy74WV0J8A3vyFD8quGIIx46ZpFMTNpZi+olzPHcfopWzPOHhskjyM\nriUHyXXaGV+3b8FHc/fRLEUvByjKtQo2AODQybzQ5qAoCdl2yTq530ou0nLf13RN\n/iUZsSJA1wKBgQC68XC+86TBMlxT05wvGCtX9DUPsj7EibKF6z1t63UJFgwokTxq\nVVkZzUHv+jXedjaxdlX12lmeHLp55ZAY8vMScYDYO30tmBggN7WWRgFvY2w7FDQV\nELfy4GJjHFuoEwd/oL6zwv5bnK4j5hdvk7I79AxUQlOdDNUb+tsRIrFbrQKBgBnL\n8ObtogxUvFxQj2Rh6bhc7qI25YXHD5um2h2/Xv3RoIJDihp0DHp5uImZtWKHFqTt\n7ltiSU0wK6YaRXVANoCrDwG5zMxU0jBlNYyYqvQZDxnqU3cltPQqk2ZXHP/UDYMS\nz1c4nKqeriqGHbrLIc884OZna3/JPKz9Mza1jSS5AoGAb/pwJfbEeCDeeSBFG2l6\nVidPYhT/nFTUBLYHQsmkrWD9dTY7khdn7FvQ09st/G9idSiTgf76p2TLWvMMHMEA\njKwnD3m7eqs8eQTTVg3bmpZq3dIMXj5eIHG4P6RBmRpQRHhr993ovAfh5sO/i2X0\nZJz5335sfxWc0AFf99318D0=\n-----END PRIVATE KEY-----\n",
+  "client_email": "upload-app-builds-to-cloud-sto@typeworld2.iam.gserviceaccount.com",
+  "client_id": "108487925357803453436",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/upload-app-builds-to-cloud-sto%40typeworld2.iam.gserviceaccount.com"
+}

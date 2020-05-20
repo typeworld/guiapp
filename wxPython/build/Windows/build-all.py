@@ -40,12 +40,12 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
 print(f'Building {version}')
 
 executeCommands((
-    ('Check if can upload to GCS', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Windows/build-canupload.py', True),
-    ('Build', 'prlctl exec "Windows 10" --current-user -r python Z:\\\\Code\\\\py\\\\git\\\\typeworld\\\\guiapp\\\\wxPython\\\\build\\\\Windows\\\\build-main.py', True),
-    ('Pack', 'prlctl exec "Windows 10" --current-user -r python Z:\\\\Code\\\\py\\\\git\\\\typeworld\\\\guiapp\\\\wxPython\\\\build\\\\Windows\\\\build-pack.py', True),
-    ('Check if can upload to GCS', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Windows/build-canupload.py', True),
-    ('Upload', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Windows/build-upload.py', True),
-    ('Upload Sparkle signature', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Windows/build-uploadsignature.py', True),
+    ('Check if can upload to GCS', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Windows/build-canupload.py {version}', True),
+    ('Build', f'prlctl exec "Windows 10" --current-user -r python Z:\\\\Code\\\\py\\\\git\\\\typeworld\\\\guiapp\\\\wxPython\\\\build\\\\Windows\\\\build-main.py {version}', True),
+    ('Pack', f'prlctl exec "Windows 10" --current-user -r python Z:\\\\Code\\\\py\\\\git\\\\typeworld\\\\guiapp\\\\wxPython\\\\build\\\\Windows\\\\build-pack.py {version}', True),
+    ('Check if can upload to GCS', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Windows/build-canupload.py {version}', True),
+    ('Upload', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Windows/build-upload.py {version}', True),
+    ('Upload Sparkle signature', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Windows/build-uploadsignature.py {version}', True),
 ))
 
     

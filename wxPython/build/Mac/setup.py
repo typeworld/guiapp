@@ -1,7 +1,11 @@
 from setuptools import setup
 import os
 
-version = open('/Users/yanone/Code/py/git/typeworld/guiapp/currentVersion.txt', 'r').read().strip()
+from ynlib.web import GetHTTP
+version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')
+if version == 'n/a':
+    print('Can’t get version number')
+    sys.exit(1)
 
 os.system('rm -rf ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version)
 
@@ -39,7 +43,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
 #                'LSUIElement': True, # No dock icon
 
                 # Sparkle
-                'SUFeedURL': 'https://api.type.world/appcast/world.type.guiapp/mac/',
+                'SUFeedURL': 'https://api.type.world/appcast/world.type.guiapp/mac/appcast.xml',
                 'SUPublicEDKey': 'ZwplGI76S+oA1VLkFmyugupUgvom8oFWXDUZsNb0jBc=',
                 'SUEnableAutomaticChecks': True,
                 'SUAllowsAutomaticUpdates': True,

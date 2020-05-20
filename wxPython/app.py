@@ -58,6 +58,21 @@ DEBUG = False
 BUILDSTAGE = 'alpha'
 PULLSERVERUPDATEINTERVAL = 60
 
+
+if WIN:
+	# Set DEBUG in Windows
+	import winreg as wreg
+	try:
+		key = wreg.OpenKey(wreg.HKEY_CURRENT_USER, "Software\\Type.World\\Type.World", 0, wreg.KEY_READ)
+		value, regtype = wreg.QueryValueEx(key, 'debug')
+		wreg.CloseKey(key)
+	except:
+		value = False
+	if value == 'true':
+		DEBUG = True
+
+
+
 global app
 app = None
 
@@ -177,7 +192,7 @@ def notification(title, text):
 		notification = NSUserNotification.alloc().init()
 		notification.setTitle_(title)
 		notification.setInformativeText_(text)
-		notificationCenter.deliverNotification_(notification)
+		userNotificationCenter.deliverNotification_(notification)
 
 	if WIN:
 
@@ -982,7 +997,7 @@ if WIN:
 			pywinsparkle.win_sparkle_set_shutdown_request_callback(self.pywinsparkle_shutdown)
 
 			# set application details
-			update_url = "https://api.type.world/appcast/world.type.guiapp/windows/"
+			update_url = f"https://api.type.world/appcast/world.type.guiapp/windows/appcast.xml?t={int(time.time())}"
 			pywinsparkle.win_sparkle_set_appcast_url(update_url)
 			pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
 
@@ -4647,6 +4662,16 @@ class AppFrame(wx.Frame):
 				self.parent.startWithCommand = None
 				self.selftest()
 
+
+			if WIN:
+
+				# Restart API
+				from ctypes import windll
+				windll.kernel32.RegisterApplicationRestart(None, 0)
+
+				pywinsparkle.win_sparkle_check_update_without_ui()
+
+
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 
@@ -4694,6 +4719,9 @@ class AppFrame(wx.Frame):
 	def selftest(self):
 
 		try:
+
+			if MAC:
+				self.setBadgeLabel(3)
 
 			flatFreeSubscription = 'typeworld://json+https//typeworldserver.com/flatapi/q8JZfYn9olyUvcCOiqHq/'
 
@@ -4743,11 +4771,13 @@ class AppFrame(wx.Frame):
 			condition = success == True
 			if not condition: return self.quitSelftest(message, 80)
 
+			notification('Test Notification Title', 'Test Notification Text')
+
 			self.onQuit(None, withExitCode = 0)
 
 		except:
 			print(traceback.format_exc())
-			self.onQuit(None, withExitCode = 666)			
+			return self.quitSelftest(traceback.format_exc(), 666)
 
 
 
@@ -4831,10 +4861,14 @@ class AppFrame(wx.Frame):
 			'''\
 			Set dock icon badge
 			'''
-			label = str(label)
-			if MAC and self._dockTile:
-				self._dockTile.display()
-				self._dockTile.setBadgeLabel_(label)
+			if MAC:
+				app = NSApp()
+				dockTile = app.dockTile()
+
+				label = str(label)
+				dockTile.display()
+				dockTile.setBadgeLabel_(label)
+
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
 	def replaceHTML(self, html):
@@ -5081,11 +5115,6 @@ class MyApp(wx.App):
 
 				client.log('MyApp.OnInit()')
 				
-				if MAC:
-					self.frame.nsapp = NSApp()
-					self.frame._dockTile = self.frame.nsapp.dockTile()
-
-
 				html = ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'index.html'))
 
 		#        html = html.replace('##jqueryuicss##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'css', 'jquery-ui.css')))
@@ -5351,6 +5380,7 @@ def startApp(startWithCommand = None):
 			except:
 				pass
 			sys.exit(1)
+
 
 	# Start Intercom Server
 	listenerThread = Thread(target=listenerFunction)

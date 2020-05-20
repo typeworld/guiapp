@@ -2,13 +2,10 @@
 
 import os, sys
 
-from ynlib.web import GetHTTP, PostHTTP
-version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')
-if version == 'n/a':
-    print('Can’t get version number')
-    sys.exit(1)
+version = sys.argv[-1]
 
 from ynlib.system import Execute
+from ynlib.web import PostHTTP
 
 def getEdDSA(file):
 	path = '"%s/Code/Sparkle/bin/sign_update" "%s"' % (os.path.expanduser('~'), file)

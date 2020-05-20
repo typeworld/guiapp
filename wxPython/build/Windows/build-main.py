@@ -3,12 +3,7 @@ import os, sys, json
 
 
 profile = json.loads(open(os.path.join(os.path.dirname(__file__), 'buildProfile.json')).read())
-
-from ynlib.web import GetHTTP
-version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/')
-if version == 'n/a':
-    print('Can’t get version number')
-    sys.exit(1)
+version = sys.argv[-1]
 
 
 def executeCommands(commands):

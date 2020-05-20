@@ -6,11 +6,7 @@ from subprocess import Popen,PIPE,STDOUT
 # - Actual command
 # - True if this command is essential to the build process (must exit with 0), otherwise False
 
-from ynlib.web import GetHTTP
-version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/')
-if version == 'n/a':
-    print('Can’t get version number')
-    sys.exit(1)
+version = sys.argv[-1]
 
 # Upload
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.join(os.path.dirname(__file__), '..', 'typeworld2-559c851e351b.json')

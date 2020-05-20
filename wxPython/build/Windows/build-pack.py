@@ -2,11 +2,7 @@ import os, sys
 
 from subprocess import Popen,PIPE,STDOUT
 
-from ynlib.web import GetHTTP
-version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/')
-if version == 'n/a':
-    print('Can’t get version number')
-    sys.exit(1)
+version = sys.argv[-1]
 
 
 def executeCommands(commands):

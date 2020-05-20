@@ -50,7 +50,7 @@ setup(  name = "Type.World",
                 os.path.join(baseFolder, 'intercom'),
                 ],
           'excludes': ['win32ctypes'],
-          'packages': ['typeworld', 'packaging', 'grpc', 'requests', 'idna', 'pyasn1', 'rsa', 'cachetools', 'grpc', 'cryptography', 'pyasn1_modules', 'typeworld', 'keyring', 'markdown2', 'pytz'], # 'google-api-core', 'google-cloud-pubsub'
+          'packages': ['typeworld', 'packaging', 'grpc', 'requests', 'idna', 'pyasn1', 'rsa', 'cachetools', 'grpc', 'cryptography', 'pyasn1_modules', 'typeworld', 'keyring', 'markdown2', 'pytz', 'winreg', 'zroya'], # 'google-api-core', 'google-cloud-pubsub'
           'optimize': 2,
           'build_exe': destinationFolder,
         }},

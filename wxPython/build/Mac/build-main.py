@@ -7,11 +7,7 @@ from ynlib.system import Execute
 # - Actual command
 # - True if this command is essential to the build process (must exit with 0), otherwise False
 
-from ynlib.web import GetHTTP
-version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')
-if version == 'n/a':
-	print('Can’t get version number')
-	sys.exit(1)
+version = sys.argv[-1]
 
 findSymlinks = 'find -L ~/Code/TypeWorldApp/dist/Type.World.app -type l'
 sparkle = '/Users/yanone/Code/Sparkle/Sparkle.framework'

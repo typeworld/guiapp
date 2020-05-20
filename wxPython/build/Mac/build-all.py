@@ -40,14 +40,14 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
 print(f'Building {version}')
 
 executeCommands((
-    ('Check if can upload to GCS', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-canupload.py', True),
-    ('Build', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-main.py', True),
-    ('Upload for notarization', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-notarize.py', True),
-    ('Wait for notarization', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-wait.py', True),
-    ('Pack', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-pack.py', True),
-    ('Check again if can upload to GCS', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-canupload.py', True),
-    ('Upload', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-upload.py', True),
-    ('Upload Sparkle signature', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-uploadsignature.py', True),
+    ('Check if can upload to GCS', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-canupload.py {version}', True),
+    ('Build', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-main.py {version}', True),
+    ('Upload for notarization', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-notarize.py {version}', True),
+    ('Wait for notarization', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-wait.py {version}', True),
+    ('Pack', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-pack.py {version}', True),
+    ('Check again if can upload to GCS', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-canupload.py {version}', True),
+    ('Upload', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-upload.py {version}', True),
+    ('Upload Sparkle signature', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-uploadsignature.py {version}', True),
 ))
 
     

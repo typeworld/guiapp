@@ -83,7 +83,7 @@ if MAC:
 	from AppKit import NSApp
 	from AppKit import NSObject, NSUserNotification, NSUserNotificationCenter, NSDistributedNotificationCenter
 	from AppKit import NSView, NSToolbar
-	from Foundation import NSPoint, NSSize, NSMakeRect
+	from Foundation import NSPoint, NSSize, NSMakeRect, NSURL
 	# NSPoint = objc.lookUpClass("NSPoint")
 	# NSSize = objc.lookUpClass("NSSize")
 	# NSMakeRect = objc.lookUpClass("NSMakeRect")
@@ -323,6 +323,11 @@ class ClientDelegate(TypeWorldClientDelegate):
 		print('subscriptionWasUpdated', subscription.parent, subscription)
 		if client.get('currentPublisher') == subscription.parent.canonicalURL and subscription.parent.get('currentSubscription') == subscription.url:
 			self.app.frame.setPublisherHTML(self.app.frame.b64encode(subscription.parent.canonicalURL))
+
+	def clientPreferenceChanged(self, key, value):
+		if key == 'appUpdateProfile':
+			self.app.frame.setAppCastURL()
+
 
 delegate = ClientDelegate()
 client = None # set in startApp()
@@ -997,7 +1002,7 @@ if WIN:
 			pywinsparkle.win_sparkle_set_shutdown_request_callback(self.pywinsparkle_shutdown)
 
 			# set application details
-			update_url = f"https://api.type.world/appcast/world.type.guiapp/windows/appcast.xml?t={int(time.time())}"
+			update_url = f"https://api.type.world/appcast/world.type.guiapp/windows/normal/appcast.xml?t={int(time.time())}"
 			pywinsparkle.win_sparkle_set_appcast_url(update_url)
 			pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
 
@@ -1303,8 +1308,8 @@ class AppFrame(wx.Frame):
 	def onCheckForUpdates(self, event):
 		try:
 			if MAC:
+				sparkle.resetUpdateCycle()
 				sparkle.checkForUpdates_(self)
-				# sparkle.checkForUpdateInformation()
 			elif WIN:
 				pywinsparkleDelegate.check_with_ui()
 
@@ -1949,6 +1954,18 @@ class AppFrame(wx.Frame):
 				html.append('</p>')
 
 				html.append('<hr>')
+
+				# App updates
+				html.append('<h2>#(App Updates)</h2>')
+				html.append('<p>')
+				html.append(f'<input type="checkbox" id="developerAppUpdates" name="developerAppUpdates" {"checked" if client.get("appUpdateProfile") == "developer" else ""}><label for="developerAppUpdates">#(Receive Developer App Versions)</label>')
+				html.append('<script>$("#preferences #developerAppUpdates").click(function() { if ($("#preferences #developerAppUpdates:checked").val()) { setPreference("appUpdateProfile", "developer"); } else { setPreference("appUpdateProfile", "normal"); } });</script>')
+				html.append('</p>')
+# python("self.setAppCastURL()");
+#if ($("#preferences #developerAppUpdates:checked").val()) { setPreference("appUpdateProfile", "developer"); } else { setPreference("appUpdateProfile", "normal"); }
+
+				html.append('<hr>')
+
 
 				# Reset Dialogs
 				html.append('<h2>#(Reset Dialogs)</h2>')
@@ -4662,6 +4679,8 @@ class AppFrame(wx.Frame):
 				self.parent.startWithCommand = None
 				self.selftest()
 
+			self.setAppCastURL()
+
 
 			if WIN:
 
@@ -4670,6 +4689,7 @@ class AppFrame(wx.Frame):
 				windll.kernel32.RegisterApplicationRestart(None, 0)
 
 				pywinsparkle.win_sparkle_check_update_without_ui()
+
 
 
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
@@ -4913,6 +4933,22 @@ class AppFrame(wx.Frame):
 			client.log(string)
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
 
+	def setAppCastURL(self):
+		try:
+
+			profile = client.get("appUpdateProfile") or 'normal'
+
+			if MAC and RUNTIME:
+				update_url = f"https://api.type.world/appcast/world.type.guiapp/mac/{profile}/appcast.xml?t={int(time.time())}"
+				sparkle.setFeedURL_(NSURL.alloc().initWithString_(update_url))
+
+			if WIN and RUNTIME:
+				update_url = f"https://api.type.world/appcast/world.type.guiapp/windows/{profile}/appcast.xml?t={int(time.time())}"
+				pywinsparkle.win_sparkle_set_appcast_url(update_url)
+
+
+		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
+
 
 
 class DebugWindow(wx.Frame):
@@ -4949,7 +4985,6 @@ class UpdateFrame(wx.Frame):
 
 			self.Destroy()
 		except Exception as e: client.handleTraceback(sourceMethod = getattr(self, sys._getframe().f_code.co_name), e = e)
-
 
 
 if MAC:

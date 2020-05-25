@@ -33,7 +33,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
            'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
            'plist': {
                 'CFBundleName': 'Type.World',
-                'CFBundleShortVersionString':version, # must be in X.X.X format
+                'CFBundleShortVersionString': version, # must be in X.X.X format
                 'CFBundleVersion': version,
                 'CFBundleIdentifier':'world.type.guiapp', #optional
                 'NSHumanReadableCopyright': '@ Yanone 2020', #optional
@@ -43,7 +43,7 @@ options = {'py2app': {'argv_emulation': False, # this puts the names of dropped 
 #                'LSUIElement': True, # No dock icon
 
                 # Sparkle
-                'SUFeedURL': 'https://api.type.world/appcast/world.type.guiapp/mac/appcast.xml',
+                'SUFeedURL': 'https://api.type.world/appcast/world.type.guiapp/mac/normal/appcast.xml',
                 'SUPublicEDKey': 'ZwplGI76S+oA1VLkFmyugupUgvom8oFWXDUZsNb0jBc=',
                 'SUEnableAutomaticChecks': True,
                 'SUAllowsAutomaticUpdates': True,

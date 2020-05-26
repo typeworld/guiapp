@@ -1309,6 +1309,7 @@ class AppFrame(wx.Frame):
 		try:
 			if MAC:
 				sparkle.resetUpdateCycle()
+				self.setAppCastURL()
 				sparkle.checkForUpdates_(self)
 			elif WIN:
 				pywinsparkleDelegate.check_with_ui()

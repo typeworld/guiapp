@@ -40,6 +40,7 @@ executeCommands((
     ('Sign .dmg', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, True),
     ('Verify .dmg', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, True),
 #    ('Create appcast', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/appcast.py', True),
+    ('Remove old app', 'rm -r ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version, False),
     ('Copy app to archive', 'cp -R ~/Code/TypeWorldApp/dist/Type.World.app ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version, True),
 ))
 

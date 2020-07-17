@@ -459,6 +459,15 @@ label {
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
+
+
+#betaMessage div {
+	height: 50px;
+	margin: 20px;
+	
+}
+
+
 #topMessage {
 	position: absolute;
 	top: 0px;
@@ -1111,6 +1120,27 @@ body.dark {
 
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
+
+
+.betaMessage {
+	position: absolute;
+	bottom: 180px;
+	left: 0px;
+	width: 300px;
+
+	z-index: 20;
+
+	color: white;
+}
+
+.betaMessage a {
+	color: yellow;
+}
+
+.betaMessage div {
+	margin: 20px;
+	margin-left: 30px;
+}
 
 
 #atom {

@@ -1,10 +1,11 @@
 # image: macos-mojave
 
-matrix:
-  - APPVEYOR_BUILD_WORKER_IMAGE: macos-mojave
-    PYTHON: "3.6"
-stack: python %PYTHON%
+environment:
+  matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: macos-mojave
+      PYTHON: "3.6"
 
+stack: python %PYTHON%
 
 # scripts that run after cloning repository
 install:

@@ -10,6 +10,8 @@ stack: python %PYTHON%
 # scripts that run after cloning repository
 install:
   - python -m pip install -r requirements.txt
+  - curl https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/Sparkle-1.23.0.tar.bz2 > sparkle.tar.bz
+  - untar -zxf sparkle.tar.bz
 
 # scripts to run before build
 before_build:

@@ -5,7 +5,9 @@ version = sys.argv[-1]
 
 import typeworld.api
 
-if typeworld.api.VERSION != version:
+desiredversion = '0.2.2-beta'
+
+if typeworld.api.VERSION != '0.2.2-beta'
     print(
-        f"typeworld.api doesn't hold the up-to-date version number {version}")
+        f"typeworld.api doesn't hold the up-to-date version number {desiredversion}")
     sys.exit(1)

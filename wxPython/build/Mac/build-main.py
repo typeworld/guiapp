@@ -1,6 +1,5 @@
 import os, sys
 from subprocess import Popen,PIPE,STDOUT
-from ynlib.system import Execute
 
 # List of commands as tuples of:
 # - Description
@@ -9,7 +8,6 @@ from ynlib.system import Execute
 
 version = sys.argv[-1]
 
-findSymlinks = 'find -L ~/Code/TypeWorldApp/dist/Type.World.app -type l'
 sparkle = '/Users/yanone/Code/Sparkle/Sparkle.framework'
 
 profile = ['normal', 'sign'] # normal/sign/agent

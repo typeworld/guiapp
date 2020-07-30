@@ -55,7 +55,7 @@ import typeworld.api
 APPNAME = 'Type.World'
 APPVERSION = 'n/a'
 DEBUG = False
-BUILDSTAGE = 'alpha'
+BUILDSTAGE = 'beta'
 PULLSERVERUPDATEINTERVAL = 60
 
 
@@ -274,7 +274,8 @@ elif RUNTIME:
 		if len(APPVERSION.split('.')) == 4:
 			APPVERSION = '.'.join(APPVERSION.split('.')[0:-1])
 
-		APPVERSION += '-' + BUILDSTAGE
+		if BUILDSTAGE:
+			APPVERSION += '-' + BUILDSTAGE
 
 
 class ClientDelegate(TypeWorldClientDelegate):
@@ -1485,7 +1486,7 @@ class AppFrame(wx.Frame):
 		try:
 			if platform.mac_ver()[0].split('.') > '10.14.0'.split('.'):
 				
-				if client.get('currentPublisher'):
+				if client and client.get('currentPublisher'):
 					publisher = client.publisher(client.get('currentPublisher'))
 					self.setPublisherHTML(self.b64encode(client.get('currentPublisher')))
 					if publisher.get('currentSubscription'):
@@ -4627,8 +4628,6 @@ class AppFrame(wx.Frame):
 
 			self.fullyLoaded = True
 
-			self.applyDarkMode()
-
 			if MAC:
 				self.javaScript("$('.sidebar').css('padding-top', '32px');")
 				# self.javaScript("$('.panel').css('padding-left', '50px');")
@@ -4666,6 +4665,8 @@ class AppFrame(wx.Frame):
 				delegate = DarkModeDelegate.alloc().init()
 				delegate.app = self
 				NSDistributedNotificationCenter.defaultCenter().addObserver_selector_name_object_(delegate, delegate.darkModeChanged_, 'AppleInterfaceThemeChangedNotification', None)
+
+				self.applyDarkMode()
 
 			startWorker(self.onLoadDetached_consumer, self.onLoadDetached_worker)
 

@@ -5,7 +5,7 @@
   xmlns:uap4="http://schemas.microsoft.com/appx/manifest/uap/windows10/4"
   IgnorableNamespaces="uap uap4">
   <Identity Name="world.type.guiapp" 
-            Version="0.1.3.0" 
+            Version="0.2.2.0" 
             Publisher="CN=Type.World, O=Type.World, C=DE" />
   <Properties>
     <DisplayName>Type.World</DisplayName>

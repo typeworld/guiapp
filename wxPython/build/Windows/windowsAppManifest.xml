@@ -3,7 +3,7 @@
  xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" 
  xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" 
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <assemblyIdentity version="0.1.3.0" name="world.type.guiapp" />
+    <assemblyIdentity version="0.2.2.0" name="world.type.guiapp" />
     <description>Update checker</description> 
     <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
         <security>

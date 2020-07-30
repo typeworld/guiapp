@@ -3,10 +3,9 @@ import sys
 
 version = sys.argv[-1]
 
-apiCode = open(
-    '/Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/api/__init__.py', 'r').read()
+import typeworld.api
 
-if not f'VERSION = "{version}"' in apiCode:
+if typeworld.api.VERSION != version:
     print(
         f'typeworld.api doesn’t hold the up-to-date version number {version}')
     sys.exit(1)

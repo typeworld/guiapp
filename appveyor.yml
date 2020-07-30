@@ -2,7 +2,7 @@ image: macos-mojave
 
 # scripts that run after cloning repository
 install:
-  - python3.6 -m pip install requirements.txt
+  - /usr/bin/python3.6 -m pip install requirements.txt
 
 # scripts to run before build
 before_build:

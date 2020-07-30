@@ -19,7 +19,7 @@ version = response.read().decode()
 
 #version = os.system('curl https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')
 if version == 'n/a':
-    print('Can’t get version number')
+    print("Can't get version number")
     sys.exit(1)
 
 def executeCommands(commands, printOutput = False, returnOutput = False):

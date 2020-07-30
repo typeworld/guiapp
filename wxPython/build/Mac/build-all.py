@@ -13,7 +13,7 @@ import urllib.request
 
 request = urllib.request.Request("https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/")
 sslcontext = ssl.create_default_context(cafile=certifi.where())
-response = urllib.request.urlopen(request, data, context=sslcontext)
+response = urllib.request.urlopen(request, context=sslcontext)
 version = response.read().decode()
 
 

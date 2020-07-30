@@ -1,4 +1,6 @@
 image: macos-mojave
+PYTHON: "3.6"
+stack: python %PYTHON%
 
 # scripts that run after cloning repository
 install:

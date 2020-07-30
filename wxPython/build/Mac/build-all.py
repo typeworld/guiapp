@@ -6,7 +6,17 @@ from subprocess import Popen,PIPE,STDOUT
 # - Actual command
 # - True if this command is essential to the build process (must exit with 0), otherwise False
 
-version = os.system('curl https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')
+
+import ssl
+import certifi
+import urllib.request
+
+request = urllib.request.Request("https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/")
+sslcontext = ssl.create_default_context(cafile=certifi.where())
+version = response.read().decode()
+
+
+#version = os.system('curl https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')
 if version == 'n/a':
     print('Can’t get version number')
     sys.exit(1)

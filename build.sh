@@ -1,3 +1,3 @@
 echo "Build Script"
-pip --version
-python --version
+python3.6 -m pip --version
+

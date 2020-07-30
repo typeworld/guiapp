@@ -50,8 +50,8 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
 print(f'Building {version}')
 
 executeCommands((
-    ('Check if typeworld.api holds correct version number', f'python build-checkversionnumber.py {version}', True),
-    ('Check if can upload to GCS', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-canupload.py {version}', True),
+    ('Check if typeworld.api holds correct version number', f'python wxPython/build/Mac/build-checkversionnumber.py {version}', True),
+    ('Check if can upload to GCS', f'python wxPython/build/Mac/build-canupload.py {version}', True),
     ('Build', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-main.py {version}', True),
     ('Upload for notarization', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-notarize.py {version}', True),
     ('Wait for notarization', f'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/build-wait.py {version}', True),

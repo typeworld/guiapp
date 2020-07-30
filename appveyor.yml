@@ -4,7 +4,7 @@ stack: python %PYTHON%
 
 # scripts that run after cloning repository
 install:
-  - /usr/bin/python3.6 -m pip install requirements.txt
+  - python -m pip install requirements.txt
 
 # scripts to run before build
 before_build:

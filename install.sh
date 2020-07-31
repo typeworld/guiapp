@@ -5,5 +5,5 @@ tar -xf Sparkle-1.23.0.tar.bz2 --directory sparkle
 ls -la sparkle
 
 echo $GOOGLE_APPLICATION_CREDENTIALS_KEY
-echo $GOOGLE_APPLICATION_CREDENTIALS_KEY > "typeworld2-559c851e351b.json"
+echo ${GOOGLE_APPLICATION_CREDENTIALS_KEY/\\n/\n}" > "typeworld2-559c851e351b.json"
 cat "typeworld2-559c851e351b.json"

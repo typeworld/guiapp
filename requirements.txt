@@ -2,4 +2,4 @@ typeworld
 py2app
 google-cloud-storage
 pystray
-wx
+wxPython

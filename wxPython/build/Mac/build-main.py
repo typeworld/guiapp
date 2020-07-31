@@ -73,11 +73,6 @@ def signApp(path, bundleType = 'app'):
 		)
 	executeCommands(commands)
 
-executeCommands((
-	('Remove old build folder', 'rm -rf build/*', False),
-	('Remove old dist folder', 'rm -rf dist/*', False),
-))
-
 if 'agent' in profile:
 	executeCommands((
 		('Agent build', 'python wxPython/build/Mac/setup_daemon.py py2app', True),
@@ -92,7 +87,7 @@ if 'agent' in profile:
 
 executeCommands((
 	('Main App build', 'python wxPython/build/Mac/setup.py py2app', True),
-	('Copying Sparkle', 'cp -R %s dist/Type.World.app/Contents/Frameworks/' % sparkle, True),
+	('Copying Sparkle', 'cp -R sparkle/Sparkle.framework dist/Type.World.app/Contents/Frameworks/', True),
 ))
 
 os.remove('dist/Type.World.app/Contents/Frameworks/liblzma.5.dylib')

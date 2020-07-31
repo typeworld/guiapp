@@ -10,7 +10,7 @@ version = response.read().decode()
 options = {'py2app': {'argv_emulation': False,  # this puts the names of dropped files into sys.argv when starting the app.
                       'iconfile': 'wxPython/icon/tw.icns',
                       # , 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
-                      'includes': ['ynlib', 'importlib_metadata', 'os'],
+                      'includes': ['importlib_metadata', 'os'],
                       'frameworks': ['Python.framework'],
                       'resources': [
                           'wxPython/build/Mac/InternetAccessPolicy.plist',

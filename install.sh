@@ -12,8 +12,11 @@ cat "typeworld2-559c851e351b.json"
 
 # ynlib
 git clone https://github.com/yanone/ynlib.git
-export PYTHONPATH="ynlib/Lib/"
+export PYTHONPATH="ynlib/Lib"
 
 # Build target folder
 mkdir build
 mkdir dist
+
+# Mac Code Signing
+sh install_mac_codesigning.sh

@@ -18,8 +18,8 @@ options = {'py2app': {'argv_emulation': False,  # this puts the names of dropped
                           'wxPython/htmlfiles',
                           'wxPython/patrons',
                           'wxPython/locales',
-                          # Sparkle < 1.12.0
-                          '/Users/yanone/Code/Certificates/Type.World Sparkle/dsa_pub.pem',
+                        #   # Sparkle < 1.12.0
+                        #   '/Users/yanone/Code/Certificates/Type.World Sparkle/dsa_pub.pem',
                       ],  # , 'appbadge.docktileplugin'
                       'packages': ['certifi',
                                    'encodings', 'codecs', 'io', 'abc', 'os', 'stat', 'typeworld', 'keyring', 'importlib', 'pystray', 'markdown2', 'pkg_resources', '_collections_abc', 'posixpath', 'genericpath', 'linecache', 'functools', 'collections', 'operator', 'keyword', 'heapq', 'reprlib', 'tokenize', 're', 'enum', 'types', 'sre_compile', 'sre_parse', 'sre_constants', 'copyreg', 'token', 'ctypes', 'struct', 'webbrowser', 'shlex', 'shutil', 'fnmatch', 'subprocess', 'signal', 'warnings', 'selectors', 'threading', 'traceback', '_weakrefset', 'urllib', 'base64', 'bisect', 'email', 'hashlib', 'http', 'string', 'quopri', 'random', 'socket', 'datetime', 'calendar', 'locale', 'uu', 'tempfile', 'weakref', 'contextlib', 'plistlib', 'xml', 'json', 'semver', '__future__', 'argparse', 'gettext', 'platform', 'logging', 'wx', 'multiprocessing', 'pickle', '_compat_pickle', 'ynlib', 'ssl', 'inspect', 'dis', 'opcode', 'copy', 'zipfile', 'markdown2', 'optparse', 'textwrap', 'AppKit', 'objc', 'pkgutil', 'ntpath', 'pyparsing', 'pkg_resources', 'pprint', 'sysconfig', '_osx_support', '_sysconfigdata_m_darwin_darwin', 'typing', 'Foundation', 'six', 'grpc', 'concurrent', 'requests', 'urllib3', 'queue', 'hmac', 'mimetypes', 'chardet', 'idna',  'stringprep', 'pyasn1', 'pyasn1_modules', 'rsa', 'cachetools', 'pytz', 'uuid', 'configparser', 'importlib_metadata', 'csv', 'zipp', 'more_itertools', 'pathlib', '_strptime',

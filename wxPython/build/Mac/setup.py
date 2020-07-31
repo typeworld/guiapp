@@ -1,26 +1,22 @@
 from setuptools import setup
 import os
 
-from ynlib.web import GetHTTP
-version = GetHTTP(
-    'https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')
-if version == 'n/a':
-    print('Can’t get version number')
-    sys.exit(1)
-
-os.system('rm -rf ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version)
+request = urllib.request.Request("https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/")
+sslcontext = ssl.create_default_context(cafile=certifi.where())
+response = urllib.request.urlopen(request, context=sslcontext)
+version = response.read().decode()
 
 options = {'py2app': {'argv_emulation': False,  # this puts the names of dropped files into sys.argv when starting the app.
-                      'iconfile': '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/icon/tw.icns',
+                      'iconfile': 'wxPython/icon/tw.icns',
                       # , 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
                       'includes': ['ynlib', 'importlib_metadata', 'os'],
                       'frameworks': ['Python.framework'],
                       'resources': [
-                          '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/InternetAccessPolicy.plist',
-                          '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/Little Snitch Translations',
-                          '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/htmlfiles',
-                          '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/patrons',
-                          '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/locales',
+                          'wxPython/build/Mac/InternetAccessPolicy.plist',
+                          'wxPython/build/Mac/Little Snitch Translations',
+                          'wxPython/htmlfiles',
+                          'wxPython/patrons',
+                          'wxPython/locales',
                           # Sparkle < 1.12.0
                           '/Users/yanone/Code/Certificates/Type.World Sparkle/dsa_pub.pem',
                       ],  # , 'appbadge.docktileplugin'
@@ -31,8 +27,8 @@ options = {'py2app': {'argv_emulation': False,  # this puts the names of dropped
                                    'deepdiff', 'difflib', 'jsonpickle', 'decimal', '_pydecimal', 'numbers', 'ordered_set', 'ast'],
 
 
-                      'bdist_base': '%s/Code/TypeWorldApp/build/' % os.path.expanduser('~'),
-                      'dist_dir': '%s/Code/TypeWorldApp/dist/' % os.path.expanduser('~'),
+                      'bdist_base': 'build',
+                      'dist_dir': 'dist',
                       'plist': {
                           'CFBundleName': 'Type.World',
                           'CFBundleShortVersionString': version,  # must be in X.X.X format
@@ -61,13 +57,13 @@ options = {'py2app': {'argv_emulation': False,  # this puts the names of dropped
 
 
 # Little Snitch Translations
-folder = '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/Little Snitch Translations'
+folder = 'wxPython/build/Mac/Little Snitch Translations'
 options['py2app']['resources'].extend(
     [os.path.join(folder, x) for x in next(os.walk(folder))[1]])
 
 
 setup(
-    app=['/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/app.py'],
+    app=['wxPython/app.py'],
     data_files=[],
     options=options,
     setup_requires=['py2app'],

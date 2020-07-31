@@ -6,3 +6,4 @@ wxPython
 
 # dependencies
 jsonpickle
+pyparsing

@@ -1,7 +1,8 @@
 from setuptools import setup
 import os
 
-request = urllib.request.Request("https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/")
+import urllib.request
+request = urllib.request.Request(f"https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/?TYPEWORLD_APIKEY={os.environ["TYPEWORLD_APIKEY"]}")
 sslcontext = ssl.create_default_context(cafile=certifi.where())
 response = urllib.request.urlopen(request, context=sslcontext)
 version = response.read().decode()

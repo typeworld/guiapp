@@ -5,10 +5,8 @@ curl -O -L https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/S
 mkdir sparkle
 tar -xf Sparkle-1.23.0.tar.bz2 --directory sparkle
 
-# Secret Keys
-echo $GOOGLE_APPLICATION_CREDENTIALS_KEY
+# Google Cloud Storage Key
 echo $GOOGLE_APPLICATION_CREDENTIALS_KEY > "typeworld2-559c851e351b.json"
-cat "typeworld2-559c851e351b.json"
 
 # ynlib
 git clone https://github.com/yanone/ynlib.git

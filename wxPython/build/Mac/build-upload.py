@@ -9,7 +9,7 @@ from subprocess import Popen,PIPE,STDOUT
 version = sys.argv[-1]
 
 # Upload
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.join(os.path.dirname(__file__), '..', 'typeworld2-559c851e351b.json')
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'typeworld2-559c851e351b.json'
 from google.cloud import storage
 storage_client = storage.Client()
 bucket = storage_client.bucket('typeworld2')

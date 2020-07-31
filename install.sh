@@ -5,5 +5,5 @@ python -m pip install -r requirements.txt
 
 echo $GOOGLE_APPLICATION_CREDENTIALS_KEY
 echo $GOOGLE_APPLICATION_CREDENTIALS_KEY > "typeworld2-559c851e351b.json"
-sed s/\\n/\\\\n/g "typeworld2-559c851e351b.json"
+sed s/\n/\\n/g "typeworld2-559c851e351b.json"
 cat "typeworld2-559c851e351b.json"

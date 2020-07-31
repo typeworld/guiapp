@@ -24,7 +24,7 @@ def executeCommands(commands, returnOutput = False):
 
 		# If the exit code is not zero and this step is marked as necessary to succeed, print the output and quit the script.
 		if exitcode != 0 and mustSucceed:
-			print(output)
+			print(output[-500:])
 			print()
 			print(command)
 			print()
@@ -124,15 +124,15 @@ if 'normal' in profile:
 
 
 	executeCommands((
-		('Extract compressed Python', 'ditto -x -k dist/Type.World.app/Contents/Resources/lib/python37.zip /Users/yanone/Desktop/zip', True),
+		('Extract compressed Python', 'ditto -x -k dist/Type.World.app/Contents/Resources/lib/python37.zip ' + os.path.expanduser('~') + '/Desktop/zip', True),
 	))
 
 	if 'sign' in profile:
-		signApp('/Users/yanone/Desktop/zip', bundleType = 'zip')
+		signApp(os.path.expanduser('~') + '/Desktop/zip', bundleType = 'zip')
 
 	executeCommands((
-		('Re-compress Python', 'ditto -c -k --sequesterRsrc --keepParent /Users/yanone/Desktop/zip dist/Type.World.app/Contents/Resources/lib/python37.zip', True),
-		('Delete zip folder', 'rm -r /Users/yanone/Desktop/zip', True),
+		('Re-compress Python', 'ditto -c -k --sequesterRsrc --keepParent ' + os.path.expanduser('~') + '/Desktop/zip dist/Type.World.app/Contents/Resources/lib/python37.zip', True),
+		('Delete zip folder', 'rm -r ' + os.path.expanduser('~') + 'Desktop/zip', True),
 	))
 
 	executeCommands((

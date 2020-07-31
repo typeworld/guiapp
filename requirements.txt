@@ -7,3 +7,4 @@ wxPython
 # dependencies
 jsonpickle
 pyparsing
+more_itertools

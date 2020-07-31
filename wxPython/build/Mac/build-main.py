@@ -8,7 +8,7 @@ from subprocess import Popen,PIPE,STDOUT
 
 version = sys.argv[-1]
 
-sparkle = '/Users/yanone/Code/Sparkle/Sparkle.framework'
+sparkle = 'sparkle/Sparkle.framework'
 
 profile = ['normal', 'sign'] # normal/sign/agent
 
@@ -66,7 +66,7 @@ def signApp(path, bundleType = 'app'):
 			executeCommands([command])
 
 	commands = (
-		('Signing Outer App', 'codesign --options runtime --deep -s "Jan Gerner" --entitlements "/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/entitlements.plist" -f "%s"' % path, bundleType in ['app', 'plugin']),
+		('Signing Outer App', 'codesign --options runtime --deep -s "Jan Gerner" --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"' % path, bundleType in ['app', 'plugin']),
 		('Verify signature', 'codesign -dv --verbose=4 "%s"' % path, bundleType in ['app', 'plugin']),
 		('Verify signature', 'codesign --verify --deep --strict --verbose=20 "%s"' % path, bundleType in ['app', 'plugin']),
 		('Verify signature', 'spctl -a -t exec -vvvv "%s"' % path, bundleType in ['app'])
@@ -74,45 +74,45 @@ def signApp(path, bundleType = 'app'):
 	executeCommands(commands)
 
 executeCommands((
-	('Remove old build folder', 'rm -rf /Users/yanone/Code/TypeWorldApp/build/*', False),
-	('Remove old dist folder', 'rm -rf /Users/yanone/Code/TypeWorldApp/dist/*', False),
+	('Remove old build folder', 'rm -rf build/*', False),
+	('Remove old dist folder', 'rm -rf dist/*', False),
 ))
 
 if 'agent' in profile:
 	executeCommands((
-		('Agent build', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/setup_daemon.py py2app', True),
+		('Agent build', 'python wxPython/build/Mac/setup_daemon.py py2app', True),
 	))
 
 	if 'sign' in profile:
-		signApp('/Users/yanone/Code/TypeWorldApp/dist/Type.World Agent.app')
+		signApp('dist/Type.World Agent.app')
 
 	executeCommands((
-		('Zipping agent', 'tar -cjf /Users/yanone/Code/TypeWorldApp/dist/agent.tar.bz2 -C "/Users/yanone/Code/TypeWorldApp/dist/" "Type.World Agent.app"', True),
+		('Zipping agent', 'tar -cjf dist/agent.tar.bz2 -C "dist/" "Type.World Agent.app"', True),
 	))
 
 executeCommands((
-	('Main App build', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/setup.py py2app', True),
-	('Copying Sparkle', 'cp -R %s /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/' % sparkle, True),
+	('Main App build', 'python wxPython/build/Mac/setup.py py2app', True),
+	('Copying Sparkle', 'cp -R %s dist/Type.World.app/Contents/Frameworks/' % sparkle, True),
 ))
 
-os.remove('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/liblzma.5.dylib')
+os.remove('dist/Type.World.app/Contents/Frameworks/liblzma.5.dylib')
 
 if 'sign' in profile:
-	signApp('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app')
+	signApp('dist/Type.World.app/Contents/Frameworks/Sparkle.framework/Versions/A/Resources/Autoupdate.app')
 
 if 'agent' in profile:
 	executeCommands((
-		('Copying agent', 'cp /Users/yanone/Code/TypeWorldApp/dist/agent.tar.bz2 /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/', True),
+		('Copying agent', 'cp dist/agent.tar.bz2 dist/Type.World.app/Contents/Resources/', True),
 	))
 
 executeCommands((
-	('Copying google', 'cp -R /usr/local/lib/python3.7/site-packages/google /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0-py3.8-nspkg.pth /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0.dist-info /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0.dist-info /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google', 'cp -R /usr/local/lib/python3.7/site-packages/google dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
 
-	('Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/client/typeworld2-cfd080814f09.json /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources', True),
+	('Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/client/typeworld2-cfd080814f09.json dist/Type.World.app/Contents/Resources', True),
 ))
 
 if 'normal' in profile:
@@ -120,7 +120,7 @@ if 'normal' in profile:
 
 	# CTYPES error
 	# https://github.com/powerline/powerline/issues/1947
-	path = '/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/ctypes/__init__.py'
+	path = 'dist/Type.World.app/Contents/Resources/lib/python3.7/ctypes/__init__.py'
 	code = open(path).read()
 	code = code.replace('CFUNCTYPE(c_int)(lambda: None)', '#CFUNCTYPE(c_int)(lambda: None)')
 	f = open(path, 'w')
@@ -129,26 +129,26 @@ if 'normal' in profile:
 
 
 	executeCommands((
-		('Extract compressed Python', 'ditto -x -k /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python37.zip /Users/yanone/Desktop/zip', True),
+		('Extract compressed Python', 'ditto -x -k dist/Type.World.app/Contents/Resources/lib/python37.zip /Users/yanone/Desktop/zip', True),
 	))
 
 	if 'sign' in profile:
 		signApp('/Users/yanone/Desktop/zip', bundleType = 'zip')
 
 	executeCommands((
-		('Re-compress Python', 'ditto -c -k --sequesterRsrc --keepParent /Users/yanone/Desktop/zip /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python37.zip', True),
+		('Re-compress Python', 'ditto -c -k --sequesterRsrc --keepParent /Users/yanone/Desktop/zip dist/Type.World.app/Contents/Resources/lib/python37.zip', True),
 		('Delete zip folder', 'rm -r /Users/yanone/Desktop/zip', True),
 	))
 
 	executeCommands((
-		('Remove ynlib.pdf', 'rm -rf "/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/pdf"', True),
+		('Remove ynlib.pdf', 'rm -rf "dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/pdf"', True),
 	))
 
 	if 'sign' in profile:
-		signApp('/Users/yanone/Code/TypeWorldApp/dist/Type.World.app')
+		signApp('dist/Type.World.app')
 
 	executeCommands((
-		('Self Test', '/Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/MacOS/Type.World selftest', True),
+		('Self Test', 'dist/Type.World.app/Contents/MacOS/Type.World selftest', True),
 	))
 
 
@@ -162,38 +162,38 @@ print()
 
 
 # # Main app
-# ['Main App build', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/setup.py py2app', None, ''],
-# ['Copying Sparkle', 'cp -R %s /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/' % sparkle],
-# ['Copying Docktileplugin', 'cp -R /Users/yanone/Code/py/git/typeworld/guiapp/appbadge/AppBadge.docktileplugin /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/'],
-# ['Copying agent', 'cp /Users/yanone/Code/TypeWorldApp/dist/agent.tar.bz2 /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/', None, ''],
+# ['Main App build', 'python wxPython/build/Mac/setup.py py2app', None, ''],
+# ['Copying Sparkle', 'cp -R %s dist/Type.World.app/Contents/Frameworks/' % sparkle],
+# ['Copying Docktileplugin', 'cp -R appbadge/AppBadge.docktileplugin dist/Type.World.app/Contents/Resources/'],
+# ['Copying agent', 'cp dist/agent.tar.bz2 dist/Type.World.app/Contents/Resources/', None, ''],
 # ['Unlink site.pyo', 'unlink ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/site.pyo', None, ''],
 
-# ['Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0-py3.8-nspkg.pth /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-# ['Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0.dist-info /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-# ['Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-# ['Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0.dist-info /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
+# ['Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
+# ['Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
+# ['Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
+# ['Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
 
-# ['Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/client/typeworld2-cfd080814f09.json /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources', None, ''],
+# ['Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/client/typeworld2-cfd080814f09.json dist/Type.World.app/Contents/Resources', None, ''],
 
 
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu-3.0.0.4.0.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_core-3.0.0.4.0.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_webview-3.0.0.4.0.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libwx_baseu_net-3.0.0.4.0.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libcrypto.1.1.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libgdbm.6.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/liblzma.5.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/libssl.1.1.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Python.framework/Versions/3.7', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/Frameworks/Sparkle.framework/Versions/A', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f /Users/yanone/Code/TypeWorldApp/dist/Type.World.app/Contents/MacOS/python', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libwx_baseu-3.0.0.4.0.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_core-3.0.0.4.0.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_webview-3.0.0.4.0.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libwx_baseu_net-3.0.0.4.0.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libcrypto.1.1.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libgdbm.6.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/liblzma.5.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libssl.1.1.dylib', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/Python.framework/Versions/3.7', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/Sparkle.framework/Versions/A', None, 'nosign'],
+# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/MacOS/python', None, 'nosign'],
 
 # ['Signing app', 'codesign --options runtime --deep -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app', None, 'nosign'],
 # ['Verify signature', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dist/Type.World.app', None, 'nosign'],
 # ['Verify signature', 'codesign --verify --deep --strict --verbose=20 ~/Code/TypeWorldApp/dist/Type.World.app', findSymlinks, 'nosign'],
 # ['Verify signature', 'spctl -a -t exec -vvvv ~/Code/TypeWorldApp/dist/Type.World.app', findSymlinks, 'nosign'],
 
-# ['Move app to archive folder', 'cp -R /Users/yanone/Code/TypeWorldApp/dist/Type.World.app /Users/yanone/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version],
+# ['Move app to archive folder', 'cp -R dist/Type.World.app /Users/yanone/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version],
 # ]
 
 # for l in _list:

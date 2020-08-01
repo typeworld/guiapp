@@ -108,12 +108,21 @@ if 'agent' in profile:
 
 executeCommands((
 	('Copying google', f'cp -R {sitePackages}/google dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-api-core', f'cp -R {sitePackages}/google_api_core-1.16.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-api-core', f'cp -R {sitePackages}/google_api_core-1.16.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-cloud-pubsub', f'cp -R {sitePackages}/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-cloud-pubsub', f'cp -R {sitePackages}/google_cloud_pubsub-1.2.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-api-core', f'cp -R {sitePackages}/google_api_core-1.22.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-api-core', f'cp -R {sitePackages}/google_api_core-1.22.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-cloud-pubsub', f'cp -R {sitePackages}/google_cloud_pubsub-1.7.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-cloud-pubsub', f'cp -R {sitePackages}/google_cloud_pubsub-1.7.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+))
 
-	('Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/client/typeworld2-cfd080814f09.json dist/Type.World.app/Contents/Resources', True),
+executeCommands((
+	('Copying ynlib', 'cp -R ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+))
+
+# find typeworld key location
+import typeworld
+twpath = os.path.join(os.path.dirname(os.path.abspath(typeworld.client.__file__)), 'typeworld2-cfd080814f09.json')
+executeCommands((
+	('Copying Google Cloud Authentication key', f'cp -R {twpath} dist/Type.World.app/Contents/Resources', True),
 ))
 
 if 'normal' in profile:
@@ -158,76 +167,3 @@ if not 'sign' in profile:
 
 print('Finished successfully.')
 print()
-
-
-
-
-# # Main app
-# ['Main App build', 'python wxPython/build/Mac/setup.py py2app', None, ''],
-# ['Copying Sparkle', 'cp -R %s dist/Type.World.app/Contents/Frameworks/' % sparkle],
-# ['Copying Docktileplugin', 'cp -R appbadge/AppBadge.docktileplugin dist/Type.World.app/Contents/Resources/'],
-# ['Copying agent', 'cp dist/agent.tar.bz2 dist/Type.World.app/Contents/Resources/', None, ''],
-# ['Unlink site.pyo', 'unlink ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/site.pyo', None, ''],
-
-# ['Copying google-api-core', 'cp -R {sitePackages}/google_api_core-1.16.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-# ['Copying google-api-core', 'cp -R {sitePackages}/google_api_core-1.16.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-# ['Copying google-cloud-pubsub', 'cp -R {sitePackages}/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-# ['Copying google-cloud-pubsub', 'cp -R {sitePackages}/google_cloud_pubsub-1.2.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-
-# ['Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/client/typeworld2-cfd080814f09.json dist/Type.World.app/Contents/Resources', None, ''],
-
-
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libwx_baseu-3.0.0.4.0.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_core-3.0.0.4.0.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libwx_osx_cocoau_webview-3.0.0.4.0.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libwx_baseu_net-3.0.0.4.0.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libcrypto.1.1.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libgdbm.6.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/liblzma.5.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/libssl.1.1.dylib', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/Python.framework/Versions/3.7', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/Frameworks/Sparkle.framework/Versions/A', None, 'nosign'],
-# ['Signing inner components', 'codesign --options runtime -s "Jan Gerner" -f dist/Type.World.app/Contents/MacOS/python', None, 'nosign'],
-
-# ['Signing app', 'codesign --options runtime --deep -s "Jan Gerner" -f ~/Code/TypeWorldApp/dist/Type.World.app', None, 'nosign'],
-# ['Verify signature', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dist/Type.World.app', None, 'nosign'],
-# ['Verify signature', 'codesign --verify --deep --strict --verbose=20 ~/Code/TypeWorldApp/dist/Type.World.app', findSymlinks, 'nosign'],
-# ['Verify signature', 'spctl -a -t exec -vvvv ~/Code/TypeWorldApp/dist/Type.World.app', findSymlinks, 'nosign'],
-
-# ['Move app to archive folder', 'cp -R dist/Type.World.app /Users/yanone/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version],
-# ]
-
-# for l in _list:
-
-# 	alt = None
-# 	excludeCondition = None
-# 	if len(l) == 2:
-# 		desc, cmd = l
-# 	if len(l) == 3:
-# 		desc, cmd, alt = l
-# 	if len(l) == 4:
-# 		desc, cmd, alt, excludeCondition = l
-
-
-# 	if not excludeCondition or excludeCondition != flavour:
-
-# 		print(desc, '...')
-
-# 		out = Popen(cmd, stderr=STDOUT,stdout=PIPE, shell=True)
-# 		output, exitcode = out.communicate()[0].decode(), out.returncode
-
-# 		if exitcode != 0:
-# 			print(output)
-# 			print()
-# 			print(cmd)
-# 			print()
-# 			print('%s failed! See above.' % desc)
-# 			print()
-# 			if alt:
-# 				print('Debugging output:')
-# 				os.system(alt)
-# 			sys.exit(0)
-
-# print('Done.')
-# print()
-

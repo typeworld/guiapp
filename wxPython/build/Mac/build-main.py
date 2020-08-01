@@ -119,7 +119,7 @@ executeCommands((
 ))
 
 # find typeworld key location
-import typeworld
+import typeworld.client
 twpath = os.path.join(os.path.dirname(os.path.abspath(typeworld.client.__file__)), 'typeworld2-cfd080814f09.json')
 executeCommands((
 	('Copying Google Cloud Authentication key', f'cp -R {twpath} dist/Type.World.app/Contents/Resources', True),

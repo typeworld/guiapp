@@ -9,8 +9,14 @@ from subprocess import Popen,PIPE,STDOUT
 version = sys.argv[-1]
 
 sparkle = 'sparkle/Sparkle.framework'
+sitePackages = '~/venv3.7.7/lib/python3.7/site-packages'
 
 profile = ['normal', 'sign'] # normal/sign/agent
+
+def execute(command):
+	out = Popen(command, stderr=STDOUT,stdout=PIPE, shell=True)
+	output, exitcode = out.communicate()[0].decode(), out.returncode
+	return output, exitcode
 
 def executeCommands(commands, returnOutput = False):
 	for description, command, mustSucceed in commands:
@@ -19,8 +25,7 @@ def executeCommands(commands, returnOutput = False):
 		print(description, '...')
 
 		# Execute the command, fetch both its output as well as its exit code
-		out = Popen(command, stderr=STDOUT,stdout=PIPE, shell=True)
-		output, exitcode = out.communicate()[0].decode(), out.returncode
+		output, exitcode = execute(command)
 
 		# If the exit code is not zero and this step is marked as necessary to succeed, print the output and quit the script.
 		if exitcode != 0 and mustSucceed:
@@ -36,7 +41,8 @@ def executeCommands(commands, returnOutput = False):
 def signApp(path, bundleType = 'app'):
 
 	# Delete symlinks
-	symlinks = Execute('find -L "%s" -type l' % path).decode().split('\n')
+	symlinks, code = execute('find -L "%s" -type l' % path)
+	symlinks = symlinks.split('\n')
 	# print(symlinks)
 	for filepath in symlinks:
 		if filepath:
@@ -101,11 +107,11 @@ if 'agent' in profile:
 	))
 
 executeCommands((
-	('Copying google', 'cp -R /usr/local/lib/python3.7/site-packages/google dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
-	('Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google', f'cp -R {sitePackages}/google dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-api-core', f'cp -R {sitePackages}/google_api_core-1.16.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-api-core', f'cp -R {sitePackages}/google_api_core-1.16.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-cloud-pubsub', f'cp -R {sitePackages}/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying google-cloud-pubsub', f'cp -R {sitePackages}/google_cloud_pubsub-1.2.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
 
 	('Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/client/typeworld2-cfd080814f09.json dist/Type.World.app/Contents/Resources', True),
 ))
@@ -163,10 +169,10 @@ print()
 # ['Copying agent', 'cp dist/agent.tar.bz2 dist/Type.World.app/Contents/Resources/', None, ''],
 # ['Unlink site.pyo', 'unlink ~/Code/TypeWorldApp/dist/Type.World.app/Contents/Resources/lib/python3.7/site.pyo', None, ''],
 
-# ['Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-# ['Copying google-api-core', 'cp -R /usr/local/lib/python3.7/site-packages/google_api_core-1.16.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-# ['Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
-# ['Copying google-cloud-pubsub', 'cp -R /usr/local/lib/python3.7/site-packages/google_cloud_pubsub-1.2.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
+# ['Copying google-api-core', 'cp -R {sitePackages}/google_api_core-1.16.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
+# ['Copying google-api-core', 'cp -R {sitePackages}/google_api_core-1.16.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
+# ['Copying google-cloud-pubsub', 'cp -R {sitePackages}/google_cloud_pubsub-1.2.0-py3.8-nspkg.pth dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
+# ['Copying google-cloud-pubsub', 'cp -R {sitePackages}/google_cloud_pubsub-1.2.0.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', None, ''],
 
 # ['Copying Google Cloud Authentication key', 'cp -R /Users/yanone/Code/py/git/typeworld/typeworld/Lib/typeworld/client/typeworld2-cfd080814f09.json dist/Type.World.app/Contents/Resources', None, ''],
 

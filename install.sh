@@ -22,4 +22,5 @@ mkdir dist
 sh install_mac_codesigning.sh
 
 # Python
+ls -la .localpython3.7.7/lib/
 ln -s .localpython3.7.7/lib/libpython3.7m.dylib .localpython3.7.7/lib/libpython3.7.dylib

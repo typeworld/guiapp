@@ -20,3 +20,6 @@ mkdir dist
 
 # Mac Code Signing
 sh install_mac_codesigning.sh
+
+# Python
+ln -s .localpython3.7.7/lib/libpython3.7m.dylib .localpython3.7.7/lib/libpython3.7.dylib

@@ -1,3 +1,5 @@
+xcode-select --install
+
 python -m pip install -r requirements.txt
 
 # Download Sparkle

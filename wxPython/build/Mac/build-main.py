@@ -24,7 +24,7 @@ def executeCommands(commands, returnOutput = False):
 
 		# If the exit code is not zero and this step is marked as necessary to succeed, print the output and quit the script.
 		if exitcode != 0 and mustSucceed:
-			print(output[-500:])
+			print(output[-5000:])
 			print()
 			print(command)
 			print()

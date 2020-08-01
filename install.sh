@@ -1,4 +1,6 @@
-xcode-select --install
+# Mac Code Signing
+sh install_mac_codesigning.sh
+
 
 python -m pip install -r requirements.txt
 
@@ -18,11 +20,11 @@ export PYTHONPATH="ynlib/Lib"
 mkdir build
 mkdir dist
 
-# Mac Code Signing
-sh install_mac_codesigning.sh
 
 # Python
 # Link .dylib
 # Apparently, they're the same file:
 # https://groups.google.com/a/continuum.io/forum/#!topic/anaconda/4HKVl8Jhy9E
 ln -s ~/.localpython3.7.7/lib/libpython3.7m.dylib ~/.localpython3.7.7/lib/libpython3.7.dylib
+
+ls -la ~/venv3.7.7/lib/python3.7/site-packages

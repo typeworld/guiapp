@@ -118,13 +118,6 @@ executeCommands((
 	('Copying ynlib', 'cp -R ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7', True),
 ))
 
-# find typeworld key location
-import typeworld.client
-twpath = os.path.join(os.path.dirname(os.path.abspath(typeworld.client.__file__)), 'typeworld2-cfd080814f09.json')
-executeCommands((
-	('Copying Google Cloud Authentication key', f'cp -R {twpath} dist/Type.World.app/Contents/Resources', True),
-))
-
 if 'normal' in profile:
 
 
@@ -147,7 +140,7 @@ if 'normal' in profile:
 
 	executeCommands((
 		('Re-compress Python', 'ditto -c -k --sequesterRsrc --keepParent ' + os.path.expanduser('~') + '/Desktop/zip dist/Type.World.app/Contents/Resources/lib/python37.zip', True),
-		('Delete zip folder', 'rm -r ' + os.path.expanduser('~') + 'Desktop/zip', True),
+		('Delete zip folder', 'rm -r ' + os.path.expanduser('~') + '/Desktop/zip', True),
 	))
 
 	executeCommands((

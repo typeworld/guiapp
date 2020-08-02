@@ -5,7 +5,7 @@ version = sys.argv[-1]
 
 import typeworld.api
 
-desiredversion = '0.2.2-beta'
+desiredversion = '0.2.3-beta'
 
 if typeworld.api.VERSION != desiredversion:
     print(

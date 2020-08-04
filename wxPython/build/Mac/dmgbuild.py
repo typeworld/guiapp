@@ -1,10 +1,10 @@
 volume_name= 'Type.World App'
 format = 'UDBZ'
-files = ['/Users/yanone/Code/TypeWorldApp/dist/Type.World.app']
+files = ['dist/Type.World.app']
 symlinks = { 'Applications': '/Applications'}
 default_view = 'icon-view'
 window_rect = ((500, 500), (443, 434))
-background = '/Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/dmgbackground_final.tiff'
+background = 'wxPython/build/Mac/dmgbackground_final.tiff'
 
 # Icon view
 arrange_by = 'name'

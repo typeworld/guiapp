@@ -33,7 +33,7 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
 
 
 # RequestUUID
-RequestUUID = open(os.path.join(os.path.dirname(__file__), 'world.type.guiapp.notarization.UUID'), 'r').read()
+RequestUUID = open('world.type.guiapp.notarization.UUID', 'r').read()
 
 if not RequestUUID:
     print('No RequestUUID')

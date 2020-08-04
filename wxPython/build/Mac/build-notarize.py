@@ -51,7 +51,7 @@ if not RequestUUID:
     print('No RequestUUID returned')
     sys.exit(1)
 
-f = open(os.path.join(os.path.dirname(__file__), 'world.type.guiapp.notarization.UUID'), 'w')
+f = open('world.type.guiapp.notarization.UUID', 'w')
 f.write(RequestUUID)
 f.close()
 

@@ -11,3 +11,4 @@ more_itertools
 
 # build time only
 dmgbuild
+git+https://gitlab.com/python-devs/importlib_metadata.git

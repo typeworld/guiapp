@@ -4,6 +4,11 @@ sh install_mac_codesigning.sh
 
 python -m pip install -r requirements.txt
 
+# # Replace 
+# importlib_version = $(pip show importlib_metadata | sed -n -e 's/Version: \([[:alnum:][:punct:]]\)/\1/p')
+# echo $importlib_version
+# sed -i 's/old-text/new-text/g' input.txt
+
 # Download Sparkle
 curl -O -L https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/Sparkle-1.23.0.tar.bz2
 mkdir sparkle

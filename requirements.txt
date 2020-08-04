@@ -4,7 +4,10 @@ google-cloud-storage
 pystray
 wxPython
 
-# dependencies
+# app dependencies
 jsonpickle
 pyparsing
 more_itertools
+
+# build time only
+dmgbuild

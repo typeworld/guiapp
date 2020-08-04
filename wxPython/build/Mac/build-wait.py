@@ -44,7 +44,7 @@ while True:
     time.sleep(30)
 
     check = executeCommands((
-        ('Check', f'xcrun altool --notarization-info {RequestUUID} --username "post@yanone.de" --password "@keychain:Code Signing"', True),
+        ('Check', f'xcrun altool --notarization-info {RequestUUID} --username "post@yanone.de" --password "{os.environ["NOTARIZATION_PASSWORD"]}"', True),
     ), returnOutput = True)
 
     if not RequestUUID in check:

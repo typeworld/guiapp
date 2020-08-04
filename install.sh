@@ -19,6 +19,7 @@ export PYTHONPATH="ynlib/Lib"
 # Build target folder
 mkdir build
 mkdir dist
+mkdir dmg
 
 
 # Python

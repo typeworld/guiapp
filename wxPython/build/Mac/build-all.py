@@ -11,10 +11,17 @@ import ssl
 import certifi
 import urllib.request
 
-request = urllib.request.Request(f"https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/?TYPEWORLD_APIKEY={os.environ['TYPEWORLD_APIKEY']}")
-sslcontext = ssl.create_default_context(cafile=certifi.where())
-response = urllib.request.urlopen(request, context=sslcontext)
-version = response.read().decode()
+
+def http(url, data=None):
+    if data:
+        data = urllib.parse.urlencode(data).encode('ascii')
+    request = urllib.request.Request(url, data=data)
+    sslcontext = ssl.create_default_context(cafile=certifi.where())
+    response = urllib.request.urlopen(request, context=sslcontext)
+    return response.read().decode()
+
+
+version = http(f"https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/?TYPEWORLD_APIKEY={os.environ['TYPEWORLD_APIKEY']}")
 
 
 #version = os.system('curl https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/')

@@ -4,23 +4,28 @@ import os, sys
 
 version = sys.argv[-1]
 
-from ynlib.system import Execute
-from ynlib.web import PostHTTP
+def http(url, data=None):
+    if data:
+        data = urllib.parse.urlencode(data).encode('ascii')
+    request = urllib.request.Request(url, data=data)
+    sslcontext = ssl.create_default_context(cafile=certifi.where())
+    response = urllib.request.urlopen(request, context=sslcontext)
+    return response.read().decode()
+
+def execute(command):
+	out = Popen(command, stderr=STDOUT,stdout=PIPE, shell=True)
+	output, exitcode = out.communicate()[0].decode(), out.returncode
+	return output, exitcode
+
 
 def getEdDSA(file):
-	path = '"%s/Code/Sparkle/bin/sign_update" "%s"' % (os.path.expanduser('~'), file)
+	path = '"sparkle/bin/sign_update" "%s"', file)
 	dsa = Execute(path).decode()
 	return dsa
 
-def getDSA(file):
-	path = '"%s/Code/Sparkle/bin/old_dsa_scripts/sign_update" "%s" "%s"' % (os.path.expanduser('~'), file, os.path.expanduser('~/Code/Certificates/Type.World Sparkle/dsa_priv.pem'))
-	dsa = Execute(path).decode()
-	dsa = dsa.replace(' ', '').replace('\n', '')
-	return f'sparkle:dsaSignature="{dsa}" length="0"'
+signature = getEdDSA(f'dmg/TypeWorldApp.{version}.dmg')
 
-signature = getEdDSA(f'/Users/yanone/Code/TypeWorldApp/dmg/TypeWorldApp.{version}.dmg')
-
-response = PostHTTP('https://api.type.world/setSparkleSignature', values = {'appKey': 'world.type.guiapp', 'version': version, 'platform': 'mac', 'signature': signature}).decode()
+response = http('https://api.type.world/setSparkleSignature', data = {'appKey': 'world.type.guiapp', 'version': version, 'platform': 'mac', 'signature': signature})
 if not response == 'ok':
 	print('Uploading Sparkle signature failed:', response)
 	sys.exit(1)

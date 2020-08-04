@@ -32,16 +32,16 @@ def executeCommands(commands, printOutput = False):
             print(output)
 
 executeCommands((
-    ('Validate notarization', 'spctl -a -vvv -t execute ~/Code/TypeWorldApp/dist/Type.World.app', True),
-    ('Staple notarization ticket to app', 'xcrun stapler staple ~/Code/TypeWorldApp/dist/Type.World.app', True),
-    ('Validate stapling', 'stapler validate ~/Code/TypeWorldApp/dist/Type.World.app', True),
-    ('Remove old dmg', 'rm ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, False),
-    ('Create .dmg', 'dmgbuild -s /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/dmgbuild.py "Type.World App" /Users/yanone/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, True),
-    ('Sign .dmg', 'codesign -s "Jan Gerner" -f ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, True),
-    ('Verify .dmg', 'codesign -dv --verbose=4  ~/Code/TypeWorldApp/dmg/TypeWorldApp.%s.dmg' % version, True),
-#    ('Create appcast', 'python /Users/yanone/Code/py/git/typeworld/guiapp/wxPython/build/Mac/appcast.py', True),
-    ('Remove old app', 'rm -r ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version, False),
-    ('Copy app to archive', 'cp -R ~/Code/TypeWorldApp/dist/Type.World.app ~/Code/TypeWorldApp/apps/Mac/Type.World.%s.app' % version, True),
+    ('Validate notarization', 'spctl -a -vvv -t execute dist/Type.World.app', True),
+    ('Staple notarization ticket to app', 'xcrun stapler staple dist/Type.World.app', True),
+    ('Validate stapling', 'stapler validate dist/Type.World.app', True),
+    ('Remove old dmg', 'rm dmg/TypeWorldApp.%s.dmg' % version, False),
+    ('Create .dmg', 'dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dmg/TypeWorldApp.%s.dmg' % version, True),
+    ('Sign .dmg', 'codesign -s "Jan Gerner" -f dmg/TypeWorldApp.%s.dmg' % version, True),
+    ('Verify .dmg', 'codesign -dv --verbose=4  dmg/TypeWorldApp.%s.dmg' % version, True),
+#    ('Create appcast', 'python wxPython/build/Mac/appcast.py', True),
+    # ('Remove old app', 'rm -r apps/Mac/Type.World.%s.app' % version, False),
+    # ('Copy app to archive', 'cp -R dist/Type.World.app apps/Mac/Type.World.%s.app' % version, True),
 ))
 
 print('Finished successfully.')

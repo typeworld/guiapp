@@ -32,7 +32,7 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
             print(output)
 
 executeCommands((
-    ('Remove old .dmg', 'rm dist/TypeWorldApp.forNotarization.dmg', False),
+#    ('Remove old .dmg', 'rm dist/TypeWorldApp.forNotarization.dmg', False),
     ('Create .dmg', 'dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dist/TypeWorldApp.forNotarization.dmg', True),
     ('Sign .dmg', 'codesign -s "Jan Gerner" -f dist/TypeWorldApp.forNotarization.dmg', True),
     ('Verify .dmg', 'codesign -dv --verbose=4  dist/TypeWorldApp.forNotarization.dmg', True),

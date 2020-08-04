@@ -33,7 +33,7 @@ mkdir dmg
 # https://groups.google.com/a/continuum.io/forum/#!topic/anaconda/4HKVl8Jhy9E
 ln -s ~/.localpython3.7.7/lib/libpython3.7m.dylib ~/.localpython3.7.7/lib/libpython3.7.dylib
 
-#ls -la ~/venv3.7.7/lib/python3.7/site-packages
+ls -la ~/venv3.7.7/lib/python3.7/site-packages
 
-ls -la /Users/appveyor/venv3.7.7/lib/python3.7/site-packages/typeworld
-ls -la /Users/appveyor/venv3.7.7/lib/python3.7/site-packages/typeworld/client
+ls -la ~/venv3.7.7/lib/python3.7/site-packages/typeworld
+ls -la ~/venv3.7.7/lib/python3.7/site-packages/typeworld/client

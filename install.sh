@@ -1,3 +1,5 @@
+echo "Current folder: $PWD"
+
 # Mac Code Signing
 sh install_mac_codesigning.sh
 

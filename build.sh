@@ -1,3 +1,2 @@
 echo "App Build"
-python -m pip --version
-python wxPython/build/Mac/build-all.py
+sh wxPython/build/Mac/build-all.sh

@@ -9,7 +9,7 @@ echo "Check if can upload to GCS"
 python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION
 
 echo "Build"
-python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION
+python wxPython/build/Mac/build-main.py $APP_BUILD_VERSION
 
 echo "build"
 ls -la build

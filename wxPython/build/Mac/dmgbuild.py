@@ -1,6 +1,7 @@
+import os
 volume_name= 'Type.World App'
 format = 'UDBZ'
-files = ['dist/Type.World.app']
+files = [os.path.join(os.eviron['PWD'], 'dist/Type.World.app')]
 symlinks = { 'Applications': '/Applications'}
 default_view = 'icon-view'
 window_rect = ((500, 500), (443, 434))

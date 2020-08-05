@@ -11,6 +11,9 @@ python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION
 echo "Build"
 python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION
 
+echo "build"
+ls -la build
+echo "dist"
 ls -la dist
 
 echo "Upload for notarization"

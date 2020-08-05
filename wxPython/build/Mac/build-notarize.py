@@ -31,12 +31,6 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
         elif exitcode == 0 and printOutput:
             print(output)
 
-executeCommands((
-#    ('Remove old .dmg', 'rm dist/TypeWorldApp.forNotarization.dmg', False),
-    ('Create .dmg', 'dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dist/TypeWorldApp.forNotarization.dmg', True),
-    ('Sign .dmg', 'codesign -s "Jan Gerner" -f dist/TypeWorldApp.forNotarization.dmg', True),
-    ('Verify .dmg', 'codesign -dv --verbose=4  dist/TypeWorldApp.forNotarization.dmg', True),
-))
 
 notarization = executeCommands((
    ('Upload for Notarization', f'xcrun altool --primary-bundle-id "Type.World" --notarize-app --username "post@yanone.de" --password "{os.environ["NOTARIZATION_PASSWORD"]}" --file dist/TypeWorldApp.forNotarization.dmg', True),

@@ -45,10 +45,27 @@ if not RequestUUID:
     print('No RequestUUID returned')
     sys.exit(1)
 
-f = open('world.type.guiapp.notarization.UUID', 'w')
-f.write(RequestUUID)
-f.close()
+while True:
 
+    time.sleep(30)
+
+    check = executeCommands((
+        ('Check', f'xcrun altool --notarization-info {RequestUUID} --username "post@yanone.de" --password "{os.environ["NOTARIZATION_PASSWORD"]}"', True),
+    ), returnOutput = True)
+
+    if not RequestUUID in check:
+        print(f'No {RequestUUID} in xcrun altool --notarization-history')
+        sys.exit(1)
+
+    if RequestUUID in check and 'Status: success' in check:
+        sys.exit(0)
+
+    if RequestUUID in check and 'Status: invalid' in check:
+        print(check)
+        sys.exit(1)
+
+    if RequestUUID in check and 'Status: in progress' in check:
+        pass
 
 print('Finished successfully.')
 print()

@@ -1,4 +1,3 @@
-import os
 volume_name= 'Type.World App'
 format = 'UDBZ'
 #files = [os.path.join(os.environ['PWD'], 'dist/Type.World.app')]

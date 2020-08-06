@@ -28,6 +28,10 @@ mkdir build
 mkdir dist
 mkdir dmg
 
+ls -la .
+ls -la ynlib
+ls -la ynlib/Lib
+ls -la ynlib/Lib/ynlib
 
 # Python
 # Link .dylib

@@ -96,6 +96,11 @@ executeCommands((
 	('Copying Sparkle', 'cp -R sparkle/Sparkle.framework dist/Type.World.app/Contents/Frameworks/', True),
 ))
 
+executeCommands((
+	('Main App build', 'python wxPython/build/Mac/setup.py py2app', True),
+	('Copying Sparkle', 'cp -R sparkle/Sparkle.framework dist/Type.World.app/Contents/Frameworks/', True),
+))
+
 os.remove('dist/Type.World.app/Contents/Frameworks/liblzma.5.dylib')
 
 if 'sign' in profile:
@@ -113,6 +118,13 @@ executeCommands((
 	('Copying google-cloud-pubsub', f'cp -R {sitePackages}/google_cloud_pubsub-*.pth dist/Type.World.app/Contents/Resources/lib/python3.7', True),
 	('Copying google-cloud-pubsub', f'cp -R {sitePackages}/google_cloud_pubsub-*.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
 ))
+
+print(executeCommands((
+	('Moving ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
+), returnOutput=True))
+print(executeCommands((
+	('Moving ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/', True),
+), returnOutput=True))
 
 executeCommands((
 	('Moving ynlib', 'mv ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7/', True),

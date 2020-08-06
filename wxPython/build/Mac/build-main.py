@@ -101,11 +101,6 @@ executeCommands((
 	('Copying Sparkle', 'cp -R sparkle/Sparkle.framework dist/Type.World.app/Contents/Frameworks/', True),
 ))
 
-executeCommands((
-	('Main App build', 'python wxPython/build/Mac/setup.py py2app', True),
-	('Copying Sparkle', 'cp -R sparkle/Sparkle.framework dist/Type.World.app/Contents/Frameworks/', True),
-))
-
 os.remove('dist/Type.World.app/Contents/Frameworks/liblzma.5.dylib')
 
 if 'sign' in profile:

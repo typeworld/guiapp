@@ -115,7 +115,9 @@ executeCommands((
 ))
 
 executeCommands((
-	('Copying ynlib', 'cp -R ynlib/Lib/* dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Moving ynlib', 'mv ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+#	('Moving ynlib', 'cp -R ynlib/Lib/* dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Remove ynlib.pdf', 'rm -rf dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/pdf', True),
 ))
 
 if 'normal' in profile:
@@ -141,10 +143,6 @@ if 'normal' in profile:
 	executeCommands((
 		('Re-compress Python', 'ditto -c -k --sequesterRsrc --keepParent ' + os.path.expanduser('~') + '/Desktop/zip dist/Type.World.app/Contents/Resources/lib/python37.zip', True),
 		('Delete zip folder', 'rm -r ' + os.path.expanduser('~') + '/Desktop/zip', True),
-	))
-
-	executeCommands((
-		('Remove ynlib.pdf', 'rm -rf "dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/pdf"', True),
 	))
 
 	if 'sign' in profile:

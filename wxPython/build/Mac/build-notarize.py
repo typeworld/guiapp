@@ -39,8 +39,8 @@ notarization = executeCommands((
 RequestUUID = None
 for line in notarization.split('\n'):
     if 'RequestUUID' in line:
-        print(f'Notarization UUID: {RequestUUID}')
         RequestUUID = line.split('=')[1].strip()
+        print(f'Notarization UUID: {RequestUUID}')
 
 if not RequestUUID:
     print('No RequestUUID returned')

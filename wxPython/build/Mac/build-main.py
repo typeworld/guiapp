@@ -18,25 +18,30 @@ def execute(command):
 	output, exitcode = out.communicate()[0].decode(), out.returncode
 	return output, exitcode
 
-def executeCommands(commands, returnOutput = False):
-	for description, command, mustSucceed in commands:
+def executeCommands(commands, printOutput = False, returnOutput = False):
+    for description, command, mustSucceed in commands:
 
-		# Print which step we’re currently in
-		print(description, '...')
+        # Print which step we’re currently in
+        print(description, '...')
 
-		# Execute the command, fetch both its output as well as its exit code
-		output, exitcode = execute(command)
+        # Execute the command, fetch both its output as well as its exit code
+        out = Popen(command, stderr=STDOUT,stdout=PIPE, shell=True)
+        output, exitcode = out.communicate()[0].decode(), out.returncode
 
-		# If the exit code is not zero and this step is marked as necessary to succeed, print the output and quit the script.
-		if exitcode != 0 and mustSucceed:
-			print(output[-5000:])
-			print()
-			print(command)
-			print()
-			print('Step "%s" failed! See above.' % description)
-			print('Command used: %s' % command)
-			print()
-			sys.exit(666)
+        # If the exit code is not zero and this step is marked as necessary to succeed, print the output and quit the script.
+        if exitcode != 0 and mustSucceed:
+            print(output)
+            print()
+            print(command)
+            print()
+            print('Step "%s" failed! See above.' % description)
+            print('Command used: %s' % command)
+            print()
+            sys.exit(666)
+        elif returnOutput:
+            return output
+        elif printOutput:
+            print(output)
 
 def signApp(path, bundleType = 'app'):
 
@@ -119,12 +124,10 @@ executeCommands((
 	('Copying google-cloud-pubsub', f'cp -R {sitePackages}/google_cloud_pubsub-*.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7', True),
 ))
 
-print(executeCommands((
-	('Moving ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
-), returnOutput=True))
-print(executeCommands((
-	('Moving ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/', True),
-), returnOutput=True))
+executeCommands((
+	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
+	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/', True),
+), printOutput=True)
 
 executeCommands((
 	('Moving ynlib', 'mv ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7/', True),

@@ -120,15 +120,15 @@ executeCommands((
 ))
 
 executeCommands((
-	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
-	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/', True),
-), printOutput=True)
-
-executeCommands((
 #	('Moving ynlib', 'mv ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
 	('Moving ynlib', 'mv ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
 	('Remove ynlib.pdf', 'rm -r dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/pdf', True),
 ))
+
+executeCommands((
+	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
+	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/', True),
+), printOutput=True)
 
 if 'normal' in profile:
 

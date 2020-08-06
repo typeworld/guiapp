@@ -115,7 +115,7 @@ executeCommands((
 ))
 
 executeCommands((
-#	('Moving ynlib', 'mv ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Moving ynlib', 'mv ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
 	('Remove ynlib.pdf', 'rm -r dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/pdf', True),
 ))
 

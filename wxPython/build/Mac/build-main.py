@@ -115,7 +115,7 @@ executeCommands((
 ))
 
 executeCommands((
-	('Copying ynlib', 'cp -R ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7', True),
+	('Copying ynlib', 'cp -R ynlib/Lib/ynlib dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
 ))
 
 if 'normal' in profile:

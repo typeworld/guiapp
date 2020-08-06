@@ -39,6 +39,7 @@ notarization = executeCommands((
 RequestUUID = None
 for line in notarization.split('\n'):
     if 'RequestUUID' in line:
+        print(f'Notarization UUID: {RequestUUID}')
         RequestUUID = line.split('=')[1].strip()
 
 if not RequestUUID:
@@ -50,7 +51,7 @@ while True:
     time.sleep(30)
 
     check = executeCommands((
-        ('Check', f'xcrun altool --notarization-info {RequestUUID} --username "post@yanone.de" --password "{os.environ["NOTARIZATION_PASSWORD"]}"', True),
+        ('Check for notarization results', f'xcrun altool --notarization-info {RequestUUID} --username "post@yanone.de" --password "{os.environ["NOTARIZATION_PASSWORD"]}"', True),
     ), returnOutput = True)
 
     if not RequestUUID in check:

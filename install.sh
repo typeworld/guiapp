@@ -21,7 +21,7 @@ echo $GOOGLE_APPLICATION_CREDENTIALS_KEY > "typeworld2-559c851e351b.json"
 
 # ynlib
 git clone https://github.com/yanone/ynlib.git
-export PYTHONPATH="~/projects/guiapp/ynlib/Lib/"
+#export PYTHONPATH="~/projects/guiapp/ynlib/Lib/"
 
 # Build target folder
 mkdir build

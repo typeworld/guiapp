@@ -26,8 +26,8 @@ codesign -dv --verbose=4  dist/TypeWorldApp.forNotarization.dmg
 echo "Notarization"
 python wxPython/build/Mac/build-notarize.py $APP_BUILD_VERSION
 
-echo "Pack"
-sh wxPython/build/Mac/build-pack.sh
+#echo "Pack"
+#sh wxPython/build/Mac/build-pack.sh
 
 echo "Check again if can upload to GCS"
 python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION

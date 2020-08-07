@@ -14,6 +14,8 @@ environment:
     secure: IFtScemD75puAJt7Tb008wxIubzsj3u6J7EuU1f9Bh8qtHt60W7TLDh1Iho5atndKpismj7XXpdEZdvHkPJlEg==
   NOTARIZATION_PASSWORD:
     secure: GSx9RwIptxysFhknySGtbDVTxoLRsjNLDSDhixYAakY=
+  SPARKLE_KEY:
+    secure: OWAKP6zkRICoVr8PCYYnw792bI/NILKI+xIfpn7LmVMJT0SpuE2fNLNY4SZuiPOQ/obdwOxv792BxpUJMyOCMharGfHegQyD4DBw+5Ip/SsvebBfI6XSqxNoINoJEext2WM/FaUTtZVWdqWdJstxHAlBCStcCZR8ic55grhnLsjQsWML3pa9nqkTVC//0Z03
 stack: python %PYTHON%
 
 # scripts that run after cloning repository

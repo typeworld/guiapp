@@ -19,13 +19,13 @@ def execute(command):
 
 
 def getEdDSA(file):
-	path = '"sparkle/bin/sign_update" "%s"', file)
+	path = 'sparkle/bin/sign_update -s %s %s', (os.environ['SPARKLE_KEY'], file))
 	dsa = Execute(path).decode()
 	return dsa
 
-signature = getEdDSA(f'dist/TypeWorldApp.dmg')
+signature = getEdDSA(f'dmg/TypeWorldApp.{version}.dmg')
 
-response = http('https://api.type.world/setSparkleSignature', data = {'appKey': 'world.type.guiapp', 'version': version, 'platform': 'mac', 'signature': signature})
+response = http('https://api.type.world/setSparkleSignature', data = {'appKey': 'world.type.guiapp', 'version': version, 'platform': 'mac', 'signature': signature, 'TYPEWORLD_APIKEY': os.environ['TYPEWORLD_APIKEY']})
 if not response == 'ok':
 	print('Uploading Sparkle signature failed:', response)
 	sys.exit(1)

@@ -19,15 +19,15 @@ echo "Pack for notarization"
 echo "Create .dmg"
 dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dist/TypeWorldApp.dmg
 echo "Sign .dmg"
-codesign -s "Jan Gerner" -f dist/TypeWorldApp.dmg
+codesign --verbose=4 -s "Jan Gerner" -f dist/TypeWorldApp.dmg
 echo "Verify .dmg"
-codesign -dv --verbose=4  dist/TypeWorldApp.dmg
+codesign --verbose=4 -dv dist/TypeWorldApp.dmg
 
 echo "Notarization"
 python wxPython/build/Mac/build-notarize.py $APP_BUILD_VERSION
 
-#echo "Pack"
-#sh wxPython/build/Mac/build-pack.sh
+echo "Pack"
+sh wxPython/build/Mac/build-pack.sh
 
 echo "Check again if can upload to GCS"
 python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION

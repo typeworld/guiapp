@@ -14,4 +14,4 @@ from google.cloud import storage
 storage_client = storage.Client()
 bucket = storage_client.bucket('typeworld2')
 blob = bucket.blob(f'downloads/guiapp/TypeWorldApp.{version}.dmg')
-blob.upload_from_filename(filename=f'dist/TypeWorldApp.dmg')
+blob.upload_from_filename(filename=f'dmg/TypeWorldApp.{version}.dmg')

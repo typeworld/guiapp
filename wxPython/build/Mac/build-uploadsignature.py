@@ -23,7 +23,7 @@ def getEdDSA(file):
 	dsa = Execute(path).decode()
 	return dsa
 
-signature = getEdDSA(f'dmg/TypeWorldApp.{version}.dmg')
+signature = getEdDSA(f'dist/TypeWorldApp.dmg')
 
 response = http('https://api.type.world/setSparkleSignature', data = {'appKey': 'world.type.guiapp', 'version': version, 'platform': 'mac', 'signature': signature})
 if not response == 'ok':

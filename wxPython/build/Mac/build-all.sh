@@ -10,18 +10,18 @@ python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION
 echo "Build"
 python wxPython/build/Mac/build-main.py $APP_BUILD_VERSION
 
-echo "\nBuild folder"
-ls -la build
-echo "\nDist folder"
-ls -la dist
+# echo "\nBuild folder"
+# ls -la build
+# echo "\nDist folder"
+# ls -la dist
 
 echo "Pack for notarization"
 echo "Create .dmg"
 dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dist/TypeWorldApp.dmg
 echo "Sign .dmg"
-codesign --verbose=4 -s "Jan Gerner" -f dist/TypeWorldApp.dmg
+codesign -vvvv -s "Jan Gerner" dist/TypeWorldApp.dmg
 echo "Verify .dmg"
-codesign --verbose=4 -dv dist/TypeWorldApp.dmg
+codesign -vvvv -dv dist/TypeWorldApp.dmg
 
 echo "Notarization"
 python wxPython/build/Mac/build-notarize.py $APP_BUILD_VERSION

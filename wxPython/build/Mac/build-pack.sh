@@ -10,7 +10,7 @@ echo "Create .dmg"
 dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
 
 echo "Sign .dmg"
-codesign --verbose=4 -s "Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+codesign -vvvv -s "Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
 
 echo "Verify .dmg"
-codesign --verbose=4 -dv dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+codesign -vvvv -dv dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg

@@ -33,7 +33,7 @@ def executeCommands(commands, printOutput = False, returnOutput = False):
 
 
 notarization = executeCommands((
-   ('Upload for Notarization', f'xcrun altool --primary-bundle-id "Type.World" --notarize-app --username "post@yanone.de" --password "{os.environ["NOTARIZATION_PASSWORD"]}" --file dist/TypeWorldApp.forNotarization.dmg', True),
+   ('Upload for Notarization', f'xcrun altool --primary-bundle-id "Type.World" --notarize-app --username "post@yanone.de" --password "{os.environ["NOTARIZATION_PASSWORD"]}" --file dist/TypeWorldApp.dmg', True),
 ), returnOutput=True)
 
 RequestUUID = None

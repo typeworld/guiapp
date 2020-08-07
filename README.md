@@ -2,6 +2,7 @@
 
 
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/typeworld/guiapp?svg=true)](https://ci.appveyor.com/project/typeworld/guiapp)
+
 Compiled versions of this app are available [here](https://type.world/app/).
 
 If you want to run this code directly, you need to install [wxPython](https://wiki.wxpython.org/How%20to%20install%20wxPython) as well as the Python libraries [typeworld](https://github.com/typeworld/api/tree/master/Python/Lib/typeworld) and [ynlib](https://github.com/yanone/ynlib).

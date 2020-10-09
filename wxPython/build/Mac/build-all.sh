@@ -1,5 +1,6 @@
 set -e
 export APP_BUILD_VERSION=$(curl "https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY")
+export SITEPACKAGES=`python -c 'import site; print(site.getsitepackages()[0])'`
 
 echo "Check if typeworld.api holds correct version number"
 python wxPython/build/Mac/build-checkversionnumber.py $APP_BUILD_VERSION

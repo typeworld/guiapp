@@ -9,7 +9,7 @@ echo "Check if can upload to GCS"
 python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION
 
 echo proto
-ls -la ~/venv3.7.7/lib/python3.7/site-packages/google/cloud/pubsub_v1/proto
+ls -la $SITEPACKAGES/google/cloud/pubsub_v1/proto
 
 echo "Build"
 python wxPython/build/Mac/build-main.py $APP_BUILD_VERSION

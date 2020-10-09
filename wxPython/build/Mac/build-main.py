@@ -10,6 +10,7 @@ version = sys.argv[-1]
 
 sparkle = 'sparkle/Sparkle.framework'
 sitePackages = '~/venv3.7.7/lib/python3.7/site-packages'
+sitePackages = os.getenv("SITEPACKAGES")
 
 profile = ['normal', 'sign'] # normal/sign/agent
 

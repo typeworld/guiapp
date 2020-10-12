@@ -12,8 +12,8 @@ dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dmg/TypeWorldApp.$AP
 echo "Sleep 5m"
 sleep 5m
 
-echo "Upload preliminary dmg"
-python wxPython/build/Mac/build-upload.py $APP_BUILD_VERSION
+# echo "Upload preliminary dmg"
+# python wxPython/build/Mac/build-upload.py $APP_BUILD_VERSION
 
 echo "Sign .dmg"
 xattr -cr dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg

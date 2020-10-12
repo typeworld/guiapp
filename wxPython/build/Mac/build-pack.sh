@@ -9,6 +9,7 @@ xcrun --verbose stapler staple dist/Type.World.app
 echo "Create .dmg"
 dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
 
+sleep 1m
 echo "Sign .dmg"
 codesign -vvvv -s "Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
 

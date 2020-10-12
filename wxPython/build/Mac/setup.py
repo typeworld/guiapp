@@ -27,6 +27,7 @@ options = {
         "packages": [
             "certifi",
             "distutils",
+            "proto",
             "fractions",
             "statistics",
             "contextvars",

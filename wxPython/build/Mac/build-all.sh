@@ -1,6 +1,6 @@
 set -e
 export APP_BUILD_VERSION=$(curl "https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY")
-if [$APP_BUILD_VERSION = "n/a"]; then
+if ["$APP_BUILD_VERSION" = "n/a"]; then
     echo "No version number set for this build (see https://type.world/app/)"
     exit 1 # terminate and indicate error
 fi

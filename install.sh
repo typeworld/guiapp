@@ -3,7 +3,6 @@ echo "Current folder: $PWD"
 # Mac Code Signing
 sh install_mac_codesigning.sh
 
-
 python -m pip install -r requirements.txt
 
 #python -m pip install -I git+https://github.com/yanone/python-pubsub.git

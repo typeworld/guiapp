@@ -14,7 +14,6 @@ options = {
     "py2app": {
         "argv_emulation": False,  # this puts the names of dropped files into sys.argv when starting the app.
         "iconfile": "wxPython/icon/tw.icns",
-        # , 'os', 'webbrowser', 'urllib', 'base64', 'keyring'],
         "includes": ["importlib_metadata", "os"],
         "frameworks": ["Python.framework"],
         "resources": [
@@ -23,9 +22,8 @@ options = {
             "wxPython/htmlfiles",
             "wxPython/patrons",
             "wxPython/locales",
-            #   # Sparkle < 1.12.0
-            #   '/Users/yanone/Code/Certificates/Type.World Sparkle/dsa_pub.pem',
-        ],  # , 'appbadge.docktileplugin'
+            # "appbadge.docktileplugin",
+        ],
         "packages": [
             "certifi",
             "distutils",
@@ -152,7 +150,6 @@ options = {
             "more_itertools",
             "pathlib",
             "_strptime",
-            # Dependencies of deepdiff
             "deepdiff",
             "difflib",
             "jsonpickle",
@@ -187,10 +184,7 @@ options = {
             "LSMinimumSystemVersion": "10.14",
         },
         "strip": True,
-        #           'debug-skip-macholib': True,
         "optimize": 1,
-        #     'semi_standalone': False,
-        #     'no-chdir': True,
     }
 }
 

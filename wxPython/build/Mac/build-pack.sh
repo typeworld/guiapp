@@ -15,7 +15,7 @@ python wxPython/build/Mac/build-upload.py $APP_BUILD_VERSION
 
 echo "Sign .dmg"
 xattr -cr dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
-codesign -vvvv --force --sign "Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+codesign -vvvv -s "Developer ID Application: Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
 
 echo "Verify .dmg"
 codesign -vvvv -dv dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg

@@ -11,7 +11,7 @@ dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dmg/TypeWorldApp.$AP
 
 sleep 1m
 echo "Sign .dmg"
-codesign -vvvv -s "Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+codesign -vvvv --force --sign "Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
 
 echo "Verify .dmg"
 codesign -vvvv -dv dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg

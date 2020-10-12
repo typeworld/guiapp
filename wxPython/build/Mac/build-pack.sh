@@ -8,7 +8,9 @@ xcrun --verbose stapler staple dist/Type.World.app
 
 echo "Create .dmg"
 dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
-sleep 1m
+
+echo "Sleep 5m"
+sleep 5m
 
 echo "Upload preliminary dmg"
 python wxPython/build/Mac/build-upload.py $APP_BUILD_VERSION

@@ -32,7 +32,7 @@ security import $CERTIFICATE_P12 -k $KEYCHAIN -P $MACOS_CERT_PASSWORD -T /usr/bi
 rm $CERTIFICATE_P12;
 
 # Set the partition list (sort of like an access control list)
-security set-key-partition-list -S apple-tool:,apple: -s -k travis $KEYCHAIN
+security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k travis $KEYCHAIN
 
 # Echo the identity, just so that we know it worked.
 # This won't display anything secret.

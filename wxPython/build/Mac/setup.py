@@ -28,7 +28,7 @@ options = {
         ],  # , 'appbadge.docktileplugin'
         "packages": [
             "certifi",
-            "disturils",
+            "distutils",
             "fractions",
             "statistics",
             "contextvars",

@@ -44,6 +44,7 @@ notarization = executeCommands(
     returnOutput=True,
 )
 
+print(notarization)
 
 RequestUUID = None
 for line in notarization.split("\n"):

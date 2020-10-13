@@ -18,7 +18,6 @@ environment:
 
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PYTHON: "C:\\Python37-x64"
-      PYTHONPS: "/c/Python37-x64"
       PYTHON_VERSION: "3.7.9"
       PYTHON_ARCH: "64"
 
@@ -41,6 +40,7 @@ for:
       - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
   install: 
+    - cmd: set "PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%"
     - ps: sh install_windows.sh
   build_script: 
     - ps: "%PYTHON%\\python.exe wxPython/build/Windows/build-all.py"

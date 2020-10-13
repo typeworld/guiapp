@@ -21,7 +21,7 @@ environment:
       PYTHON_VERSION: "3.7.9"
       PYTHON_ARCH: "64"
 
-stack: python %PYTHON%
+stack: python 3.7
 
 for:
 -

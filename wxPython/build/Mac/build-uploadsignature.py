@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import os, sys
+import os
+import sys
 
 version = sys.argv[-1]
 
@@ -13,13 +14,13 @@ def http(url, data=None):
     return response.read().decode()
 
 def execute(command):
-	out = Popen(command, stderr=STDOUT,stdout=PIPE, shell=True)
+	out = Popen(command, stderr=STDOUT, stdout=PIPE, shell=True)
 	output, exitcode = out.communicate()[0].decode(), out.returncode
 	return output, exitcode
 
 
 def getEdDSA(file):
-	path = 'sparkle/bin/sign_update -s %s %s', (os.environ['SPARKLE_KEY'], file))
+	path = f'sparkle/bin/sign_update -s {os.environ['SPARKLE_KEY']} {file}'
 	dsa = Execute(path).decode()
 	return dsa
 

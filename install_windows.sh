@@ -1,5 +1,6 @@
 # Append PATH
 #$env:Path += ";$PYTHON;$PYTHON\\Scripts"
+echo $PATH
 $ENV:PATH="$ENV:PATH;$PYTHON"
 $ENV:PATH="$ENV:PATH;$PYTHON\\Scripts"
 

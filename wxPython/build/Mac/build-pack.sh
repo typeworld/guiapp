@@ -17,6 +17,7 @@ sleep 5m
 
 echo "Sign .dmg"
 xattr -cr dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+security unlock-keychain -p travis $KEYCHAIN;
 codesign -vvvv -s "Developer ID Application: Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
 
 echo "Verify .dmg"

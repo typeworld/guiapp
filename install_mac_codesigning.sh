@@ -1,5 +1,6 @@
 # Install macOS Code Signing Certificate
 # see https://felixrieseberg.com/codesigning-electron-apps-in-ci/
+# great discussion on https://stackoverflow.com/questions/39868578/security-codesign-in-sierra-keychain-ignores-access-control-settings-and-ui-p
 
 # Set the filename
 export CERTIFICATE_P12=cert.p12;

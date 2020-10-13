@@ -16,9 +16,10 @@ sleep 5m
 # python wxPython/build/Mac/build-upload.py $APP_BUILD_VERSION
 
 echo "Sign .dmg"
-xattr -cr dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
-security unlock-keychain -p travis $KEYCHAIN;
-codesign -vvvv -s "Developer ID Application: Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+# xattr -cr dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+# security unlock-keychain -p travis $KEYCHAIN;
+#codesign -vvvv -s "Developer ID Application: Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+codesign -vvvv -s "Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
 
 echo "Verify .dmg"
 codesign -vvvv -dv dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg

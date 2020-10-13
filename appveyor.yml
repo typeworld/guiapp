@@ -42,4 +42,4 @@ for:
   install: 
     - ps: sh install_windows.sh
   build_script: 
-    - ps: %PYTHON% wxPython/build/Windows/build-all.py
+    - ps: $PYTHON wxPython/build/Windows/build-all.py

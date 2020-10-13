@@ -21,6 +21,7 @@ environment:
       PYTHON_VERSION: "3.7.9"
       PYTHON_ARCH: "64"
 
+stack: python %PYTHON%
 
 for:
 -
@@ -28,7 +29,6 @@ for:
     only:
       - APPVEYOR_BUILD_WORKER_IMAGE: macos
 
-  stack: python %PYTHON%
   install: 
     - sh: sh install_mac.sh
   build_script: 

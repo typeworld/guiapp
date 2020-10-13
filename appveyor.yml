@@ -15,8 +15,11 @@ environment:
         secure: IFtScemD75puAJt7Tb008wxIubzsj3u6J7EuU1f9Bh8qtHt60W7TLDh1Iho5atndKpismj7XXpdEZdvHkPJlEg==
       NOTARIZATION_PASSWORD:
         secure: GSx9RwIptxysFhknySGtbDVTxoLRsjNLDSDhixYAakY=
-    - APPVEYOR_BUILD_WORKER_IMAGE: macos
+
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       stack: python 3.7
+
+stack: python %PYTHON%
 
 for:
 -
@@ -28,3 +31,13 @@ for:
     - sh: sh install_mac.sh
   build_script: 
     - sh: sh wxPython/build/Mac/build-all.sh
+
+-
+  matrix:
+    only:
+      - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+  install: 
+    - ps: sh install_windows.sh
+  build_script: 
+    - ps: python wxPython/build/Windows/build-all.py

@@ -1,5 +1,5 @@
 # Append PATH
-$env:PATH += ";$PYTHON;$PYTHON\\Scripts"
+$env:Path += ";$PYTHON;$PYTHON\\Scripts"
 
 # Update pip
 $PYTHON\\python.exe -m pip install --upgrade pip

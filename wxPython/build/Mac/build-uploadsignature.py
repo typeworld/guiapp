@@ -5,28 +5,40 @@ import sys
 
 version = sys.argv[-1]
 
+
 def http(url, data=None):
     if data:
-        data = urllib.parse.urlencode(data).encode('ascii')
+        data = urllib.parse.urlencode(data).encode("ascii")
     request = urllib.request.Request(url, data=data)
     sslcontext = ssl.create_default_context(cafile=certifi.where())
     response = urllib.request.urlopen(request, context=sslcontext)
     return response.read().decode()
 
+
 def execute(command):
-	out = Popen(command, stderr=STDOUT, stdout=PIPE, shell=True)
-	output, exitcode = out.communicate()[0].decode(), out.returncode
-	return output, exitcode
+    out = Popen(command, stderr=STDOUT, stdout=PIPE, shell=True)
+    output, exitcode = out.communicate()[0].decode(), out.returncode
+    return output, exitcode
 
 
 def getEdDSA(file):
-	path = f'sparkle/bin/sign_update -s {os.environ['SPARKLE_KEY']} {file}'
-	dsa = Execute(path).decode()
-	return dsa
+    path = f"sparkle/bin/sign_update -s {os.getenv('SPARKLE_KEY')} {file}"
+    dsa, exitcode = execute(path)
+    return dsa
 
-signature = getEdDSA(f'dmg/TypeWorldApp.{version}.dmg')
 
-response = http('https://api.type.world/setSparkleSignature', data = {'appKey': 'world.type.guiapp', 'version': version, 'platform': 'mac', 'signature': signature, 'TYPEWORLD_APIKEY': os.environ['TYPEWORLD_APIKEY']})
-if not response == 'ok':
-	print('Uploading Sparkle signature failed:', response)
-	sys.exit(1)
+signature = getEdDSA(f"dmg/TypeWorldApp.{version}.dmg")
+
+response = http(
+    "https://api.type.world/setSparkleSignature",
+    data={
+        "appKey": "world.type.guiapp",
+        "version": version,
+        "platform": "mac",
+        "signature": signature,
+        "TYPEWORLD_APIKEY": os.environ["TYPEWORLD_APIKEY"],
+    },
+)
+if not response == "ok":
+    print("Uploading Sparkle signature failed:", response)
+    sys.exit(1)

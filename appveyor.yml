@@ -17,9 +17,10 @@ environment:
         secure: GSx9RwIptxysFhknySGtbDVTxoLRsjNLDSDhixYAakY=
 
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      stack: python 3.7
+      PYTHON: "C:\\Python37-x64"
+      PYTHON_VERSION: "3.7.9"
+      PYTHON_ARCH: "64"
 
-stack: python %PYTHON%
 
 for:
 -
@@ -27,6 +28,7 @@ for:
     only:
       - APPVEYOR_BUILD_WORKER_IMAGE: macos
 
+  stack: python %PYTHON%
   install: 
     - sh: sh install_mac.sh
   build_script: 

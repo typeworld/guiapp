@@ -5,8 +5,6 @@ sh install_mac_codesigning.sh
 
 python -m pip install -r requirements.txt
 
-#python -m pip install -I git+https://github.com/yanone/python-pubsub.git
-
 # # Replace 
 # importlib_version = $(pip show importlib_metadata | sed -n -e 's/Version: \([[:alnum:][:punct:]]\)/\1/p')
 # echo $importlib_version

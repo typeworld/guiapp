@@ -1,0 +1,14 @@
+typeworld
+py2app
+google-cloud-storage
+pystray
+wxPython
+
+# app dependencies
+jsonpickle
+pyparsing
+more_itertools
+
+# build time only
+dmgbuild
+git+https://gitlab.com/python-devs/importlib_metadata.git # because version bug. until 1.7.1 is available on pypi, we'll use this one

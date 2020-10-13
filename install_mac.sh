@@ -2,7 +2,7 @@
 sh install_mac_codesigning.sh
 
 # Python requirements
-python -m pip install -r requirements.txt
+python -m pip install -r requirements_mac.txt
 
 # Download Sparkle
 curl -O -L https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/Sparkle-1.23.0.tar.bz2

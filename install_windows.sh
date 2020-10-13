@@ -1,2 +1,2 @@
 # Python requirements
-$PYTHON -m pip install -r requirements_windows.txt
+$PYTHON\\python.exe -m pip install -r requirements_windows.txt

@@ -2,6 +2,10 @@
 
 import os
 import sys
+import subprocess
+import urllib
+import ssl
+import certifi
 
 version = sys.argv[-1]
 
@@ -16,7 +20,9 @@ def http(url, data=None):
 
 
 def execute(command):
-    out = Popen(command, stderr=STDOUT, stdout=PIPE, shell=True)
+    out = subprocess.Popen(
+        command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True
+    )
     output, exitcode = out.communicate()[0].decode(), out.returncode
     return output, exitcode
 

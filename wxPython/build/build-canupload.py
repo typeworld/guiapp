@@ -16,7 +16,9 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
 
 print(open(os.environ["GOOGLE_APPLICATION_CREDENTIALS"], "r").read())
 
-storage_client = storage.Client()
+storage_client = storage.Client.from_service_account_json(
+    "typeworld2-559c851e351b.json"
+)
 bucket = storage_client.bucket("typeworld2")
 blobPath = f"downloads/guiapp/TypeWorldApp.{version}.{ending}"
 blob = bucket.get_blob(blobPath)

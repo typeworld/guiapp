@@ -10,7 +10,7 @@ print("PWD:", os.environ["PWD"])
 
 # Google Cloud Storage
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "typeworld2-559c851e351b.json")
+    os.path.join(os.path.dirname(__file__), "..", "..", "typeworld2-559c851e351b.json")
 )
 
 print(open(os.environ["GOOGLE_APPLICATION_CREDENTIALS"], "r").read())

@@ -1,5 +1,5 @@
 # Build time
-cx-Freeze
+cx_freeze==6.1 # https://stackoverflow.com/questions/62951554/cx-freeze-gives-typeerror-expected-str-bytes-or-os-pathlike-object-not-nonety
 google-cloud-storage
 wheel
 psutil

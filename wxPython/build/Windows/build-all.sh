@@ -3,6 +3,8 @@ export APP_BUILD_VERSION=$(curl "https://api.type.world/latestUnpublishedVersion
 export SITEPACKAGES=`python -c 'import site; print(site.getsitepackages()[0])'`
 export WINDOWSKITBIN="C:/Program Files (x86)/Windows Kits/10/bin/10.0.19041.0/x64"
 
+dir $SITEPACKAGES
+
 echo "Check if typeworld.api holds correct version number"
 python wxPython/build/build-checkversionnumber.py $APP_BUILD_VERSION
 

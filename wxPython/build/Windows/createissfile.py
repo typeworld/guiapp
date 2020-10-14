@@ -1,16 +1,16 @@
 import os
+import sys
 
-
-from ynlib.web import GetHTTP
-version = GetHTTP('https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/')
-if version == 'n/a':
-    print('Can’t get version number')
+version = sys.argv[-1]
+if version == "n/a":
+    print("Can’t get version number")
     sys.exit(1)
 
 # Write .iss
 
-iss = open('Z:/Code/py/git/typeworld/guiapp/wxPython/build/Windows/TypeWorld.iss', 'w')
-iss.write('''[Setup]
+iss = open("wxPython/build/Windows/TypeWorld.iss", "w")
+iss.write(
+    """[Setup]
 AppName=Type.World
 AppVersion=%s
 DefaultDirName={pf}\\Type.World
@@ -20,7 +20,7 @@ DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\\TypeWorld.exe
 Compression=lzma2
 SolidCompression=yes
-OutputDir=Z:\\Code\\TypeWorldApp\\dmg\\
+OutputDir=dmg\\
 OutputBaseFilename=TypeWorldApp.%s
 DisableReadyPage=yes
 CloseApplications=force
@@ -50,14 +50,16 @@ begin
 end;
 
 [Files]
-''' % (version, version))
+"""
+    % (version, version)
+)
 
 
 # Filename: "cmd /min /C ""set __COMPAT_LAYER=RUNASINVOKER && start """" ""{app}\\TypeWorld.exe"" restartAgent"
 
 specialLines = {
-#  'TypeWorld Taskbar Agent.exe': '; BeforeInstall: "{app}\\TypeWorld.exe killAgent"',
-#  'TypeWorld Taskbar Agent.exe': '; Flags: ignoreversion; BeforeInstall: TaskKill(\'TypeWorld Taskbar Agent.exe\')',
+    #  'TypeWorld Taskbar Agent.exe': '; BeforeInstall: "{app}\\TypeWorld.exe killAgent"',
+    #  'TypeWorld Taskbar Agent.exe': '; Flags: ignoreversion; BeforeInstall: TaskKill(\'TypeWorld Taskbar Agent.exe\')',
 }
 
 # [Run]
@@ -65,27 +67,31 @@ specialLines = {
 
 
 lines = []
-lines.append('[Files]')
+lines.append("[Files]")
 
-rootdir = "Z:\\Code\\TypeWorldApp\\apps\\Windows\\%s" % version
+rootdir = "build"
 
 for subdir, dirs, files in os.walk(rootdir):
-  for file in files:
+    for file in files:
 
-    if not file.startswith('.'):
+        if not file.startswith("."):
 
-      path = os.path.join(subdir, file)
-      destsubfolder = subdir[len(rootdir) + 1:]
+            path = os.path.join(subdir, file)
+            destsubfolder = subdir[len(rootdir) + 1 :]
 
-      special = ''
-      for key in specialLines:
-        if key in path:
-          special = specialLines[key]
+            special = ""
+            for key in specialLines:
+                if key in path:
+                    special = specialLines[key]
 
-      iss.write('Source: "%s"; DestDir: "{app}%s%s"%s\n' % (path, "\\" if destsubfolder else "", destsubfolder, special))
+            iss.write(
+                'Source: "%s"; DestDir: "{app}%s%s"%s\n'
+                % (path, "\\" if destsubfolder else "", destsubfolder, special)
+            )
 
 
-iss.write('''
+iss.write(
+    """
 
 
 [Code]
@@ -97,9 +103,8 @@ begin
      ewWaitUntilTerminated, ResultCode);
 end;
 
-''')
-
-
+"""
+)
 
 
 iss.close()

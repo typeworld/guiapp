@@ -1,10 +1,7 @@
 typeworld
-py2app
-google-cloud-storage
-pystray
 wxPython
+pystray
+zroya
 
-# app dependencies
-jsonpickle
-pyparsing
-more_itertools
+# Build time
+cx-Freeze

@@ -3,10 +3,10 @@ export APP_BUILD_VERSION=$(curl "https://api.type.world/latestUnpublishedVersion
 export SITEPACKAGES=`python -c 'import site; print(site.getsitepackages()[0])'`
 
 echo "Check if typeworld.api holds correct version number"
-python wxPython/build/Mac/build-checkversionnumber.py $APP_BUILD_VERSION
+python wxPython/build/build-checkversionnumber.py $APP_BUILD_VERSION
 
 echo "Check if can upload to GCS"
-python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION
+python wxPython/build/build-canupload.py $APP_BUILD_VERSION mac
 
 echo "Build"
 python wxPython/build/Mac/build-main.py $APP_BUILD_VERSION
@@ -25,11 +25,8 @@ python wxPython/build/Mac/build-notarize.py $APP_BUILD_VERSION
 echo "Pack"
 sh wxPython/build/Mac/build-pack.sh
 
-echo "Check again if can upload to GCS"
-python wxPython/build/Mac/build-canupload.py $APP_BUILD_VERSION
-
 echo "Upload"
-python wxPython/build/Mac/build-upload.py $APP_BUILD_VERSION
+python wxPython/build/build-upload.py $APP_BUILD_VERSION mac
 
 echo "Upload Sparkle signature"
 python wxPython/build/Mac/build-uploadsignature.py $APP_BUILD_VERSION

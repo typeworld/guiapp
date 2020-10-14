@@ -8,16 +8,16 @@ ending = "dmg" if platform == "mac" else "exe"
 
 print("PWD:", os.environ["PWD"])
 
-# Google Cloud Storage
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
-    os.environ["PWD"], "typeworld2-559c851e351b.json"
-)
+# # Google Cloud Storage
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
+#     os.environ["PWD"], "typeworld2-559c851e351b.json"
+# )
 
 
-print(open(os.environ["GOOGLE_APPLICATION_CREDENTIALS"], "r").read())
+print(open(os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json"), "r").read())
 
 storage_client = storage.Client.from_service_account_json(
-    "typeworld2-559c851e351b.json"
+    os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json")
 )
 bucket = storage_client.bucket("typeworld2")
 blobPath = f"downloads/guiapp/TypeWorldApp.{version}.{ending}"

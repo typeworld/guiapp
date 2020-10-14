@@ -66,32 +66,32 @@ if "normal" in profile:
             ],
             [
                 "Copy Google Code",
-                f"xcopy {os.getenv('SITEPACKAGES')}\\googleapis_common_protos-1.6.0.dist-info build\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y",
+                f"xcopy {os.getenv('SITEPACKAGES')}\\googleapis_common_protos-*.dist-info build\\lib\\  /s /e /h /I /y",
                 True,
             ],
             [
                 "Copy Google Code",
-                f"xcopy {os.getenv('SITEPACKAGES')}\\google build\\lib\\google  /s /e /h /I /y",
+                f"xcopy {os.getenv('SITEPACKAGES')}\\google build\\lib\\  /s /e /h /I /y",
                 True,
             ],
             [
                 "Copy Google Code",
-                f"xcopy {os.getenv('SITEPACKAGES')}\\google_api_core-1.17.0.dist-info build\\lib\\google_api_core-1.17.0.dist-info  /s /e /h /I /y",
+                f"xcopy {os.getenv('SITEPACKAGES')}\\google_api_core-*.dist-info build\\lib\\  /s /e /h /I /y",
                 True,
             ],
             [
                 "Copy Google Code",
-                f"xcopy {os.getenv('SITEPACKAGES')}\\google_auth-1.11.0.dist-info build\\lib\\google_auth-1.11.0.dist-info  /s /e /h /I /y",
+                f"xcopy {os.getenv('SITEPACKAGES')}\\google_auth-*.dist-info build\\lib\\  /s /e /h /I /y",
                 True,
             ],
             [
                 "Copy Google Code",
-                f"xcopy {os.getenv('SITEPACKAGES')}\\google_cloud_pubsub-1.0.2.dist-info build\\lib\\google_cloud_pubsub-1.0.2.dist-info  /s /e /h /I /y",
+                f"xcopy {os.getenv('SITEPACKAGES')}\\google_cloud_pubsub-*.dist-info build\\lib\\  /s /e /h /I /y",
                 True,
             ],
             [
                 "Copy Google Code",
-                f"xcopy {os.getenv('SITEPACKAGES')}\\googleapis_common_protos-1.6.0.dist-info build\\lib\\googleapis_common_protos-1.6.0.dist-info  /s /e /h /I /y",
+                f"xcopy {os.getenv('SITEPACKAGES')}\\googleapis_common_protos-*.dist-info build\\lib\\  /s /e /h /I /y",
                 True,
             ],
             [
@@ -101,12 +101,12 @@ if "normal" in profile:
             ],
             [
                 "Copy importlib_metadata",
-                f"xcopy {os.getenv('SITEPACKAGES')}\\importlib_metadata build\\lib\\importlib_metadata  /s /e /h /I /y",
+                f"xcopy {os.getenv('SITEPACKAGES')}\\importlib_metadata build\\lib\\  /s /e /h /I /y",
                 True,
             ],
             [
                 "Copy importlib_metadata",
-                f"xcopy {os.getenv('SITEPACKAGES')}\\importlib_metadata-1.5.0.dist-info build\\lib\\importlib_metadata-1.5.0.dist-info  /s /e /h /I /y",
+                f"xcopy {os.getenv('SITEPACKAGES')}\\importlib_metadata-*.dist-info build\\lib\\  /s /e /h /I /y",
                 True,
             ],
         ]

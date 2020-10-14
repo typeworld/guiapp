@@ -10,8 +10,12 @@
 # python base32decode.py JANGERNER.pfx
 # certutil -decode JANGERNER.p12.base64encoded JANGERNER.p12
 # base64 -d JANGERNER.p12.base64encoded > JANGERNER.p12
-echo $JANGERNER_P12 | python -m base64 -d > JANGERNER.p12
-echo $JANGERNER_P12
+
+#echo $JANGERNER_P12 | python -m base64 -d > JANGERNER.p12
+echo $JANGERNER_P12 > JANGERNER.p12.base64
+cat JANGERNER.p12.base64
+
+#echo $JANGERNER_P12
 # base64 --help
 
 # pk12util -i JANGERNER.pfx -d/path/to/database -W password

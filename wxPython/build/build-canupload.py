@@ -14,9 +14,11 @@ print("PWD:", os.environ["PWD"])
 #     os.environ["PWD"], "typeworld2-559c851e351b.json"
 # )
 
-keyfile = open(os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json"), "rw")
+keyfile = open(os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json"), "r")
 key = keyfile.read()
+keyfile.close()
 key = key.replace("\\n", "\r\n")
+keyfile = open(os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json"), "w")
 keyfile.write(key)
 keyfile.close()
 print(key)

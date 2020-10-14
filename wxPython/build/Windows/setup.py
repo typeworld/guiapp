@@ -3,14 +3,15 @@ import os
 import json
 from cx_Freeze import setup, Executable
 
-from ynlib.web import GetHTTP
 
-version = GetHTTP(
-    (
-        f"https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/"
-        f"?TYPEWORLD_APIKEY={os.getenv('TYPEWORLD_APIKEY')}"
-    )
+import urllib.request, ssl, certifi
+
+request = urllib.request.Request(
+    f"https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/?TYPEWORLD_APIKEY={os.environ['TYPEWORLD_APIKEY']}"
 )
+sslcontext = ssl.create_default_context(cafile=certifi.where())
+response = urllib.request.urlopen(request, context=sslcontext)
+version = response.read().decode()
 
 profile = json.loads(
     open(os.path.join(os.path.dirname(__file__), "buildProfile.json")).read()

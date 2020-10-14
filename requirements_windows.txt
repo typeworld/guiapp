@@ -9,4 +9,4 @@ typeworld
 wxPython
 pystray
 zroya
-
+packaging

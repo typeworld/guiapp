@@ -49,7 +49,7 @@ if PID("TypeWorld Taskbar Agent.exe"):
     raise RuntimeError("Type.World Taskbar Agent seems to be running.")
 
 
-windowskitbin = "C:\\Program Files (x86)\\Windows Kits\\10.0\\bin\\x64"
+windowskitbin = os.getenv("WINDOWSKITBIN")
 
 if "normal" in profile:
     executeCommands(

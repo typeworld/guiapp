@@ -17,14 +17,7 @@ profile = json.loads(
     open(os.path.join(os.path.dirname(__file__), "buildProfile.json")).read()
 )
 
-# GUI applications require a different base on Windows (the default is for a
-# console application).
-base = None
-
-# if sys.platform == "win32":
-#
 base = "Win32GUI"
-
 baseFolder = "wxPython"
 destinationFolder = "build"
 

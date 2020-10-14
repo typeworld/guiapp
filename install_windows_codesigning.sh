@@ -4,10 +4,12 @@
 # echo $SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1 > SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1.cer
 # echo $JANGERNER_CERT > JANGERNER_CERT.cer
 echo $JANGERNER_P12 > JANGERNER.p12.base64encoded
-certutil -decode JANGERNER.p12.base64encoded JANGERNER.p12
+python tweakcertificate.py JANGERNER.p12.base64encoded
+python -m base64 -d JANGERNER.p12.base64encoded > JANGERNER.p12
+# certutil -decode JANGERNER.p12.base64encoded JANGERNER.p12
 # base64 -d JANGERNER.p12.base64encoded > JANGERNER.p12
 # echo $JANGERNER_P12 | base64 -d - > JANGERNER.p12
-base64 --help
+# base64 --help
 
 # python tweakcertificate.py CERTUM_TRUSTED_NETWORK_CA.cer
 # python tweakcertificate.py SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer

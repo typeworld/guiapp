@@ -2,10 +2,8 @@
 export CERTIFICATE=cert.cer;
 
 # Decode the environment variable into our file
-echo $CERT_CRT > $CERTIFICATE
+echo $CERT_CER > $CERTIFICATE
 python tweakcertificate.py
-
-cat $CERTIFICATE
 
 # Add # https://stackoverflow.com/questions/84847/how-do-i-create-a-self-signed-certificate-for-code-signing-on-windows
 #certutil -user -addstore Root $CERTIFICATE

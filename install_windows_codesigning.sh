@@ -6,13 +6,15 @@ echo $JANGERNER_CERT > JANGERNER_CERT.cer
 # echo $JANGERNER_P12 > JANGERNER.p12.base64encoded
 # python tweakcertificate.py JANGERNER.p12.base64encoded
 # python -m base64 -d JANGERNER.p12.base64encoded > JANGERNER.p12
-echo $JANGERNER_P12 > JANGERNER.pfx
-cat JANGERNER.pfx
-python base32decode.py JANGERNER.pfx
+# echo $JANGERNER_P12 > JANGERNER.pfx
+# python base32decode.py JANGERNER.pfx
 # certutil -decode JANGERNER.p12.base64encoded JANGERNER.p12
 # base64 -d JANGERNER.p12.base64encoded > JANGERNER.p12
-# echo $JANGERNER_P12 | base64 -d - > JANGERNER.p12
+echo $JANGERNER_P12 | python -m base64 -d > JANGERNER.p12
+echo $JANGERNER_P12
 # base64 --help
+
+pk12util -i JANGERNER.pfx -d/path/to/database -W password
 
 python tweakcertificate.py CERTUM_TRUSTED_NETWORK_CA.cer
 python tweakcertificate.py SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer

@@ -118,13 +118,13 @@ if "sign" in profile:
         [
             [
                 "Signing TypeWorld.exe",
-                f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" /f JANGERNER.pfx /p "{p12password}" "build\\TypeWorld.exe"',
+                f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" /f JANGERNER.p12 /p "{p12password}" "build\\TypeWorld.exe"',
                 # f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld.exe"',
                 True,
             ],
             [
                 "Signing TypeWorld Subscription Opener.exe",
-                f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" /f JANGERNER.pfx /p "{p12password}" "build\\TypeWorld Subscription Opener.exe"',
+                f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" /f JANGERNER.p12 /p "{p12password}" "build\\TypeWorld Subscription Opener.exe"',
                 # f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld Subscription Opener.exe"',
                 True,
             ],

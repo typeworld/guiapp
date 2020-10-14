@@ -11,6 +11,7 @@ python tweakcertificate.py JANGERNER_CERT.cer
 
 # Add
 # https://stackoverflow.com/questions/23869177/import-certificate-to-trusted-root-but-not-to-personal-command-line
+# https://stackoverflow.com/questions/28690986/code-signing-with-signtool-fails-due-to-private-key-filter
 certutil -addstore "Root" CERTUM_TRUSTED_NETWORK_CA.cer
 certutil -addstore "CA" SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer
 certutil -addstore "CA" SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1.cer

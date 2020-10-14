@@ -2,7 +2,7 @@
 export CERTIFICATE_CRT=cert.crt;
 
 # Decode the environment variable into our file
-echo $CERT_CRT | base64 --decode > $CERTIFICATE_CRT
+echo $CERT_CRT > $CERTIFICATE_CRT
 
 cat $CERTIFICATE_CRT
 

@@ -18,7 +18,7 @@ python tweakcertificate.py JANGERNER_CERT.cer
 # certutil -addstore "CA" SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1.cer
 # certutil -addstore -user -f "My" JANGERNER_CERT.cer
 
-certmgr /c /add CERTUM_TRUSTED_NETWORK_CA.cer /s root
-certmgr /c /add SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer /s ca
-certmgr /c /add SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1.cer /s ca
-certmgr /c /add JANGERNER_CERT.cer /s my
+Certmgr.exe /c /add CERTUM_TRUSTED_NETWORK_CA.cer /s root
+Certmgr.exe /c /add SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer /s ca
+Certmgr.exe /c /add SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1.cer /s ca
+Certmgr.exe /c /add JANGERNER_CERT.cer /s my

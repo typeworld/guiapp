@@ -3,6 +3,7 @@ export CERTIFICATE_CRT=cert.crt;
 
 # Decode the environment variable into our file
 echo $CERT_CRT > $CERTIFICATE_CRT
+python tweakcertificate.py
 
 cat $CERTIFICATE_CRT
 

@@ -5,6 +5,7 @@
 # echo $JANGERNER_CERT > JANGERNER_CERT.cer
 echo $JANGERNER_P12 > JANGERNER.p12.base64encoded
 base64 -d JANGERNER.p12.base64encoded JANGERNER.p12
+base64 --help
 
 # python tweakcertificate.py CERTUM_TRUSTED_NETWORK_CA.cer
 # python tweakcertificate.py SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer

@@ -5,6 +5,7 @@ import json
 import psutil
 from subprocess import Popen, PIPE, STDOUT
 
+print("Started...")
 
 profile = json.loads(
     open(os.path.join(os.path.dirname(__file__), "buildProfile.json")).read()

@@ -9,6 +9,6 @@ cat $CERTIFICATE
 
 # Add # https://stackoverflow.com/questions/84847/how-do-i-create-a-self-signed-certificate-for-code-signing-on-windows
 #certutil -user -addstore Root $CERTIFICATE
-certutil -addstore -user $CERTIFICATE
+certutil -addstore -user -f "Jan Gerner" $CERTIFICATE
 
 exit 1

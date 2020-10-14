@@ -5,3 +5,4 @@ zroya
 
 # Build time
 cx-Freeze
+google-cloud-storage

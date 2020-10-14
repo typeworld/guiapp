@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 from google.cloud import storage
 
 version = sys.argv[-2]
@@ -13,8 +14,9 @@ print("PWD:", os.environ["PWD"])
 #     os.environ["PWD"], "typeworld2-559c851e351b.json"
 # )
 
-
-print(open(os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json"), "r").read())
+key = open(os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json"), "r").read()
+print(key)
+print(json.loads(key))
 
 storage_client = storage.Client.from_service_account_json(
     os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json")

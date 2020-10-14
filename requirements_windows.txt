@@ -2,6 +2,7 @@
 cx-Freeze
 google-cloud-storage
 wheel
+psutil
 
 # GUI App
 typeworld

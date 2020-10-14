@@ -9,7 +9,8 @@ python tweakcertificate.py SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer
 python tweakcertificate.py SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1.cer
 python tweakcertificate.py JANGERNER_CERT.cer
 
-# Add # https://stackoverflow.com/questions/84847/how-do-i-create-a-self-signed-certificate-for-code-signing-on-windows
+# Add
+# https://stackoverflow.com/questions/23869177/import-certificate-to-trusted-root-but-not-to-personal-command-line
 certutil -addstore "Root" CERTUM_TRUSTED_NETWORK_CA.cer
 certutil -addstore "CA" SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer
 certutil -addstore "CA" SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1.cer

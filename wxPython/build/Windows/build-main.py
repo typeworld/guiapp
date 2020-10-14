@@ -113,6 +113,8 @@ if "normal" in profile:
         ]
     )
 
+print("Code Signing")
+
 if "sign" in profile:
     executeCommands(
         [

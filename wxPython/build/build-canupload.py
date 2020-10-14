@@ -22,7 +22,7 @@ keyfile = open(os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json"), 
 keyfile.write(key)
 keyfile.close()
 print(key)
-print(json.loads(key))
+# print(json.loads(key))
 
 storage_client = storage.Client.from_service_account_json(
     os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json")

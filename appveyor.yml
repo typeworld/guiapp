@@ -44,4 +44,4 @@ for:
     - cmd: set "PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%"
     - cmd: sh install_windows.sh
   build_script: 
-    - cmd: "python wxPython/build/Windows/build-all.py"
+    - cmd: "sh wxPython/build/Windows/build-all.sh"

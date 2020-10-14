@@ -21,6 +21,8 @@ if WIN:
 storage_client = storage.Client.from_service_account_json(
     os.path.join(os.environ["PWD"], "typeworld2-559c851e351b.json")
 )
+
+# Check
 bucket = storage_client.bucket("typeworld2")
 blobPath = f"downloads/guiapp/TypeWorldApp.{version}.{ending}"
 blob = bucket.get_blob(blobPath)

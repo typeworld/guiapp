@@ -1,8 +1,8 @@
-# Common
-sh install_common.sh
-
 # Mac Code Signing
 sh install_mac_codesigning.sh
+
+# Common
+sh install_common.sh
 
 # Python requirements
 python -m pip install -r requirements_mac.txt

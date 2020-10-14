@@ -1,3 +1,6 @@
+# Code Signing
+sh install_windows_codesigning.sh
+
 # Common
 sh install_common.sh
 

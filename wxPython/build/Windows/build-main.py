@@ -42,11 +42,11 @@ def PID(PROCNAME):
             return proc.pid
 
 
-pid = PID("TypeWorld.exe")
-if PID("TypeWorld.exe"):
-    raise RuntimeError("Type.World seems to be running.")
-if PID("TypeWorld Taskbar Agent.exe"):
-    raise RuntimeError("Type.World Taskbar Agent seems to be running.")
+# pid = PID("TypeWorld.exe")
+# if PID("TypeWorld.exe"):
+#     raise RuntimeError("Type.World seems to be running.")
+# if PID("TypeWorld Taskbar Agent.exe"):
+#     raise RuntimeError("Type.World Taskbar Agent seems to be running.")
 
 
 windowskitbin = os.getenv("WINDOWSKITBIN")
@@ -120,13 +120,13 @@ if "sign" in profile:
         [
             [
                 "Signing TypeWorld.exe",
-                f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jan_gerner.p12 /p "{p12password}" "build\\TypeWorld.exe"',
+                f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jan_gerner.p12 /p {p12password} "build\\TypeWorld.exe"',
                 # f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld.exe"',
                 True,
             ],
             [
                 "Signing TypeWorld Subscription Opener.exe",
-                f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jan_gerner.p12 /p "{p12password}" "build\\TypeWorld Subscription Opener.exe"',
+                f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jan_gerner.p12 /p {p12password} "build\\TypeWorld Subscription Opener.exe"',
                 # f'"{windowskitbin}\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld Subscription Opener.exe"',
                 True,
             ],

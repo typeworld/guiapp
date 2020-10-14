@@ -1,9 +1,11 @@
+# Build time
+cx-Freeze
+google-cloud-storage
+wheel
+
+# GUI App
 typeworld
 wxPython
 pystray
 zroya
 
-# Build time
-cx-Freeze
-google-cloud-storage
-wheel

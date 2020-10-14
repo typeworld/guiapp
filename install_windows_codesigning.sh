@@ -14,7 +14,7 @@ echo $JANGERNER_P12 | python -m base64 -d > JANGERNER.p12
 echo $JANGERNER_P12
 # base64 --help
 
-pk12util -i JANGERNER.pfx -d/path/to/database -W password
+# pk12util -i JANGERNER.pfx -d/path/to/database -W password
 
 python tweakcertificate.py CERTUM_TRUSTED_NETWORK_CA.cer
 python tweakcertificate.py SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer

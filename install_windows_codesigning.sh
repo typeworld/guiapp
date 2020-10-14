@@ -13,5 +13,5 @@ python tweakcertificate.py JANGERNER_CERT.cer
 certutil -addstore "Root" CERTUM_TRUSTED_NETWORK_CA.cer
 certutil -addstore "CA" SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer
 certutil -addstore "CA" SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1.cer
-certutil -addstore -user -f "Jan Gerner" JANGERNER_CERT.cer
+certutil -addstore -user -f "My" JANGERNER_CERT.cer
 

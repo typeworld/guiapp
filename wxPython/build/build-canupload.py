@@ -7,9 +7,11 @@ platform = sys.argv[-1]
 ending = "dmg" if platform == "mac" else "exe"
 
 # Google Cloud Storage
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "typeworld2-559c851e351b.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(
+    os.path.abspath(os.path.dirname(__file__)), "typeworld2-559c851e351b.json"
+)
 
-print(open("typeworld2-559c851e351b.json", "r").read())
+print(open(os.environ["GOOGLE_APPLICATION_CREDENTIALS"], "r").read())
 
 storage_client = storage.Client()
 bucket = storage_client.bucket("typeworld2")

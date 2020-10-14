@@ -4,7 +4,6 @@ echo $GOOGLE_APPLICATION_CREDENTIALS_KEY > "typeworld2-559c851e351b.json"
 export GOOGLE_APPLICATION_CREDENTIALS=typeworld2-559c851e351b.json
 # Windows
 set GOOGLE_APPLICATION_CREDENTIALS=typeworld2-559c851e351b.json
-cat "typeworld2-559c851e351b.json"
 echo "Credentials file: $GOOGLE_APPLICATION_CREDENTIALS"
 
 # ynlib

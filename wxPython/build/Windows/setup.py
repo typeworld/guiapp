@@ -11,9 +11,6 @@ version = GetHTTP(
         f"?TYPEWORLD_APIKEY={os.getenv('TYPEWORLD_APIKEY')}"
     )
 )
-if version == "n/a":
-    print("Can’t get version number")
-    sys.exit(1)
 
 profile = json.loads(
     open(os.path.join(os.path.dirname(__file__), "buildProfile.json")).read()

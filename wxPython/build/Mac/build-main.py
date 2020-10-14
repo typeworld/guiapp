@@ -7,9 +7,6 @@ from subprocess import Popen, PIPE, STDOUT
 # - True if this command is essential to the build process (must exit with 0), otherwise False
 
 version = sys.argv[-1]
-if version == "n/a":
-    print("No build target version number available: n/a")
-    sys.exit(1)
 
 sparkle = "sparkle/Sparkle.framework"
 sitePackages = os.getenv("SITEPACKAGES")

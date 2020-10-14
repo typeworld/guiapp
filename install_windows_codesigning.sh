@@ -1,5 +1,5 @@
 # Set the filename
-export CERTIFICATE_CRT=cert.crt;
+export CERTIFICATE_CRT=cert.cer;
 
 # Decode the environment variable into our file
 echo $CERT_CRT > $CERTIFICATE_CRT

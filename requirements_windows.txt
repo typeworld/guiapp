@@ -10,3 +10,4 @@ wxPython
 pystray
 zroya
 packaging
+cryptography

@@ -58,7 +58,7 @@ for:
   install: 
     # Decrypt
     - ps: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
-    - cmd: appveyor-tools\secure-file -decrypt jan_gerner.p12.enc -secret %P12_SECRET% -salt %P12_SALT%
+#    - cmd: appveyor-tools\secure-file -decrypt jan_gerner.p12.enc -secret %P12_SECRET% -salt %P12_SALT%
 
     - cmd: set "PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%"
     - cmd: sh install_windows.sh

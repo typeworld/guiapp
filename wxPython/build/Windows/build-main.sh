@@ -10,19 +10,20 @@ echo "Add Windows App Manifest"
 "$WINDOWSKITBIN\\mt.exe" -manifest "wxPython/build/Windows/windowsAppManifest.xml" -outputresource:build\\TypeWorld.exe;#1
 
 echo "Copy Google Code"
-xcopy "$SITEPACKAGES\\googleapis_common_protos-*.dist-info" "build\\lib\\" /s /e /h /i /y
-xcopy "$SITEPACKAGES\\google" "build\\lib\\" /s /e /h /i /y
-xcopy "$SITEPACKAGES\\google_api_core-*.dist-info" "build\\lib\\" /s /e /h /i /y
-xcopy "$SITEPACKAGES\\google_auth-*.dist-info" "build\\lib\\" /s /e /h /i /y
-xcopy "$SITEPACKAGES\\google_cloud_pubsub-*.dist-info" "build\\lib\\" /s /e /h /i /y
-xcopy "$SITEPACKAGES\\googleapis_common_protos-*.dist-info" "build\\lib\\" /s /e /h /i /y
+#xcopy "$SITEPACKAGES\\googleapis_common_protos-*.dist-info" "build\\lib\\" /s /e /h
+xcopy "$SITEPACKAGES\\googleapis_common_protos-*.dist-info" "build\\lib\\" /s /e /h
+xcopy "$SITEPACKAGES\\google" "build\\lib\\" /s /e /h
+xcopy "$SITEPACKAGES\\google_api_core-*.dist-info" "build\\lib\\" /s /e /h
+xcopy "$SITEPACKAGES\\google_auth-*.dist-info" "build\\lib\\" /s /e /h
+xcopy "$SITEPACKAGES\\google_cloud_pubsub-*.dist-info" "build\\lib\\" /s /e /h
+xcopy "$SITEPACKAGES\\googleapis_common_protos-*.dist-info" "build\\lib\\" /s /e /h
 
 echo "Copy ynlib"
-xcopy ynlib "build\\lib\\" /s /e /h /i /y
+xcopy ynlib "build\\lib\\" /s /e /h
 
 echo "Copy importlib_metadata"
-xcopy $SITEPACKAGES\\importlib_metadata build\\lib\\  /s /e /h /i /y
-xcopy $SITEPACKAGES\\importlib_metadata-*.dist-info build\\lib\\  /s /e /h /i /y
+xcopy $SITEPACKAGES\\importlib_metadata build\\lib\\  /s /e /h
+xcopy $SITEPACKAGES\\importlib_metadata-*.dist-info build\\lib\\  /s /e /h
 
 echo "Signing TypeWorld.exe"
 "$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jan_gerner.p12 /p $JANGERNER_P12_PASSWORD "build\\TypeWorld.exe"

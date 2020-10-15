@@ -14,7 +14,7 @@ dir "$SITEPACKAGES"
 #xcopy "$SITEPACKAGES\\googleapis_common_protos-*.dist-info" "build\\lib\\" /s /e /h /i /y
 echo 1
 #pushd build\\lib\\
-xcopy $SITEPACKAGES\\google build\\lib /s /y
+xcopy %SITEPACKAGES%\\google build\\lib\\ /s /y
 echo 2
 xcopy "$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info" "build\\lib\\googleapis_common_protos-1.52.0.dist-info" /s /y
 echo 3

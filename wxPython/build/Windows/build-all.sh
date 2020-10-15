@@ -13,7 +13,7 @@ echo "Check if can upload to GCS"
 python wxPython/build/build-canupload.py $APP_BUILD_VERSION windows
 
 echo "Main Build"
-python wxPython/build/Windows/build-main.py $APP_BUILD_VERSION
+sh wxPython/build/Windows/build-main.sh
 
 echo "Pack"
 python wxPython/build/Windows/build-pack.py $APP_BUILD_VERSION

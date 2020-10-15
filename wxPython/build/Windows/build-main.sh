@@ -12,14 +12,14 @@ echo "Add Windows App Manifest"
 echo "Copy Google Code"
 dir "$SITEPACKAGES"
 #xcopy "$SITEPACKAGES\\googleapis_common_protos-*.dist-info" "build\\lib\\" /s /e /h /i /y
-xcopy "$SITEPACKAGES\\google" "build\\lib\\google" //s ///e ///h
-xcopy "$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info" "build\\lib\\googleapis_common_protos-1.52.0.dist-info"
-xcopy "$SITEPACKAGES\\google_api_core-1.22.4.dist-info" "build\\lib\\google_api_core-1.22.4.dist-info"
-xcopy "$SITEPACKAGES\\google_auth-1.22.1.dist-info" "build\\lib\\google_auth-1.22.1.dist-info"
-xcopy "$SITEPACKAGES\\google_cloud_pubsub-2.1.0.dist-info" "build\\lib\\google_cloud_pubsub-2.1.0.dist-info"
+xcopy "$SITEPACKAGES\\google" "build\\lib\\google" /s /y
+xcopy "$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info" "build\\lib\\googleapis_common_protos-1.52.0.dist-info" /s /y
+xcopy "$SITEPACKAGES\\google_api_core-1.22.4.dist-info" "build\\lib\\google_api_core-1.22.4.dist-info" /s /y
+xcopy "$SITEPACKAGES\\google_auth-1.22.1.dist-info" "build\\lib\\google_auth-1.22.1.dist-info" /s /y
+xcopy "$SITEPACKAGES\\google_cloud_pubsub-2.1.0.dist-info" "build\\lib\\google_cloud_pubsub-2.1.0.dist-info" /s /y
 
 echo "Copy ynlib"
-xcopy ynlib "build\\lib\\ynlib"
+xcopy ynlib "build\\lib\\ynlib" /s /y
 
 echo "Copy importlib_metadata"
 xcopy "$SITEPACKAGES\\importlib_metadata" "build\\lib\\importlib_metadata"  /s /e /h

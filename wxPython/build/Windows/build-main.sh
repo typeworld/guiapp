@@ -1,7 +1,14 @@
 set -e
-echo "Python build",
-python wxPython/build/Windows/setup.py build
 
+echo
+echo "Python build",
+python wxPython/build/Windows/setup.py build > nul
+
+echo
+echo "build content"
+dir build
+
+echo
 echo "Add Windows App Manifest",
 $WINDOWSKITBIN\\mt.exe -manifest "wxPython/build/Windows/windowsAppManifest.xml" -outputresource:build\\TypeWorld.exe;#1
 

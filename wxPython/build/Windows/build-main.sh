@@ -13,8 +13,8 @@ echo "Copy Google Code"
 dir "$SITEPACKAGES"
 #xcopy "$SITEPACKAGES\\googleapis_common_protos-*.dist-info" "build\\lib\\" /s /e /h /i /y
 echo 1
-pushd build\\lib\\
-xcopy "$SITEPACKAGES\\google" "google" /s /y
+#pushd build\\lib\\
+xcopy "$SITEPACKAGES/google" "build/lib/google" /s /y
 echo 2
 xcopy "$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info" "build\\lib\\googleapis_common_protos-1.52.0.dist-info" /s /y
 echo 3
@@ -23,7 +23,7 @@ echo 4
 xcopy "$SITEPACKAGES\\google_auth-1.22.1.dist-info" "build\\lib\\google_auth-1.22.1.dist-info" /s /y
 echo 5
 xcopy "$SITEPACKAGES\\google_cloud_pubsub-2.1.0.dist-info" "build\\lib\\google_cloud_pubsub-2.1.0.dist-info" /s /y
-popd
+#popd
 
 echo "Copy ynlib"
 xcopy ynlib "build\\lib\\ynlib" /s /y

@@ -63,6 +63,10 @@ for:
       - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
   install: 
+
+    # Remote Desktop
+    - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+
     # Decrypt
     - ps: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
     - cmd: appveyor-tools\secure-file -decrypt jangerner.pfx.enc -secret "%SECUREFILE_DECODE_SECRET%" -salt "%PFX_SALT%"

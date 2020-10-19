@@ -29,7 +29,8 @@ echo 5
 python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_cloud_pubsub-2.1.0.dist-info', 'build\\lib\\google_cloud_pubsub-2.1.0.dist-info')"
 
 echo "Copy ynlib"
-xcopy ynlib "build\\lib\\ynlib" /i /e /h
+#xcopy ynlib "build\\lib\\ynlib" /i /e /h
+python -c "import shutil; shutil.copytree('ynlib', 'build\\lib\\ynlib')"
 
 echo "Copy importlib_metadata"
 #xcopy "$SITEPACKAGES\\importlib_metadata" "build\\lib\\importlib_metadata"  /i /e /h

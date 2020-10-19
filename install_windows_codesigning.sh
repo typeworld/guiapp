@@ -37,7 +37,7 @@ certutil -addstore -user "My" JANGERNER_CERT.cer
 # certutil -addstore -user "TRUSTEDPEOPLE" jangerner.pfx -p $JANGERNER_P12_PASSWORD
 
 # https://stackoverflow.com/questions/5171117/import-pfx-file-into-particular-certificate-store-from-command-line
-certutil -f -user -p $JANGERNER_P12_PASSWORD -enterprise -importpfx My "jangerner.pfx"
+certutil -f -p $JANGERNER_P12_PASSWORD -enterprise -importpfx My "jangerner.pfx"
 
 # Certmgr.exe /c /add CERTUM_TRUSTED_NETWORK_CA.cer /s root
 # Certmgr.exe /c /add SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer /s ca

@@ -43,6 +43,8 @@ echo "Signing TypeWorld.exe"
 "$WINDOWSKITBIN\\signtool.exe" sign /v /debug /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld.exe"
 #"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld.exe"
 
+certutil -user -p $JANGERNER_P12_PASSWORD -importPFX jangerner.pfx NoRoot
+
 echo "Signing TypeWorld Subscription Opener.exe"
 "$WINDOWSKITBIN\\signtool.exe" sign /v /debug /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld Subscription Opener.exe"
 #"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld Subscription Opener.exe"

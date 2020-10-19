@@ -63,7 +63,7 @@ for:
   install: 
     # Decrypt
     - ps: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
-    - cmd: appveyor-tools\secure-file -decrypt jangerner.pfx.enc -secret "%SECUREFILE_DECODE_SECRET%" -salt "%PFC_SALT%"
+    - cmd: appveyor-tools\secure-file -decrypt jangerner.pfx.enc -secret "%SECUREFILE_DECODE_SECRET%" -salt "%PFX_SALT%"
 
     - cmd: set "PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%"
     - cmd: sh install_windows.sh

@@ -13,7 +13,7 @@ echo "Copy Google Code"
 dir "$SITEPACKAGES"
 echo 1
 echo "$SITEPACKAGES\\google" "build\\lib\\google" /i /e /h
-xcopy \"C:\Python37-x64\Lib\site-packages\google\" \"build\lib\google\" /i /e /h
+xcopy \"C:\\Python37-x64\\Lib\\site-packages\\google\" \"build\\lib\\google\" /i /e /h
 echo 2
 xcopy "$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info" "build\\lib\\googleapis_common_protos-1.52.0.dist-info" /i /e /h
 echo 3

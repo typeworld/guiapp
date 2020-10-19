@@ -33,7 +33,7 @@ certutil -addstore "Root" CERTUM_TRUSTED_NETWORK_CA.cer
 certutil -addstore "CA" SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer
 certutil -addstore "CA" SSL_COM_CODE_SIGNING_INTERMEDIATE_CA_RSA_R1.cer
 certutil -addstore -user "My" JANGERNER_CERT.cer
-certutil -addstore -user "My" jangerner.pfx
+certutil -addstore -user "My" jangerner.pfx -p $JANGERNER_P12_PASSWORD
 
 # Certmgr.exe /c /add CERTUM_TRUSTED_NETWORK_CA.cer /s root
 # Certmgr.exe /c /add SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer /s ca

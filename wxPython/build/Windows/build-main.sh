@@ -39,13 +39,12 @@ echo "Copy importlib_metadata"
 python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info', 'build\\lib\\importlib_metadata-1.7.0.dist-info')"
 
 echo "Signing TypeWorld.exe"
-dir .
 # Export key from Windows: https://www.ca.kit.edu/129.php 
-"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld.exe"
+"$WINDOWSKITBIN\\signtool.exe" sign /v /debug /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld.exe"
 #"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld.exe"
 
 echo "Signing TypeWorld Subscription Opener.exe"
-"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld Subscription Opener.exe"
+"$WINDOWSKITBIN\\signtool.exe" sign /v /debug /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld Subscription Opener.exe"
 #"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld Subscription Opener.exe"
 
 echo "Verify signature"

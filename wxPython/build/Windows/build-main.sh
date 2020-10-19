@@ -10,31 +10,32 @@ echo "Add Windows App Manifest"
 "$WINDOWSKITBIN\\mt.exe" -manifest "wxPython/build/Windows/windowsAppManifest.xml" -outputresource:build\\TypeWorld.exe;#1
 
 echo "Copy Google Code"
-dir "$SITEPACKAGES"
+# Using Python for copying instead of xcopy as I couldn't get it to copy on AppVeyor.
+# https://stackoverflow.com/questions/64424550/xcopy-fails-in-appveyor-works-at-home-invalid-number-of-parameters/64425070#64425070
 echo 1
-#python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google', 'build\\lib\\google')"
-xcopy "$SITEPACKAGES\\google\\" "build\\lib\\google\\" /i /e /h
+#xcopy "$SITEPACKAGES\\google\\" "build\\lib\\google\\" /i /e /h
+python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google', 'build\\lib\\google')"
 echo 2
-xcopy "$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info\\" "build\\lib\\googleapis_common_protos-1.52.0.dist-info\\" /i /e /h
-#python -c "import shutil; shutil.copytree('$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info', 'build\\lib\\googleapis_common_protos-1.52.0.dist-info')"
+#xcopy "$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info\\" "build\\lib\\googleapis_common_protos-1.52.0.dist-info\\" /i /e /h
+python -c "import shutil; shutil.copytree('$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info', 'build\\lib\\googleapis_common_protos-1.52.0.dist-info')"
 echo 3
-#python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_api_core-1.22.4.dist-info', 'build\\lib\\google_api_core-1.22.4.dist-info')"
-xcopy "$SITEPACKAGES\\google_api_core-1.22.4.dist-info" "build\\lib\\google_api_core-1.22.4.dist-info" /i /e /h
+#xcopy "$SITEPACKAGES\\google_api_core-1.22.4.dist-info" "build\\lib\\google_api_core-1.22.4.dist-info" /i /e /h
+python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_api_core-1.22.4.dist-info', 'build\\lib\\google_api_core-1.22.4.dist-info')"
 echo 4
-#python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_auth-1.22.1.dist-info', 'build\\lib\\google_auth-1.22.1.dist-info')"
-xcopy "$SITEPACKAGES\\google_auth-1.22.1.dist-info" "build\\lib\\google_auth-1.22.1.dist-info" /i /e /h
+#xcopy "$SITEPACKAGES\\google_auth-1.22.1.dist-info" "build\\lib\\google_auth-1.22.1.dist-info" /i /e /h
+python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_auth-1.22.1.dist-info', 'build\\lib\\google_auth-1.22.1.dist-info')"
 echo 5
-#python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google', 'build\\lib\\google')"
-xcopy "$SITEPACKAGES\\google_cloud_pubsub-2.1.0.dist-info" "build\\lib\\google_cloud_pubsub-2.1.0.dist-info" /i /e /h
+#xcopy "$SITEPACKAGES\\google_cloud_pubsub-2.1.0.dist-info" "build\\lib\\google_cloud_pubsub-2.1.0.dist-info" /i /e /h
+python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_cloud_pubsub-2.1.0.dist-info', 'build\\lib\\google_cloud_pubsub-2.1.0.dist-info')"
 
 echo "Copy ynlib"
 xcopy ynlib "build\\lib\\ynlib" /i /e /h
 
 echo "Copy importlib_metadata"
-python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google', 'build\\lib\\google')"
-xcopy "$SITEPACKAGES\\importlib_metadata" "build\\lib\\importlib_metadata"  /i /e /h
-python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google', 'build\\lib\\google')"
-xcopy "$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info" "build\\lib\\importlib_metadata-1.7.0.dist-info" /i /e /h
+#xcopy "$SITEPACKAGES\\importlib_metadata" "build\\lib\\importlib_metadata"  /i /e /h
+python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata', 'build\\lib\\importlib_metadata')"
+#xcopy "$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info" "build\\lib\\importlib_metadata-1.7.0.dist-info" /i /e /h
+python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info', 'build\\lib\\importlib_metadata-1.7.0.dist-info')"
 
 echo "Signing TypeWorld.exe"
 "$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jan_gerner.p12 /p $JANGERNER_P12_PASSWORD "build\\TypeWorld.exe"

@@ -40,8 +40,8 @@ python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata-1.7
 
 echo "Signing TypeWorld.exe"
 # Export key from Windows: https://www.ca.kit.edu/129.php 
-echo "$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe"
-"$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe"
+#echo "$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe"
+"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe"
 #"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld.exe"
 
 certutil -user -p $JANGERNER_P12_PASSWORD -importPFX jangerner.pfx NoRoot

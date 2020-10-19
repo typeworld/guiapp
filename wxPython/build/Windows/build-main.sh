@@ -40,11 +40,11 @@ python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata-1.7
 
 echo "Signing TypeWorld.exe"
 dir . 
-"$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld.exe"
+"$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD /n "Jan Gerner" "build\\TypeWorld.exe"
 # $WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld.exe"',
 
 echo "Signing TypeWorld Subscription Opener.exe"
-"$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld Subscription Opener.exe"
+"$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD /n "Jan Gerner" "build\\TypeWorld Subscription Opener.exe"
 # $WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /n "Jan Gerner" "build\\TypeWorld Subscription Opener.exe"',
 
 echo "Verify signature"

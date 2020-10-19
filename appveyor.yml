@@ -41,7 +41,7 @@ environment:
       # P12_SALT:
       #   secure: N47NkAmupgZ/fFrHFx/gyF6d7UEPD69OW6lAnAy+4Rcoi0spYs/qt9gAGHpirwQT0yrFBQYYV2m0bnkgH+Z2iQ==
       PFX_SALT:
-        secure: l6dkb0ctmPPj5UfkqTRkc/pWv0cF/F1lkN1v2YdXikYorSH9pY4O3aFbjpqmKUi/Re/eBVEDRp6lXE4inwqobg==
+        secure: LUws8FkbmqPtJTu69Zgn4aZZ1FiAtRuVdUMW7n1ZAT4Ztllp/7A7Ue2jOFigRJPEyix7Z9VyLhvQOyHou0UqSw==
 
 
 stack: python %PYTHONSTACK%

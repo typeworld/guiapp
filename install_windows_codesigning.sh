@@ -39,7 +39,7 @@
 # https://stackoverflow.com/questions/5171117/import-pfx-file-into-particular-certificate-store-from-command-line
 #certutil -f -p $JANGERNER_P12_PASSWORD -importpfx My "jangerner.pfx"
 dir .
-certutil -user -p $JANGERNER_P12_PASSWORD -importPFX jangerner.pfx
+certutil -user -store My -p $JANGERNER_P12_PASSWORD -importPFX jangerner.pfx
 
 # Certmgr.exe /c /add CERTUM_TRUSTED_NETWORK_CA.cer /s root
 # Certmgr.exe /c /add SSL_COM_ROOT_CERTIFICATION_AUTHORITY_RSA.cer /s ca

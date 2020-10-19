@@ -1,3 +1,5 @@
+# Secure variable encode: https://ci.appveyor.com/tools/encrypt
+
 environment:
   TYPEWORLD_APIKEY:
     secure: BpVvXCls5krE+yjHTObw668j2CzcgcAOPRZ+Klorq2sIcnXIcPvAV/ZcKg6XnpewnpQXlYvtGtu18x6k8YAqWg==
@@ -39,7 +41,7 @@ environment:
       # P12_SALT:
       #   secure: N47NkAmupgZ/fFrHFx/gyF6d7UEPD69OW6lAnAy+4Rcoi0spYs/qt9gAGHpirwQT0yrFBQYYV2m0bnkgH+Z2iQ==
       PFX_SALT:
-        secure: tJcgpIa9UyNleqbOfstMFix/KGobIF5ZJ3gmai4HXQ0LVc0mJ7M=
+        secure: l6dkb0ctmPPj5UfkqTRkc/pWv0cF/F1lkN1v2YdXikYorSH9pY4O3aFbjpqmKUi/Re/eBVEDRp6lXE4inwqobg==
 
 
 stack: python %PYTHONSTACK%

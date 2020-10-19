@@ -38,6 +38,7 @@
 
 # https://stackoverflow.com/questions/5171117/import-pfx-file-into-particular-certificate-store-from-command-line
 #certutil -f -p $JANGERNER_P12_PASSWORD -importpfx My "jangerner.pfx"
+dir .
 certutil -user -p $JANGERNER_P12_PASSWORD -importPFX jangerner.pfx -enterprise
 
 # Certmgr.exe /c /add CERTUM_TRUSTED_NETWORK_CA.cer /s root

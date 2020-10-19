@@ -11,7 +11,7 @@ echo "Add Windows App Manifest"
 
 echo "Copy Google Code"
 # Using Python for copying instead of xcopy as I couldn't get it to copy on AppVeyor.
-# https://stackoverflow.com/questions/64424550/xcopy-fails-in-appveyor-works-at-home-invalid-number-of-parameters/64425070#64425070
+# https://stackoverflow.com/questions/64424550/xcopy-fails-in-appveyor-works-at-home-invalid-number-of-parameters
 echo 1
 #xcopy "$SITEPACKAGES\\google\\" "build\\lib\\google\\" /i /e /h
 python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google', 'build\\lib\\google')"
@@ -34,7 +34,7 @@ python -c "import shutil; shutil.copytree('ynlib', 'build\\lib\\ynlib')"
 
 echo "Copy importlib_metadata"
 #xcopy "$SITEPACKAGES\\importlib_metadata" "build\\lib\\importlib_metadata"  /i /e /h
-python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata', 'build\\lib\\importlib_metadata')"
+# python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata', 'build\\lib\\importlib_metadata')"
 #xcopy "$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info" "build\\lib\\importlib_metadata-1.7.0.dist-info" /i /e /h
 python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info', 'build\\lib\\importlib_metadata-1.7.0.dist-info')"
 

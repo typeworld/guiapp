@@ -18,6 +18,7 @@ profile = json.loads(
 )
 
 base = "Win32GUI"
+base = "Console"  # output to console for testing
 baseFolder = "wxPython"
 destinationFolder = "build"
 

@@ -9,6 +9,7 @@ dir build
 echo "Add Windows App Manifest"
 "$WINDOWSKITBIN\\mt.exe" -manifest "wxPython/build/Windows/windowsAppManifest.xml" -outputresource:build\\TypeWorld.exe;#1
 
+dir $SITEPACKAGES
 echo "Copy Google Code"
 # Using Python for copying instead of xcopy as I couldn't get it to copy on AppVeyor.
 # https://stackoverflow.com/questions/64424550/xcopy-fails-in-appveyor-works-at-home-invalid-number-of-parameters

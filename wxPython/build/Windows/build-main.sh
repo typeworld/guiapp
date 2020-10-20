@@ -42,7 +42,7 @@ echo "Signing TypeWorld.exe"
 # Export key from Windows: https://www.ca.kit.edu/129.php 
 # python -c "import os; command = '\"$WINDOWSKITBIN\\signtool.exe\" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n \"Jan Gerner\" /v /debug \"build\\TypeWorld.exe\"'; print(command); os.system(command)"
 # echo "$WINDOWSKITBIN"\\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe"
-cmd.exe /s /c ""$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe""
+"$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe"
 #"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld.exe"
 
 #certutil -user -p $JANGERNER_P12_PASSWORD -importPFX jangerner.pfx NoRoot

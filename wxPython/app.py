@@ -6276,7 +6276,7 @@ class AppFrame(wx.Frame):
         try:
 
             # Keyring
-            keyring = self.keyring()
+            keyring = client.keyring()
             assert keyring != None
             keyring.set_password("https://type.world", "testuser", "testpassword")
             assert (

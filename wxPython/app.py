@@ -602,7 +602,7 @@ background-color: #$hoverButtonColor;
 color: #$hoverButtonTextColor;
 }
 
-				</style>"""
+                </style>"""
         )
 
         r = {"ID": ID}
@@ -770,32 +770,32 @@ def installAgent():
                         )
                         plist = (
                             """<?xml version="1.0" encoding="UTF-8"?>
-				<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-				<plist version="1.0">
-				<dict>
-				<key>Debug</key>
-				<true/>
-				<key>Disabled</key>
-				<false/>
-				<key>KeepAlive</key>
-				<true/>
-				<key>Label</key>
-				<string>world.type.agent</string>
-				<key>MachServices</key>
-				<dict>
-					<key>world.type.agent</key>
-					<true/>
-				</dict>
-				<key>OnDemand</key>
-				<false/>
-				<key>Program</key>
-				<string>"""
+                <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+                <plist version="1.0">
+                <dict>
+                <key>Debug</key>
+                <true/>
+                <key>Disabled</key>
+                <false/>
+                <key>KeepAlive</key>
+                <true/>
+                <key>Label</key>
+                <string>world.type.agent</string>
+                <key>MachServices</key>
+                <dict>
+                    <key>world.type.agent</key>
+                    <true/>
+                </dict>
+                <key>OnDemand</key>
+                <false/>
+                <key>Program</key>
+                <string>"""
                             + agentPath
                             + """/Contents/MacOS/Type.World Agent</string>
-				<key>RunAtLoad</key>
-				<true/>
-				</dict>
-				</plist>"""
+                <key>RunAtLoad</key>
+                <true/>
+                </dict>
+                </plist>"""
                         )
 
                         # Extract app
@@ -2157,9 +2157,9 @@ class AppFrame(wx.Frame):
                     html.append(
                         """<script>$("#preferences #createAccountButton").click(function() {
 
-					python("self.createUserAccount(____" + $("#preferences #createAccountUserName").val() + "____, ____" + $("#preferences #createAccountUserEmail").val() + "____, ____" + $("#preferences #createAccountUserPassword").val() + "____, ____" + $("#preferences #createAccountUserPassword2").val() + "____)");
-					 
-				});</script>"""
+                    python("self.createUserAccount(____" + $("#preferences #createAccountUserName").val() + "____, ____" + $("#preferences #createAccountUserEmail").val() + "____, ____" + $("#preferences #createAccountUserPassword").val() + "____, ____" + $("#preferences #createAccountUserPassword2").val() + "____)");
+                     
+                });</script>"""
                     )
 
                     html.append("</div>")  # .floatleft
@@ -2193,9 +2193,9 @@ class AppFrame(wx.Frame):
                     html.append(
                         """<script>$("#preferences #loginButton").click(function() {
 
-					python("self.logIn(____" + $("#preferences #loginUserEmail").val() + "____, ____" + $("#preferences #loginUserPassword").val() + "____)");
-					 
-				});</script>"""
+                    python("self.logIn(____" + $("#preferences #loginUserEmail").val() + "____, ____" + $("#preferences #loginUserPassword").val() + "____)");
+                     
+                });</script>"""
                     )
 
                     html.append("</div>")  # .floatleft
@@ -2204,9 +2204,9 @@ class AppFrame(wx.Frame):
                 html.append(
                     """<script>$("#preferences #unlinkAppButton").click(function() {
 
-					python("self.unlinkUserAccount()");
-					 
-				});</script>"""
+                    python("self.unlinkUserAccount()");
+                     
+                });</script>"""
                 )
 
             if section == "generalPreferences":
@@ -2312,9 +2312,9 @@ class AppFrame(wx.Frame):
                 html.append(
                     """<script>$("#preferences #customLocaleChoice").click(function() {
 
-					setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());
-					 
-				});</script>"""
+                    setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());
+                     
+                });</script>"""
                 )
                 html.append("</p>")
 
@@ -2345,9 +2345,9 @@ class AppFrame(wx.Frame):
                 html.append(
                     """<script>$("#preferences #resetDialogButton").click(function() {
 
-					python("self.resetDialogs()");
-					 
-				});</script>"""
+                    python("self.resetDialogs()");
+                     
+                });</script>"""
                 )
 
             html.append("</div>")  # .inner
@@ -2528,10 +2528,10 @@ class AppFrame(wx.Frame):
                                 )
                                 html.append(
                                     """<script>
-									$("#preferences #revealidentity").click(function() {
-										setSubscriptionPreference("%s", "revealIdentity", $("#preferences #revealidentity").prop("checked"));
-									});
-								</script>"""
+                                    $("#preferences #revealidentity").click(function() {
+                                        setSubscriptionPreference("%s", "revealIdentity", $("#preferences #revealidentity").prop("checked"));
+                                    });
+                                </script>"""
                                     % (b64ID)
                                 )
                                 html.append("</p><p>")
@@ -2706,11 +2706,11 @@ class AppFrame(wx.Frame):
                         html.append(
                             """<script>
 
-							$("#inviteUsersButton").click(function() {
-								python("self.inviteUsers(____%s____, ____" + $("#inviteUserName").val() + "____)");
-							});
+                            $("#inviteUsersButton").click(function() {
+                                python("self.inviteUsers(____%s____, ____" + $("#inviteUserName").val() + "____)");
+                            });
 
-						</script>"""
+                        </script>"""
                             % (b64ID)
                         )
 
@@ -2768,15 +2768,15 @@ class AppFrame(wx.Frame):
                         html.append(
                             """<script>
 
-							$("#updateInvitations").click(function() {
-								python("self.showSubscriptionInvitations(None, ____%s____, loadUpdates = True)");
-							});
+                            $("#updateInvitations").click(function() {
+                                python("self.showSubscriptionInvitations(None, ____%s____, loadUpdates = True)");
+                            });
 
-							$(".revokeInvitationButton").click(function() {
-								python("self.revokeUsers(____" + $(this).attr("b64ID") + "____, ____" + $(this).attr("email") + "____)");
-							});
+                            $(".revokeInvitationButton").click(function() {
+                                python("self.revokeUsers(____" + $(this).attr("b64ID") + "____, ____" + $(this).attr("email") + "____)");
+                            });
 
-						</script>"""
+                        </script>"""
                             % (b64ID)
                         )
 
@@ -5177,13 +5177,13 @@ class AppFrame(wx.Frame):
                             """<script>
 
 
-			$("#acceptRevealIdentityButton").click(function() {
-				$("#acceptRevealIdentity").slideUp(function(){ 
-					setSubscriptionPreference("%s", "revealIdentity", "true");
-				});
-			});
+            $("#acceptRevealIdentityButton").click(function() {
+                $("#acceptRevealIdentity").slideUp(function(){ 
+                    setSubscriptionPreference("%s", "revealIdentity", "true");
+                });
+            });
 
-							</script>"""
+                            </script>"""
                             % self.b64encode(subscription.protocol.unsecretURL())
                         )
 
@@ -5293,13 +5293,13 @@ class AppFrame(wx.Frame):
                             """<script>
 
 
-			$("#acceptTermsOfServiceButton").click(function() {
-				$("#acceptTermsOfService").slideUp(function(){ 
-					setSubscriptionPreference("%s", "acceptedTermsOfService", "true");
-				});
-			});
+            $("#acceptTermsOfServiceButton").click(function() {
+                $("#acceptTermsOfService").slideUp(function(){ 
+                    setSubscriptionPreference("%s", "acceptedTermsOfService", "true");
+                });
+            });
 
-							</script>"""
+                            </script>"""
                             % self.b64encode(subscription.protocol.unsecretURL())
                         )
 
@@ -5619,49 +5619,49 @@ class AppFrame(wx.Frame):
                         """<script>     
 
 
-				$("#main .section .title").hover(function() {
-					$( this ).closest(".section").addClass( "hover" );
-					$( this ).closest(".section").children(".font").addClass("hover");
+                $("#main .section .title").hover(function() {
+                    $( this ).closest(".section").addClass( "hover" );
+                    $( this ).closest(".section").children(".font").addClass("hover");
 
-				  }, function() {
-					$( this ).closest(".section").removeClass( "hover" );
-					$( this ).closest(".section").children(".font").removeClass("hover");
-				  }
-				);
+                  }, function() {
+                    $( this ).closest(".section").removeClass( "hover" );
+                    $( this ).closest(".section").children(".font").removeClass("hover");
+                  }
+                );
 
-				$("#main .font").hover(function() {
-					$( this ).addClass( "hover" );
-					$( this ).addClass( "hoverOverFont" );
-				  }, function() {
-					$( this ).removeClass( "hover" );
-					$( this ).removeClass( "hoverOverFont" );
-				  }
-				);
+                $("#main .font").hover(function() {
+                    $( this ).addClass( "hover" );
+                    $( this ).addClass( "hoverOverFont" );
+                  }, function() {
+                    $( this ).removeClass( "hover" );
+                    $( this ).removeClass( "hoverOverFont" );
+                  }
+                );
 
-				$("#main .publisher a.reloadPublisherButton").click(function() {
-					$("#sidebar #%s .badges").hide();
-					$("#sidebar #%s .reloadAnimation").show();
-					python("self.reloadPublisher(None, ____%s____)");
-				});
+                $("#main .publisher a.reloadPublisherButton").click(function() {
+                    $("#sidebar #%s .badges").hide();
+                    $("#sidebar #%s .reloadAnimation").show();
+                    python("self.reloadPublisher(None, ____%s____)");
+                });
 
 
-				$("#main .font").click(function() {
-					$("#main .font").removeClass('selected');
-					$(this).addClass('selected');
-					python("self.selectFont(____' + $(this).attr('id') + '____)");
-				});
+                $("#main .font").click(function() {
+                    $("#main .font").removeClass('selected');
+                    $(this).addClass('selected');
+                    python("self.selectFont(____' + $(this).attr('id') + '____)");
+                });
 
-			</script>"""
+            </script>"""
                         % (b64ID, b64ID, b64ID)
                     )
 
                     # Unused:
                     """
-				$("#main .font, #main .family .title").click(function() {
-					$("#main .font, #main .family .title").removeClass('selected');
-					$( this ).addClass( "selected" );
-				  });
-			"""
+                $("#main .font, #main .family .title").click(function() {
+                    $("#main .font, #main .family .title").removeClass('selected');
+                    $( this ).addClass( "selected" );
+                  });
+            """
 
                 # Print HTML
                 html = "".join(map(str, html))
@@ -6062,60 +6062,60 @@ class AppFrame(wx.Frame):
 
 
 
-		$("#sidebar div.publisher").click(function() {
+        $("#sidebar div.publisher").click(function() {
 
-			if ($(this).hasClass('pendingInvitations')) {
-				python('self.setPublisherHTML(____"""
+            if ($(this).hasClass('pendingInvitations')) {
+                python('self.setPublisherHTML(____"""
                 + self.b64encode("pendingInvitations")
                 + """____)');
-			}
+            }
 
-			else {
-				if ($(this).hasClass('selected')) {
+            else {
+                if ($(this).hasClass('selected')) {
 
-				}
-				else {
-					$("#sidebar div.subscriptions").slideUp();
-					$(this).parent().children(".subscriptions").slideDown();
-				}
-				$("#sidebar div.publisher").removeClass('selected');
-				$(this).parent().children(".publisher").addClass('selected');
+                }
+                else {
+                    $("#sidebar div.subscriptions").slideUp();
+                    $(this).parent().children(".subscriptions").slideDown();
+                }
+                $("#sidebar div.publisher").removeClass('selected');
+                $(this).parent().children(".publisher").addClass('selected');
 
-				python('self.setPublisherHTML(____' + $(this).attr('id') + '____)');
-			}
-		});
+                python('self.setPublisherHTML(____' + $(this).attr('id') + '____)');
+            }
+        });
 
-		$("#sidebar div.subscription").click(function() {
+        $("#sidebar div.subscription").click(function() {
 
-			python('self.setActiveSubscription(____' + $(this).attr('publisherID') + '____, ____' + $(this).attr('id') + '____)');
+            python('self.setActiveSubscription(____' + $(this).attr('publisherID') + '____, ____' + $(this).attr('id') + '____)');
 
-		});
-
-
-		$("#sidebar div.publisher .alert").click(function() {
-		});
-
-	$( document ).ready(function() {
-
-		$("#sidebar .publisher").hover(function() {
-			$( this ).addClass( "hover" );
-		  }, function() {
-			$( this ).removeClass( "hover" );
-		  }
-		);
-
-		$("#sidebar .subscription").hover(function() {
-			$( this ).addClass( "hover" );
-		  }, function() {
-			$( this ).removeClass( "hover" );
-		  }
-		);
-
-	});
+        });
 
 
+        $("#sidebar div.publisher .alert").click(function() {
+        });
 
-	</script>"""
+    $( document ).ready(function() {
+
+        $("#sidebar .publisher").hover(function() {
+            $( this ).addClass( "hover" );
+          }, function() {
+            $( this ).removeClass( "hover" );
+          }
+        );
+
+        $("#sidebar .subscription").hover(function() {
+            $( this ).addClass( "hover" );
+          }, function() {
+            $( this ).removeClass( "hover" );
+          }
+        );
+
+    });
+
+
+
+    </script>"""
             )
 
             html.append("</div>")  # publishers
@@ -6275,13 +6275,15 @@ class AppFrame(wx.Frame):
 
         try:
 
-			# Keyring
-			keyring = self.keyring()
-			assert keyring != None
-			keyring.set_password('https://type.world', 'testuser', 'testpassword')
-			assert keyring.get_password('https://type.world', 'testuser') == 'testpassword'
+            # Keyring
+            keyring = self.keyring()
+            assert keyring != None
+            keyring.set_password("https://type.world", "testuser", "testpassword")
+            assert (
+                keyring.get_password("https://type.world", "testuser") == "testpassword"
+            )
 
-			# Badge label
+            # Badge label
             if MAC:
                 self.setBadgeLabel(3)
 
@@ -6293,8 +6295,7 @@ class AppFrame(wx.Frame):
             elif WIN:
                 pywinsparkleDelegate.check_without_ui()
 
-
-			# Actual subscriptions
+            # Actual subscriptions
 
             flatFreeSubscription = "typeworld://json+https//typeworldserver.com/flatapi/q8JZfYn9olyUvcCOiqHq/"
 
@@ -6464,8 +6465,8 @@ class AppFrame(wx.Frame):
     def setBadgeLabel(self, label):
         try:
             """\
-			Set dock icon badge
-			"""
+            Set dock icon badge
+            """
             if MAC:
                 app = NSApp()
                 dockTile = app.dockTile()

@@ -13,7 +13,19 @@ python wxPython/build/build-checkversionnumber.py $APP_BUILD_VERSION
 echo "Check if can upload to GCS"
 python wxPython/build/build-canupload.py $APP_BUILD_VERSION windows
 
-echo "Main Build"
+# First round of main build with "Console" base, as error output will be routed to the
+# console for the self test
+echo "Main Build, Console base"
+export BUILDBASE="Console"
+sh wxPython/build/Windows/build-main.sh
+
+# Clear build folder
+rmdir /s build
+mkdir build
+
+# Second round with "Win32GUI" base (no console window appears on Windows)
+echo "Main Build, GUI base"
+export BUILDBASE="Win32GUI"
 sh wxPython/build/Windows/build-main.sh
 
 echo "Pack"

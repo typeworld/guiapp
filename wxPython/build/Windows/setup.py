@@ -17,22 +17,20 @@ profile = json.loads(
     open(os.path.join(os.path.dirname(__file__), "buildProfile.json")).read()
 )
 
-base = "Win32GUI"
-base = "Console"  # output to console for testing
 baseFolder = "wxPython"
 destinationFolder = "build"
 
 executables = [
     Executable(
         os.path.join(baseFolder, "app.py"),
-        base=base,
+        base=os.getenv("BUILDBASE"),
         copyright="Copyright 2018 by Yanone",
         targetName="TypeWorld.exe",
         icon=os.path.join(baseFolder, "icon", "tw.ico"),
     ),
     Executable(
         os.path.join(baseFolder, "agent.py"),
-        base=base,
+        base=os.getenv("BUILDBASE"),
         copyright="Copyright 2018 by Yanone",
         targetName="TypeWorld Subscription Opener.exe",
         icon=os.path.join(baseFolder, "icon", "tw.ico"),
@@ -42,7 +40,7 @@ if "agent" in profile:
     executables.append(
         Executable(
             os.path.join(baseFolder, "daemon.py"),
-            base=base,
+            base=os.getenv("BUILDBASE"),
             copyright="Copyright 2018 by Yanone",
             targetName="TypeWorld Taskbar Agent.exe",
             icon=os.path.join(baseFolder, "icon", "tw.ico"),

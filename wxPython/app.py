@@ -6377,7 +6377,10 @@ class AppFrame(wx.Frame):
 
             self.onQuit(None, withExitCode=0)
 
-        except:
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
             print(traceback.format_exc())
             return self.quitSelftest(traceback.format_exc(), 666)
 

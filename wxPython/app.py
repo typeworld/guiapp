@@ -1453,7 +1453,10 @@ class AppFrame(wx.Frame):
         try:
             if self.fullyLoaded:
                 if threading.current_thread() == self.thread:
-                    self.html.RunScript(script)
+                    try:
+                        self.html.RunScript(script)
+                    except:
+                        pass  # TODO: The above may cause a segmentation fault in Console base, trying to catch it.
                 else:
                     client.log(
                         "JavaScript called from another thread: %s" % script[:100]

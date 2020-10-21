@@ -6,7 +6,7 @@ psutil
 
 # GUI App
 git+https://github.com/typeworld/typeworld.git
-wxPython
+wxPython==4.0.7
 pystray
 zroya
 packaging

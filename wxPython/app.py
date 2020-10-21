@@ -1208,7 +1208,7 @@ ziwuJDBJ75bzmLBh1nhU9olZNEUNIqxAmAw6
             # pywinsparkle.win_sparkle_check_update_without_ui()
 
 
-if WIN:
+if WIN and RUNTIME:
     sys._MEIPASS = os.path.join(
         os.path.dirname(__file__), "lib", "pywinsparkle", "libs", "x64"
     )
@@ -1453,8 +1453,9 @@ class AppFrame(wx.Frame):
         try:
             if self.fullyLoaded:
                 if threading.current_thread() == self.thread:
-                    # self.html.RunScript(script)
-                    pass
+                    if script:
+                        self.html.RunScript(script)
+                    # pass
                 else:
                     client.log(
                         "JavaScript called from another thread: %s" % script[:100]
@@ -1486,7 +1487,7 @@ class AppFrame(wx.Frame):
                 sparkle.resetUpdateCycle()
                 self.setAppCastURL()
                 sparkle.checkForUpdates_(self)
-            elif WIN:
+            elif WIN and RUNTIME:
                 pywinsparkleDelegate.check_with_ui()
 
         except Exception as e:
@@ -1559,7 +1560,7 @@ class AppFrame(wx.Frame):
             except ConnectionRefusedError:
                 pass
 
-            if WIN:
+            if WIN and RUNTIME:
                 pywinsparkle.win_sparkle_cleanup()
 
             if withExitCode != None:
@@ -6221,7 +6222,8 @@ class AppFrame(wx.Frame):
 
                 windll.kernel32.RegisterApplicationRestart(None, 0)
 
-                pywinsparkle.win_sparkle_check_update_without_ui()
+                if RUNTIME:
+                    pywinsparkle.win_sparkle_check_update_without_ui()
 
         except Exception as e:
             client.handleTraceback(
@@ -7097,7 +7099,7 @@ def startApp(startWithCommand=None):
     listenerThread.start()
 
     # Start App
-    app = MyApp(redirect=DEBUG and WIN and RUNTIME, filename=startWithCommand)
+    app = MyApp(redirect=DEBUG and WIN, filename=startWithCommand)
     client.delegate.app = app
 
     # Last call, no more code after this point

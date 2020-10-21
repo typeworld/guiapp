@@ -83,6 +83,8 @@ setup(
                 "win32api",
                 "zroya",
                 "pywinsparkle",
+                "proto",
+                "win32timezone",
             ],
             "optimize": 2,
             "build_exe": destinationFolder,

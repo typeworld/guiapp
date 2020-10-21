@@ -85,6 +85,7 @@ setup(
                 "pywinsparkle",
                 "proto",
                 "win32timezone",
+                "pkg_resources",
             ],
             "optimize": 2,
             "build_exe": destinationFolder,

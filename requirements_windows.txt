@@ -11,3 +11,5 @@ pystray
 zroya
 packaging
 cryptography
+# winapi32:
+pywin32

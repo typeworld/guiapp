@@ -5,7 +5,7 @@ wheel
 psutil
 
 # GUI App
-typeworld
+git+https://github.com/typeworld/typeworld.git
 wxPython
 pystray
 zroya

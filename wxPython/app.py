@@ -6282,25 +6282,25 @@ class AppFrame(wx.Frame):
 
         try:
 
-            # # Keyring
-            # keyring = client.keyring()
-            # assert keyring != None
-            # keyring.set_password("https://type.world", "testuser", "testpassword")
-            # assert (
-            #     keyring.get_password("https://type.world", "testuser") == "testpassword"
-            # )
+            # Keyring
+            keyring = client.keyring()
+            assert keyring != None
+            keyring.set_password("https://type.world", "testuser", "testpassword")
+            assert (
+                keyring.get_password("https://type.world", "testuser") == "testpassword"
+            )
 
             # Badge label
             if MAC:
                 self.setBadgeLabel(3)
 
-            # # Sparkle Update
-            # if MAC:
-            #     sparkle.resetUpdateCycle()
-            #     self.setAppCastURL()
-            #     sparkle.checkForUpdates_(self)
-            # elif WIN:
-            #     pywinsparkleDelegate.check_without_ui()
+            # Sparkle Update
+            if MAC:
+                sparkle.resetUpdateCycle()
+                self.setAppCastURL()
+                sparkle.checkForUpdates_(self)
+            elif WIN:
+                pywinsparkleDelegate.check_without_ui()
 
             # Actual subscriptions
 

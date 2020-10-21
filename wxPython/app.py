@@ -6275,8 +6275,26 @@ class AppFrame(wx.Frame):
 
         try:
 
+			# Keyring
+			keyring = self.keyring()
+			assert keyring != None
+			keyring.set_password('https://type.world', 'testuser', 'testpassword')
+			assert keyring.get_password('https://type.world', 'testuser') == 'testpassword'
+
+			# Badge label
             if MAC:
                 self.setBadgeLabel(3)
+
+            # Sparkle Update
+            if MAC:
+                sparkle.resetUpdateCycle()
+                self.setAppCastURL()
+                sparkle.checkForUpdates_(self)
+            elif WIN:
+                pywinsparkleDelegate.check_without_ui()
+
+
+			# Actual subscriptions
 
             flatFreeSubscription = "typeworld://json+https//typeworldserver.com/flatapi/q8JZfYn9olyUvcCOiqHq/"
 
@@ -6355,14 +6373,6 @@ class AppFrame(wx.Frame):
                 return self.quitSelftest(message, 80)
 
             notification("Test Notification Title", "Test Notification Text")
-
-            # Sparkle Update
-            if MAC:
-                sparkle.resetUpdateCycle()
-                self.setAppCastURL()
-                sparkle.checkForUpdates_(self)
-            elif WIN:
-                pywinsparkleDelegate.check_without_ui()
 
             self.onQuit(None, withExitCode=0)
 

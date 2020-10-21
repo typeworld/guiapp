@@ -1453,6 +1453,7 @@ class AppFrame(wx.Frame):
         try:
             if self.fullyLoaded:
                 if threading.current_thread() == self.thread:
+                    # self.html.RunScript(script)
                     pass
                 else:
                     client.log(

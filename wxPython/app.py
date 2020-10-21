@@ -6287,13 +6287,13 @@ class AppFrame(wx.Frame):
             if MAC:
                 self.setBadgeLabel(3)
 
-            # Sparkle Update
-            if MAC:
-                sparkle.resetUpdateCycle()
-                self.setAppCastURL()
-                sparkle.checkForUpdates_(self)
-            elif WIN:
-                pywinsparkleDelegate.check_without_ui()
+            # # Sparkle Update
+            # if MAC:
+            #     sparkle.resetUpdateCycle()
+            #     self.setAppCastURL()
+            #     sparkle.checkForUpdates_(self)
+            # elif WIN:
+            #     pywinsparkleDelegate.check_without_ui()
 
             # Actual subscriptions
 

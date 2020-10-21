@@ -80,6 +80,7 @@ setup(
                 "markdown2",
                 "pytz",
                 "winreg",
+                "win32api",
                 "zroya",
             ],
             "optimize": 2,

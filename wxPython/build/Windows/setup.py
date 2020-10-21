@@ -82,6 +82,7 @@ setup(
                 "winreg",
                 "win32api",
                 "zroya",
+                "pywinsparkle",
             ],
             "optimize": 2,
             "build_exe": destinationFolder,

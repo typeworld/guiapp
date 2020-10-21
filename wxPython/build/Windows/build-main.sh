@@ -21,7 +21,7 @@ echo 2
 python -c "import shutil; shutil.copytree('$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info', 'build\\lib\\googleapis_common_protos-1.52.0.dist-info')"
 echo 3
 #xcopy "$SITEPACKAGES\\google_api_core-1.22.4.dist-info" "build\\lib\\google_api_core-1.22.4.dist-info" /i /e /h
-python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_api_core-1.22.4.dist-info', 'build\\lib\\google_api_core-1.22.4.dist-info')"
+python -c "import shutil, subprocess; f=subprocess.run(['dir', '/B $SITEPACKAGES\\google_api_core-*.dist-info'], stdout=subprocess.PIPE).stdout.decode('utf-8').strip(' \t\n'); shutil.copytree(f'$SITEPACKAGES\\{f}', f'build\\lib\\{f}')"
 echo 4
 #xcopy "$SITEPACKAGES\\google_auth-1.22.1.dist-info" "build\\lib\\google_auth-1.22.1.dist-info" /i /e /h
 python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_auth-1.22.1.dist-info', 'build\\lib\\google_auth-1.22.1.dist-info')"
@@ -38,6 +38,8 @@ echo "Copy importlib_metadata"
 # python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata', 'build\\lib\\importlib_metadata')"
 #xcopy "$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info" "build\\lib\\importlib_metadata-1.7.0.dist-info" /i /e /h
 python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info', 'build\\lib\\importlib_metadata-1.7.0.dist-info')"
+
+dir build\\lib
 
 echo "Signing TypeWorld.exe"
 # Export key from Windows: https://www.ca.kit.edu/129.php 

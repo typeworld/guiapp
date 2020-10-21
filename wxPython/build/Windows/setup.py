@@ -87,7 +87,7 @@ setup(
                 "win32timezone",
                 "pkg_resources",
             ],
-            "optimize": 2,
+            "optimize": 1,
             "build_exe": destinationFolder,
         }
     },

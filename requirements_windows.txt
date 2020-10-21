@@ -13,4 +13,4 @@ packaging
 cryptography
 pywin32
 pywinsparkle
-numpy==1.19.0 # error stemming from deepdiff
+numpy==1.18.1 # error stemming from deepdiff

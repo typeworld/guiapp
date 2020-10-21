@@ -2,7 +2,11 @@
 # -*- coding: utf-8 -*-
 
 
-import os, sys
+import os
+import sys
+import faulthandler
+
+faulthandler.enable()
 
 # Adjust __file__ for Windows executable
 try:

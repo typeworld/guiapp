@@ -5,6 +5,12 @@
 import os
 import sys
 import faulthandler
+import signal
+
+
+def sig_handler(signum, frame):
+    print("segfault", signum, frame)
+
 
 faulthandler.enable()
 
@@ -1454,6 +1460,7 @@ class AppFrame(wx.Frame):
             if self.fullyLoaded:
                 if threading.current_thread() == self.thread:
                     try:
+                        signal.signal(signal.SIGSEGV, sig_handler)
                         self.html.RunScript(script)
                     except:
                         pass  # TODO: The above may cause a segmentation fault in Console base, trying to catch it.

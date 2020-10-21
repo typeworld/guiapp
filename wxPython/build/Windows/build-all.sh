@@ -14,7 +14,7 @@ echo "Check if can upload to GCS"
 python wxPython/build/build-canupload.py $APP_BUILD_VERSION windows
 
 # First round of main build with "Console" base, as error output will be routed to the
-# console for the self test
+# console instead of popup message windows, to read output of self test in the build
 echo "Main Build, Console base"
 export BUILDBASE="Console"
 sh wxPython/build/Windows/build-main.sh

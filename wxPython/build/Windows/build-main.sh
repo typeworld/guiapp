@@ -47,18 +47,18 @@ echo "Signing TypeWorld.exe"
 # python -c "import os; command = '\"$WINDOWSKITBIN\\signtool.exe\" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n \"Jan Gerner\" /v /debug \"build\\TypeWorld.exe\"'; print(command); os.system(command)"
 # echo "$WINDOWSKITBIN"\\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe"
 #"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld.exe"
-# "$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe"
+"$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld.exe"
 
 #certutil -user -p $JANGERNER_P12_PASSWORD -importPFX jangerner.pfx NoRoot
 
 echo "Signing TypeWorld Subscription Opener.exe"
 #python -c "import os; os.system('\"$WINDOWSKITBIN\\signtool.exe\" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n \"Jan Gerner\" /v /debug \"build\\TypeWorld Subscription Opener.exe\"')"
 #"$WINDOWSKITBIN\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v /debug "build\\TypeWorld Subscription Opener.exe"
-# "$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld Subscription Opener.exe"
+"$WINDOWSKITBIN\\signtool.exe" sign /v /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /f jangerner.pfx /p $JANGERNER_P12_PASSWORD "build\\TypeWorld Subscription Opener.exe"
 
 echo "Verify signature"
-# "$WINDOWSKITBIN\\signtool.exe" verify /pa /v "build\\TypeWorld.exe"
-# "$WINDOWSKITBIN\\signtool.exe" verify /pa /v "build\\TypeWorld Subscription Opener.exe"
+"$WINDOWSKITBIN\\signtool.exe" verify /pa /v "build\\TypeWorld.exe"
+"$WINDOWSKITBIN\\signtool.exe" verify /pa /v "build\\TypeWorld Subscription Opener.exe"
 
 
     # if "agent" in profile:

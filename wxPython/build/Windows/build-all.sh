@@ -7,6 +7,8 @@ export WINDOWSKITBIN="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041
 echo $SITEPACKAGES
 #dir $SITEPACKAGES
 
+env
+
 echo "Check if typeworld.api holds correct version number"
 python wxPython/build/build-checkversionnumber.py $APP_BUILD_VERSION
 

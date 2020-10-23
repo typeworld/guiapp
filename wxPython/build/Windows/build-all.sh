@@ -24,7 +24,7 @@ python wxPython/build/build-canupload.py $APP_BUILD_VERSION windows
 # console instead of popup message windows, to read output of self test in the build
 echo "Main Build, Console base"
 export BUILDBASE="Console"
-sh wxPython/build/Windows/build-main.sh
+bash wxPython/build/Windows/build-main.sh
 
 # Clear build folder
 rmdir /s build
@@ -33,10 +33,10 @@ mkdir build
 # Second round with "Win32GUI" base (no console window appears on Windows)
 echo "Main Build, GUI base"
 export BUILDBASE="Win32GUI"
-sh wxPython/build/Windows/build-main.sh
+bash wxPython/build/Windows/build-main.sh
 
 echo "Pack"
-sh wxPython/build/Windows/build-pack.sh
+bash wxPython/build/Windows/build-pack.sh
 
 echo "Upload"
 python wxPython/build/build-upload.py $APP_BUILD_VERSION windows

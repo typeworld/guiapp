@@ -43,6 +43,7 @@ environment:
       PFX_SALT:
         secure: AbufXBFzA+Ep2imQGhKf4Iu320bYDq7OphfeC87pHEuVG3yekZpWGjiuyP7CV8Xc8zQRrG7LJQvD7IhRAAYkHg==
       SHELL: "C:\\msys64\\usr\\bin\\bash.exe"
+      SIGNTOOL: '"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x86\signtool.exe"'
 
 
 stack: python %PYTHONSTACK%
@@ -78,7 +79,7 @@ for:
     - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-all.sh
 #    - cmd: cmd.exe /C wxPython/build/Windows/build-sign.bat
     - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-sign.sh
-    - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-pack.sh
+    - '%SIGNTOOL% sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v "build\TypeWorld.exe"'
     - cmd: cmd.exe /C wxPython/build/Windows/build-signinstaller.bat
     - cmd: python wxPython/build/build-upload.py windows
     - cmd: python wxPython/build/Windows/build-uploadsignature.py

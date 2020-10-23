@@ -13,10 +13,10 @@ echo $SITEPACKAGES
 #dir $SITEPACKAGES
 
 echo "Check if typeworld.api holds correct version number"
-python wxPython/build/build-checkversionnumber.py $APP_BUILD_VERSION
+python wxPython/build/build-checkversionnumber.py
 
 echo "Check if can upload to GCS"
-python wxPython/build/build-canupload.py $APP_BUILD_VERSION windows
+python wxPython/build/build-canupload.py windows
 
 # First round of main build with "Console" base, as error output will be routed to the
 # console instead of popup message windows, to read output of self test in the build

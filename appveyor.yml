@@ -78,7 +78,7 @@ for:
   build_script: 
     - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-all.sh
 #    - cmd: cmd.exe /C wxPython/build/Windows/build-sign.bat
-    - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-sign.sh
+    # - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-sign.sh
     - '%SIGNTOOL% sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v "build\TypeWorld.exe"'
     - cmd: cmd.exe /C wxPython/build/Windows/build-signinstaller.bat
     - cmd: python wxPython/build/build-upload.py windows

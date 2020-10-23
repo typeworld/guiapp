@@ -1,6 +1,8 @@
 set -e
 
-python -c "import os; print('Python Environ: ', os.environ)"
+python -c "import os; print('Python Environ: ', os.getenv('TYPEWORLD_APIKEY'))"
+
+
 
 export APP_BUILD_VERSION=$(curl "https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY")
 export SITEPACKAGES=`python -c 'import site; print(site.getsitepackages()[0])'`\\Lib\\site-packages

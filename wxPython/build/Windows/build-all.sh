@@ -34,13 +34,3 @@ echo "Main Build, GUI base"
 export BUILDBASE="Win32GUI"
 $SHELL wxPython/build/Windows/build-main.sh
 
-echo "Pack"
-$SHELL wxPython/build/Windows/build-pack.sh
-
-echo "Upload"
-python wxPython/build/build-upload.py $APP_BUILD_VERSION windows
-
-echo "Upload Sparkle signature"
-python wxPython/build/Windows/build-uploadsignature.py $APP_BUILD_VERSION
-
-echo "Finished successfully."

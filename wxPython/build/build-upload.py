@@ -5,7 +5,9 @@ from google.cloud import storage
 
 WIN = platform.system() == "Windows"
 
-version = sys.argv[-2]
+version = os.getenv("APP_BUILD_VERSION", "undefined")
+assert version != "undefined"
+
 platform = sys.argv[-1]
 ending = "dmg" if platform == "mac" else "exe"
 

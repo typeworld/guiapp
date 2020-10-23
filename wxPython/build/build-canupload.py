@@ -34,3 +34,7 @@ if blob:
 if os.environ["APP_BUILD_VERSION"] == "n/a":
     print("No build target version number available: n/a")
     sys.exit(1)
+# Version number check
+if os.environ["APP_BUILD_VERSION"] == "":
+    print("No build target version number available: empty")
+    sys.exit(1)

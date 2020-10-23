@@ -42,7 +42,7 @@ environment:
       #   secure: N47NkAmupgZ/fFrHFx/gyF6d7UEPD69OW6lAnAy+4Rcoi0spYs/qt9gAGHpirwQT0yrFBQYYV2m0bnkgH+Z2iQ==
       PFX_SALT:
         secure: AbufXBFzA+Ep2imQGhKf4Iu320bYDq7OphfeC87pHEuVG3yekZpWGjiuyP7CV8Xc8zQRrG7LJQvD7IhRAAYkHg==
-      SHELL: C:\\msys64\\usr\\bin\\bash.exe
+      SHELL: "C:\\msys64\\usr\\bin\\bash.exe"
 
 
 stack: python %PYTHONSTACK%

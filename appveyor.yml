@@ -75,4 +75,4 @@ for:
     - cmd: sh install_windows.sh
   build_script: 
 #    - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-all.sh
-    - cmd: cmd.exe /C python -c "import os; print(os.environ)" && C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-all.sh
+    - cmd: cmd.exe /C C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-all.sh

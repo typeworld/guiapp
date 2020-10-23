@@ -38,3 +38,4 @@ if os.environ["APP_BUILD_VERSION"] == "n/a":
 if os.environ["APP_BUILD_VERSION"] == "":
     print("No build target version number available: empty")
     sys.exit(1)
+print("Build version", os.environ["APP_BUILD_VERSION"])

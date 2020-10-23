@@ -42,6 +42,7 @@ environment:
       #   secure: N47NkAmupgZ/fFrHFx/gyF6d7UEPD69OW6lAnAy+4Rcoi0spYs/qt9gAGHpirwQT0yrFBQYYV2m0bnkgH+Z2iQ==
       PFX_SALT:
         secure: AbufXBFzA+Ep2imQGhKf4Iu320bYDq7OphfeC87pHEuVG3yekZpWGjiuyP7CV8Xc8zQRrG7LJQvD7IhRAAYkHg==
+      SHELL: C:\\msys64\\usr\\bin\\bash.exe
 
 
 stack: python %PYTHONSTACK%
@@ -74,5 +75,4 @@ for:
     - cmd: set "PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%"
     - cmd: sh install_windows.sh
   build_script: 
-#    - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-all.sh
-    - cmd: cmd.exe /C C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-all.sh
+    - cmd: "%SHELL%"" wxPython/build/Windows/build-all.sh

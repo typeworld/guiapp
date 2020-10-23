@@ -76,3 +76,4 @@ for:
     - cmd: sh install_windows.sh
   build_script: 
     - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-all.sh
+    - cmd: wxPython/build/Windows/build-all.bat

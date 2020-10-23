@@ -22,7 +22,7 @@ python wxPython/build/build-canupload.py $APP_BUILD_VERSION windows
 # console instead of popup message windows, to read output of self test in the build
 echo "Main Build, Console base"
 export BUILDBASE="Console"
-$SHELL wxPython/build/Windows/build-main.sh
+bat.exe wxPython/build/Windows/build-main.bat
 
 # Clear build folder
 rmdir /s build

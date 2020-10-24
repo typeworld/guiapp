@@ -4,7 +4,6 @@ export WINDOWSKITBIN="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041
 
 echo "Create InnoSetup .iss file"
 python "wxPython/build/Windows/createissfile.py"
-cat "wxPython/build/Windows/TypeWorld.iss"
 
 echo "Create InnoSetup Installer"
-"C:\\Program Files (x86)\\Inno Setup 6\\iscc.exe" "wxPython/build/Windows/TypeWorld.iss"
+"C:\\Program Files (x86)\\Inno Setup 6\\iscc.exe" "wxPython/build/Windows/TypeWorld.iss" > nul

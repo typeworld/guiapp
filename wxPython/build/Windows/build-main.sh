@@ -1,7 +1,7 @@
 set -e
 
 echo "Python build"
-python wxPython/build/Windows/setup.py build > nul # muting too much output
+python wxPython/build/Windows/setup.py build # > nul # muting too much output
 
 echo "/build content"
 dir build

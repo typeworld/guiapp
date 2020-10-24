@@ -12,8 +12,9 @@ python wxPython/build/build-canupload.py windows
 
 # First round of main build with "Console" base, as error output will be routed to the
 # console instead of popup message windows, to read output of self test in the build
-echo "Main Build, Console base"
+echo "Main Build, Console base, export"
 export BUILDBASE="Console"
+echo "Main Build, Console base"
 $SHELL wxPython/build/Windows/build-main.sh
 
 # Clear build folder

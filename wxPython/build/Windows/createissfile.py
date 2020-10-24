@@ -1,10 +1,8 @@
 import os
 import sys
 
-version = sys.argv[-1]
-if version == "n/a":
-    print("Can’t get version number")
-    sys.exit(1)
+version = os.getenv("APP_BUILD_VERSION", "undefined")
+assert version != "undefined"
 
 # Write .iss
 

@@ -21,19 +21,19 @@ cp -r $SITEPACKAGES/google build/lib/
 echo 2
 #xcopy "$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info\\" "build\\lib\\googleapis_common_protos-1.52.0.dist-info\\" /i /e /h
 # python -c "import shutil; shutil.copytree('$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info', 'build\\lib\\googleapis_common_protos-1.52.0.dist-info')"
-cp $SITEPACKAGES/googleapis_common_protos-*.dist-info build/lib/
+cp -r $SITEPACKAGES/googleapis_common_protos-*.dist-info build/lib/
 echo 3
 #xcopy "$SITEPACKAGES\\google_api_core-1.22.4.dist-info" "build\\lib\\google_api_core-1.22.4.dist-info" /i /e /h
 # python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_api_core-1.23.0.dist-info', 'build\\lib\\google_api_core-1.23.0.dist-info')"
-cp $SITEPACKAGES/google_api_core-*.dist-info build/lib/
+cp -r $SITEPACKAGES/google_api_core-*.dist-info build/lib/
 echo 4
 #xcopy "$SITEPACKAGES\\google_auth-1.22.1.dist-info" "build\\lib\\google_auth-1.22.1.dist-info" /i /e /h
 # python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_auth-1.22.1.dist-info', 'build\\lib\\google_auth-1.22.1.dist-info')"
-cp $SITEPACKAGES/google_auth-*.dist-info build/lib/
+cp -r $SITEPACKAGES/google_auth-*.dist-info build/lib/
 echo 5
 #xcopy "$SITEPACKAGES\\google_cloud_pubsub-2.1.0.dist-info" "build\\lib\\google_cloud_pubsub-2.1.0.dist-info" /i /e /h
 # python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google_cloud_pubsub-2.1.0.dist-info', 'build\\lib\\google_cloud_pubsub-2.1.0.dist-info')"
-cp $SITEPACKAGES/google_cloud_pubsub-*.dist-info build/lib/
+cp -r $SITEPACKAGES/google_cloud_pubsub-*.dist-info build/lib/
 
 echo "Copy ynlib"
 #xcopy ynlib "build\\lib\\ynlib" /i /e /h
@@ -45,7 +45,7 @@ echo "Copy importlib_metadata"
 # python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata', 'build\\lib\\importlib_metadata')"
 #xcopy "$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info" "build\\lib\\importlib_metadata-1.7.0.dist-info" /i /e /h
 # python -c "import shutil; shutil.copytree('$SITEPACKAGES\\importlib_metadata-1.7.0.dist-info', 'build\\lib\\importlib_metadata-1.7.0.dist-info')"
-cp $SITEPACKAGES/importlib_metadata-*.dist-info build/lib/
+cp -r $SITEPACKAGES/importlib_metadata-*.dist-info build/lib/
 
 dir build\\lib
 

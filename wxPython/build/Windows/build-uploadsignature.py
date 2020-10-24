@@ -70,7 +70,7 @@ def PostHTTP(
 
 
 def getEdDSA(file):
-    path = '"%s/Code/Sparkle/bin/sign_update" "%s"' % (os.path.expanduser("~"), file)
+    path = f'"sparkle/bin/sign_update" "{file}"'
     dsa = Execute(path).decode()
     return dsa
 

@@ -17,7 +17,7 @@ echo "Copy Google Code"
 echo 1
 #xcopy "$SITEPACKAGES\\google\\" "build\\lib\\google\\" /i /e /h
 # python -c "import shutil; shutil.copytree('$SITEPACKAGES\\google', 'build\\lib\\google')"
-cp $SITEPACKAGES/google build/lib/
+cp -r $SITEPACKAGES/google build/lib/
 echo 2
 #xcopy "$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info\\" "build\\lib\\googleapis_common_protos-1.52.0.dist-info\\" /i /e /h
 # python -c "import shutil; shutil.copytree('$SITEPACKAGES\\googleapis_common_protos-1.52.0.dist-info', 'build\\lib\\googleapis_common_protos-1.52.0.dist-info')"
@@ -38,7 +38,7 @@ cp $SITEPACKAGES/google_cloud_pubsub-*.dist-info build/lib/
 echo "Copy ynlib"
 #xcopy ynlib "build\\lib\\ynlib" /i /e /h
 # python -c "import shutil; shutil.copytree('ynlib\\Lib\\ynlib', 'build\\lib\\ynlib')"
-cp ynlib/Lib/ynlib build/lib/
+cp -r ynlib/Lib/ynlib build/lib/
 
 echo "Copy importlib_metadata"
 #xcopy "$SITEPACKAGES\\importlib_metadata" "build\\lib\\importlib_metadata"  /i /e /h

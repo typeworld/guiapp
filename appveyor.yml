@@ -77,8 +77,8 @@ for:
     - cmd: sh install_windows.sh
 
   build_script: 
-    - cmd: sh wxPython/build/Windows/build-all.sh
+    - cmd: "C:\\msys64\\usr\\bin\\bash.exe" wxPython/build/Windows/build-all.sh
     - wxPython/build/Windows/build-sign.bat
-    - cmd: sh wxPython/build/Windows/build-pack.sh
+    - cmd: "C:\\msys64\\usr\\bin\\bash.exe" wxPython/build/Windows/build-pack.sh
     - cmd: python wxPython/build/build-upload.py windows
     - cmd: python wxPython/build/Windows/build-uploadsignature.py

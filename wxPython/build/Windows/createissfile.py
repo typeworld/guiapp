@@ -67,7 +67,7 @@ specialLines = {
 lines = []
 lines.append("[Files]")
 
-rootdir = "build"
+rootdir = os.path.join(os.getenv("PWD"), "build")
 
 for subdir, dirs, files in os.walk(rootdir):
     for file in files:

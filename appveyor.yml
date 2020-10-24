@@ -80,4 +80,5 @@ for:
     - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-all.sh
     - wxPython/build/Windows/build-sign.bat
     - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-pack.sh
+    - wxPython/build/Windows/build-signinstaller.bat
     - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-upload.sh

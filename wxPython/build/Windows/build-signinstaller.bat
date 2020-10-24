@@ -1,5 +1,7 @@
+dir dmg
+
 echo "Signing Installer Package"
-"%WINDOWSKITBIN%\\signtool.exe" sign /tr http://timestamp.digicert.com /debug /td sha256 /fd SHA256 /a /n "Jan Gerner" "dmg\\TypeWorldApp.%APP_BUILD_VERSION%.exe"
+"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041.0\\x86\\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd SHA256 /n "Jan Gerner" /v "dmg\\TypeWorldApp.%APP_BUILD_VERSION%.exe"
 
 echo "Verify signature"
-"%WINDOWSKITBIN%\\signtool.exe" verify /pa /v "dmg\\TypeWorldApp.%APP_BUILD_VERSION%.exe"
+"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.19041.0\\x86\\signtool.exe" verify /pa /v "dmg\\TypeWorldApp.%APP_BUILD_VERSION%.exe"

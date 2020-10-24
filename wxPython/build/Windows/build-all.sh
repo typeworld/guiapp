@@ -26,7 +26,7 @@ export BUILDBASE="Console"
 $SHELL wxPython/build/Windows/build-main.sh
 
 # Clear build folder
-rmdir /s build
+rm -rf build
 mkdir build
 
 # Second round with "Win32GUI" base (no console window appears on Windows)

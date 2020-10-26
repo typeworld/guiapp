@@ -7,10 +7,10 @@ echo "Staple notarization ticket to app"
 xcrun --verbose stapler staple dist/Type.World.app
 
 echo "Create .dmg"
-dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dmg/TypeWorldApp.dmg
 
 echo "Sign .dmg"
-codesign -vvvv -s "Jan Gerner" dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+codesign -vvvv -s "Jan Gerner" dmg/TypeWorldApp.dmg
 
 echo "Verify .dmg"
-codesign -vvvv -dv dmg/TypeWorldApp.$APP_BUILD_VERSION.dmg
+codesign -vvvv -dv dmg/TypeWorldApp.dmg

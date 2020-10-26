@@ -13,11 +13,11 @@ python wxPython/build/Mac/build-main.py $APP_BUILD_VERSION
 
 # Pack for notarization
 echo "Create .dmg"
-dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dist/TypeWorldApp.dmg
+dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dist/TypeWorldApp.notarize.dmg
 echo "Sign .dmg"
-codesign -vvvv -s "Jan Gerner" dist/TypeWorldApp.dmg
+codesign -vvvv -s "Jan Gerner" dist/TypeWorldApp.notarize.dmg
 echo "Verify .dmg"
-codesign -vvvv -dv dist/TypeWorldApp.dmg
+codesign -vvvv -dv dist/TypeWorldApp.notarize.dmg
 
 echo "Notarization"
 python wxPython/build/Mac/build-notarize.py $APP_BUILD_VERSION

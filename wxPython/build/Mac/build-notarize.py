@@ -37,7 +37,7 @@ notarization = executeCommands(
     (
         (
             "Upload for Notarization",
-            f'xcrun altool --primary-bundle-id "Type.World" --notarize-app --username "post@yanone.de" --password "{os.environ["NOTARIZATION_PASSWORD"]}" --file dist/TypeWorldApp.dmg',
+            f'xcrun altool --primary-bundle-id "Type.World" --notarize-app --username "post@yanone.de" --password "{os.environ["NOTARIZATION_PASSWORD"]}" --file dist/TypeWorldApp.notarize.dmg',
             True,
         ),
     ),

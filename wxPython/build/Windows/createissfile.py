@@ -19,7 +19,7 @@ UninstallDisplayIcon={app}\\TypeWorld.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=C:\\projects\\guiapp\\dmg\\
-OutputBaseFilename=TypeWorldApp.%s
+OutputBaseFilename=TypeWorldApp
 DisableReadyPage=yes
 CloseApplications=force
 

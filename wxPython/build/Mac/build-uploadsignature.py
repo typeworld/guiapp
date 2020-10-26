@@ -34,7 +34,7 @@ def getEdDSA(file):
     return dsa
 
 
-signature = getEdDSA(f"dmg/TypeWorldApp.{version}.dmg")
+signature = getEdDSA(f"dmg/TypeWorldApp.dmg")
 
 response = http(
     "https://api.type.world/setSparkleSignature",

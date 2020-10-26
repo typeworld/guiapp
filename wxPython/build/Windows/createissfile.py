@@ -49,7 +49,7 @@ end;
 
 [Files]
 """
-    % (version, version)
+    % (version)
 )
 
 

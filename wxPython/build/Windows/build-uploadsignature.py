@@ -76,24 +76,42 @@ def PostHTTP(
 #     return dsa
 
 
+def http(url, data=None):
+    if data:
+        data = urllib.parse.urlencode(data).encode("ascii")
+    request = urllib.request.Request(url, data=data)
+    sslcontext = ssl.create_default_context(cafile=certifi.where())
+    response = urllib.request.urlopen(request, context=sslcontext)
+    return response.read().decode()
+
+
+def execute(command):
+    out = subprocess.Popen(
+        command, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True
+    )
+    output, exitcode = out.communicate()[0].decode(), out.returncode
+    return output, exitcode
+
+
 def getDSA(file):
     path = f'"sparkle/WinSparkle-0.7.0/bin/sign_update" "{file}" "wxPython/build/Windows/winsparkle/dsa_priv.pem"'
-    dsa = Execute(path).decode()
+    dsa, exitcode = execute(path)
     dsa = dsa.replace(" ", "").replace("\n", "")
     return f'sparkle:dsaSignature="{dsa}" length="0"'
 
 
 signature = getDSA(f"dmg/TypeWorldApp.exe")
 
-response = PostHTTP(
+response = http(
     "https://api.type.world/setSparkleSignature",
-    values={
+    data={
         "appKey": "world.type.guiapp",
         "version": version,
         "platform": "windows",
         "signature": signature,
+        "TYPEWORLD_APIKEY": os.getenv("TYPEWORLD_APIKEY"),
     },
-).decode()
+)
 if not response == "ok":
     print("Uploading Sparkle signature failed:", response)
     sys.exit(1)

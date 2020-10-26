@@ -43,7 +43,7 @@ response = http(
         "version": version,
         "platform": "mac",
         "signature": signature,
-        "TYPEWORLD_APIKEY": os.environ["TYPEWORLD_APIKEY"],
+        "TYPEWORLD_APIKEY": os.getenv("TYPEWORLD_APIKEY"),
     },
 )
 if not response == "ok":

@@ -67,7 +67,7 @@ for:
 
     # Decrypt secure files
     - ps: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
-    - cmd: appveyor-tools\secure-file -decrypt jangerner.pfx.enc -secret "%SECUREFILE_DECODE_SECRET_1%" -salt "%JANGERNER_PFX_SALT%"
+    - cmd: appveyor-tools\secure-file -decrypt wxPython\build\Windows\codesigning\jangerner.pfx.enc -secret "%SECUREFILE_DECODE_SECRET_1%" -salt "%JANGERNER_PFX_SALT%"
     - cmd: appveyor-tools\secure-file -decrypt wxPython\build\Windows\winsparkle\dsa_priv.pem.enc -secret "%SECUREFILE_DECODE_SECRET_2%" -salt "%WINSPARKLE_PRIVATEKEY_DECODE_SALT%"
 
     - cmd: set "PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%"

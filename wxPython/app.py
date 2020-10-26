@@ -6334,6 +6334,9 @@ class AppFrame(wx.Frame):
 
             # Delete User Account
             success, message = client.deleteUserAccount("test1@type.world", "12345678")
+            condition = success == True
+            if not condition:
+                return self.quitSelftest(message, 9)
 
             # Create User Account
             success, message = client.createUserAccount(

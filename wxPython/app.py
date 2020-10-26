@@ -6335,7 +6335,7 @@ class AppFrame(wx.Frame):
             if not condition:
                 if message != [
                     "#(response.userUnknown)",
-                    "#(response.userUnknown.headline)"
+                    "#(response.userUnknown.headline)",
                 ]:
                     return self.quitSelftest(message, 9)
 

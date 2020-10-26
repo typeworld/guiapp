@@ -352,11 +352,7 @@ def getFileProperties(fname):
 
 
 if DESIGNTIME:
-    APPVERSION = (
-        open(os.path.join(os.path.dirname(__file__), "..", "currentVersion.txt"), "r")
-        .read()
-        .strip()
-    )
+    APPVERSION = typeworld.api.VERSION
 
 elif RUNTIME:
 

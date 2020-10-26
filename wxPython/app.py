@@ -84,10 +84,7 @@ if WIN:
         DEBUG = True
 
     # Redirect stderr & stdout
-    try:
-        sys.stdout.write("\n")
-        sys.stdout.flush()
-    except IOError:
+    if sys.stdout is None:
 
         class dummyStream:
             def __init__(self):

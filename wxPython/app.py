@@ -6,8 +6,6 @@ import os
 import sys
 import faulthandler
 
-faulthandler.enable()
-
 # Adjust __file__ for Windows executable
 try:
     __file__ = os.path.abspath(__file__)
@@ -117,6 +115,7 @@ if WIN:
 
 global app
 app = None
+faulthandler.enable()
 
 
 if MAC:

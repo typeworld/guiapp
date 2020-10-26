@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import os, sys
+import os
+import sys
+import subprocess
+import urllib
+import urllib.request
+import ssl
+import certifi
 
 version = os.getenv("APP_BUILD_VERSION", "undefined")
 assert version != "undefined"

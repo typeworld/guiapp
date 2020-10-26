@@ -4,7 +4,8 @@
 
 import os
 import sys
-import faulthandler
+
+# import faulthandler
 
 # Adjust __file__ for Windows executable
 try:
@@ -112,7 +113,7 @@ if WIN:
 
 global app
 app = None
-faulthandler.enable()
+# faulthandler.enable()
 
 
 if MAC:

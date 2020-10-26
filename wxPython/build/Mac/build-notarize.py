@@ -82,8 +82,12 @@ while True:
         print(check)
         sys.exit(1)
 
-    if RequestUUID in check and "Status: in progress" in check:
-        pass
+    if (
+        RequestUUID in check
+        and "Status: in progress" in check
+        or "Error: code 1519" in check
+    ):
+        pass  # Repeat one loop
 
 print("Finished successfully.")
 print()

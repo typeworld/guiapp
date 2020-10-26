@@ -6336,9 +6336,9 @@ class AppFrame(wx.Frame):
             success, message = client.deleteUserAccount("test1@type.world", "12345678")
             condition = success == True
             if not condition:
-                if message is not [
+                if message != [
                     "#(response.userUnknown)",
-                    "#(response.userUnknown.headline)",
+                    "#(response.userUnknown.headline)"
                 ]:
                     return self.quitSelftest(message, 9)
 

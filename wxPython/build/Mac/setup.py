@@ -182,7 +182,7 @@ options = {
             "SUPublicEDKey": "ZwplGI76S+oA1VLkFmyugupUgvom8oFWXDUZsNb0jBc=",
             "SUEnableAutomaticChecks": True,
             "SUAllowsAutomaticUpdates": True,
-            "LSMinimumSystemVersion": "10.14",
+            "LSMinimumSystemVersion": "10.13",
         },
         "strip": True,
         "optimize": 1,

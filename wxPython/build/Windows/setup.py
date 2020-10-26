@@ -61,7 +61,7 @@ setup(
                 os.path.join(baseFolder, "patrons"),
                 os.path.join(baseFolder, "intercom"),
             ],
-            "excludes": ["win32ctypes"],
+            "excludes": ["win32ctypes", "tkinter"],
             # 'google-api-core', 'google-cloud-pubsub'
             "packages": [
                 "typeworld",

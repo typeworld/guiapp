@@ -50,6 +50,8 @@ for:
     only:
       - APPVEYOR_BUILD_WORKER_IMAGE: macos
 
+  init:
+    - cmd: python wxPython/build/build-canbuild.py mac 
   install: 
     - sh: sh install_mac.sh
   build_script: 
@@ -59,6 +61,9 @@ for:
   matrix:
     only:
       - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+  init:
+    - cmd: python wxPython/build/build-canbuild.py windows 
 
   install: 
 

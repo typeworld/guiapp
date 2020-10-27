@@ -51,6 +51,7 @@ for:
       - APPVEYOR_BUILD_WORKER_IMAGE: macos
 
   install: 
+    - sh: sh wxPython/build/build-canbuild.sh mac
     - sh: sh install_mac.sh
   build_script: 
     - sh: sh wxPython/build/Mac/build-all.sh
@@ -62,6 +63,8 @@ for:
 
 
   install: 
+    - cmd: sh wxPython/build/build-canbuild.sh windows
+
     # Remote Desktop
     # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 

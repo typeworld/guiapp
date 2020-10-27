@@ -50,9 +50,9 @@ for:
     only:
       - APPVEYOR_BUILD_WORKER_IMAGE: macos
 
-  init:
-    - cmd: python wxPython/build/build-canbuild.py mac 
   install: 
+    # Can build?
+    - sh: python wxPython/build/build-canbuild.py mac
     - sh: sh install_mac.sh
   build_script: 
     - sh: sh wxPython/build/Mac/build-all.sh
@@ -62,10 +62,10 @@ for:
     only:
       - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
-  init:
-    - cmd: python wxPython/build/build-canbuild.py windows 
 
   install: 
+    # Can build?
+    - cmd: python wxPython/build/build-canbuild.py windows 
 
     # Remote Desktop
     - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

@@ -28,7 +28,7 @@ options = {
             "pyzmq",
             "certifi",
             "distutils",
-            "proto",
+            # "proto",
             "fractions",
             "statistics",
             "contextvars",

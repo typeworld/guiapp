@@ -4185,10 +4185,6 @@ class AppFrame(wx.Frame):
 
     def autoReloadSubscriptions(self):
         try:
-            client.pubSubSetup()
-            for publisher in client.publishers():
-                for subscription in publisher.subscriptions():
-                    subscription.pubSubSetup()
 
             if WIN:
                 path = os.path.expanduser(

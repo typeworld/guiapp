@@ -7123,9 +7123,18 @@ def createClient(startWithCommand=None):
         elif MAC:
             prefs = AppKitNSUserDefaults("world.type.clientapp" if DESIGNTIME else None)
 
+    customMothership = None
+    for arg in sys.argv:
+        if arg.startswith("mothership="):
+            customMothership = arg.split("=")[-1]
+
     global client
     client = APIClient(
-        preferences=prefs, delegate=delegate, mode="gui", pubSubSubscriptions=True
+        preferences=prefs,
+        delegate=delegate,
+        mode="gui",
+        zmqSubscriptions=True,
+        mothership=customMothership,
     )
 
 

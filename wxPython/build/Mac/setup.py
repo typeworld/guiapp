@@ -129,7 +129,7 @@ options = {
             "typing",
             "Foundation",
             "six",
-            "grpc",
+            # "grpc",
             "concurrent",
             "requests",
             "urllib3",

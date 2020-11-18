@@ -62,7 +62,6 @@ setup(
                 os.path.join(baseFolder, "intercom"),
             ],
             "excludes": ["win32ctypes", "tkinter"],
-            # 'google-api-core', 'google-cloud-pubsub'
             "packages": [
                 "pyzmq",
                 "typeworld",
@@ -73,7 +72,7 @@ setup(
                 "pyasn1",
                 "rsa",
                 "cachetools",
-                "grpc",
+                # "grpc",
                 "cryptography",
                 "pyasn1_modules",
                 "typeworld",
@@ -84,7 +83,7 @@ setup(
                 "win32api",
                 "zroya",
                 "pywinsparkle",
-                "proto",
+                # "proto",
                 "win32timezone",
                 "pkg_resources",
             ],

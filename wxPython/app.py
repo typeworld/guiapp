@@ -1566,6 +1566,7 @@ class AppFrame(wx.Frame):
                     return
 
             self.active = False
+            client.quit()
 
             # client.log('onQuit()')
 

@@ -25,6 +25,7 @@ options = {
             # "appbadge.docktileplugin",
         ],
         "packages": [
+            "pyzmq",
             "certifi",
             "distutils",
             "proto",

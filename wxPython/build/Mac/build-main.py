@@ -161,35 +161,35 @@ if "agent" in profile:
         )
     )
 
-executeCommands(
-    (
-        (
-            "Copying google",
-            f"cp -R {sitePackages}/google dist/Type.World.app/Contents/Resources/lib/python3.7",
-            True,
-        ),
-        (
-            "Copying google-api-core",
-            f"cp -R {sitePackages}/google_api_core-*.pth dist/Type.World.app/Contents/Resources/lib/python3.7",
-            True,
-        ),
-        (
-            "Copying google-api-core",
-            f"cp -R {sitePackages}/google_api_core-*.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7",
-            True,
-        ),
-        (
-            "Copying google-cloud-pubsub",
-            f"cp -R {sitePackages}/google_cloud_pubsub-*.pth dist/Type.World.app/Contents/Resources/lib/python3.7",
-            True,
-        ),
-        (
-            "Copying google-cloud-pubsub",
-            f"cp -R {sitePackages}/google_cloud_pubsub-*.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7",
-            True,
-        ),
-    )
-)
+# executeCommands(
+#     (
+#         (
+#             "Copying google",
+#             f"cp -R {sitePackages}/google dist/Type.World.app/Contents/Resources/lib/python3.7",
+#             True,
+#         ),
+#         (
+#             "Copying google-api-core",
+#             f"cp -R {sitePackages}/google_api_core-*.pth dist/Type.World.app/Contents/Resources/lib/python3.7",
+#             True,
+#         ),
+#         (
+#             "Copying google-api-core",
+#             f"cp -R {sitePackages}/google_api_core-*.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7",
+#             True,
+#         ),
+#         (
+#             "Copying google-cloud-pubsub",
+#             f"cp -R {sitePackages}/google_cloud_pubsub-*.pth dist/Type.World.app/Contents/Resources/lib/python3.7",
+#             True,
+#         ),
+#         (
+#             "Copying google-cloud-pubsub",
+#             f"cp -R {sitePackages}/google_cloud_pubsub-*.dist-info dist/Type.World.app/Contents/Resources/lib/python3.7",
+#             True,
+#         ),
+#     )
+# )
 
 executeCommands(
     (

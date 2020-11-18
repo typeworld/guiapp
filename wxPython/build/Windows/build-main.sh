@@ -9,12 +9,12 @@ dir build
 echo "Add Windows App Manifest"
 "$WINDOWSKITBIN\\mt.exe" -manifest "wxPython/build/Windows/windowsAppManifest.xml" -outputresource:build\\TypeWorld.exe;#1
 
-echo "Copy Google Code"
-cp -r $SITEPACKAGES/google build/lib/
-cp -r $SITEPACKAGES/googleapis_common_protos-*.dist-info build/lib/
-cp -r $SITEPACKAGES/google_api_core-*.dist-info build/lib/
-cp -r $SITEPACKAGES/google_auth-*.dist-info build/lib/
-cp -r $SITEPACKAGES/google_cloud_pubsub-*.dist-info build/lib/
+# echo "Copy Google Code"
+# cp -r $SITEPACKAGES/google build/lib/
+# cp -r $SITEPACKAGES/googleapis_common_protos-*.dist-info build/lib/
+# cp -r $SITEPACKAGES/google_api_core-*.dist-info build/lib/
+# cp -r $SITEPACKAGES/google_auth-*.dist-info build/lib/
+# cp -r $SITEPACKAGES/google_cloud_pubsub-*.dist-info build/lib/
 
 echo "Copy ynlib"
 cp -r ynlib/Lib/ynlib build/lib/

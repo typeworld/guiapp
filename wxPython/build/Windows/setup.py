@@ -64,6 +64,7 @@ setup(
             "excludes": ["win32ctypes", "tkinter"],
             # 'google-api-core', 'google-cloud-pubsub'
             "packages": [
+                "pyzmq",
                 "typeworld",
                 "packaging",
                 "grpc",

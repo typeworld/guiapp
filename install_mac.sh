@@ -6,6 +6,7 @@ sh install_common.sh
 
 # Python requirements
 python -m pip install -r requirements_mac.txt
+python -c 'import zmq; print("zmq"); print(zmq.zmq_version()); print(zmq.pyzmq_version())'
 
 # Download Sparkle
 curl -O -L https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/Sparkle-1.23.0.tar.bz2

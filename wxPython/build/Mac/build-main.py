@@ -13,6 +13,10 @@ sitePackages = os.getenv("SITEPACKAGES")
 
 profile = ["normal", "sign"]  # normal/sign/agent
 
+import zmq
+
+print(f"build-main.py {zmq.zmq_version()} {zmq.pyzmq_version()}")
+
 
 def execute(command):
     out = Popen(command, stderr=STDOUT, stdout=PIPE, shell=True)

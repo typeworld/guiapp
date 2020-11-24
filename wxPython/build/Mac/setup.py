@@ -10,6 +10,11 @@ sslcontext = ssl.create_default_context(cafile=certifi.where())
 response = urllib.request.urlopen(request, context=sslcontext)
 version = response.read().decode()
 
+import zmq
+
+print(f"setup.py {zmq.zmq_version()} {zmq.pyzmq_version()}")
+
+
 options = {
     "py2app": {
         "argv_emulation": False,  # this puts the names of dropped files into sys.argv when starting the app.

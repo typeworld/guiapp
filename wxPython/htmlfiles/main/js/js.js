@@ -9,44 +9,44 @@ function stopLoadingAnimation() {
 
 
 window.onerror = function (msg, url, lineNo, columnNo, error) {
- 
- 	debug('JavaScript error:');
- 	debug('JavaScript error, Msg: ' + msg.replace("''", "\""));
- 	debug('JavaScript error, url: ' + url);
- 	debug('JavaScript error, lineNo: ' + lineNo);
- 	debug('JavaScript error, columnNo: ' + columnNo);
- 	debug('JavaScript error, error: ' + error.replace("''", "\""));
 
-  return false;
+	debug('JavaScript error:');
+	debug('JavaScript error, Msg: ' + msg.replace("''", "\""));
+	debug('JavaScript error, url: ' + url);
+	debug('JavaScript error, lineNo: ' + lineNo);
+	debug('JavaScript error, columnNo: ' + columnNo);
+	debug('JavaScript error, error: ' + error.replace("''", "\""));
+
+	return false;
 }
 
 function python(code) {
 	// debug(code);
-    window.location.href = "x-python://" + code;
+	window.location.href = "x-python://" + code;
 }
 
 function debug(string) {
-    window.location.href = "x-python://self.debug(\'" + string + "\')";
+	window.location.href = "x-python://self.debug(\'" + string + "\')";
 }
 
 function linkout(url) {
-    window.location.href = url;
+	window.location.href = url;
 }
 
 function setPreference(key, value) {
-    python('client.set(____' + key + '____, ____' + value + '____)');
+	python('client.set(____' + key + '____, ____' + value + '____)');
 }
 
 function setPublisherPreference(b64ID, key, value) {
-    python('client.publisher(self.b64decode(____' + b64ID + '____)).set(____' + key + '____, ____' + value + '____)');
+	python('client.publisher(self.b64decode(____' + b64ID + '____)).set(____' + key + '____, ____' + value + '____)');
 }
 
 function setSubscriptionPreference(b64ID, key, value) {
-    python('self.setSubscriptionPreference(self.b64decode(____' + b64ID + '____), ____' + key + '____, ____' + value + '____)');
+	python('self.setSubscriptionPreference(self.b64decode(____' + b64ID + '____), ____' + key + '____, ____' + value + '____)');
 }
 
 function setPublisherPassword(b64ID, username, password) {
-    python('client.publisher(self.b64decode(____' + b64ID + '____)).setPassword(____' + username + '____, ____' + password + '____)');
+	python('client.publisher(self.b64decode(____' + b64ID + '____)).setPassword(____' + username + '____, ____' + password + '____)');
 }
 
 function contextmenu(evt) {
@@ -82,7 +82,7 @@ function unregisterKeypress(key) {
 
 function recalcMinutesCountdown() {
 
-	$(".countdownMinutes").each(function() {
+	$(".countdownMinutes").each(function () {
 
 		timestamp = parseFloat($(this).attr('timestamp'));
 		if (timestamp) {
@@ -101,68 +101,61 @@ function recalcMinutesCountdown() {
 			$(this).removeClass('countdown');
 
 		}
-    	
-  	});
 
-  	python('self.checkFontExpirations()');
+	});
+
+	python('self.checkFontExpirations()');
 
 	setTimeout(function () { recalcMinutesCountdown(); }, 10000);
 }
 
-$( document ).ready(function() {
+$(document).ready(function () {
 
-	// Automatically reload subscriptions
-	autoReloadSubscriptions = function(immediately) {
-		if (immediately) {
-			python('self.autoReloadSubscriptions()');
-			autoReloadSubscriptions();
-		}
-		else {
-			setTimeout(function () {
-				python('self.autoReloadSubscriptions()');
-				autoReloadSubscriptions();
-			}, 1000 * 60); // every minute
-		}
-	};
+	// // Automatically reload subscriptions
+	// minutely = function () {
+	// 	python('self.minutely()');
+	// 	setTimeout(function () {
+	// 		minutely();
+	// 	}, 1000 * 60); // every minute
 
-	setTimeout(function () { autoReloadSubscriptions(true); }, 2000); // First load after 2 seconds
+	// };
 
-
+	setTimeout(function () { python('self.minutely()'); setInterval(function () { python('self.minutely()'); }, 1000 * 30); }, 2000); // First load after 2 seconds
 	setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
 
 
 
-	$(document).bind("contextmenu",function(evt){
+	$(document).bind("contextmenu", function (evt) {
 		contextmenu(evt);
 		evt.preventDefault();
-    	return false;
+		return false;
 	});
 
-	$("#main #publisher .removePublisherButton").click(function() {
-		$( this ).addClass( "hover" );
+	$("#main #publisher .removePublisherButton").click(function () {
+		$(this).addClass("hover");
 		id = $(this).closest('.publisher').attr('id');
-		python('self.removePublisher(\'' + id + '\')'); 
+		python('self.removePublisher(\'' + id + '\')');
 	});
 
 
-	$(".font").on("click", function() {
+	$(".font").on("click", function () {
 		debug('font clicked');
 		showMetadata();
 	});
 
 
-	$("#url").on('keyup', function() {
+	$("#url").on('keyup', function () {
 		addUrl = $(this).val();
 	});
 
 
-	$(document).on("keyup", function( event ) {
-		for(var key in keypressFunctions) {
-		    if(keypressFunctions.hasOwnProperty(key)) {
-		        if (event.which == key) {
-			        keypressFunctions[key]();
-		        }
-		    }
+	$(document).on("keyup", function (event) {
+		for (var key in keypressFunctions) {
+			if (keypressFunctions.hasOwnProperty(key)) {
+				if (event.which == key) {
+					keypressFunctions[key]();
+				}
+			}
 		}
 	});
 
@@ -172,14 +165,14 @@ function showAddSubscription() {
 	$('#addSubscription #url').val(null);
 	$('#addSubscription #authenticationCheckBox').hide();
 
-    // Reset Form
-    $("#addSubscriptionFormSubmitButton").show();
-    $("#addSubscriptionFormCancelButton").show();
-    $("#addSubscriptionFormSubmitAnimation").hide();
+	// Reset Form
+	$("#addSubscriptionFormSubmitButton").show();
+	$("#addSubscriptionFormCancelButton").show();
+	$("#addSubscriptionFormSubmitAnimation").hide();
 
 
 	$('#addSubscription').slideDown();
-	registerKeypress(27, function(){ hidePanel(); });
+	registerKeypress(27, function () { hidePanel(); });
 	$('#addSubscription #url').focus();
 	python('self.panelVisible = True')
 }
@@ -197,25 +190,25 @@ function hideMain() {
 
 function showAbout() {
 	$('#about').slideDown();
-	registerKeypress(27, function(){ hidePanel(); });
+	registerKeypress(27, function () { hidePanel(); });
 	python('self.panelVisible = True')
 }
 
 function showPreferences() {
 	$('#preferences').slideDown();
-	registerKeypress(27, function(){ hidePanel(); });
+	registerKeypress(27, function () { hidePanel(); });
 	python('self.panelVisible = True')
 }
 
 function showPreferences() {
 	$('#preferences').slideDown();
-	registerKeypress(27, function(){ hidePanel(); });
+	registerKeypress(27, function () { hidePanel(); });
 	python('self.panelVisible = True')
 }
 
 function showPublisherPreferences() {
 	$('#publisherPreferences').slideDown();
-	registerKeypress(27, function(){ hidePanel(); });
+	registerKeypress(27, function () { hidePanel(); });
 	python('self.panelVisible = True')
 }
 
@@ -237,20 +230,20 @@ function hidePanel() {
 
 function showMetadata() {
 
-	$("#metadataWrapper").animate({width: 300}, 300);
-	$("#main").animate({right: 300}, 300);
+	$("#metadataWrapper").animate({ width: 300 }, 300);
+	$("#main").animate({ right: 300 }, 300);
 }
 
 function hideMetadata() {
-	$("#metadataWrapper").animate({width: 0}, 300);
-	$("#main").animate({right: 0}, 300);
+	$("#metadataWrapper").animate({ width: 0 }, 300);
+	$("#main").animate({ right: 0 }, 300);
 }
 
 function showCenterMessage(html, completeFunction) {
 	$('#centerMessage').html(html);
 	$('#centerMessageWrapper').show();
 	if (completeFunction) {
-		setTimeout(function () { 
+		setTimeout(function () {
 			completeFunction;
 		}, 100);
 	}
@@ -261,12 +254,12 @@ function hideCenterMessage() {
 }
 
 function addSubscription(url, username, password, caption) {
-	
+
 	showCenterMessage(caption);
-	setTimeout(function () { 
+	setTimeout(function () {
 		python('self.addSubscription(____' + url + '____, ____' + username + '____, ____' + password + '____)');
 	}, 1100);
-	
+
 
 }
 

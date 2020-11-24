@@ -67,6 +67,24 @@ DEBUG = False
 BUILDSTAGE = "beta"
 PULLSERVERUPDATEINTERVAL = 60
 
+# Is Online Helper Function
+import socket
+
+
+def internet(host="8.8.8.8", port=53, timeout=3):
+    """
+    Host: 8.8.8.8 (google-public-dns-a.google.com)
+    OpenPort: 53/tcp
+    Service: domain (DNS/TCP)
+    """
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        return True
+    except socket.error as ex:
+        print(ex)
+        return False
+
 
 if WIN:
 
@@ -1248,6 +1266,8 @@ class AppFrame(wx.Frame):
 
             self.messages = []
             self.active = True
+            self.online = False
+            self.lastMinuteCheck = 0
 
             self.allowedToPullServerUpdates = True
             self.allowCheckForURLInFile = True
@@ -1669,8 +1689,6 @@ class AppFrame(wx.Frame):
 
             if self.active:
 
-                # self.pullServerUpdates()
-
                 resize = False
 
                 # If Window is outside of main screen (like after screen unplugging)
@@ -1706,8 +1724,12 @@ class AppFrame(wx.Frame):
                     self.checkForURLInFile()
 
                 if MAC:
-
                     self.applyDarkMode()
+
+                # checkIfOnline() if not directly after app start
+                if self.lastMinuteCheck > 0:
+                    self.checkIfOnline()
+
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -4183,7 +4205,29 @@ class AppFrame(wx.Frame):
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
-    def autoReloadSubscriptions(self):
+    def wentOnline(self):
+        client.wentOnline()
+        self.pullServerUpdates(force=True)
+
+    def wentOffline(self):
+        client.wentOffline()
+
+    def checkIfOnline(self):
+        isOnline = internet()
+        if (
+            not self.online
+            and isOnline
+            or self.online
+            and isOnline
+            and time.time() - self.lastMinuteCheck > 40  # after sleep
+        ):
+            self.wentOnline()
+            self.online = True
+        elif self.online and not isOnline:
+            self.wentOffline()
+            self.online = False
+
+    def minutely(self):
         try:
 
             if WIN:
@@ -4192,6 +4236,8 @@ class AppFrame(wx.Frame):
                 )
                 if os.path.exists(path):
                     os.remove(path)
+
+            self.checkIfOnline()
 
             # # Preference is set to check automatically
             # if int(client.get('reloadSubscriptionsInterval')) != -1:
@@ -4210,6 +4256,8 @@ class AppFrame(wx.Frame):
             # 		for publisher in client.publishers():
             # 			for subscription in publisher.subscriptions():
             # 				self.reloadSubscription(None, None, subscription)
+
+            self.lastMinuteCheck = time.time()
 
         except Exception as e:
             client.handleTraceback(
@@ -7136,6 +7184,7 @@ def createClient(startWithCommand=None):
         mode="gui",
         zmqSubscriptions=True,
         mothership=customMothership,
+        externallyControlled=True,
     )
 
 

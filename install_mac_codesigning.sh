@@ -47,5 +47,5 @@ security set-key-partition-list -S apple-tool:,apple: -s -k travis $KEYCHAIN
 
 # Echo the identity, just so that we know it worked.
 # This won't display anything secret.
-security find-identity -v -p codesign
+security find-identity -v -p codesigning
 

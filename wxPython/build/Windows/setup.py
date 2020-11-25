@@ -66,7 +66,7 @@ setup(
                 "zmq",
                 "typeworld",
                 "packaging",
-                "grpc",
+                # "grpc",
                 "requests",
                 "idna",
                 "pyasn1",

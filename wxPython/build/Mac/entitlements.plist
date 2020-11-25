@@ -5,5 +5,8 @@
 	<!-- https://github.com/pyinstaller/pyinstaller/issues/4629 -->
 	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
 	<true/>
+	<!-- https://developer.apple.com/documentation/bundleresources/entitlements/com_apple_security_cs_allow-jit -->
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
 </dict>
 </plist>

@@ -63,7 +63,7 @@ setup(
             ],
             "excludes": ["win32ctypes", "tkinter"],
             "packages": [
-                "pyzmq",
+                "zmq",
                 "typeworld",
                 "packaging",
                 "grpc",

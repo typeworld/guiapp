@@ -21,7 +21,7 @@ options = {
     "py2app": {
         "argv_emulation": False,  # this puts the names of dropped files into sys.argv when starting the app.
         "iconfile": "wxPython/icon/tw.icns",
-        "includes": ["importlib_metadata", "os", "pyzmq"],
+        "includes": ["importlib_metadata", "os"],
         "frameworks": ["Python.framework"],
         "resources": [
             "wxPython/build/Mac/InternetAccessPolicy.plist",
@@ -32,7 +32,7 @@ options = {
             # "appbadge.docktileplugin",
         ],
         "packages": [
-            "pyzmq",
+            "zmq",
             "certifi",
             "distutils",
             # "proto",

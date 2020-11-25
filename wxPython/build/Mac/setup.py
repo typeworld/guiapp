@@ -1,5 +1,6 @@
 from setuptools import setup
 import os
+import sys
 
 import urllib.request, ssl, certifi
 
@@ -12,7 +13,7 @@ version = response.read().decode()
 
 import zmq
 
-print(f"setup.py {zmq.zmq_version()} {zmq.pyzmq_version()}")
+print(f"setup.py {sys.version} {zmq} {zmq.zmq_version()} {zmq.pyzmq_version()}")
 
 
 options = {

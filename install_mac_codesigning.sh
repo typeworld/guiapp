@@ -30,7 +30,8 @@ security import wxPython/build/Mac/codesigning/apple.cer -k ~/Library/Keychains/
 # 2) Developer Authentication Certification Authority
 security import wxPython/build/Mac/codesigning/dac.cer -k ~/Library/Keychains/$KEYCHAIN -T /usr/bin/codesign
 # 3) Developer ID (That's you!)
-security import $CERTIFICATE_P12 -k $KEYCHAIN -P $MACOS_CERT_PASSWORD -T /usr/bin/codesign 2>&1 >/dev/null;
+security import $CERTIFICATE_P12 -k ~/Library/Keychains/$KEYCHAIN -P $MACOS_CERT_PASSWORD -T /usr/bin/codesign
+# 2>&1 >/dev/null;
 
 # Then the keychain should be unlocked. Otherwise a prompt asking for the keychain password will be displayed:
 security unlock-keychain -p travis $KEYCHAIN
@@ -46,5 +47,5 @@ security set-key-partition-list -S apple-tool:,apple: -s -k travis $KEYCHAIN
 
 # Echo the identity, just so that we know it worked.
 # This won't display anything secret.
-security find-identity -v -p codesigning
+security find-identity -v -p codesign
 

@@ -14,6 +14,7 @@ version = response.read().decode()
 import zmq
 
 print(f"setup.py {sys.version} {zmq} {zmq.zmq_version()} {zmq.pyzmq_version()}")
+print(sys.path)
 
 
 options = {

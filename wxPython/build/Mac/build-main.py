@@ -79,7 +79,8 @@ def signApp(path, bundleType="app"):
 
                 command = (
                     "Signing %s" % filename,
-                    'codesign --options runtime -s "Jan Gerner" -f "%s"' % filepath,
+                    'codesign --options runtime -s "Jan Gerner" --deep --timestamp --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"'
+                    % filepath,
                     True,
                 )
                 executeCommands([command])
@@ -87,7 +88,8 @@ def signApp(path, bundleType="app"):
         if dirpath.endswith(".framework"):
             command = (
                 "Signing %s" % dirpath,
-                'codesign --options runtime -s "Jan Gerner" -f "%s"' % dirpath,
+                'codesign --options runtime -s "Jan Gerner" --deep --timestamp --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"'
+                % dirpath,
                 True,
             )
             executeCommands([command])
@@ -95,7 +97,7 @@ def signApp(path, bundleType="app"):
     commands = (
         (
             "Signing Outer App",
-            'codesign --options runtime --deep -s "Jan Gerner" --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"'
+            'codesign --options runtime --deep -s "Jan Gerner" --timestamp --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"'
             % path,
             bundleType in ["app", "plugin"],
         ),

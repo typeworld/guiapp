@@ -1268,6 +1268,7 @@ class AppFrame(wx.Frame):
             self.active = True
             self.online = False
             self.lastMinuteCheck = 0
+            self.lastOnlineCheck = 0
 
             self.allowedToPullServerUpdates = True
             self.allowCheckForURLInFile = True
@@ -1726,9 +1727,10 @@ class AppFrame(wx.Frame):
                 if MAC:
                     self.applyDarkMode()
 
-                # checkIfOnline() if not directly after app start
-                if self.lastMinuteCheck > 0:
-                    self.checkIfOnline()
+                # # checkIfOnline() if not directly after app start
+                # if self.lastOnlineCheck > 0 and time.time() - self.lastOnlineCheck > 40:
+                #     checkOnlineThread = Thread(target=self.checkIfOnline)
+                #     checkOnlineThread.start()
 
         except Exception as e:
             client.handleTraceback(
@@ -4206,6 +4208,7 @@ class AppFrame(wx.Frame):
             )
 
     def wentOnline(self):
+        print("wentOnline()")
         client.wentOnline()
         self.pullServerUpdates(force=True)
 
@@ -4213,19 +4216,21 @@ class AppFrame(wx.Frame):
         client.wentOffline()
 
     def checkIfOnline(self):
-        isOnline = internet()
+        isOnline = client.online()
         if (
             not self.online
             and isOnline
             or self.online
             and isOnline
-            and time.time() - self.lastMinuteCheck > 40  # after sleep
+            and time.time() - self.lastOnlineCheck > 40  # after sleep
         ):
             self.wentOnline()
             self.online = True
         elif self.online and not isOnline:
             self.wentOffline()
             self.online = False
+
+        self.lastOnlineCheck = time.time()
 
     def minutely(self):
         try:

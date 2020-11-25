@@ -25,10 +25,11 @@ security unlock-keychain -p travis $KEYCHAIN;
 
 # Add certificates to keychain and allow codesign to access them
 
+# Possibly download latest certificates from here_ https://www.apple.com/certificateauthority/
 # 1) Apple Worldwide Developer Relations Certification Authority
 security import wxPython/build/Mac/codesigning/AppleWWDRCA.cer -k ~/Library/Keychains/$KEYCHAIN -T /usr/bin/codesign
 # 2) Developer Authentication Certification Authority
-security import wxPython/build/Mac/codesigning/dac.cer -k ~/Library/Keychains/$KEYCHAIN -T /usr/bin/codesign
+security import wxPython/build/Mac/codesigning/DevAuthCA.cer -k ~/Library/Keychains/$KEYCHAIN -T /usr/bin/codesign
 # 3) Developer ID (That's you!)
 security import $CERTIFICATE_P12 -k ~/Library/Keychains/$KEYCHAIN -P $MACOS_CERT_PASSWORD -T /usr/bin/codesign
 # 2>&1 >/dev/null;

@@ -7160,7 +7160,7 @@ def intercom(commands):
         client.handleTraceback(sourceMethod=globals()[sys._getframe().f_code.co_name])
 
 
-def createClient(startWithCommand=None):
+def createClient(startWithCommand=None, externallyControlled=True):
 
     if startWithCommand == "selftest":
         if WIN:
@@ -7189,7 +7189,7 @@ def createClient(startWithCommand=None):
         mode="gui",
         zmqSubscriptions=True,
         mothership=customMothership,
-        externallyControlled=True,
+        externallyControlled=externallyControlled,
     )
 
 
@@ -7235,7 +7235,7 @@ if __name__ == "__main__":
 
     # Self Test
     elif len(sys.argv) > 1 and sys.argv[1] == "selftest":
-        createClient(startWithCommand="selftest")
+        createClient(startWithCommand="selftest", externallyControlled=False)
         startApp(startWithCommand="selftest")
 
     # Normal App Window

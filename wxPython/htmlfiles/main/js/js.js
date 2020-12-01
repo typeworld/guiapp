@@ -174,7 +174,7 @@ function showAddSubscription() {
 	$('#addSubscription').slideDown();
 	registerKeypress(27, function () { hidePanel(); });
 	$('#addSubscription #url').focus();
-	python('self.panelVisible = True')
+	python('self.panelVisible = ____addSubscription____');
 }
 
 function showMain() {
@@ -191,29 +191,23 @@ function hideMain() {
 function showAbout() {
 	$('#about').slideDown();
 	registerKeypress(27, function () { hidePanel(); });
-	python('self.panelVisible = True')
+	python('self.panelVisible = ____about____');
 }
 
 function showPreferences() {
 	$('#preferences').slideDown();
 	registerKeypress(27, function () { hidePanel(); });
-	python('self.panelVisible = True')
-}
-
-function showPreferences() {
-	$('#preferences').slideDown();
-	registerKeypress(27, function () { hidePanel(); });
-	python('self.panelVisible = True')
+	// python('self.panelVisible = ____preferences____'); (Happens in Pythhon Code)
 }
 
 function showPublisherPreferences() {
 	$('#publisherPreferences').slideDown();
 	registerKeypress(27, function () { hidePanel(); });
-	python('self.panelVisible = True')
-}
+	python('self.panelVisible = ____publisherPreferences____');
 
-function setPublisherHTML(b64ID) {
-	python('self.setPublisherHTML(____' + b64ID + '____)');
+	function setPublisherHTML(b64ID) {
+		python('self.setPublisherHTML(____' + b64ID + '____)');
+	}
 }
 
 function hidePanel() {
@@ -222,9 +216,8 @@ function hidePanel() {
 	$('#publisherPreferences').slideUp();
 	$('#subscriptionPreferences').slideUp();
 	$('#about').slideUp();
-	python('self.panelVisible = False');
+	python('self.hidePanel(); self.setSideBarHTML();');
 	unregisterKeypress(27);
-	python('self.setSideBarHTML()');
 
 }
 

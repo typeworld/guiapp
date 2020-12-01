@@ -414,24 +414,27 @@ class ClientDelegate(TypeWorldClientDelegate):
         assert type(font) == typeworld.api.Font
 
     def subscriptionUpdateNotificationHasBeenReceived(self, subscription):
-        # 			print('PULLED FROM SERVER: subscriptionHasUpdated(%s)' % subscription)
         assert type(subscription) == typeworld.client.APISubscription
         self.app.frame.reloadSubscriptionFromClient(subscription)
 
     def userAccountUpdateNotificationHasBeenReceived(self):
-        # print('userAccountUpdateNotificationHasBeenReceived()')
+        # print("userAccountUpdateNotificationHasBeenReceived()")
         self.app.frame.pullServerUpdates(force=True)
 
+    def userAccountHasBeenUpdated(self):
+        if self.app.frame.panelVisible == "preferences(userAccount)":
+            self.app.frame.threadSafeExec('self.onPreferences(None, "userAccount")')
+
     def subscriptionWasDeleted(self, subscription):
-        print("subscriptionWasDeleted(%s)" % subscription)
+        # print("subscriptionWasDeleted(%s)" % subscription)
         self.app.frame.setSideBarHTML()
 
     def publisherWasDeleted(self, publisher):
-        print("publisherWasDeleted(%s)" % publisher)
+        # print("publisherWasDeleted(%s)" % publisher)
         if client.get("currentPublisher"):
             if not client.publishers():
                 client.set("currentPublisher", "")
-                print("currentPublisher reset")
+                # print("currentPublisher reset")
         self.app.frame.setSideBarHTML()
 
     def subscriptionWasAdded(self, subscription):
@@ -441,7 +444,7 @@ class ClientDelegate(TypeWorldClientDelegate):
             )
 
     def subscriptionWasUpdated(self, subscription):
-        print("subscriptionWasUpdated", subscription.parent, subscription)
+        # print("subscriptionWasUpdated", subscription.parent, subscription)
         if (
             client.get("currentPublisher") == subscription.parent.canonicalURL
             and subscription.parent.get("currentSubscription") == subscription.url
@@ -1276,6 +1279,8 @@ class AppFrame(wx.Frame):
             self.delegate = delegate
             self.delegate.parent = self
 
+            self.panelVisible = None
+
             # Version adjustments
 
             # TODO: Remove these for future versions
@@ -1324,7 +1329,7 @@ class AppFrame(wx.Frame):
 
             self.justAddedPublisher = None
             self.fullyLoaded = False
-            self.panelVisible = False
+            self.panelVisible = None
 
             # Window Size
             minSize = [1100, 700]
@@ -1628,7 +1633,8 @@ class AppFrame(wx.Frame):
             ):
                 if self.allowedToPullServerUpdates:
                     startWorker(
-                        self.pullServerUpdates_consumer, self.pullServerUpdates_worker
+                        self.pullServerUpdates_consumer,
+                        self.pullServerUpdates_worker,
                     )
         except Exception as e:
             client.handleTraceback(
@@ -1890,12 +1896,20 @@ class AppFrame(wx.Frame):
             if not success:
                 self.errorMessage(message)
             else:
+                self.message("#(VerifyEmailAfterUserAccountCreation)")
                 self.onPreferences(None, "userAccount")
 
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
+
+    def resendEmailVerification(self):
+        success, message = client.resendEmailVerification()
+        if not success:
+            self.errorMessage(message)
+        else:
+            self.message("#(VerifyEmailAfterUserAccountCreation)")
 
     def logIn(self, email, password):
         try:
@@ -2004,6 +2018,7 @@ class AppFrame(wx.Frame):
             html.append('<div class="body inner">')
 
             if section == "linkedApps":
+                self.panelVisible = "preferences(linkedApps)"
 
                 success, instances = client.linkedAppInstances()
                 if not success:
@@ -2142,6 +2157,7 @@ class AppFrame(wx.Frame):
                         html.append("</div>")  # .appInstance
 
             if section == "userAccount":
+                self.panelVisible = "preferences(userAccount)"
 
                 # User
                 html.append("<h2>#(Type.World User Account)</h2>")
@@ -2158,6 +2174,37 @@ class AppFrame(wx.Frame):
                     # html.append('<p>')
                     # html.append('#(Account Last Synchronized): %s' % (NaturalRelativeWeekdayTimeAndDate(client.get('lastServerSync'), locale = client.locale()[0]) if client.get('lastServerSync') else 'Never'))
                     # html.append('</p>')
+
+                    html.append("<hr>")
+
+                    html.append("<h2>#(Verified Email Address)</h2>")
+                    html.append("<p>")
+                    html.append("#(Your email address is) ")
+                    if client.get("userAccountEmailIsVerified"):
+                        html.append("#(verified)")
+                    else:
+                        html.append(
+                            '<span class_="box" style="background-color: orange; padding: 3px;">'
+                        )
+                        html.append("#(unverified)")
+                        html.append("</span>")
+                        html.append("</p>")
+                        html.append("<p>")
+                        html.append(
+                            '<a id="resendEmailVerificationButton" class="button">#(Resend verification email)</a>'
+                        )
+
+                    html.append("</p>")
+                    html.append(
+                        """<script>$("#preferences #resendEmailVerificationButton").click(function() {
+
+                    python("self.resendEmailVerification()");
+                     
+                });</script>"""
+                    )
+
+                    html.append("<hr>")
+
                     html.append("<h2>#(Unlink User Account)</h2>")
                     html.append("<p>")
                     html.append("#(UnlinkUserAccountExplanation)")
@@ -2264,6 +2311,8 @@ class AppFrame(wx.Frame):
                 )
 
             if section == "generalPreferences":
+
+                self.panelVisible = "preferences(generalPreferences)"
 
                 # # Update Interval
                 # html.append('<h2>#(Update Interval)</h2>')
@@ -2416,6 +2465,7 @@ class AppFrame(wx.Frame):
             self.javaScript(js)
 
             self.javaScript("showPreferences();")
+            # print(self.panelVisible)
 
         except Exception as e:
             client.handleTraceback(
@@ -2877,7 +2927,7 @@ class AppFrame(wx.Frame):
                 # code = code.replace('https//', 'https://')
                 code = code.replace("____", "'")
                 code = code.replace("'", "'")
-                # client.log('Python code:', code)
+                # client.log("Python code:", code)
                 exec(code)
                 evt.Veto()
             elif uri.startswith("http://") or uri.startswith("https://"):
@@ -3124,7 +3174,6 @@ class AppFrame(wx.Frame):
                     if invitation.url == self.b64decode(url):
 
                         publisherURL = URL(invitation.canonicalURL).HTTPURL()
-                        print("publisherURL", publisherURL)
                         client.set("currentPublisher", publisherURL)
                         publisher = client.publisher(publisherURL)
                         publisher.set("currentSubscription", invitation.url)
@@ -3706,6 +3755,36 @@ class AppFrame(wx.Frame):
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
+    def threadSafeExec(self, code):
+        try:
+            # print("threadSafeExec:", code)
+            startWorker(
+                self.threadSafeExec_consumer, self.threadSafeExec_worker, wargs=(code,)
+            )
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
+    def threadSafeExec_worker(self, code):
+        try:
+            return code
+
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
+    def threadSafeExec_consumer(self, delayedResult):
+        try:
+            code = delayedResult.get()
+            exec(code)
+
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
     def setFontStatuses(self, fonts):
         try:
 
@@ -4243,24 +4322,6 @@ class AppFrame(wx.Frame):
                     os.remove(path)
 
             self.checkIfOnline()
-
-            # # Preference is set to check automatically
-            # if int(client.get('reloadSubscriptionsInterval')) != -1:
-
-            # 	# Has never been checked, set to long time ago
-            # 	if not client.get('reloadSubscriptionsLastPerformed'):
-            # 		client.set('reloadSubscriptionsLastPerformed', int(time.time()) - int(client.get('reloadSubscriptionsInterval')) - 10)
-
-            # 	# See if we should check now
-            # 	if int(client.get('reloadSubscriptionsLastPerformed')) < int(time.time()) - int(client.get('reloadSubscriptionsInterval')):
-
-            # 		client.log('Automatically reloading subscriptions...')
-
-            # 		client.prepareUpdate()
-
-            # 		for publisher in client.publishers():
-            # 			for subscription in publisher.subscriptions():
-            # 				self.reloadSubscription(None, None, subscription)
 
             self.lastMinuteCheck = time.time()
 
@@ -5841,6 +5902,15 @@ class AppFrame(wx.Frame):
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
+    def hidePanel(self):
+        try:
+            self.panelVisible = None
+
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
     def setSideBarHTML(self):
         try:
             # Set publishers
@@ -6497,8 +6567,6 @@ class AppFrame(wx.Frame):
                 if semver.compare(APPVERSION, agentVersion) == 1:
                     client.log("Agent is outdated (%s), needs restart." % agentVersion)
                     restartAgent(2)
-
-            self.pullServerUpdates(force=True)
 
         except Exception as e:
             client.handleTraceback(

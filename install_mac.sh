@@ -15,7 +15,7 @@ tar -xf Sparkle-1.23.0.tar.bz2 --directory sparkle
 
 # Copy ynlib
 export SITEPACKAGES=`python -c 'import site; print(site.getsitepackages()[0])'`
-cp ynlib/Lib/ynlib $SITEPACKAGES
+cp -R ynlib/Lib/ynlib $SITEPACKAGES
 
 # Python
 # Link .dylib

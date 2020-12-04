@@ -18,4 +18,4 @@ unzip WinSparkle-0.7.0.zip -d sparkle
 
 # Copy ynlib
 export SITEPACKAGES=`python -c 'import site; print(site.getsitepackages()[0])'`\\Lib\\site-packages
-cp ynlib/Lib/ynlib $SITEPACKAGES
+cp -R ynlib/Lib/ynlib $SITEPACKAGES

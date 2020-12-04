@@ -30,7 +30,6 @@ else:
     RUNTIME = False
 
 import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, platform, logging, time
-import requests  # Unused in this file, but is necessary to include here for Mac py2app build. Otherwise the google* modules don’t function properly
 from threading import Thread
 import threading
 import wx.html2
@@ -41,7 +40,6 @@ from functools import partial
 from wx.lib.delayedresult import startWorker
 from multiprocessing.connection import Client
 from threading import Thread
-from ynlib.system import Execute
 from string import Template
 
 WIN = platform.system() == "Windows"
@@ -6412,6 +6410,7 @@ class AppFrame(wx.Frame):
 
         try:
 
+            # Set secret key so that new users are verified instantly
             CI = os.getenv("CI", "false").lower() != "false"
             if CI:
                 SECRETKEY = os.getenv("REVOKEAPPINSTANCEAUTHKEY")

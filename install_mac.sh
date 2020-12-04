@@ -13,6 +13,10 @@ curl -O -L https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/S
 mkdir sparkle
 tar -xf Sparkle-1.23.0.tar.bz2 --directory sparkle
 
+# Copy ynlib
+export SITEPACKAGES=`python -c 'import site; print(site.getsitepackages()[0])'`
+cp ynlib/Lib/ynlib $SITEPACKAGES
+
 # Python
 # Link .dylib
 # Apparently, they're the same file:

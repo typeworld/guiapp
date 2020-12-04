@@ -14,3 +14,4 @@ cryptography
 pywin32
 pywinsparkle
 numpy
+codecov

@@ -122,7 +122,13 @@ def signApp(path, bundleType="app"):
 
 if "agent" in profile:
     executeCommands(
-        (("Agent build", "python wxPython/build/Mac/setup_daemon.py py2app", True),)
+        (
+            (
+                "Agent build",
+                f"{os.getenv('PYTHON')} wxPython/build/Mac/setup_daemon.py py2app",
+                True,
+            ),
+        )
     )
 
     if "sign" in profile:
@@ -140,7 +146,11 @@ if "agent" in profile:
 
 executeCommands(
     (
-        ("Main App build", "python wxPython/build/Mac/setup.py py2app", True),
+        (
+            "Main App build",
+            f"{os.getenv('PYTHON')} wxPython/build/Mac/setup.py py2app",
+            True,
+        ),
         (
             "Copying Sparkle",
             "cp -R sparkle/Sparkle.framework dist/Type.World.app/Contents/Frameworks/",

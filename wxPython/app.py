@@ -6434,7 +6434,7 @@ class AppFrame(wx.Frame):
                 self.setBadgeLabel(3)
 
             # Sparkle Update
-            if MAC:
+            if MAC and CI:
                 sparkle.resetUpdateCycle()
                 self.setAppCastURL()
                 sparkle.checkForUpdates_(self)

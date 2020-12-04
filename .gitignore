@@ -3,3 +3,5 @@
 .eggs
 pid.txt
 preferences.json
+.coverage
+coverage.xml

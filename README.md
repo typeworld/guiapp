@@ -31,3 +31,19 @@ Install "Developer ID Certificate" code signing certificate through XCode -> Acc
 # Test
 
 Run compiled app in Python virtual environment to check for missing dependencies.
+
+# Code Coverage Tests
+
+I can’t get `codecov` to run on AppVeyor on Mac at this point because running `app.py` fails with:
+```
+This program needs access to the screen. Please run with a
+Framework build of python, and only when you are logged in
+on the main display of your Mac.```
+
+They suggest to use `pythonw` which also I couldn't get to run for Python 3.
+
+So instead I currently run coverage tests locally:
+`python -m coverage run wxPython/app.py selftest && codecov -t 66a9e5cb-f1ad-46c1-9964-8ce0ded70f03`
+
+Coverage tests should be run directly after each git push, as the locally executed code will be mapped
+to the current git version. Maybe I can get this to work automatically after each push.

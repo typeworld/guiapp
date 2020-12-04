@@ -1,6 +1,3 @@
-which python
-which pythonw
-
 # Mac Code Signing
 sh install_mac_codesigning.sh
 

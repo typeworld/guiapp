@@ -58,9 +58,9 @@ for:
     - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
   install: 
     # - sh: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/mac/started/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"
-    - sh: sh install_mac.sh
-    - sh: python -m coverage run wxPython/app.py selftest && python -m codecov
     - sh: sh wxPython/build/build-canbuild.sh mac
+    - sh: sh install_mac.sh
+    # - sh: python -m coverage run wxPython/app.py selftest && python -m codecov
   build_script: 
     - sh: sh wxPython/build/Mac/build-all.sh
   # on_success: 

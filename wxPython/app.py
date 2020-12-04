@@ -6438,7 +6438,7 @@ class AppFrame(wx.Frame):
                 sparkle.resetUpdateCycle()
                 self.setAppCastURL()
                 sparkle.checkForUpdates_(self)
-            elif WIN:
+            elif WIN and RUNTIME:
                 pywinsparkleDelegate.check_without_ui()
 
             # Actual subscriptions

@@ -413,10 +413,6 @@ class ClientDelegate(TypeWorldClientDelegate):
         # print('fontHasUninstalled', success, message, font)
         assert type(font) == typeworld.api.Font
 
-    def subscriptionUpdateNotificationHasBeenReceived(self, subscription):
-        assert type(subscription) == typeworld.client.APISubscription
-        self.app.frame.reloadSubscriptionFromClient(subscription)
-
     def userAccountUpdateNotificationHasBeenReceived(self):
         # print("userAccountUpdateNotificationHasBeenReceived()")
         self.app.frame.pullServerUpdates(force=True)
@@ -425,33 +421,100 @@ class ClientDelegate(TypeWorldClientDelegate):
         if self.app.frame.panelVisible == "preferences(userAccount)":
             self.app.frame.threadSafeExec('self.onPreferences(None, "userAccount")')
 
-    def subscriptionWasDeleted(self, subscription):
-        # print("subscriptionWasDeleted(%s)" % subscription)
+    def subscriptionHasBeenDeleted(self, subscription):
+        # print("subscriptionHasBeenDeleted(%s)" % subscription)
         self.app.frame.setSideBarHTML()
 
-    def publisherWasDeleted(self, publisher):
-        # print("publisherWasDeleted(%s)" % publisher)
+    def publisherHasBeenDeleted(self, publisher):
+        # print("publisherHasBeenDeleted(%s)" % publisher)
         if client.get("currentPublisher"):
             if not client.publishers():
                 client.set("currentPublisher", "")
                 # print("currentPublisher reset")
         self.app.frame.setSideBarHTML()
 
-    def subscriptionWasAdded(self, subscription):
+    def subscriptionHasBeenAdded(self, subscription):
         if not client.get("currentPublisher"):
             self.app.frame.setPublisherHTML(
                 self.app.frame.b64encode(subscription.parent.canonicalURL)
             )
 
-    def subscriptionWasUpdated(self, subscription):
-        # print("subscriptionWasUpdated", subscription.parent, subscription)
-        if (
-            client.get("currentPublisher") == subscription.parent.canonicalURL
-            and subscription.parent.get("currentSubscription") == subscription.url
-        ):
-            self.app.frame.setPublisherHTML(
-                self.app.frame.b64encode(subscription.parent.canonicalURL)
+    def subscriptionWillUpdate(self, subscription):
+        b64publisherID = self.app.frame.b64encode(subscription.parent.canonicalURL)
+        b64subscriptionID = self.app.frame.b64encode(
+            subscription.protocol.unsecretURL()
+        )
+
+        # Publisher
+        self.app.frame.javaScript(
+            "$('#sidebar #%s.publisher .reloadAnimation').show();" % b64publisherID
+        )
+        self.app.frame.javaScript(
+            "$('#sidebar #%s.publisher .badges').hide();" % b64publisherID
+        )
+
+        # Subscription
+        self.app.frame.javaScript(
+            "$('#sidebar #%s.subscription .reloadAnimation').show();"
+            % b64subscriptionID
+        )
+        self.app.frame.javaScript(
+            "$('#sidebar #%s.subscription .badges').hide();" % b64subscriptionID
+        )
+
+    def subscriptionHasBeenUpdated(self, subscription, success, message, changes):
+        b64publisherID = self.app.frame.b64encode(subscription.parent.canonicalURL)
+        b64subscriptionID = self.app.frame.b64encode(
+            subscription.protocol.unsecretURL()
+        )
+
+        if success:
+            if client.get("currentPublisher") == subscription.parent.canonicalURL:
+                self.app.frame.setPublisherHTML(
+                    self.app.frame.b64encode(subscription.parent.canonicalURL)
+                )
+            self.app.frame.setSideBarHTML()
+
+            # Hide alert
+            self.app.frame.javaScript(
+                "$('#sidebar #%s .alert').hide();" % b64publisherID
             )
+            self.app.frame.javaScript(
+                "$('#sidebar #%s .alert').hide();" % b64subscriptionID
+            )
+
+        else:
+            # Show alert
+            # 				if subscription.updatingProblem():
+            self.app.frame.javaScript(
+                "$('#sidebar #%s .alert').show();" % b64publisherID
+            )
+            self.app.frame.javaScript(
+                "$('#sidebar #%s .alert ').show();" % b64subscriptionID
+            )
+
+        # Subscription
+        self.app.frame.javaScript(
+            f"""
+            $('#sidebar #{b64subscriptionID}.subscription .reloadAnimation').hide();
+            $('#sidebar #{b64subscriptionID}.subscription .badges').show();
+            """
+        )
+
+        if subscription.parent.stillUpdating() == False:
+            # Publisher
+            self.app.frame.javaScript(
+                f"""
+                $('#sidebar #{b64publisherID}.publisher .reloadAnimation').hide();
+                $('#sidebar #{b64publisherID}.publisher .badges').show();
+                """
+            )
+
+        if client.allSubscriptionsUpdated():
+            client.set("reloadSubscriptionsLastPerformed", int(time.time()))
+            client.log("Reset reloadSubscriptionsLastPerformed")
+
+        agent("amountOutdatedFonts %s" % client.amountOutdatedFonts())
 
     def clientPreferenceChanged(self, key, value):
         if key == "appUpdateProfile":
@@ -984,7 +1047,7 @@ def localizeString(string, html=False, replace={}):
                 string = string.replace("%" + key + "%", str(replace[key]))
 
         if html:
-            string = string.replace("\n", "")
+            # string = string.replace("\n", "")
             string = string.replace("<br /></p>", "</p>")
             string = string.replace("<p><br />", "<p>")
         return string
@@ -1498,7 +1561,38 @@ class AppFrame(wx.Frame):
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
-    def javaScript(self, script):
+    def javaScript(self, code):
+        try:
+            startWorker(
+                self.threadSafeJavaScript_consumer,
+                self.threadSafeJavaScript_worker,
+                wargs=(code,),
+            )
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
+    def threadSafeJavaScript_worker(self, code):
+        try:
+            return code
+
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
+    def threadSafeJavaScript_consumer(self, delayedResult):
+        try:
+            code = delayedResult.get()
+            self._javaScript(code)
+
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
+    def _javaScript(self, script):
         try:
             if self.fullyLoaded:
                 if threading.current_thread() == self.thread:
@@ -4271,21 +4365,6 @@ class AppFrame(wx.Frame):
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
-    def reloadPublisher(self, evt, b64ID):
-        try:
-            # client.log('reloadPublisher()')
-
-            client.prepareUpdate()
-
-            publisher = client.publisher(self.b64decode(b64ID))
-            for subscription in publisher.subscriptions():
-                if subscription.exists:
-                    self.reloadSubscription(None, None, subscription)
-        except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
-
     def wentOnline(self):
         print("wentOnline()")
         client.wentOnline()
@@ -4330,31 +4409,15 @@ class AppFrame(wx.Frame):
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
-    def reloadSubscriptionFromClient(self, subscription):
+    def reloadPublisher(self, evt, b64ID):
         try:
-            startWorker(
-                self.reloadSubscriptionFromClient_consumer,
-                self.reloadSubscriptionFromClient_worker,
-                wargs=(subscription,),
-            )
-        except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.prepareUpdate()
 
-    def reloadSubscriptionFromClient_worker(self, subscription):
-        try:
-            return subscription
-        except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            publisher = client.publisher(self.b64decode(b64ID))
+            for subscription in publisher.subscriptions():
+                if subscription.exists:
+                    self.reloadSubscription(None, None, subscription)
 
-    def reloadSubscriptionFromClient_consumer(self, delayedResult):
-        try:
-            # client.client.log('PULLED FROM SERVER: %s' % (subscription))
-            subscription = delayedResult.get()
-            self.reloadSubscription(None, subscription=subscription)
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -4363,12 +4426,9 @@ class AppFrame(wx.Frame):
     def reloadSubscription(self, evt, b64ID=None, subscription=None):
         try:
 
-            # 			client.client.log('reloadSubscription(%s, %s)' % (b64ID, subscription))
-
             if subscription:
                 pass
             else:
-
                 ID = self.b64decode(b64ID)
 
                 for publisher in client.publishers():
@@ -4376,34 +4436,12 @@ class AppFrame(wx.Frame):
                     if subscription and subscription.exists:
                         break
 
-            if subscription:
+            startWorker(
+                self.reloadSubscription_consumer,
+                self.reloadSubscription_worker,
+                wargs=(subscription,),
+            )
 
-                b64publisherID = self.b64encode(subscription.parent.canonicalURL)
-                b64subscriptionID = self.b64encode(subscription.protocol.unsecretURL())
-
-                # Publisher
-                self.javaScript(
-                    "$('#sidebar #%s.publisher .reloadAnimation').show();"
-                    % b64publisherID
-                )
-                self.javaScript(
-                    "$('#sidebar #%s.publisher .badges').hide();" % b64publisherID
-                )
-
-                # Subscription
-                self.javaScript(
-                    "$('#sidebar #%s.subscription .reloadAnimation').show();"
-                    % b64subscriptionID
-                )
-                self.javaScript(
-                    "$('#sidebar #%s.subscription .badges').hide();" % b64subscriptionID
-                )
-
-                startWorker(
-                    self.reloadSubscription_consumer,
-                    self.reloadSubscription_worker,
-                    wargs=(subscription,),
-                )
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -4420,63 +4458,8 @@ class AppFrame(wx.Frame):
             )
 
     def reloadSubscription_consumer(self, delayedResult):
-        try:
-            success, message, changes, subscription = delayedResult.get()
-            b64publisherID = self.b64encode(subscription.parent.canonicalURL)
-
-            if success:
-                if client.get("currentPublisher") == subscription.parent.canonicalURL:
-                    self.setPublisherHTML(
-                        self.b64encode(subscription.parent.canonicalURL)
-                    )
-                self.setSideBarHTML()
-
-                # Hide alert
-                self.javaScript("$('#sidebar #%s .alert').hide();" % b64publisherID)
-                self.javaScript(
-                    "$('#sidebar #%s .alert').hide();"
-                    % self.b64encode(subscription.protocol.unsecretURL())
-                )
-
-            else:
-                # Show alert
-                # 				if subscription.updatingProblem():
-                self.javaScript("$('#sidebar #%s .alert').show();" % b64publisherID)
-                self.javaScript(
-                    "$('#sidebar #%s .alert ').show();"
-                    % self.b64encode(subscription.protocol.unsecretURL())
-                )
-
-            # Subscription
-            self.javaScript(
-                "$('#sidebar #%s.subscription .reloadAnimation').hide();"
-                % (self.b64encode(subscription.protocol.unsecretURL()))
-            )
-            self.javaScript(
-                "$('#sidebar #%s.subscription .badges').show();"
-                % (self.b64encode(subscription.protocol.unsecretURL()))
-            )
-
-            if subscription.parent.stillUpdating() == False:
-                # Publisher
-                self.javaScript(
-                    "$('#sidebar #%s.publisher .reloadAnimation').hide();"
-                    % b64publisherID
-                )
-                self.javaScript(
-                    "$('#sidebar #%s.publisher .badges').show();" % b64publisherID
-                )
-            #            self.javaScript("stopAnimation();")
-
-            if client.allSubscriptionsUpdated():
-                client.set("reloadSubscriptionsLastPerformed", int(time.time()))
-                client.log("Reset reloadSubscriptionsLastPerformed")
-
-            agent("amountOutdatedFonts %s" % client.amountOutdatedFonts())
-        except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+        success, message, changes, subscription = delayedResult.get()
+        pass
 
     def displaySyncProblems(self):
         try:
@@ -5837,6 +5820,8 @@ class AppFrame(wx.Frame):
 
             # profile.disable()
             # profile.print_stats(sort='time')
+            self.setSideBarHTML()
+
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -6210,8 +6195,11 @@ class AppFrame(wx.Frame):
                 """<script>
 
 
+    $( document ).ready(function() {
 
         $("#sidebar div.publisher").click(function() {
+
+            console.log("publisher click");
 
             if ($(this).hasClass('pendingInvitations')) {
                 python('self.setPublisherHTML(____"""
@@ -6219,7 +6207,6 @@ class AppFrame(wx.Frame):
                 + """____)');
             }
 
-            else {
                 if ($(this).hasClass('selected')) {
 
                 }
@@ -6232,9 +6219,11 @@ class AppFrame(wx.Frame):
 
                 python('self.setPublisherHTML(____' + $(this).attr('id') + '____)');
             }
-        });
+        );
 
         $("#sidebar div.subscription").click(function() {
+
+            debug("subscription click");
 
             python('self.setActiveSubscription(____' + $(this).attr('publisherID') + '____, ____' + $(this).attr('id') + '____)');
 
@@ -6243,8 +6232,6 @@ class AppFrame(wx.Frame):
 
         $("#sidebar div.publisher .alert").click(function() {
         });
-
-    $( document ).ready(function() {
 
         $("#sidebar .publisher").hover(function() {
             $( this ).addClass( "hover" );
@@ -6680,6 +6667,7 @@ class AppFrame(wx.Frame):
 
     def debug(self, string):
         try:
+            # print(string)
             client.log(string)
         except Exception as e:
             client.handleTraceback(
@@ -6997,6 +6985,7 @@ class MyApp(wx.App):
 
                 filename = os.path.join(prefDir, "world.type.guiapp.app.html")
                 WriteToFile(filename, html)
+                # print(filename)
                 frame.html.LoadURL("file://%s" % filename)
 
                 # TODO: Remove later, old implementation

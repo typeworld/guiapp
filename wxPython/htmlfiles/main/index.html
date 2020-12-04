@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Type.World</title>
-   <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Type.World</title>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-<script type="text/javascript" src="file://##htmlroot##/main/js/jquery-3.2.1.min.js"></script> 
+	<script type="text/javascript" src="file://##htmlroot##/main/js/jquery-3.2.1.min.js"></script>
 
-<script type="text/javascript" src="file://##htmlroot##/main/js/js.js"></script> 
-<script type="text/javascript" src="file://##htmlroot##/main/js/splitcubicatt.js"></script> 
-<script type="text/javascript" src="file://##htmlroot##/main/js/atom.js"></script> 
-<script type="text/javascript" src="file://##htmlroot##/main/js/prototypes.js"></script> 
+	<script type="text/javascript" src="file://##htmlroot##/main/js/js.js"></script>
+	<script type="text/javascript" src="file://##htmlroot##/main/js/splitcubicatt.js"></script>
+	<script type="text/javascript" src="file://##htmlroot##/main/js/atom.js"></script>
+	<script type="text/javascript" src="file://##htmlroot##/main/js/prototypes.js"></script>
 
 
-<link rel="stylesheet" href="file://##htmlroot##/main/css/index.css">
+	<link rel="stylesheet" href="file://##htmlroot##/main/css/index.css">
 
 
 
@@ -23,80 +24,83 @@
 
 <body class="clear">
 
-<div id="centerMessageWrapper">
-	<div id="centerMessage">#(Loading Subscription)</div>
-</div>
-
-<div id="addSubscription" class="panel">
-	<div class="closePanelButton">
-		<a onclick="hidePanel();">✕</a>
+	<div id="centerMessageWrapper">
+		<div id="centerMessage">#(Loading Subscription)</div>
 	</div>
-	<div class="centerOuter">
-		<div class="centerInner inner">
-			<h2>#(Add Subscription)</h2>
 
-			<p>
-				#(ManuallyAddSubscriptionExplanation)
-			</p>
-			<p>
-			</p>
-
-			<form id="addSubscriptionForm" action="destination.html">
-				<p>
-					#(Subscription URL)<br />
-					<input type="text" id="url" name="url" placeholder="typeworld://json+">
-					<script>$('#addSubscription #url').keyup(function(){ if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });</script>
-				</p>
-				<div id="authenticationCheckBox" style="display: none;">
-					<p>
-						<span style="width: 20px;"><input type="checkbox" id="usePassword"><label for="usePassword">#(Use Authentication)</label></span>
-						<script>$('#addSubscription #usePassword').click(function(){ debug($('#addSubscription #usePassword').val()); if ($('#addSubscription #usePassword').is(":checked")) {  } else {  } });</script>
-					</p>
-				</div>
-				</p>
-				<p style="margin-top: 10px;">
-					<a class="button" id="addSubscriptionFormSubmitButton">#(Add)</a>
-					<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img id="animation" src="file://##htmlroot##/loading.gif" style="height: 13px;"></a>
-					<a class="button secondary" onclick="hidePanel();" id="addSubscriptionFormCancelButton">#(Cancel)</a>
-				</p>
-			</form>
+	<div id="addSubscription" class="panel">
+		<div class="closePanelButton">
+			<a onclick="hidePanel();">✕</a>
 		</div>
-	</div>
-	<script>
-		$( document ).ready(function() {
+		<div class="centerOuter">
+			<div class="centerInner inner">
+				<h2>#(Add Subscription)</h2>
 
-			$("#addSubscriptionForm").submit(function(event) {
+				<p>
+					#(ManuallyAddSubscriptionExplanation)
+				</p>
+				<p>
+				</p>
 
-				event.preventDefault();
-				$("#addSubscriptionFormSubmitButton").click();
+				<form id="addSubscriptionForm" action="destination.html">
+					<p>
+						#(Subscription URL)<br />
+						<input type="text" id="url" name="url" placeholder="typeworld://json+">
+						<script>$('#addSubscription #url').keyup(function () { if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });</script>
+					</p>
+					<div id="authenticationCheckBox" style="display: none;">
+						<p>
+							<span style="width: 20px;"><input type="checkbox" id="usePassword"><label
+									for="usePassword">#(Use Authentication)</label></span>
+							<script>$('#addSubscription #usePassword').click(function () { debug($('#addSubscription #usePassword').val()); if ($('#addSubscription #usePassword').is(":checked")) { } else { } });</script>
+						</p>
+					</div>
+					</p>
+					<p style="margin-top: 10px;">
+						<a class="button" id="addSubscriptionFormSubmitButton">#(Add)</a>
+						<a class="button" id="addSubscriptionFormSubmitAnimation" style="display: none;"><img
+								id="animation" src="file://##htmlroot##/loading.gif" style="height: 13px;"></a>
+						<a class="button secondary" onclick="hidePanel();"
+							id="addSubscriptionFormCancelButton">#(Cancel)</a>
+					</p>
+				</form>
+			</div>
+		</div>
+		<script>
+			$(document).ready(function () {
 
+				$("#addSubscriptionForm").submit(function (event) {
+
+					event.preventDefault();
+					$("#addSubscriptionFormSubmitButton").click();
+
+
+				});
+
+				$("#addSubscriptionFormSubmitButton").click(function () {
+
+					$("#addSubscriptionFormSubmitButton").hide();
+					$("#addSubscriptionFormCancelButton").hide();
+					$("#addSubscriptionFormSubmitAnimation").show();
+
+					python('self.addSubscriptionViaDialog(____' + $('#addSubscriptionForm #url').val() + '____, ____' + $('#addSubscriptionForm #username').val() + '____, ____' + $('#addSubscriptionForm #password').val() + '____)');
+
+				});
 
 			});
-
-			$("#addSubscriptionFormSubmitButton").click(function() {
-
-				$("#addSubscriptionFormSubmitButton").hide();
-				$("#addSubscriptionFormCancelButton").hide();
-				$("#addSubscriptionFormSubmitAnimation").show();
-
-				python('self.addSubscriptionViaDialog(____' + $('#addSubscriptionForm #url').val() + '____, ____' +  $('#addSubscriptionForm #username').val() + '____, ____' + $('#addSubscriptionForm #password').val() + '____)');
-				
-			});
-
-		});
-	</script>
-
-</div>
-
-
-<div class="wrapper">
-	<div id="sidebar" class="sidebar">
+		</script>
 
 	</div>
 
-</div>
 
-<!--
+	<div class="wrapper">
+		<div id="sidebar" class="sidebar">
+
+		</div>
+
+	</div>
+
+	<!--
 <div class="wrapper">
 	<div id="subscriptions" class="sidebar">
 		<div class="headline">
@@ -113,128 +117,135 @@
 
 
 
-<div class="wrapper">
+	<div class="wrapper">
 
 
-<!-- 	<div id="topMessage">
+		<!-- 	<div id="topMessage">
 		<div>
 			<b>Note:</b> While Type.World is in Alpha development, things can break any time. Feature-stable Beta is scheduled for February 2020.
 		</div>
 	</div>
  -->
-	<div id="main">
-	</div>
+		<div id="main">
+		</div>
 
-	<div id="metadataWrapper">
-		<div id="metadata">
-			<div class="inner">
-<!-- 				<div class="closePanelButton">
+		<div id="metadataWrapper">
+			<div id="metadata">
+				<div class="inner">
+					<!-- 				<div class="closePanelButton">
 					<a onclick="hideMetadata();">✕</a>
 				</div> -->
-			</div>
-			<div class="content">
-			</div>
-		</div>
-	</div>
-
-	<div id="welcome" class="centerOuter">
-		<div class="vertCenterOuter" style="width: 100%; height: 100%;">
-		<div class="vertCenterMiddle">
-		<div class="vertCenterInner centerInner" style="text-align: center;">
-			<img src="file://##htmlroot##/illustration.svg" style="width: 500px; height: 500px; margin-top: -35px;"><br />
-			#(WelcomeMessage)
-		</div>
-		</div>
-		</div>
-	</div>
-
-	<div id="about" class="panel">
-		<div class="closePanelButton">
-			<a onclick="hidePanel();">✕</a>
-		</div>
-		<div class="centerOuter">
-			<div id="text" class="centerInner inner">
-
+				</div>
+				<div class="content">
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<div id="subscriptionPreferences" class="panel">
-		<div class="closePanelButton">
-			<a onclick="hidePanel();">✕</a>
-		</div>
-		<div class="centerOuter">
-			<div class="centerInner inner">
-				
+		<div id="welcome" class="centerOuter">
+			<div class="vertCenterOuter" style="width: 100%; height: 100%;">
+				<div class="vertCenterMiddle">
+					<div class="vertCenterInner centerInner" style="text-align: center;">
+						<img src="file://##htmlroot##/illustration.svg"
+							style="width: 500px; height: 500px; margin-top: -35px;"><br />
+						#(WelcomeMessage)
+					</div>
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<div id="publisherPreferences" class="panel">
-		<div class="closePanelButton">
-			<a onclick="hidePanel();">✕</a>
-		</div>
-		<div class="centerOuter">
-			<div class="centerInner inner">
-				
+		<div id="about" class="panel">
+			<div class="closePanelButton">
+				<a onclick="hidePanel();">✕</a>
+			</div>
+			<div class="centerOuter">
+				<div id="text" class="centerInner inner">
+
+				</div>
 			</div>
 		</div>
-	</div>
 
-	<div id="preferences" class="panel">
-		<div class="closePanelButton">
-			<a onclick="hidePanel();">✕</a>
-		</div>
-		<div class="centerOuter">
-			<div class="centerInner">
-				
+		<div id="subscriptionPreferences" class="panel">
+			<div class="closePanelButton">
+				<a onclick="hidePanel();">✕</a>
+			</div>
+			<div class="centerOuter">
+				<div class="centerInner inner">
+
+				</div>
 			</div>
 		</div>
+
+		<div id="publisherPreferences" class="panel">
+			<div class="closePanelButton">
+				<a onclick="hidePanel();">✕</a>
+			</div>
+			<div class="centerOuter">
+				<div class="centerInner inner">
+
+				</div>
+			</div>
+		</div>
+
+		<div id="preferences" class="panel">
+			<div class="closePanelButton">
+				<a onclick="hidePanel();">✕</a>
+			</div>
+			<div class="centerOuter">
+				<div class="centerInner">
+
+				</div>
+			</div>
+		</div>
+
 	</div>
 
-</div>
 
+	<div class="betaMessage">
+		<div>
 
-<div class="betaMessage">
-	<div>
+			<p>Type.World is now in Beta stage.<br />Report problems to <a
+					href="https://github.com/typeworld/typeworld/issues">Github</a> and don’t forget to <a
+					href="https://www.patreon.com/typeWorld">support through Patreon</a>.<br />We’re currently at
+				$129/month.</p>
 
-		<p>Type.World is now in Beta stage.<br />Report problems to <a href="https://github.com/typeworld/typeworld/issues">Github</a> and don’t forget to <a href="https://www.patreon.com/typeWorld">support through Patreon</a>.<br />We’re currently at $142/month.</p>
-		<p>Currently on summer break. Active development will return at Oct. 1st 2020 thru March 31st 2021.</p>
+		</div>
 
 	</div>
 
-</div>
 
+	<img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground">
+	<canvas id="atom" width="150" height="150"></canvas>
+	<div id="atomButton" class="centerOuter">
+		<div class="centerInner" style="padding-top: 66px;"><a onclick="showAddSubscription();">+</a></div>
+	</div>
 
-<img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground">
-<canvas id="atom" width="150" height="150"></canvas>
-<div id="atomButton" class="centerOuter"><div class="centerInner" style="padding-top: 66px;"><a onclick="showAddSubscription();">+</a></div></div>
-
-<div id="userWrapper">
+	<div id="userWrapper">
 		<div id="userBadge">
 			<span class="alert" style="display: none;"><a href="x-python://self.displaySyncProblems()">⚠️</a></span>
-			
+
 			<a id="pullServerUpdates">
 				<span class="noAlert">
-						<img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;">
+					<img src="file://##htmlroot##/userIcon.svg"
+						style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;">
 
 				</span>
 				<span id="userName"></span>
 			</a>
 		</div>
-	
 
 
-	<script>
-		$("#pullServerUpdates").click(function() {
 
-			python('self.pullServerUpdates(force = True)');
+		<script>
+			$("#pullServerUpdates").click(function () {
 
-		});
+				python('self.pullServerUpdates(force = True)');
 
-	</script>
-</div>
+			});
+
+		</script>
+	</div>
 
 
 </body>
+
 </html>

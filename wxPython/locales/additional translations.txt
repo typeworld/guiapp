@@ -1,4 +1,7 @@
 # JavaScript Widget
-
 #(Open in Type.World App)
 #(Download Type.World App)
+
+# Server responses that aren't hard-wired in code
+#(response.passwordInvalid)
+#(response.passwordInvalid.headline)

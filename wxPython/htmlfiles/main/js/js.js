@@ -7,18 +7,25 @@ function stopLoadingAnimation() {
 	stopAnimation();
 }
 
+function replace(incoming) {
+	return incoming;
+	//	return incoming.replace("'", "____");
+}
 
 window.onerror = function (msg, url, lineNo, columnNo, error) {
 
-	debug('JavaScript error:');
-	debug('JavaScript error, Msg: ' + msg.replace("''", "\""));
-	debug('JavaScript error, url: ' + url);
-	debug('JavaScript error, lineNo: ' + lineNo);
-	debug('JavaScript error, columnNo: ' + columnNo);
-	debug('JavaScript error, error: ' + error.replace("''", "\""));
+	// msg = msg.replace("''", "\"");
+	// error = error.replace("''", "\"");
+
+	debug('JavaScript error: msg: ' + replace(msg) + ', url: ' + replace(url) + ', lineNo: ' + replace(lineNo) + ', columnNo: ' + replace(columnNo) + ', error: ' + replace(error));
+	// debug('JavaScript error, Msg: ' + msg.replace("''", "\""));
+	// debug('JavaScript error, url: ' + url);
+	// debug('JavaScript error, lineNo: ' + lineNo);
+	// debug('JavaScript error, columnNo: ' + columnNo);
+	// debug('JavaScript error, error: ' + error.replace("''", "\""));
 
 	return false;
-}
+};
 
 function python(code) {
 	// debug(code);
@@ -26,7 +33,8 @@ function python(code) {
 }
 
 function debug(string) {
-	window.location.href = "x-python://self.debug(\'" + string + "\')";
+	// window.location.href = "x-python://self.debug(____" + string + "____)";
+	python("self.debug(____" + string + "____)");
 }
 
 function linkout(url) {
@@ -50,7 +58,7 @@ function setPublisherPassword(b64ID, username, password) {
 }
 
 function contextmenu(evt) {
-	python('self.onContextMenu(____' + evt.pageX + '____, ____' + evt.pageY + '____, ____' + $(evt.target).closest('.contextmenu').attr('class') + '____, ____' + $(evt.target).closest('.contextmenu').attr('id') + '____)')
+	python('self.onContextMenu(____' + evt.pageX + '____, ____' + evt.pageY + '____, ____' + $(evt.target).closest('.contextmenu').attr('class') + '____, ____' + $(evt.target).closest('.contextmenu').attr('id') + '____)');
 }
 
 function resetFontAppearance(fontID) {
@@ -237,7 +245,7 @@ function showCenterMessage(html, completeFunction) {
 	$('#centerMessageWrapper').show();
 	if (completeFunction) {
 		setTimeout(function () {
-			completeFunction;
+			completeFunction();
 		}, 100);
 	}
 }

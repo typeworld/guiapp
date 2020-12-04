@@ -12,7 +12,7 @@ environment:
 
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: macos
-      PYTHONSTACK: "3.7"
+      PYTHONSTACK: "3.9"
       APPVEYOR_VNC_PASSWORD:
         secure: qZ0+QN7bEMCyBE5sYidHG06OvGEFcRA0zJKPmufXs8I=
       MACOS_CERT_P12:

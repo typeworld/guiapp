@@ -6412,6 +6412,11 @@ class AppFrame(wx.Frame):
 
         try:
 
+            CI = os.getenv("CI", "false").lower() != "false"
+            if CI:
+                SECRETKEY = os.getenv("REVOKEAPPINSTANCEAUTHKEY")
+                client.secretServerAuthKey = SECRETKEY
+
             # Keyring
             keyring = client.keyring()
             assert keyring != None

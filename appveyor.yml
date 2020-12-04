@@ -59,7 +59,7 @@ for:
   install: 
     # - sh: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/mac/started/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"
     - sh: sh install_mac.sh
-    - sh: pythonw -m coverage run wxPython/app.py selftest && python -m codecov
+    - sh: python -m coverage run wxPython/app.py selftest && python -m codecov
     - sh: sh wxPython/build/build-canbuild.sh mac
   build_script: 
     - sh: sh wxPython/build/Mac/build-all.sh

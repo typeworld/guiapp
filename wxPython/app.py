@@ -16,6 +16,9 @@ except:
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+# Environment
+CI = os.getenv("CI", "false").lower() != "false"
+
 # Mac executable
 if "app.py" in __file__ and "/Contents/MacOS/python" in sys.executable:
     DESIGNTIME = False
@@ -163,9 +166,12 @@ if MAC:
         ):
             pass
 
-    userNotificationCenter = NSUserNotificationCenter.defaultUserNotificationCenter()
-    userNotificationCenterDelegate = NotificationDelegate.alloc().init()
-    userNotificationCenter.setDelegate_(userNotificationCenterDelegate)
+    if not CI:
+        userNotificationCenter = (
+            NSUserNotificationCenter.defaultUserNotificationCenter()
+        )
+        userNotificationCenterDelegate = NotificationDelegate.alloc().init()
+        userNotificationCenter.setDelegate_(userNotificationCenterDelegate)
 
     # Dark Mode
     class DarkModeDelegate(NSObject):
@@ -6411,7 +6417,6 @@ class AppFrame(wx.Frame):
         try:
 
             # Set secret key so that new users are verified instantly
-            CI = os.getenv("CI", "false").lower() != "false"
             if CI:
                 SECRETKEY = os.getenv("REVOKEAPPINSTANCEAUTHKEY")
                 client.secretServerAuthKey = SECRETKEY

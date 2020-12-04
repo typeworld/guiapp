@@ -47,3 +47,5 @@ So instead I currently run coverage tests locally:
 
 Coverage tests should be run directly after each git push, as the locally executed code will be mapped
 to the current git version. Maybe I can get this to work automatically after each push.
+
+The Windows selftest runs fine on AppVeyor, so this is added automatically.

@@ -27,13 +27,15 @@ ln -s ~/.localpython3.7.7/lib/libpython3.7m.dylib ~/.localpython3.7.7/lib/libpyt
 # https://wiki.wxpython.org/wxPythonVirtualenvOnMac
 echo "Python Framework Build Hack"
 
-# what real Python executable to use
-PYVER=3.7
-PYTHON=/Library/Frameworks/Python.framework/Versions/$PYVER/bin/python$PYVER
+# # what real Python executable to use
+# PYVER=3.7
+# PYTHON=/Library/Frameworks/Python.framework/Versions/$PYVER/bin/python$PYVER
 
-# find the root of the virtualenv, it should be the parent of the dir this script is in
-ENV=`$PYTHON -c "import os; print(os.path.abspath(os.path.join(os.path.dirname(\"$0\"), '..')))"`
+# # find the root of the virtualenv, it should be the parent of the dir this script is in
+# ENV=`$PYTHON -c "import os; print(os.path.abspath(os.path.join(os.path.dirname(\"$0\"), '..')))"`
 
-# now run Python with the virtualenv set as Python's HOME
-export PYTHONHOME=$ENV 
-echo $PYTHONHOME
+# # now run Python with the virtualenv set as Python's HOME
+# export PYTHONHOME=$ENV 
+# echo $PYTHONHOME
+
+export PYTHONHOME=`dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"`

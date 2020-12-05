@@ -38,7 +38,7 @@ echo "Python Framework Build Hack"
 # export PYTHONHOME=$ENV 
 # echo $PYTHONHOME
 
-pip3 install wxPython
+# pip3 install wxPython
 
 export PYTHONHOME=`dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"`
 python --version

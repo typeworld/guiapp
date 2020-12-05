@@ -44,3 +44,5 @@ export PYTHONHOME=`dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"`
 python --version
 which python
 
+python -c "import sys; print(sys.base_prefix)"
+python -c "import sys; print(sys.prefix)"

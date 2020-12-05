@@ -39,3 +39,6 @@ echo "Python Framework Build Hack"
 # echo $PYTHONHOME
 
 export PYTHONHOME=`dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"`
+python --version
+which python
+

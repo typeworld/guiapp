@@ -1,7 +1,7 @@
 git+https://github.com/typeworld/typeworld.git
 py2app
 pystray
-wxPython
+# wxPython
 
 # weird app dependencies
 jsonpickle

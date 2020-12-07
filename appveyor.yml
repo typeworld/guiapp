@@ -87,7 +87,7 @@ for:
 
     - cmd: set "PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%"
     - cmd: sh install_windows.sh
-    - cmd: python -m coverage run wxPython/app.py selftest && python -m codecov
+    - cmd: python -m coverage run wxPython/app.py selftest && bash <(curl -s https://codecov.io/bash)
     - cmd: sh wxPython/build/build-canbuild.sh windows
 
   build_script: 

@@ -2,6 +2,7 @@
 
 
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/typeworld/guiapp?svg=true)](https://ci.appveyor.com/project/typeworld/guiapp)
+[![codecov](https://codecov.io/gh/typeworld/guiapp/branch/master/graph/badge.svg)](https://codecov.io/gh/typeworld/guiapp)
 
 Compiled versions of this app are available [here](https://type.world/app/).
 

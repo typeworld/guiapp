@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# An example hook script to prepare a packed repository for use over
+# dumb transports.
+#
+# To enable this hook, rename this file to "post-update".
+
+osascript -e "display dialog \"Content\" with title \"Title\""
+python -m coverage run wxPython/app.py selftest && codecov -t 66a9e5cb-f1ad-46c1-9964-8ce0ded70f03

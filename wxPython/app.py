@@ -6465,12 +6465,19 @@ class AppFrame(wx.Frame):
                 return self.quitSelftest(message, 10)
 
             # Add subscription
+            self.addSubscriptionViaDialog(flatFreeSubscription)
             success, message, publisher, subscription = client.addSubscription(
                 flatFreeSubscription
             )
             condition = success == True
             if not condition:
                 return self.quitSelftest(message, 20)
+
+            b64ID = self.b64encode(publisher.canonicalURL)
+            self.setSideBarHTML()
+            self.setPublisherHTML(b64ID)
+
+            # subscription = client.publishers()[-1].subscriptions()[-1]
 
             font = (
                 subscription.protocol.installableFontsCommand()[1]

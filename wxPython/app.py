@@ -7299,7 +7299,7 @@ def startApp(startWithCommand=None):
 # Main Loop
 if __name__ == "__main__":
 
-    # Decide what to do on startup:
+    # Decide what to do on startupp:
 
     # Just start intercom, no GUI
     if len(sys.argv) > 1 and sys.argv[1] in intercomCommands:

@@ -43,7 +43,7 @@ on the main display of your Mac.```
 They suggest to use `pythonw` which also I couldn't get to run for Python 3.
 
 So instead I currently run coverage tests locally:
-`python -m coverage run wxPython/app.py selftest && codecov -t 66a9e5cb-f1ad-46c1-9964-8ce0ded70f03`
+`./codecov.sh`
 
 Coverage tests should be run directly after each git push, as the locally executed code will be mapped
 to the current git version. Maybe I can get this to work automatically after each push.

@@ -166,12 +166,10 @@ if MAC:
         ):
             pass
 
-    if not CI:
-        userNotificationCenter = (
-            NSUserNotificationCenter.defaultUserNotificationCenter()
-        )
-        userNotificationCenterDelegate = NotificationDelegate.alloc().init()
-        userNotificationCenter.setDelegate_(userNotificationCenterDelegate)
+    # if not CI:
+    userNotificationCenter = NSUserNotificationCenter.defaultUserNotificationCenter()
+    userNotificationCenterDelegate = NotificationDelegate.alloc().init()
+    userNotificationCenter.setDelegate_(userNotificationCenterDelegate)
 
     # Dark Mode
     class DarkModeDelegate(NSObject):

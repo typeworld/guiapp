@@ -399,6 +399,26 @@ elif RUNTIME:
 
 
 class ClientDelegate(TypeWorldClientDelegate):
+    def initialize(self):
+        self._subscriptionsUpdated = []
+        self._accountUpdateCheck = False
+
+    def reset(self):
+        self._subscriptionsUpdated = []
+        self._accountUpdateCheck = False
+
+    def subscriptionUpdateNotificationHasBeenReceived(self, subscription):
+        # For testing
+        assert type(subscription) == typeworld.client.APISubscription
+        self._subscriptionsUpdated.append(subscription)
+
+    def userAccountUpdateNotificationHasBeenReceived(self):
+        # For testing
+        self._accountUpdateCheck = True
+
+        # Real functionality
+        self.app.frame.pullServerUpdates(force=True)
+
     def fontWillInstall(self, font):
         # print('fontWillInstall', font)
         assert type(font) == typeworld.api.Font
@@ -414,10 +434,6 @@ class ClientDelegate(TypeWorldClientDelegate):
     def fontHasUninstalled(self, success, message, font):
         # print('fontHasUninstalled', success, message, font)
         assert type(font) == typeworld.api.Font
-
-    def userAccountUpdateNotificationHasBeenReceived(self):
-        # print("userAccountUpdateNotificationHasBeenReceived()")
-        self.app.frame.pullServerUpdates(force=True)
 
     def userAccountHasBeenUpdated(self):
         if self.app.frame.panelVisible == "preferences(userAccount)":
@@ -6457,12 +6473,10 @@ class AppFrame(wx.Frame):
             success, message = client.createUserAccount(
                 "Test User", "test1@type.world", "12345678", "12345678"
             )
-
-            condition = success == True
-            if not condition:
+            if not success:
                 return self.quitSelftest(message, 10)
 
-            # Add subscription
+            # Add subscription (also triggers ZMQ message for next step)
             self.addSubscriptionViaDialog(flatFreeSubscription)
             success, message, publisher, subscription = client.addSubscription(
                 flatFreeSubscription
@@ -6470,6 +6484,45 @@ class AppFrame(wx.Frame):
             condition = success == True
             if not condition:
                 return self.quitSelftest(message, 20)
+
+            # Check user account ZMQ message
+            loop = 0
+            while client.delegate._accountUpdateCheck is False and loop < 10:  # wait
+                print(f"Waiting for user account to be updated... {loop}s")
+                time.sleep(1)
+                loop += 1
+            if client.delegate._accountUpdateCheck:
+                return self.quitSelftest(
+                    "User account ZMQ message received but not supposed to", 15
+                )
+
+            # Send Update Subscription Notification
+            # TODO: Replace APIKey with secret, dynamically retrieved one
+            parameters = {
+                "subscriptionURL": flatFreeSubscription,
+                "APIKey": "I3ZYbDwYgG3S7lpOGI6LjEylQWt6tPS7MJtN1d3T",
+                "testing": "true",
+            }
+            success, response, responseObject = typeworld.client.request(
+                client.mothership + "/updateSubscription", parameters
+            )
+            if not success:
+                return self.quitSelftest(response, 25)
+            response = json.loads(response.decode())
+            if response["response"] != "success":
+                return self.quitSelftest(response["response"], 26)
+
+            # Wait for ZMQ message
+            loop = 0
+            while (
+                subscription not in client.delegate._subscriptionsUpdated
+                and loop < 60  # wait
+            ):
+                print(f"Waiting for subscription to be updated... {loop}s")
+                time.sleep(1)
+                loop += 1
+            if subscription not in client.delegate._subscriptionsUpdated:
+                return self.quitSelftest("Subscription ZMQ message not received", 27)
 
             b64ID = self.b64encode(publisher.canonicalURL)
             self.setSideBarHTML()

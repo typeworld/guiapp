@@ -4374,6 +4374,8 @@ class AppFrame(wx.Frame):
             folder = subscription.parent.folder()
             font, path = subscription.fontPath(folder, fontID)
 
+            # TODO:
+            # Make this for Windows, too.
             import subprocess
 
             subprocess.call(["open", "-R", path])

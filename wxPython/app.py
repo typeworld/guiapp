@@ -6460,7 +6460,9 @@ class AppFrame(wx.Frame):
             flatFreeSubscription = "typeworld://json+https//typeworldserver.com/flatapi/q8JZfYn9olyUvcCOiqHq/"
 
             # Delete User Account
-            success, message = client.deleteUserAccount("test1@type.world", "12345678")
+            success, message = client.deleteUserAccount(
+                "appselftest@type.world", "12345678"
+            )
             condition = success == True
             if not condition:
                 if message != [
@@ -6471,7 +6473,7 @@ class AppFrame(wx.Frame):
 
             # Create User Account
             success, message = client.createUserAccount(
-                "Test User", "test1@type.world", "12345678", "12345678"
+                "Test User", "appselftest@type.world", "12345678", "12345678"
             )
             if not success:
                 return self.quitSelftest(message, 10)
@@ -6579,7 +6581,9 @@ class AppFrame(wx.Frame):
                 return self.quitSelftest(message, 70)
 
             # Delete User Account
-            success, message = client.deleteUserAccount("test1@type.world", "12345678")
+            success, message = client.deleteUserAccount(
+                "appselftest@type.world", "12345678"
+            )
             condition = success == True
             if not condition:
                 return self.quitSelftest(message, 80)

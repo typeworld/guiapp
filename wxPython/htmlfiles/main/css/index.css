@@ -974,8 +974,8 @@ body.dark {
 	/*display: none;*/
 	position:absolute;
 
-	font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif;
-	font-weight: lighter;
+	/* font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif; */
+	font-weight: bold;
     font-size: 24pt;
     line-height: 120%;
 
@@ -1068,8 +1068,8 @@ body.dark {
 
 
 .panel h2 {
-	font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif;
-	font-weight: lighter;
+	/* font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif; */
+	font-weight: bold;
     font-size: 24pt;
     line-height: 120%;
 	

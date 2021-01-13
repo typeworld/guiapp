@@ -4408,6 +4408,10 @@ class AppFrame(wx.Frame):
             self.wentOffline()
             self.online = False
 
+        # If offline, call method anyway to display warning un UI
+        elif not self.online and not isOnline:
+            self.pullServerUpdates(force=True)
+
         self.lastOnlineCheck = time.time()
 
     def minutely(self):

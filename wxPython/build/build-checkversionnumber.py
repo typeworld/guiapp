@@ -1,8 +1,9 @@
 import sys
 import typeworld.api
 
-desiredversion = "0.2.4-beta"
+version = os.getenv("APP_BUILD_VERSION", "undefined")
+assert version != "undefined"
 
-if typeworld.api.VERSION != desiredversion:
-    print(f"typeworld.api doesn’t hold the up-to-date version number {desiredversion}")
+if typeworld.api.VERSION != version:
+    print(f"typeworld.api doesn’t hold the up-to-date version number {version}")
     sys.exit(1)

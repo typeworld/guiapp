@@ -1834,10 +1834,8 @@ class AppFrame(wx.Frame):
                     if resize:
                         self.SetSize(size)
 
-                if client.get("currentPublisher"):
-                    self.setPublisherHTML(
-                        self.b64encode(client.get("currentPublisher"))
-                    )
+                redrawThread = Thread(target=self.redraw)
+                redrawThread.start()
 
                 if WIN and self.allowCheckForURLInFile:
                     self.checkForURLInFile()
@@ -1850,6 +1848,25 @@ class AppFrame(wx.Frame):
                 #     checkOnlineThread = Thread(target=self.checkIfOnline)
                 #     checkOnlineThread.start()
 
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
+    def redraw(self):
+        try:
+            # Complete redraw
+            if client and client.get("currentPublisher"):
+                publisher = client.publisher(client.get("currentPublisher"))
+                self.setPublisherHTML(self.b64encode(client.get("currentPublisher")))
+                if publisher.get("currentSubscription"):
+                    subscription = publisher.subscription(
+                        publisher.get("currentSubscription")
+                    )
+                    if subscription.get("currentFont"):
+                        self.setMetadataHTML(
+                            self.b64encode(subscription.get("currentFont"))
+                        )
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -1877,24 +1894,10 @@ class AppFrame(wx.Frame):
     def applyDarkMode(self):
         try:
             if platform.mac_ver()[0].split(".") > "10.14.0".split("."):
-
-                if client and client.get("currentPublisher"):
-                    publisher = client.publisher(client.get("currentPublisher"))
-                    self.setPublisherHTML(
-                        self.b64encode(client.get("currentPublisher"))
-                    )
-                    if publisher.get("currentSubscription"):
-                        subscription = publisher.subscription(
-                            publisher.get("currentSubscription")
-                        )
-                        if subscription.get("currentFont"):
-                            self.setMetadataHTML(
-                                self.b64encode(subscription.get("currentFont"))
-                            )
-
                 self.javaScript("$('body').removeClass('light');")
                 self.javaScript("$('body').removeClass('dark');")
                 self.javaScript("$('body').addClass('%s');" % self.theme())
+
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e

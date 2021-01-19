@@ -1831,8 +1831,8 @@ class AppFrame(wx.Frame):
                         size[1] = screenSize.height - 50
                         resize = True
 
-                if resize:
-                    self.SetSize(size)
+                    if resize:
+                        self.SetSize(size)
 
                 if client.get("currentPublisher"):
                     self.setPublisherHTML(

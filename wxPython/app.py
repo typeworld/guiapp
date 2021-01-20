@@ -6233,6 +6233,9 @@ class AppFrame(wx.Frame):
                 + self.b64encode("pendingInvitations")
                 + """____)');
             }
+            else {
+                python('self.setPublisherHTML(____' + $(this).attr('id') + '____)');
+            }
 
                 if ($(this).hasClass('selected')) {
 
@@ -6244,7 +6247,6 @@ class AppFrame(wx.Frame):
                 $("#sidebar div.publisher").removeClass('selected');
                 $(this).parent().children(".publisher").addClass('selected');
 
-                python('self.setPublisherHTML(____' + $(this).attr('id') + '____)');
             }
         );
 

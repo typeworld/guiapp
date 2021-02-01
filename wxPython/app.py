@@ -6507,6 +6507,7 @@ class AppFrame(wx.Frame):
             # Keyring
             keyring = client.keyring()
             assert keyring != None
+            print(keyring)
             keyring.set_password("https://type.world", "testuser", "testpassword")
             assert (
                 keyring.get_password("https://type.world", "testuser") == "testpassword"

@@ -11,6 +11,7 @@ python -m pip install --upgrade pip
 # Install requirements
 python -m pip install -r requirements_windows.txt
 
+cp wxPython\\build\\Windows\\zmq__init__override.py C:\\Python37-x64\\lib\\site-packages\\zmq\\__init__.py
 cat C:\\Python37-x64\\lib\\site-packages\\zmq\\__init__.py
 
 # Download Sparkle

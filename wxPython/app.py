@@ -6499,6 +6499,10 @@ class AppFrame(wx.Frame):
 
         try:
 
+            import zmq
+
+            print(zmq)
+
             # Set secret key so that new users are verified instantly
             if CI:
                 SECRETKEY = os.getenv("REVOKEAPPINSTANCEAUTHKEY")

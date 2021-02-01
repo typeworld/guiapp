@@ -24,8 +24,8 @@ environment:
 
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PYTHON: "C:\\Python38-x64"
-      # PYTHON_VERSION: "3.8.7"
-      # PYTHON_ARCH: "64"
+      PYTHON_VERSION: "3.8.7"
+      PYTHON_ARCH: "64"
       PYTHONSTACK: "3.8"
       SHELL: "C:\\msys64\\usr\\bin\\bash.exe"
       SIGNTOOL: '"C:\Program Files (x86)\Windows Kits\10\bin\10.0.18362.0\x86\signtool.exe"'

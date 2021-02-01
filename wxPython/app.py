@@ -5536,226 +5536,284 @@ class AppFrame(wx.Frame):
                             html.append("</div>")  # .clear
                             html.append("</div>")  # .title
 
-                            for package in family.getPackages():
-                                for formatName in package.getFormats():
+                            for package in family.getPackages(
+                                filterByFontPurpose=["desktop"]
+                            ):
 
-                                    amountInstalled = 0
-                                    for font in package.fonts:
-                                        if subscription.installedFontVersion(
-                                            font.uniqueID
-                                        ):
-                                            amountInstalled += 1
+                                for variableFont in (True, False):
+                                    for formatName in package.getFormats():
 
-                                    completeSetName = ""
-                                    if package.keyword != typeworld.api.DEFAULT:
-                                        completeSetName += (
-                                            package.name.getText(client.locale()) + ", "
+                                        fonts = package.getFonts(
+                                            filterByFontFormat=[formatName],
+                                            variableFont=variableFont,
                                         )
-                                    completeSetName += typeworld.api.FILEEXTENSIONNAMES[
-                                        formatName
-                                    ]
+                                        if fonts:
 
-                                    html.append(
-                                        '<div class="section %s" id="%s">'
-                                        % (
-                                            "multipleFonts"
-                                            if len(package.fonts) > 1
-                                            else "",
-                                            completeSetName,
-                                        )
-                                    )
+                                            amountInstalled = 0
+                                            for font in fonts:
+                                                if subscription.installedFontVersion(
+                                                    font.uniqueID
+                                                ):
+                                                    amountInstalled += 1
 
-                                    html.append('<div class="title clear">')
-                                    html.append(
-                                        '<div class="name left">%s</div>'
-                                        % completeSetName
-                                    )
-
-                                    if len(package.fonts) > 1:
-
-                                        html.append(
-                                            '<div class="more right" style="padding-top: 5px;">'
-                                        )
-                                        html.append(
-                                            '<img src="file://##htmlroot##/more_darker.svg" style="height: 8px; position: relative; top: 0px;">'
-                                        )
-                                        html.append("</div>")
-
-                                        html.append(
-                                            '<div class="installButtons right" style="padding-top: 5px;">'
-                                        )
-                                        html.append('<div class="clear">')
-
-                                        if amountInstalled < len(package.fonts):
-                                            html.append(
-                                                '<div class="install installButton right">'
-                                            )
-                                            html.append(
-                                                '<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">'
-                                                % (
-                                                    self.b64encode(ID),
-                                                    self.b64encode(
-                                                        subscription.protocol.unsecretURL()
-                                                    ),
-                                                    self.b64encode(family.uniqueID),
-                                                    self.b64encode(package.keyword),
-                                                    formatName,
+                                            completeSetName = ""
+                                            if package.keyword != typeworld.api.DEFAULT:
+                                                completeSetName += (
+                                                    package.name.getText(
+                                                        client.locale()
+                                                    )
+                                                    + ", "
                                                 )
-                                            )
-                                            html.append("✓ #(Install All)")
-                                            html.append("</a>")
-                                            html.append("</div>")  # .installButton
 
-                                        if amountInstalled > 0:
-                                            html.append(
-                                                '<div class="remove installButton right">'
-                                            )
-                                            html.append(
-                                                '<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">'
-                                                % (
-                                                    self.b64encode(ID),
-                                                    self.b64encode(
-                                                        subscription.protocol.unsecretURL()
-                                                    ),
-                                                    self.b64encode(family.uniqueID),
-                                                    self.b64encode(package.keyword),
-                                                    formatName,
+                                            if (
+                                                formatName
+                                                in typeworld.api.FILEEXTENSIONNAMES
+                                            ):
+                                                completeSetName += (
+                                                    typeworld.api.FILEEXTENSIONNAMES[
+                                                        formatName
+                                                    ]
                                                 )
-                                            )
-                                            html.append("✕ #(Remove All)")
-                                            html.append("</a>")
-                                            html.append("</div>")  # .installButton
-
-                                        html.append("</div>")  # .clear
-                                        html.append("</div>")  # .installButtons
-
-                                    html.append("</div>")  # .title
-
-                                    for font in package.fonts:
-                                        installedVersion = (
-                                            subscription.installedFontVersion(
-                                                font.uniqueID
-                                            )
-                                        )
-
-                                        html.append(
-                                            '<div class="contextmenu font %s %s %s" id="%s">'
-                                            % (
-                                                self.b64encode(font.uniqueID),
-                                                "installed"
-                                                if installedVersion
-                                                else "notInstalled",
-                                                "selected"
-                                                if subscription.get("currentFont")
-                                                == font.uniqueID
-                                                else "",
-                                                self.b64encode(font.uniqueID),
-                                            )
-                                        )
-                                        html.append('<div class="clear">')
-
-                                        html.append(
-                                            '<div class="left" style="width: 50%;">'
-                                        )
-                                        html.append(font.name.getText(client.locale()))
-                                        if font.free:
-                                            html.append(
-                                                '<span class="label free">free</span>'
-                                            )
-                                        if font.status != "stable":
-                                            html.append(
-                                                '<span class="label pre">%s</span>'
-                                                % font.status
-                                            )
-                                        if font.variableFont:
-                                            html.append(
-                                                '<span class="label var">OTVar</span>'
-                                            )
-                                        html.append("</div>")  # .left
-
-                                        html.append('<div class="left installedText">')
-                                        html.append(self.fontInstalledText(font))
-                                        html.append("</div>")  # .left
-
-                                        expiry = ""
-                                        if font.expiryDuration:
-                                            expiry = "%s'" % font.expiryDuration
-                                        if expiry:
-                                            html.append('<div class="left expiryText">')
-                                            html.append(
-                                                '⏲<span class="countdownMinutes" timestamp="%s">%s</span>'
-                                                % (font.expiry, expiry)
-                                            )
-                                            html.append("</div>")  # .left
-
-                                        if font.purpose == "desktop":
+                                            if variableFont:
+                                                completeSetName += ", Variable Fonts"
 
                                             html.append(
-                                                '<div class="installButtons right">'
-                                            )
-                                            html.append(
-                                                '<div class="installButton status install">'
-                                            )
-                                            html.append(
-                                                '<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">'
+                                                '<div class="section %s" id="%s">'
                                                 % (
-                                                    self.b64encode(
-                                                        subscription.parent.canonicalURL
-                                                    ),
-                                                    self.b64encode(
-                                                        subscription.protocol.unsecretURL()
-                                                    ),
-                                                    self.b64encode(font.uniqueID),
-                                                    font.getVersions()[-1].number
-                                                    if font.getVersions()
+                                                    "multipleFonts"
+                                                    if len(fonts) > 1
                                                     else "",
+                                                    completeSetName,
                                                 )
                                             )
-                                            html.append("✓ #(Install)")
-                                            html.append("</a>")
-                                            html.append("</div>")  # installButton
+
+                                            html.append('<div class="title clear">')
                                             html.append(
-                                                '<div class="installButton status remove">'
+                                                '<div class="name left">%s</div>'
+                                                % completeSetName
                                             )
-                                            html.append(
-                                                '<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">'
-                                                % (
-                                                    self.b64encode(
-                                                        subscription.parent.canonicalURL
-                                                    ),
-                                                    self.b64encode(
-                                                        subscription.protocol.unsecretURL()
-                                                    ),
-                                                    self.b64encode(font.uniqueID),
+
+                                            if len(fonts) > 1:
+
+                                                html.append(
+                                                    '<div class="more right" style="padding-top: 5px;">'
                                                 )
-                                            )
-                                            html.append("✕ #(Remove)")
-                                            html.append("</a>")
-                                            html.append("</div>")  # installButton
-                                            html.append("</div>")  # .installButtons
+                                                html.append(
+                                                    '<img src="file://##htmlroot##/more_darker.svg" style="height: 8px; position: relative; top: 0px;">'
+                                                )
+                                                html.append("</div>")
 
-                                            html.append(
-                                                '<div class="status loading right">'
-                                            )
-                                            html.append('<a class="status">')
-                                            html.append(
-                                                """<img src="file://##htmlroot##/loading.gif" style="width: 50px; height: 13px; position: relative; top: 2px;">"""
-                                            )
-                                            html.append("</a>")
-                                            html.append("</div>")  # .right
+                                                html.append(
+                                                    '<div class="installButtons right" style="padding-top: 5px;">'
+                                                )
+                                                html.append('<div class="clear">')
 
-                                            html.append('<div class="more right">')
-                                            html.append('<a class="more">')
-                                            html.append(
-                                                """<img src="file://##htmlroot##/more_lighter.svg" style="height: 8px; position: relative; top: 0px;">"""
-                                            )
-                                            html.append("</a>")
-                                            html.append("</div>")  # .right
+                                                if amountInstalled < len(fonts):
+                                                    html.append(
+                                                        '<div class="install installButton right">'
+                                                    )
+                                                    html.append(
+                                                        '<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">'
+                                                        % (
+                                                            self.b64encode(ID),
+                                                            self.b64encode(
+                                                                subscription.protocol.unsecretURL()
+                                                            ),
+                                                            self.b64encode(
+                                                                family.uniqueID
+                                                            ),
+                                                            self.b64encode(
+                                                                package.keyword
+                                                            ),
+                                                            formatName,
+                                                        )
+                                                    )
+                                                    html.append("✓ #(Install All)")
+                                                    html.append("</a>")
+                                                    html.append(
+                                                        "</div>"
+                                                    )  # .installButton
 
-                                        html.append("</div>")  # .clear
-                                        html.append("</div>")  # .font
+                                                if amountInstalled > 0:
+                                                    html.append(
+                                                        '<div class="remove installButton right">'
+                                                    )
+                                                    html.append(
+                                                        '<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">'
+                                                        % (
+                                                            self.b64encode(ID),
+                                                            self.b64encode(
+                                                                subscription.protocol.unsecretURL()
+                                                            ),
+                                                            self.b64encode(
+                                                                family.uniqueID
+                                                            ),
+                                                            self.b64encode(
+                                                                package.keyword
+                                                            ),
+                                                            formatName,
+                                                        )
+                                                    )
+                                                    html.append("✕ #(Remove All)")
+                                                    html.append("</a>")
+                                                    html.append(
+                                                        "</div>"
+                                                    )  # .installButton
 
-                                    html.append("</div>")  # .section
+                                                html.append("</div>")  # .clear
+                                                html.append("</div>")  # .installButtons
+
+                                            html.append("</div>")  # .title
+
+                                            for font in fonts:
+                                                installedVersion = (
+                                                    subscription.installedFontVersion(
+                                                        font.uniqueID
+                                                    )
+                                                )
+
+                                                html.append(
+                                                    '<div class="contextmenu font %s %s %s" id="%s">'
+                                                    % (
+                                                        self.b64encode(font.uniqueID),
+                                                        "installed"
+                                                        if installedVersion
+                                                        else "notInstalled",
+                                                        "selected"
+                                                        if subscription.get(
+                                                            "currentFont"
+                                                        )
+                                                        == font.uniqueID
+                                                        else "",
+                                                        self.b64encode(font.uniqueID),
+                                                    )
+                                                )
+                                                html.append('<div class="clear">')
+
+                                                html.append(
+                                                    '<div class="left" style="width: 50%;">'
+                                                )
+                                                html.append(
+                                                    font.name.getText(client.locale())
+                                                )
+                                                if font.free:
+                                                    html.append(
+                                                        '<span class="label free">free</span>'
+                                                    )
+                                                if font.status != "stable":
+                                                    html.append(
+                                                        '<span class="label pre">%s</span>'
+                                                        % font.status
+                                                    )
+                                                if font.variableFont:
+                                                    html.append(
+                                                        '<span class="label var">OTVar</span>'
+                                                    )
+                                                html.append("</div>")  # .left
+
+                                                html.append(
+                                                    '<div class="left installedText">'
+                                                )
+                                                html.append(
+                                                    self.fontInstalledText(font)
+                                                )
+                                                html.append("</div>")  # .left
+
+                                                expiry = ""
+                                                if font.expiryDuration:
+                                                    expiry = "%s'" % font.expiryDuration
+                                                if expiry:
+                                                    html.append(
+                                                        '<div class="left expiryText">'
+                                                    )
+                                                    html.append(
+                                                        '⏲<span class="countdownMinutes" timestamp="%s">%s</span>'
+                                                        % (font.expiry, expiry)
+                                                    )
+                                                    html.append("</div>")  # .left
+
+                                                if font.purpose == "desktop":
+
+                                                    html.append(
+                                                        '<div class="installButtons right">'
+                                                    )
+                                                    html.append(
+                                                        '<div class="installButton status install">'
+                                                    )
+                                                    html.append(
+                                                        '<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">'
+                                                        % (
+                                                            self.b64encode(
+                                                                subscription.parent.canonicalURL
+                                                            ),
+                                                            self.b64encode(
+                                                                subscription.protocol.unsecretURL()
+                                                            ),
+                                                            self.b64encode(
+                                                                font.uniqueID
+                                                            ),
+                                                            font.getVersions()[
+                                                                -1
+                                                            ].number
+                                                            if font.getVersions()
+                                                            else "",
+                                                        )
+                                                    )
+                                                    html.append("✓ #(Install)")
+                                                    html.append("</a>")
+                                                    html.append(
+                                                        "</div>"
+                                                    )  # installButton
+                                                    html.append(
+                                                        '<div class="installButton status remove">'
+                                                    )
+                                                    html.append(
+                                                        '<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">'
+                                                        % (
+                                                            self.b64encode(
+                                                                subscription.parent.canonicalURL
+                                                            ),
+                                                            self.b64encode(
+                                                                subscription.protocol.unsecretURL()
+                                                            ),
+                                                            self.b64encode(
+                                                                font.uniqueID
+                                                            ),
+                                                        )
+                                                    )
+                                                    html.append("✕ #(Remove)")
+                                                    html.append("</a>")
+                                                    html.append(
+                                                        "</div>"
+                                                    )  # installButton
+                                                    html.append(
+                                                        "</div>"
+                                                    )  # .installButtons
+
+                                                    html.append(
+                                                        '<div class="status loading right">'
+                                                    )
+                                                    html.append('<a class="status">')
+                                                    html.append(
+                                                        """<img src="file://##htmlroot##/loading.gif" style="width: 50px; height: 13px; position: relative; top: 2px;">"""
+                                                    )
+                                                    html.append("</a>")
+                                                    html.append("</div>")  # .right
+
+                                                    html.append(
+                                                        '<div class="more right">'
+                                                    )
+                                                    html.append('<a class="more">')
+                                                    html.append(
+                                                        """<img src="file://##htmlroot##/more_lighter.svg" style="height: 8px; position: relative; top: 0px;">"""
+                                                    )
+                                                    html.append("</a>")
+                                                    html.append("</div>")  # .right
+
+                                                html.append("</div>")  # .clear
+                                                html.append("</div>")  # .font
+
+                                            html.append("</div>")  # .section
 
                             html.append("</div>")  # .family
 

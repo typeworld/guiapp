@@ -22,5 +22,8 @@ cp -r ynlib/Lib/ynlib build/lib/
 echo "Copy importlib_metadata"
 cp -r $SITEPACKAGES/importlib_metadata-*.dist-info build/lib/
 
+ls -la C:\\projects\\guiapp\\build\\lib\\
+ls -la C:\\projects\\guiapp\\build\\lib\\pyzmq.libs\\
+
 echo "App Self Test"
 "build/TypeWorld.exe" selftest

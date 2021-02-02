@@ -1,8 +1,10 @@
 set -e
 
-# ls -la C:\\projects\\guiapp\\build\\lib\\
+ls -la C:\\projects\\guiapp\\build\\lib\\
 # ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\
 # ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\.libs\\
+
+# C:\projects\guiapp\build\lib\
 
 echo "Python build"
 python wxPython/build/Windows/setup.py build > nul # muting too much output

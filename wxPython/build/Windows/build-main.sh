@@ -8,11 +8,17 @@ set -e
 echo "Python build"
 python wxPython/build/Windows/setup.py build > nul # muting too much output
 
+echo
 echo "/build content"
-dir build
+ls -la build
 
+echo
 echo "/build/lib content"
-dir build\\lib
+ls -la build\\lib
+
+echo
+echo "/build/lib/zmq content"
+ls -la build\\lib\\zmq
 
 echo "Add Windows App Manifest"
 "$WINDOWSKITBIN\\mt.exe" -manifest "wxPython/build/Windows/windowsAppManifest.xml" -outputresource:build\\TypeWorld.exe;#1

@@ -5,6 +5,9 @@ google-cloud-storage
 wheel
 psutil
 
+# Over-ride typeworld
+pyzmq=20.0.0
+
 # GUI App
 git+https://github.com/typeworld/typeworld.git
 wxPython==4.0.7

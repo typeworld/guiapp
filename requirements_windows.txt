@@ -8,8 +8,8 @@ psutil
 
 # GUI App
 git+https://github.com/typeworld/typeworld.git
-# wxPython==4.0.7
-wxPython
+wxPython==4.0.7
+# wxPython
 pystray
 zroya
 packaging
@@ -20,4 +20,4 @@ numpy
 codecov
 
 # Over-ride typeworld
-pyzmq==21.0.2
+pyzmq==19.0.2

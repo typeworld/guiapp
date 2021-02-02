@@ -1,5 +1,9 @@
 set -e
 
+ls -la C:\\projects\\guiapp\\build\\lib\\
+ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\
+ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\.libs\\
+
 echo "Python build"
 python wxPython/build/Windows/setup.py build > nul # muting too much output
 
@@ -21,10 +25,6 @@ cp -r ynlib/Lib/ynlib build/lib/
 
 echo "Copy importlib_metadata"
 cp -r $SITEPACKAGES/importlib_metadata-*.dist-info build/lib/
-
-ls -la C:\\projects\\guiapp\\build\\lib\\
-ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\
-ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\.libs\\
 
 echo "App Self Test"
 "build/TypeWorld.exe" selftest

@@ -6,6 +6,7 @@ def _delvewheel_init_patch_0_0_9():
     import os
     import sys
 
+    print("__file__:", __file__)
     libs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".libs"))
     if sys.version_info[:2] >= (3, 8):
         os.add_dll_directory(libs_dir)

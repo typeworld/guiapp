@@ -1,6 +1,6 @@
 set -e
 
-ls -la C:\\projects\\guiapp\\build\\lib\\
+dir C:\\projects\\guiapp\\build\\lib\\
 # ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\
 # ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\.libs\\
 

@@ -1,10 +1,6 @@
 set -e
 
-# ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\
-# ls -la C:\\projects\\guiapp\\build\\lib\\zmq\\.libs\\
-
-#C:\projects\guiapp\build\lib\
-
+echo
 echo "Python build"
 python wxPython/build/Windows/setup.py build > nul # muting too much output
 
@@ -15,10 +11,6 @@ ls -la build
 echo
 echo "/build/lib content"
 ls -la build\\lib
-
-echo
-echo "/build/lib/zmq content"
-ls -la build\\lib\\zmq
 
 echo "Add Windows App Manifest"
 "$WINDOWSKITBIN\\mt.exe" -manifest "wxPython/build/Windows/windowsAppManifest.xml" -outputresource:build\\TypeWorld.exe;#1

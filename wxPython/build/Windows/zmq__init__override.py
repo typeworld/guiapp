@@ -7,7 +7,9 @@ def _delvewheel_init_patch_0_0_9():
     import sys
 
     print("__file__:", __file__)
-    libs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".libs"))
+    libs_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), os.pardir, "pyzmq.libs")
+    )
     if sys.version_info[:2] >= (3, 8):
         os.add_dll_directory(libs_dir)
     else:
@@ -22,8 +24,6 @@ def _delvewheel_init_patch_0_0_9():
 _delvewheel_init_patch_0_0_9()
 del _delvewheel_init_patch_0_0_9
 # end delvewheel patch
-
-
 # Copyright (C) PyZMQ Developers
 # Distributed under the terms of the Modified BSD License.
 # load bundled libzmq, if there is one:
@@ -94,7 +94,8 @@ def _libs_on_path():
     libs_dir = os.path.abspath(
         os.path.join(
             os.path.dirname(__file__),
-            ".libs",
+            os.pardir,
+            "pyzmq.libs",
         )
     )
     if not os.path.exists(libs_dir):

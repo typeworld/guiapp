@@ -4662,12 +4662,12 @@ class AppFrame(wx.Frame):
             subscription = publisher.subscription(publisher.get("currentSubscription"))
             font = subscription.fontByID(subscription.get("currentFont"))
             success, billboard, mimeType = client.resourceByURL(
-                font.parent.billboardURLs[index], binary=True
+                font.getBillboardURLs()[index], binary=True
             )
             if success:
                 data = "data:%s;base64,%s" % (mimeType, billboard)
             else:
-                data = font.parent.billboardURLs[index]
+                data = font.getBillboardURLs()[index]
 
             self.javaScript('$("#fontBillboard").attr("src","%s");' % (data))
             self.javaScript('$(".fontBillboardLinks").removeClass("selected");')
@@ -4705,13 +4705,13 @@ class AppFrame(wx.Frame):
                     styling = FoundryStyling(foundry, theme)
                     html.append(styling.informationView())
 
-                    if font.parent.billboardURLs:
+                    if font.getBillboardURLs():
 
                         index = (
                             font.parent.parent.parent.parent.get("currentFontImage")
                             or 0
                         )
-                        if index > len(font.parent.billboardURLs) - 1:
+                        if index > len(font.getBillboardURLs()) - 1:
                             index = 0
                             font.parent.parent.parent.parent.set(
                                 "currentFontImage", int(index)
@@ -4720,7 +4720,7 @@ class AppFrame(wx.Frame):
                         html.append('<div style="max-height: 400px; height: 300px;">')
 
                         success, billboard, mimeType = client.resourceByURL(
-                            font.parent.billboardURLs[index], binary=True
+                            font.getBillboardURLs()[index], binary=True
                         )
                         if success:
                             html.append(
@@ -4730,15 +4730,15 @@ class AppFrame(wx.Frame):
                         else:
                             html.append(
                                 '<img id="fontBillboard" src="%s" style="width: 300px;">'
-                                % (font.parent.billboardURLs[index])
+                                % (font.getBillboardURLs()[index])
                             )
 
                         html.append("</div>")
-                        if len(font.parent.billboardURLs) > 1:
+                        if len(font.getBillboardURLs()) > 1:
                             html.append(
                                 '<div style="padding: 5px; text-align: center;">'
                             )
-                            for i, billboard in enumerate(font.parent.billboardURLs):
+                            for i, billboard in enumerate(font.getBillboardURLs()):
                                 html.append(
                                     '<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="x-python://self.setFontImage(____%s____)" style="color: inherit;">•</a></span>'
                                     % (i, "selected" if i == index else "", i)
@@ -4761,7 +4761,7 @@ class AppFrame(wx.Frame):
                         ("license", "#(License)", True),
                         ("information", "#(Information)", font.parent.description),
                         ("versions", "#(Versions)", True),
-                        # 				('billboardURLs', '#(Images)', font.parent.billboardURLs),
+                        # 				('billboardURLs', '#(Images)', font.getBillboardURLs()),
                     ):
 
                         if condition:

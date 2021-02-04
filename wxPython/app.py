@@ -7392,6 +7392,7 @@ def createClient(startWithCommand=None, externallyControlled=True):
         zmqSubscriptions=True,
         mothership=customMothership,
         externallyControlled=externallyControlled,
+        inCompiledApp=RUNTIME,
     )
 
 

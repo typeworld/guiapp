@@ -2339,6 +2339,7 @@ class AppFrame(wx.Frame):
                     )
 
                     html.append("<div>")
+                    html.append("<form>")
                     html.append("<h4>#(Create Account)</h4>")
                     html.append("#(Name)")
                     html.append("<br />")
@@ -2349,13 +2350,13 @@ class AppFrame(wx.Frame):
                     html.append("#(Email Address)")
                     html.append("<br />")
                     html.append(
-                        '<input type="text" name="createAccountUserEmail" id="createAccountUserEmail" placeholder="#(johndoe@gmail.com)">'
+                        '<input type="text" name="createAccountUserEmail" id="createAccountUserEmail" placeholder="#(johndoe@gmail.com)" autocomplete="username">'
                     )
                     html.append("<br />")
                     html.append("#(Password)")
                     html.append("<br />")
                     html.append(
-                        '<input type="password" name="createAccountUserPassword" id="createAccountUserPassword">'
+                        '<input type="password" name="createAccountUserPassword" id="createAccountUserPassword" autocomplete="new-password">'
                     )
                     html.append("<br />")
                     html.append("#(Repeat Password)")
@@ -2378,21 +2379,23 @@ class AppFrame(wx.Frame):
                 });</script>"""
                     )
 
+                    html.append("</form>")
                     html.append("</div>")  # .floatleft
                     html.append('<div style="float: left; width: 47%;">')
 
                     html.append("<div>")
+                    html.append("<form>")
                     html.append("<h4>#(Log In To Existing Account)</h4>")
                     html.append("#(Email Address)")
                     html.append("<br />")
                     html.append(
-                        '<input type="text" name="loginUserEmail" id="loginUserEmail" placeholder="#(johndoe@gmail.com)">'
+                        '<input type="text" name="loginUserEmail" id="loginUserEmail" placeholder="#(johndoe@gmail.com)" autocomplete="username">'
                     )
                     html.append("<br />")
                     html.append("#(Password)")
                     html.append("<br />")
                     html.append(
-                        '<input type="password" name="loginUserPassword" id="loginUserPassword">'
+                        '<input type="password" name="loginUserPassword" id="loginUserPassword" autocomplete="current-password">'
                     )
                     html.append("</div>")
 
@@ -2414,6 +2417,7 @@ class AppFrame(wx.Frame):
                 });</script>"""
                     )
 
+                    html.append("</form>")
                     html.append("</div>")  # .floatleft
                     html.append("</div>")  # .clear
 

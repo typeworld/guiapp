@@ -7393,6 +7393,7 @@ def createClient(startWithCommand=None, externallyControlled=True):
         preferences=prefs,
         delegate=delegate,
         mode="gui",
+        online=True,
         zmqSubscriptions=True,
         mothership=customMothership,
         externallyControlled=externallyControlled,

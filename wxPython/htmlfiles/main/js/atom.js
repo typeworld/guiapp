@@ -1,113 +1,173 @@
 
+function Interpolate(a, b, p) {
+	return a + (b - a) * p;
+}
 
-
-function Ellipse(ctx, tAdjust, speed, color, pointColor) {
-		this.ctx = ctx;
-		this.speed = speed;
-		this.color = color;
-		this.pointColor = pointColor;
-		this.tAdjust = tAdjust;
-
-		this.p1 = Array(150, 0);
-		this.p2 = Array(150, 60);
-		this.p3 = Array(90, 100);
-		this.p4 = Array(0, 100);
+function NormalizeMinMax(source_floor, source_ceiling, target_floor, target_ceiling, value) {
+	if (target_floor == 0) {
+		return (value - source_floor) / parseFloat(source_ceiling - source_floor) * target_ceiling;
 	}
+	else {
+		return (value - source_floor) / parseFloat(source_ceiling - source_floor) * (target_ceiling - target_floor) + target_floor;
+	}
+}
 
-	Ellipse.prototype.drawQuadrant = function(q) {
+function InterpolateMany(valuelist, p) {
+	p = parseFloat(p);
+	if (valuelist.length == 1) {
+		return Array(valuelist[0], valuelist[0], valuelist[0]);
+	}
+	// Return first item
+	else if (p == 0.0) {
+		return Array(valuelist[0], valuelist[0], valuelist[0]);
+	}
+	// Return last item
+	else if (p == 1.0) {
+		return Array(valuelist[valuelist.length - 1], valuelist[valuelist.length - 1], valuelist[valuelist.length - 1]);
+	}
+	// Interpolate
+	else {
+		for (var i = 0; i < valuelist.length; i++) {
+			// p is exactly on one of the values
+			if (p == i / parseFloat(valuelist.length - 1)) {
+				return Array(valuelist[i], valuelist[i], valuelist[i]);
+			}
+			// Interpolate
+			else if (i * 1.0 / parseFloat(valuelist.length - 1) < p && p < (i + 1) * 1.0 / parseFloat(valuelist.length - 1)) {
+				v1 = valuelist[i];
+				v2 = valuelist[i + 1];
+				// Hier liegt der Hase begraben
+				_p_floor = i * 1.0 / parseFloat(valuelist.length - 1);
+				_p_ceil = _p_floor + 1.0 / parseFloat(valuelist.length - 1);
+				_p = NormalizeMinMax(_p_floor, _p_ceil, 0, 1, p);
+				return Array(Interpolate(v1, v2, _p), v1, v2);
+			}
+		}
+	}
+}
 
-		if (q == 1) {
-			var px = 1;
-			var py = 1;
-		}
-		else if (q == 2) {
-			var px = -1;
-			var py = 1;
-		}
-		else if (q == 3) {
-			var px = -1;
-			var py = -1;
-		}
-		else if (q == 4) {
-			var px = 1;
-			var py = -1;
-		}
 
-		this.ctx.lineCap = 'round';
-		this.ctx.lineWidth = 5;
-		this.ctx.strokeStyle=this.color;
-//		newPath()
-		this.ctx.beginPath();
+
+function Ellipse(ctx, tAdjust, speed, trailColor, pointColor, direction, canvasSize) {
+	this.ctx = ctx;
+	this.speed = speed;
+	this.trailColor = trailColor;
+	this.pointColor = pointColor;
+	this.tAdjust = tAdjust;
+	this.direction = direction;
+	this.canvasSize = canvasSize;
+
+	this.p1 = Array(150, 0);
+	this.p2 = Array(150, 60);
+	this.p3 = Array(90, 100);
+	this.p4 = Array(0, 100);
+}
+
+Ellipse.prototype.drawQuadrant = function (q) {
+	if (q == 1) {
+		var px = 1;
+		var py = 1;
 		this.ctx.moveTo(this.p1[0] * px, this.p1[1] * py);
 		this.ctx.bezierCurveTo(this.p2[0] * px, this.p2[1] * py, this.p3[0] * px, this.p3[1] * py, this.p4[0] * px, this.p4[1] * py);
-		// closePath()
-//		drawPath()
-		this.ctx.stroke();
+	}
+	else if (q == 2) {
+		var px = -1;
+		var py = 1;
+		this.ctx.bezierCurveTo(this.p3[0] * px, this.p3[1] * py, this.p2[0] * px, this.p2[1] * py, this.p1[0] * px, this.p1[1] * py);
+	}
+	else if (q == 3) {
+		var px = -1;
+		var py = -1;
+		this.ctx.bezierCurveTo(this.p2[0] * px, this.p2[1] * py, this.p3[0] * px, this.p3[1] * py, this.p4[0] * px, this.p4[1] * py);
+	}
+	else if (q == 4) {
+		var px = 1;
+		var py = -1;
+		this.ctx.bezierCurveTo(this.p3[0] * px, this.p3[1] * py, this.p2[0] * px, this.p2[1] * py, this.p1[0] * px, this.p1[1] * py);
+	}
+}
 
+
+Ellipse.prototype.draw = function () {
+	this.ctx.fillStyle = this.color;
+	this.ctx.beginPath();
+	this.drawQuadrant(1);
+	this.drawQuadrant(2);
+	this.drawQuadrant(3);
+	this.drawQuadrant(4);
+	this.ctx.fill();
+}
+
+Ellipse.prototype.drawTrail = function (keyFrame) {
+
+	this.ctx.save();
+	this.ctx.scale(.96, .96);
+
+	var trailSize = 150;
+	for (var i = trailSize; i >= 0; i--) {
+		var k = i * 0.004 * parseFloat(fps);
+		var t = i / parseFloat(trailSize);
+		r = parseInt(InterpolateMany(Array(this.trailColor[0][0], this.trailColor[1][0], 0), t)[0]);
+		g = parseInt(InterpolateMany(Array(this.trailColor[0][1], this.trailColor[1][1], 0), t)[0]);
+		b = parseInt(InterpolateMany(Array(this.trailColor[0][2], this.trailColor[1][2], 0), t)[0]);
+		a = InterpolateMany(Array(.4, .2, 0), t)[0];
+		rgbaColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+		this.drawPoint(((keyFrame - k) * this.speed / fps) % 4.0, rgbaColor, Interpolate(25, 5, t));
+	}
+
+	this.ctx.shadowColor = "black";
+	this.ctx.shadowBlur = 30;
+	this.ctx.shadowOffsetX = 0;
+	this.ctx.shadowOffsetY = 0;
+	this.drawPoint((keyFrame * this.speed / fps) % 4.0, this.pointColor, 40);
+	this.ctx.shadowColor = 0;
+
+	this.ctx.restore();
+}
+
+Ellipse.prototype.drawPoint = function (t, color, size) {
+
+	// t += this.direction;
+
+	var localT = (t + this.tAdjust) % 1;
+	// localT = localT * this.direction;
+
+	if (t < 1) {
+		var px = 1;
+		var py = 1;
+	}
+	else if (t < 2) {
+		var px = -1;
+		var py = 1;
+		localT = (1 - localT);
+	}
+	else if (t < 3) {
+		var px = -1;
+		var py = -1;
+	}
+	else {
+		var px = 1;
+		var py = -1;
+		localT = (1 - localT);
 	}
 
 
-	Ellipse.prototype.draw = function() {
+	var p = splitCubicAtT(Array(this.p1[0] * px, this.p1[1] * py), Array(this.p2[0] * px, this.p2[1] * py), Array(this.p3[0] * px, this.p3[1] * py), Array(this.p4[0] * px, this.p4[1] * py), localT)[0]
+	this.ctx.lineWidth = 0;
+	this.ctx.strokeStyle = 0;
+	this.ctx.fillStyle = color;
+	this.ctx.beginPath();
+	this.ctx.arc(p[0], p[1], size / 2.0, 0, 2 * Math.PI);
+	this.ctx.fill();
 
 
-		this.drawQuadrant(1);
-		this.drawQuadrant(2);
-		this.drawQuadrant(3);
-		this.drawQuadrant(4);
+}
+
+var fps = 25.0;
+var rampDuration = parseInt(.6 * fps);
+var rampDurationStop = parseInt(1.3 * fps);
 
 
-	}
-
-
-	Ellipse.prototype.drawPoint = function(t) {
-
-
-
-		var localT = (t + this.tAdjust) % 1;
-
-		if (t < 1) {
-			var px = 1;
-			var py = 1;
-		}
-		else if (t < 2) {
-			var px = -1;
-			var py = 1;
-			localT = 1 - localT;
-		}
-		else if (t < 3) {
-			var px = -1;
-			var py = -1;
-		}
-		else {
-			var px = 1;
-			var py = -1;
-			localT = 1 - localT;
-		}
-
-		
-		var p = splitCubicAtT(Array(this.p1[0] * px, this.p1[1] * py), Array(this.p2[0] * px, this.p2[1] * py), Array(this.p3[0] * px, this.p3[1] * py), Array(this.p4[0] * px, this.p4[1] * py), localT)[0]
-//		console.log(p);
-
-		
-//		fill(*[x / 255.0 for x in this.pointColor])
-//		stroke(None)
-		var _size = 35
-//		oval(p[0] - _size / 2.0, p[1] - _size / 2.0, _size, _size)
-
-		this.ctx.lineWidth = 0;
-		this.ctx.strokeStyle = 0;
-		this.ctx.fillStyle=this.pointColor;
-		this.ctx.beginPath();
-		this.ctx.arc(p[0], p[1], _size / 2.0, 0, 2*Math.PI);
-		this.ctx.fill();
-//		console.log('fill', this);
-
-//		console.log(p[0] - _size / 2.0, p[1] - _size / 2.0);
-
-
-	}
-
-	
 var timeout;
 var keyFrame, fps, factor, c, ctx, e, f, g;
 var animation = false;
@@ -118,10 +178,10 @@ var lastKeyFrame;
 
 function startAnimation() {
 	if (animation == false || rampStop > 0) {
-	rampStart = 0;
-	rampStop = 0;
-	animation = true;
-	timeout(lastKeyFrame || keyFrame, false);
+		rampStart = 0;
+		rampStop = 0;
+		animation = true;
+		timeout(lastKeyFrame || keyFrame, false);
 	}
 }
 
@@ -130,43 +190,57 @@ function stopAnimation() {
 	rampStart = rampDuration;
 }
 
+function animationHasStopped() {
+
+}
 
 
-var rampDuration = 20.0;
-var rampDurationStop = 50.0;
 
 
-$(document).ready(function() {
+function setupCanvas(canvas) {
+	// Get the device pixel ratio, falling back to 1.
+	var dpr = window.devicePixelRatio || 1;
+	// Get the size of the canvas in CSS pixels.
+	var rect = canvas.getBoundingClientRect();
+	// Give the canvas pixel dimensions of their CSS
+	// size * the device pixel ratio.
+	canvas.width = rect.width * dpr;
+	canvas.height = rect.height * dpr;
+	canvas.style.width = rect.width + 'px';
+	canvas.style.height = rect.height + 'px';
+	var ctx = canvas.getContext('2d');
+	// Scale all drawing operations by the dpr, so you
+	// don't have to worry about the difference.
+	ctx.scale(dpr, dpr);
+	return ctx;
+}
 
-	// $('#atom')
 
-	$('#atomButton').hover(function() {
-	    startAnimation();
-	  }, function() {
-	    stopAnimation();
-	  }
+$(document).ready(function () {
+
+	$('#atom').hover(function () {
+		startAnimation();
+	}, function () {
+		stopAnimation();
+	}
 	);
 
-	fps = 30.0;
+	var canvas = document.getElementById("atom");
+	var ctx = setupCanvas(canvas);
+	var rect = canvas.getBoundingClientRect();
 
-	var c=document.getElementById("atom");
-	var ctx=c.getContext("2d");
+	var factor = rect.width / 400.0;
 
-	factor = 1.0;
+	var e = new Ellipse(ctx, 1, 2.5, Array(Array(229, 51, 42), Array(41, 35, 92)), '#FFC500', 1, canvas.width); // yellow
+	var f = new Ellipse(ctx, 2, 3, Array(Array(0, 175, 255), Array(102, 36, 130)), '#52E952', 1, canvas.width); // green
+	var g = new Ellipse(ctx, 3, 4, Array(Array(0, 255, 168), Array(106, 71, 0)), '#FF9AFF', 1, canvas.width); // blue
 
-	e = new Ellipse(ctx, 1, 2.5 / factor, '#555', '#F8B334'); // yellow
-	f = new Ellipse(ctx, 2, 3 / factor, '#555', '#97BF0D'); // green
-	g = new Ellipse(ctx, 3, 4 / factor, '#555', '#009EE0'); // blue
-
-
-	ctx.scale(150.0 / 500.0, 150.0 / 500.0);
-	ctx.translate(250, 250);
 
 	timeout = function timeout(keyFrame, once) {
 		if (animation || once || rampStop > 0) {
 			setTimeout(function () {
 
-				speedAdjust = 1.0;
+				speedAdjust = .5;
 				startSpeedAdjust = 1.0;
 				stopSpeedAdjust = 1.0;
 
@@ -180,34 +254,94 @@ $(document).ready(function() {
 				speedAdjust = speedAdjust * startSpeedAdjust * stopSpeedAdjust;
 
 
+				// Initial save
 				ctx.save();
-				ctx.setTransform(1, 0, 0, 1, 0, 0);
-				ctx.clearRect(0, 0, c.width, c.height);
-				ctx.restore();
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.translate(rect.width / 2.0, rect.height / 2.0);
+				ctx.scale(factor, factor);
 
+				// draw ellipses first
 				ctx.save();
-
 				ctx.rotate((90) * Math.PI / 180.0);
 				e.draw();
-				e.drawPoint((keyFrame * e.speed / fps) % 4.0);
-
 				ctx.restore();
 				ctx.save();
-
 				ctx.rotate((90 + 60) * Math.PI / 180.0);
 				f.draw();
-				f.drawPoint((keyFrame * f.speed / fps) % 4.0);
-
 				ctx.restore();
 				ctx.save();
-
 				ctx.rotate((90 - 60) * Math.PI / 180.0);
 				g.draw();
-				g.drawPoint((keyFrame * g.speed / fps) % 4.0);
-				
 				ctx.restore();
 
-				if (! once) {
+				// draw points second
+				ctx.save();
+				ctx.rotate((90) * Math.PI / 180.0);
+				e.drawTrail(keyFrame);
+				ctx.restore();
+
+				ctx.save();
+				ctx.rotate((90 + 60) * Math.PI / 180.0);
+				f.drawTrail(keyFrame);
+				ctx.restore();
+
+				ctx.save();
+				ctx.rotate((90 - 60) * Math.PI / 180.0);
+				g.drawTrail(keyFrame);
+				ctx.restore();
+
+				// Restore
+				ctx.restore();
+
+				// Draw Plus
+				ctx.lineWidth = 18 * factor;
+
+
+				// white horizontal
+				ctx.beginPath();
+				ctx.strokeStyle = '#fff';
+				ctx.moveTo(150 * factor, 200 * factor);
+				ctx.lineTo(250 * factor, 200 * factor);
+				ctx.stroke();
+
+				// blue horizontal
+				ctx.beginPath();
+				ctx.strokeStyle = '#00AFFF';
+				ctx.moveTo(140 * factor, 200 * factor);
+				ctx.lineTo(155 * factor, 200 * factor);
+				ctx.stroke();
+
+				// pink horizontal
+				ctx.beginPath();
+				ctx.strokeStyle = '#FF9AFF';
+				ctx.moveTo(245 * factor, 200 * factor);
+				ctx.lineTo(260 * factor, 200 * factor);
+				ctx.stroke();
+
+				// white vertical
+				ctx.beginPath();
+				ctx.strokeStyle = '#fff';
+				ctx.moveTo(200 * factor, 150 * factor);
+				ctx.lineTo(200 * factor, 250 * factor);
+				ctx.stroke();
+
+				// green vertical
+				ctx.beginPath();
+				ctx.strokeStyle = '#52E952';
+				ctx.moveTo(200 * factor, 140 * factor);
+				ctx.lineTo(200 * factor, 155 * factor);
+				ctx.stroke();
+
+				// orange vertical
+				ctx.beginPath();
+				ctx.strokeStyle = '#FFBD00';
+				ctx.moveTo(200 * factor, 245 * factor);
+				ctx.lineTo(200 * factor, 260 * factor);
+				ctx.stroke();
+
+
+
+				if (!once) {
 					keyFrame += speedAdjust;
 				}
 
@@ -218,8 +352,8 @@ $(document).ready(function() {
 				lastKeyFrame = keyFrame;
 				if (rampStop == 0) {
 					animation = false;
-					console.log(keyFrame);		
 					lastKeyFrame = keyFrame;
+					animationHasStopped();
 				}
 
 				if (animation) {
@@ -229,14 +363,6 @@ $(document).ready(function() {
 		}
 	}
 
-timeout(keyFrame, true);
-
-//console.log(keyFrame);
-
-// ctx.fillStyle='#abcdef';
-// ctx.beginPath();
-// ctx.arc(100, 100, 50, 0, 2*Math.PI);
-// ctx.fill();
-
+	timeout(keyFrame, true);
 
 });

@@ -61,7 +61,7 @@ setup(
                 os.path.join(baseFolder, "patrons"),
                 os.path.join(baseFolder, "intercom"),
             ],
-            "excludes": ["win32ctypes", "tkinter"],
+            "excludes": ["win32ctypes", "tkinter", "test"],
             "packages": [
                 "zmq",
                 "typeworld",

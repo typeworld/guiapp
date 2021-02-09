@@ -49,7 +49,7 @@ WIN = platform.system() == "Windows"
 MAC = platform.system() == "Darwin"
 
 if WIN:
-    from win10toast import ToastNotifier
+    import plyer
 
 from ynlib.files import ReadFromFile, WriteToFile
 from ynlib.strings import *
@@ -296,8 +296,7 @@ def notification(title, text):
         userNotificationCenter.deliverNotification_(notification)
 
     if WIN:
-        toaster = ToastNotifier()
-        toaster.show_toast(title, text, duration=20)
+        plyer.notification.notify(title=title, message=text, timeout=20)
 
 
 def subscriptionsUpdatedNotification(message):

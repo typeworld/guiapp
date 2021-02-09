@@ -9,7 +9,7 @@ git+https://github.com/typeworld/typeworld.git
 wxPython==4.0.7
 # wxPython
 pystray
-win10toast
+plyer
 packaging
 cryptography
 pywin32

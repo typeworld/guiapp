@@ -6496,7 +6496,7 @@ class AppFrame(wx.Frame):
         seconds = delayedResult.get()
 
     def quitSelftest(self, message, exitCode):
-        print("selftest failed with:", message)
+        print("selftest failed with:", message, "exit code:", exitCode)
         self.onQuit(None, withExitCode=exitCode)
 
     def selftest(self):

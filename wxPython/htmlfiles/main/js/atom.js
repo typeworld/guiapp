@@ -310,8 +310,8 @@ $(document).ready(function () {
 				// white horizontal
 				ctx.beginPath();
 				ctx.strokeStyle = '#fff';
-				ctx.moveTo(150 * factor, 200 * factor);
-				ctx.lineTo(250 * factor, 200 * factor);
+				ctx.moveTo(145 * factor, 200 * factor);
+				ctx.lineTo(255 * factor, 200 * factor);
 				ctx.stroke();
 
 				if (rect.width > 100) {
@@ -333,8 +333,8 @@ $(document).ready(function () {
 				// white vertical
 				ctx.beginPath();
 				ctx.strokeStyle = '#fff';
-				ctx.moveTo(200 * factor, 150 * factor);
-				ctx.lineTo(200 * factor, 250 * factor);
+				ctx.moveTo(200 * factor, 145 * factor);
+				ctx.lineTo(200 * factor, 255 * factor);
 				ctx.stroke();
 
 				if (rect.width > 100) {

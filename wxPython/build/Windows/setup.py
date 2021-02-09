@@ -81,7 +81,7 @@ setup(
                 "pytz",
                 "winreg",
                 "win32api",
-                "zroya",
+                "win10toast",
                 "pywinsparkle",
                 # "proto",
                 "win32timezone",

@@ -49,7 +49,7 @@ WIN = platform.system() == "Windows"
 MAC = platform.system() == "Darwin"
 
 if WIN:
-    import zroya
+    from win10toast import ToastNotifier
 
 from ynlib.files import ReadFromFile, WriteToFile
 from ynlib.strings import *
@@ -296,14 +296,8 @@ def notification(title, text):
         userNotificationCenter.deliverNotification_(notification)
 
     if WIN:
-
-        zroya.init("Type.World", "Type.World", "Type.World", "guiapp", "Version")
-        template = zroya.Template(zroya.TemplateType.ImageAndText4)
-        template.setFirstLine(title)
-        template.setSecondLine(text)
-        expiration = 24 * 60 * 60 * 1000  # one day
-        template.setExpiration(expiration)  # One day
-        notificationID = zroya.show(template)  # , on_action=onAction
+        toaster = ToastNotifier()
+        toaster.show_toast(title, text, duration=20)
 
 
 def subscriptionsUpdatedNotification(message):
@@ -1476,14 +1470,6 @@ class AppFrame(wx.Frame):
             import signal
 
             def exit_signal_handler(signal, frame):
-
-                # template = zroya.Template(zroya.TemplateType.ImageAndText4)
-                # template.setFirstLine('Quit Signal')
-                # # template.setSecondLine(str(signal))
-                # # template.setThirdLine(str(frame))
-                # expiration = 24 * 60 * 60 * 1000 # one day
-                # template.setExpiration(expiration) # One day
-                # notificationID = zroya.show(template)
 
                 client.log("Received SIGTERM or SIGINT")
 
@@ -6519,11 +6505,6 @@ class AppFrame(wx.Frame):
 
             print(zmq)
 
-            if WIN:
-                import zroya
-
-                print(zroya)
-
             # Set secret key so that new users are verified instantly
             if CI:
                 SECRETKEY = os.getenv("REVOKEAPPINSTANCEAUTHKEY")
@@ -6575,9 +6556,8 @@ class AppFrame(wx.Frame):
 
             # Add subscription (also triggers ZMQ message for next step)
             self.addSubscriptionViaDialog(flatFreeSubscription)
-            success, message, publisher, subscription = client.addSubscription(
-                flatFreeSubscription
-            )
+            returnValues = client.addSubscription(flatFreeSubscription)
+            success, message, publisher, subscription = returnValues
             condition = success == True
             if not condition:
                 return self.quitSelftest(message, 20)

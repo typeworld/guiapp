@@ -115,8 +115,8 @@ Ellipse.prototype.drawTrail = function (keyFrame, opticalSize) {
 		this.drawPoint(((keyFrame - k) * this.speed / fps) % 4.0, rgbaColor, Interpolate(20 / opticalSize, 5, t));
 	}
 
-	this.ctx.shadowColor = "black";
-	this.ctx.shadowBlur = 30;
+	this.ctx.shadowColor = "#000";
+	this.ctx.shadowBlur = 20 / opticalSize;
 	this.ctx.shadowOffsetX = 0;
 	this.ctx.shadowOffsetY = 0;
 	this.drawPoint((keyFrame * this.speed / fps) % 4.0, this.pointColor, 30 / opticalSize);

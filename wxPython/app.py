@@ -296,7 +296,14 @@ def notification(title, text):
         userNotificationCenter.deliverNotification_(notification)
 
     if WIN:
-        plyer.notification.notify(title=title, message=text, timeout=20)
+        iconPath = os.path.join(os.path.dirname(__file__), "icon", "tw.ico")
+        plyer.notification.notify(
+            title=title,
+            message=text,
+            timeout=20,
+            app_icon=iconPath,
+            app_name="Type.World",
+        )
 
 
 def subscriptionsUpdatedNotification(message):

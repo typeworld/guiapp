@@ -231,9 +231,9 @@ $(document).ready(function () {
 
 	var factor = rect.width / 400.0;
 
-	var e = new Ellipse(ctx, 1, 2.5, Array(Array(229, 51, 42), Array(41, 35, 92)), '#FFC500', 1, canvas.width); // yellow
+	var e = new Ellipse(ctx, 1, 2.5, Array(Array(0, 255, 168), Array(41, 35, 92)), '#FFC500', 1, canvas.width); // yellow
 	var f = new Ellipse(ctx, 2, 3, Array(Array(0, 175, 255), Array(102, 36, 130)), '#52E952', 1, canvas.width); // green
-	var g = new Ellipse(ctx, 3, 4, Array(Array(0, 255, 168), Array(106, 71, 0)), '#FF9AFF', 1, canvas.width); // blue
+	var g = new Ellipse(ctx, 3, 4, Array(Array(82, 233, 82), Array(106, 71, 0)), '#FF9AFF', 1, canvas.width); // pink
 
 
 	timeout = function timeout(keyFrame, once) {
@@ -258,7 +258,7 @@ $(document).ready(function () {
 				ctx.save();
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.translate(rect.width / 2.0, rect.height / 2.0);
-				ctx.scale(factor, factor);
+				ctx.scale(-1 * factor, factor);
 
 				// draw ellipses first
 				ctx.save();

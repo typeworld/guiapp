@@ -98,7 +98,7 @@ Ellipse.prototype.draw = function () {
 	this.ctx.fill();
 }
 
-Ellipse.prototype.drawTrail = function (keyFrame) {
+Ellipse.prototype.drawTrail = function (keyFrame, opticalSize) {
 
 	this.ctx.save();
 	this.ctx.scale(.96, .96);
@@ -112,14 +112,14 @@ Ellipse.prototype.drawTrail = function (keyFrame) {
 		b = parseInt(InterpolateMany(Array(this.trailColor[0][2], this.trailColor[1][2], 0), t)[0]);
 		a = InterpolateMany(Array(.4, .2, 0), t)[0];
 		rgbaColor = 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
-		this.drawPoint(((keyFrame - k) * this.speed / fps) % 4.0, rgbaColor, Interpolate(25, 5, t));
+		this.drawPoint(((keyFrame - k) * this.speed / fps) % 4.0, rgbaColor, Interpolate(20 / opticalSize, 5, t));
 	}
 
 	this.ctx.shadowColor = "black";
 	this.ctx.shadowBlur = 30;
 	this.ctx.shadowOffsetX = 0;
 	this.ctx.shadowOffsetY = 0;
-	this.drawPoint((keyFrame * this.speed / fps) % 4.0, this.pointColor, 40);
+	this.drawPoint((keyFrame * this.speed / fps) % 4.0, this.pointColor, 30 / opticalSize);
 	this.ctx.shadowColor = 0;
 
 	this.ctx.restore();
@@ -253,6 +253,10 @@ $(document).ready(function () {
 
 				speedAdjust = speedAdjust * startSpeedAdjust * stopSpeedAdjust;
 
+				opticalSize = rect.width / 200.0;
+				opticalSize = Math.min(.9, opticalSize);
+				opticalSize = Math.max(.8, opticalSize);
+
 
 				// Initial save
 				ctx.save();
@@ -277,24 +281,30 @@ $(document).ready(function () {
 				// draw points second
 				ctx.save();
 				ctx.rotate((90) * Math.PI / 180.0);
-				e.drawTrail(keyFrame);
+				e.drawTrail(keyFrame, opticalSize);
 				ctx.restore();
 
 				ctx.save();
 				ctx.rotate((90 + 60) * Math.PI / 180.0);
-				f.drawTrail(keyFrame);
+				f.drawTrail(keyFrame, opticalSize);
 				ctx.restore();
 
 				ctx.save();
 				ctx.rotate((90 - 60) * Math.PI / 180.0);
-				g.drawTrail(keyFrame);
+				g.drawTrail(keyFrame, opticalSize);
 				ctx.restore();
 
 				// Restore
 				ctx.restore();
 
+
+				ctx.save();
+
+				ctx.scale(opticalSize, opticalSize);
+				ctx.translate((rect.width / opticalSize - rect.width) / 2.0, (rect.height / opticalSize - rect.height) / 2.0);
+
 				// Draw Plus
-				ctx.lineWidth = 18 * factor;
+				ctx.lineWidth = 20 * factor / opticalSize;
 
 
 				// white horizontal
@@ -304,19 +314,21 @@ $(document).ready(function () {
 				ctx.lineTo(250 * factor, 200 * factor);
 				ctx.stroke();
 
-				// blue horizontal
-				ctx.beginPath();
-				ctx.strokeStyle = '#00AFFF';
-				ctx.moveTo(140 * factor, 200 * factor);
-				ctx.lineTo(155 * factor, 200 * factor);
-				ctx.stroke();
+				if (rect.width > 100) {
+					// blue horizontal
+					ctx.beginPath();
+					ctx.strokeStyle = '#00AFFF';
+					ctx.moveTo(140 * factor, 200 * factor);
+					ctx.lineTo(155 * factor, 200 * factor);
+					ctx.stroke();
 
-				// pink horizontal
-				ctx.beginPath();
-				ctx.strokeStyle = '#FF9AFF';
-				ctx.moveTo(245 * factor, 200 * factor);
-				ctx.lineTo(260 * factor, 200 * factor);
-				ctx.stroke();
+					// pink horizontal
+					ctx.beginPath();
+					ctx.strokeStyle = '#FF9AFF';
+					ctx.moveTo(245 * factor, 200 * factor);
+					ctx.lineTo(260 * factor, 200 * factor);
+					ctx.stroke();
+				}
 
 				// white vertical
 				ctx.beginPath();
@@ -325,19 +337,23 @@ $(document).ready(function () {
 				ctx.lineTo(200 * factor, 250 * factor);
 				ctx.stroke();
 
-				// green vertical
-				ctx.beginPath();
-				ctx.strokeStyle = '#52E952';
-				ctx.moveTo(200 * factor, 140 * factor);
-				ctx.lineTo(200 * factor, 155 * factor);
-				ctx.stroke();
+				if (rect.width > 100) {
+					// green vertical
+					ctx.beginPath();
+					ctx.strokeStyle = '#52E952';
+					ctx.moveTo(200 * factor, 140 * factor);
+					ctx.lineTo(200 * factor, 155 * factor);
+					ctx.stroke();
 
-				// orange vertical
-				ctx.beginPath();
-				ctx.strokeStyle = '#FFBD00';
-				ctx.moveTo(200 * factor, 245 * factor);
-				ctx.lineTo(200 * factor, 260 * factor);
-				ctx.stroke();
+					// orange vertical
+					ctx.beginPath();
+					ctx.strokeStyle = '#FFBD00';
+					ctx.moveTo(200 * factor, 245 * factor);
+					ctx.lineTo(200 * factor, 260 * factor);
+					ctx.stroke();
+				}
+
+				ctx.restore();
 
 
 

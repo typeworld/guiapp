@@ -103,6 +103,17 @@ if WIN:
     if value == "true":
         DEBUG = True
 
+    try:
+        key = wreg.OpenKey(
+            wreg.HKEY_CURRENT_USER, "SOFTWARE\\Type.World\\Type.World", 0, wreg.KEY_READ
+        )
+        value, regtype = wreg.QueryValueEx(key, "debug")
+        wreg.CloseKey(key)
+    except:
+        value = False
+    if value == "true":
+        DEBUG = True
+
     # Redirect stderr & stdout
     if sys.stdout is None:
 

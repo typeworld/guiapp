@@ -48,6 +48,9 @@ from string import Template
 WIN = platform.system() == "Windows"
 MAC = platform.system() == "Darwin"
 
+if WIN:
+    import zroya
+
 from ynlib.files import ReadFromFile, WriteToFile
 from ynlib.strings import *
 from ynlib.web import GetHTTP
@@ -64,7 +67,7 @@ import typeworld.api
 
 APPNAME = "Type.World"
 APPVERSION = "n/a"
-DEBUG = False
+DEBUG = True
 BUILDSTAGE = "beta"
 PULLSERVERUPDATEINTERVAL = 60
 
@@ -293,8 +296,6 @@ def notification(title, text):
         userNotificationCenter.deliverNotification_(notification)
 
     if WIN:
-
-        import zroya
 
         zroya.init("Type.World", "Type.World", "Type.World", "guiapp", "Version")
         template = zroya.Template(zroya.TemplateType.ImageAndText4)
@@ -6517,6 +6518,11 @@ class AppFrame(wx.Frame):
             import zmq
 
             print(zmq)
+
+            if WIN:
+                import zroya
+
+                print(zroya)
 
             # Set secret key so that new users are verified instantly
             if CI:

@@ -19,3 +19,5 @@ unzip WinSparkle-0.7.0.zip -d sparkle
 # Copy ynlib
 export SITEPACKAGES=`python -c 'import site; print(site.getsitepackages()[0])'`\\Lib\\site-packages
 cp -R ynlib/Lib/ynlib $SITEPACKAGES
+
+ls -la C:\\Python37-x64\\lib\\site-packages\\zroya

@@ -67,7 +67,7 @@ import typeworld.api
 
 APPNAME = "Type.World"
 APPVERSION = "n/a"
-DEBUG = True
+DEBUG = False
 BUILDSTAGE = "beta"
 PULLSERVERUPDATEINTERVAL = 60
 

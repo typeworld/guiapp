@@ -218,7 +218,7 @@
 
 	<!-- <img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground"> -->
 	<canvas id="atom" width="120" height="120" onclick="showAddSubscription();"
-		alt="Click to add font subscriptions manually and explore participating publishers."></canvas>
+		alt="#(Tooltip-AtomAddSubscriptionButton)"></canvas>
 	<!-- <div id="atomButton" class="centerOuter">
 		<div class="centerInner" style="padding-top: 66px;"><a onclick="showAddSubscription();">+</a></div>
 	</div> -->
@@ -236,12 +236,10 @@
 				<span id="userName"></span>
 			</a>
 
-			<span class="visibleWhenProStatus"
-				alt="You’re a PRO user. Click to manage billing on type.world/account"><span
+			<span class="visibleWhenProStatus" alt="#(Tooltip_ProUser)"><span
 					class="proUserStatusBadge">Pro</span></span>
-			<span class="visibleWhenNormalStatus"><span
-					alt="Become a PRO user. Click to read all about it and activate it on type.world/account"
-					class="proUserStatusBadge">Get Pro</span></span>
+			<span class="visibleWhenNormalStatus"><span alt="#(Tooltip_NormalUser)" class="proUserStatusBadge">Get
+					Pro</span></span>
 		</div>
 
 

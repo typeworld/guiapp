@@ -1769,7 +1769,7 @@ class AppFrame(wx.Frame):
         token = client.keyring().get_password(
             client.userKeychainKey(client.user()), "typeWorldWebsiteToken"
         )
-        webbrowser.open_new_tab("http://0.0.0.0/account" + "?userAccountToken=" + token)
+        webbrowser.open_new_tab("http://0.0.0.0/account?userAccountToken=" + token)
 
     def pullServerUpdates(self, force=False):
 
@@ -2356,6 +2356,16 @@ class AppFrame(wx.Frame):
 
                     html.append("<hr>")
 
+                    html.append("<h2>#(Pro User Account)</h2>")
+                    html.append("<p>")
+                    if client.get("userAccountStatus") == "pro":
+                        html.append("#(ProUserAccountExplanation)")
+                    else:
+                        html.append("#(NormalUserAccountExplanation)")
+                    html.append("</p>")
+
+                    html.append("<hr>")
+
                     html.append("<h2>#(Unlink User Account)</h2>")
                     html.append("<p>")
                     html.append("#(UnlinkUserAccountExplanation)")
@@ -2615,9 +2625,9 @@ class AppFrame(wx.Frame):
             html = html.replace('"', "'")
             html = localizeString(html, html=True)
             html = html.replace("\n", "")
-            # print(html)
             js = '$("#preferences .centerOuter").html("<div>' + html + '</div>");'
             self.javaScript(js)
+            self.javaScript("documentReady();")
 
             self.javaScript("showPreferences();")
             # print(self.panelVisible)

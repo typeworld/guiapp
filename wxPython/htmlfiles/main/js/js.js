@@ -117,8 +117,7 @@ function recalcMinutesCountdown() {
 	setTimeout(function () { recalcMinutesCountdown(); }, 10000);
 }
 
-$(document).ready(function () {
-
+function documentReady() {
 	// // Automatically reload subscriptions
 	// minutely = function () {
 	// 	python('self.minutely()');
@@ -145,7 +144,7 @@ $(document).ready(function () {
 		python('self.removePublisher(\'' + id + '\')');
 	});
 
-	$(".proUserStatusBadge").click(function () {
+	$(".visitUserAccount").click(function () {
 		python("self.visitUserAccount()");
 	});
 
@@ -183,6 +182,11 @@ $(document).ready(function () {
 		});
 	});
 
+}
+
+$(document).ready(function () {
+
+	documentReady();
 
 });
 

@@ -13,6 +13,9 @@
 	<script type="text/javascript" src="file://##htmlroot##/main/js/atom.js"></script>
 	<script type="text/javascript" src="file://##htmlroot##/main/js/prototypes.js"></script>
 
+	<script type="text/javascript" src="file://##htmlroot##/main/js/tippy/popper.min.js"></script>
+	<script type="text/javascript" src="file://##htmlroot##/main/js/tippy/tippy-bundle.umd.min.js"></script>
+
 
 	<link rel="stylesheet" href="file://##htmlroot##/main/css/index.css">
 
@@ -213,7 +216,7 @@
 	</div>
 
 
-	<img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground">
+	<!-- <img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground"> -->
 	<canvas id="atom" width="120" height="120" onclick="showAddSubscription();"></canvas>
 	<!-- <div id="atomButton" class="centerOuter">
 		<div class="centerInner" style="padding-top: 66px;"><a onclick="showAddSubscription();">+</a></div>
@@ -231,11 +234,63 @@
 				</span>
 				<span id="userName"></span>
 			</a>
+
+			<span class="visibleWhenProStatus"><span class="proUserStatusBadge">PRO</span></span>
+			<span class="visibleWhenNormalStatus"><span onclick="" class="proUserStatusBadge">PRO</span></span>
 		</div>
 
 
+		<style>
+			.tippy-box[data-theme~='black'] {
+				background-color: black;
+				font-size: 10px;
+			}
+
+			/* .tippy-arrow[data-theme~='black'] {
+				border-bottom-color: black;
+				/* background-color: black;
+	color: black; */
+
+			.tippy-box[data-placement^="top"]>.tippy-arrow:before {
+				border-top-color: black !important;
+			}
+
+			.tippy-box[data-placement^="bottom"]>.tippy-arrow:before {
+				border-bottom-color: black !important;
+			}
+
+			.tippy-box[data-placement^="left"]>.tippy-arrow:before {
+				border-left-color: black !important;
+			}
+
+			.tippy-box[data-placement^="right"]>.tippy-arrow:before {
+				border-right-color: black !important;
+			}
+		</style>
+		<script>
+
+
+			tippy.setDefaultProps({
+				delay: 500,
+				theme: "black",
+			});
+			// With the above scripts loaded, you can call `tippy()` with a CSS
+			// selector and a `content` prop:
+			tippy('.visibleWhenProStatus .proUserStatusBadge', {
+				content: 'You’re a PRO user. Click to manage billing on type.world/account',
+			});
+			tippy('.visibleWhenNormalStatus .proUserStatusBadge', {
+				content: 'Become a PRO user. Click to read all about it and activate it on type.world/account',
+			});
+
+			tippy('#atom', {
+				content: 'Click to add font subscriptions manually and explore participating publishers.',
+			});
+
+		</script>
 
 		<script>
+
 			$("#pullServerUpdates").click(function () {
 
 				python('self.pullServerUpdates(force = True)');

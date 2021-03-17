@@ -451,6 +451,13 @@ class ClientDelegate(TypeWorldClientDelegate):
         if self.app.frame.panelVisible == "preferences(userAccount)":
             self.app.frame.threadSafeExec('self.onPreferences(None, "userAccount")')
 
+        if client.get("userAccountStatus") == "pro":
+            self.app.frame.javaScript("$('.visibleWhenNormalStatus').hide();")
+            self.app.frame.javaScript("$('.visibleWhenProStatus').show();")
+        else:
+            self.app.frame.javaScript("$('.visibleWhenNormalStatus').show();")
+            self.app.frame.javaScript("$('.visibleWhenProStatus').hide();")
+
     def subscriptionHasBeenDeleted(self, subscription):
         # print("subscriptionHasBeenDeleted(%s)" % subscription)
         self.app.frame.setSideBarHTML()
@@ -1576,6 +1583,16 @@ class AppFrame(wx.Frame):
             # menuBar.Append(menu, "Type.World")
             menuBar.Append(menu, "&%s" % (localizeString("#(Help)")))
 
+            ### DEVELOPER
+
+            menu = wx.Menu()
+            m_Upload = menu.Append(
+                wx.NewIdRef(count=1),
+                "%s..." % (localizeString("#(Upload Subscriptions As Is)")),
+            )
+            self.Bind(wx.EVT_MENU, self.onUploadSubscriptionAsIs, m_Upload)
+            menuBar.Append(menu, "&%s" % (localizeString("#(Developer)")))
+
             self.SetMenuBar(menuBar)
 
         except Exception as e:
@@ -1660,6 +1677,15 @@ class AppFrame(wx.Frame):
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
+    def onUploadSubscriptionAsIs(self, event):
+        try:
+            client.uploadSubscriptions()
+
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
     def onClose(self, event):
         try:
             if self.panelVisible:
@@ -1738,6 +1764,12 @@ class AppFrame(wx.Frame):
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
+
+    def visitUserAccount(self):
+        token = client.keyring().get_password(
+            client.userKeychainKey(client.user()), "typeWorldWebsiteToken"
+        )
+        webbrowser.open_new_tab("http://0.0.0.0/account" + "?userAccountToken=" + token)
 
     def pullServerUpdates(self, force=False):
 
@@ -3983,16 +4015,20 @@ class AppFrame(wx.Frame):
 
             for publisher in client.publishers():
                 for subscription in publisher.subscriptions():
-                    for font in subscription.installedFonts():
-                        if font.expiry and time.time() > font.expiry:
+                    installedFonts = subscription.installedFonts()
+                    if installedFonts:
+                        for font in installedFonts:
+                            if font.expiry and time.time() > font.expiry:
 
-                            fonts.append(
-                                [
-                                    self.b64encode(publisher.canonicalURL),
-                                    self.b64encode(subscription.protocol.unsecretURL()),
-                                    self.b64encode(font.uniqueID),
-                                ]
-                            )
+                                fonts.append(
+                                    [
+                                        self.b64encode(publisher.canonicalURL),
+                                        self.b64encode(
+                                            subscription.protocol.unsecretURL()
+                                        ),
+                                        self.b64encode(font.uniqueID),
+                                    ]
+                                )
 
             if fonts:
                 self.removeFonts(fonts)
@@ -6449,6 +6485,8 @@ class AppFrame(wx.Frame):
 
                 if RUNTIME:
                     pywinsparkle.win_sparkle_check_update_without_ui()
+
+            client.delegate.userAccountHasBeenUpdated()
 
         except Exception as e:
             client.handleTraceback(

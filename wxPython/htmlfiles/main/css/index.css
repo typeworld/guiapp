@@ -1149,7 +1149,7 @@ body.dark {
 	height: 100px;
 */
 	position: absolute;
-	bottom: 50px;
+	bottom: 70px;
 	left: 90px;
 
 /*	background-color: #222;*/
@@ -1295,4 +1295,33 @@ a:hover.declineInvitation {
   margin-right: auto;
 
 /*  border: 1px solid green;*/
+}
+
+.visibleWhenProStatus {
+	display: none;
+}
+
+.visibleWhenNormalStatus {
+	display: inline-block;
+}
+
+.proUserStatusBadge {
+	display: inline-block;
+	background-color: #555;
+	color: black;
+	border-radius: 2px; -moz-border-radius:2px; -webkit-border-radius:2px; -khtml-border-radius:2px;
+	padding-left: 4px;
+	padding-right: 3px;
+	margin-left: 3px;
+
+	font-size: 8px;
+	font-weight: bold;
+}
+
+.visibleWhenProStatus .proUserStatusBadge {
+	background-color: rgb(191, 255, 0);
+}
+
+.visibleWhenNormalStatus .proUserStatusBadge {
+	text-decoration: line-through;
 }

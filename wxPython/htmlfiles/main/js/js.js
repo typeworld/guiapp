@@ -145,6 +145,10 @@ $(document).ready(function () {
 		python('self.removePublisher(\'' + id + '\')');
 	});
 
+	$(".proUserStatusBadge").click(function () {
+		python("self.visitUserAccount()");
+	});
+
 
 	$(".font").on("click", function () {
 		debug('font clicked');

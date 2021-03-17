@@ -171,6 +171,19 @@ $(document).ready(function () {
 		}
 	});
 
+
+	tippy.setDefaultProps({
+		delay: 1000,
+		theme: "black",
+	});
+
+	$('[alt]').each(function () {
+		tippy(this, {
+			content: $(this).attr('alt'),
+		});
+	});
+
+
 });
 
 function showAddSubscription() {

@@ -1226,11 +1226,11 @@ body.dark {
 
 	z-index: 25;
 
-	padding-top: 4px;
+	padding-top: 5px;
 	padding-bottom: 6px;
 	padding-left: 10px;
 	padding-right: 10px;
-	border-radius: 8px;
+	border-radius: 15px;
 	color: #000;
 	background-color: #444;
 
@@ -1311,17 +1311,16 @@ a:hover.declineInvitation {
 	color: black;
 	border-radius: 2px; -moz-border-radius:2px; -webkit-border-radius:2px; -khtml-border-radius:2px;
 	padding-left: 4px;
-	padding-right: 3px;
-	margin-left: 3px;
+	padding-right: 4px;
+	margin-left: 2px;
+	margin-right: 2px;
 
-	font-size: 8px;
-	font-weight: bold;
+	font-size: 10px;
 }
 
 .visibleWhenProStatus .proUserStatusBadge {
-	background-color: rgb(191, 255, 0);
+	background-color: #82368C;
 }
 
 .visibleWhenNormalStatus .proUserStatusBadge {
-	text-decoration: line-through;
 }

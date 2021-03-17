@@ -217,7 +217,8 @@
 
 
 	<!-- <img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground"> -->
-	<canvas id="atom" width="120" height="120" onclick="showAddSubscription();"></canvas>
+	<canvas id="atom" width="120" height="120" onclick="showAddSubscription();"
+		alt="Click to add font subscriptions manually and explore participating publishers."></canvas>
 	<!-- <div id="atomButton" class="centerOuter">
 		<div class="centerInner" style="padding-top: 66px;"><a onclick="showAddSubscription();">+</a></div>
 	</div> -->
@@ -235,60 +236,38 @@
 				<span id="userName"></span>
 			</a>
 
-			<span class="visibleWhenProStatus"><span class="proUserStatusBadge">PRO</span></span>
-			<span class="visibleWhenNormalStatus"><span onclick="" class="proUserStatusBadge">PRO</span></span>
+			<span class="visibleWhenProStatus"
+				alt="You’re a PRO user. Click to manage billing on type.world/account"><span
+					class="proUserStatusBadge">Pro</span></span>
+			<span class="visibleWhenNormalStatus"><span
+					alt="Become a PRO user. Click to read all about it and activate it on type.world/account"
+					class="proUserStatusBadge">Get Pro</span></span>
 		</div>
 
 
 		<style>
 			.tippy-box[data-theme~='black'] {
-				background-color: black;
-				font-size: 10px;
+				background-color: #222;
+				/* font-size: 10px; */
+				padding: 5px;
 			}
 
-			/* .tippy-arrow[data-theme~='black'] {
-				border-bottom-color: black;
-				/* background-color: black;
-	color: black; */
-
 			.tippy-box[data-placement^="top"]>.tippy-arrow:before {
-				border-top-color: black !important;
+				border-top-color: #222 !important;
 			}
 
 			.tippy-box[data-placement^="bottom"]>.tippy-arrow:before {
-				border-bottom-color: black !important;
+				border-bottom-color: #222 !important;
 			}
 
 			.tippy-box[data-placement^="left"]>.tippy-arrow:before {
-				border-left-color: black !important;
+				border-left-color: #222 !important;
 			}
 
 			.tippy-box[data-placement^="right"]>.tippy-arrow:before {
-				border-right-color: black !important;
+				border-right-color: #222 !important;
 			}
 		</style>
-		<script>
-
-
-			tippy.setDefaultProps({
-				delay: 500,
-				theme: "black",
-			});
-			// With the above scripts loaded, you can call `tippy()` with a CSS
-			// selector and a `content` prop:
-			tippy('.visibleWhenProStatus .proUserStatusBadge', {
-				content: 'You’re a PRO user. Click to manage billing on type.world/account',
-			});
-			tippy('.visibleWhenNormalStatus .proUserStatusBadge', {
-				content: 'Become a PRO user. Click to read all about it and activate it on type.world/account',
-			});
-
-			tippy('#atom', {
-				content: 'Click to add font subscriptions manually and explore participating publishers.',
-			});
-
-		</script>
-
 		<script>
 
 			$("#pullServerUpdates").click(function () {

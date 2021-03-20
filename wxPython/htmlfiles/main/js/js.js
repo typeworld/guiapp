@@ -42,7 +42,14 @@ function linkout(url) {
 }
 
 function setPreference(key, value) {
+	debug(key + ' - ' + value);
 	python('client.set(____' + key + '____, ____' + value + '____)');
+}
+
+function setCustomLanguage(language) {
+	debug(language);
+	setPreference("customLocaleChoice", language);
+	// setPreference("localizationType", "customLocale");
 }
 
 function setPublisherPreference(b64ID, key, value) {

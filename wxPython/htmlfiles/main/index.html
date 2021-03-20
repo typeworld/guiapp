@@ -203,45 +203,52 @@
 	</div>
 
 
-	<div class="betaMessage">
-		<div>
 
-			<p>Type.World is now in Beta stage.<br />Report problems to <a
-					href="https://github.com/typeworld/typeworld/issues">Github</a> and don’t forget to <a
-					href="https://www.patreon.com/typeWorld">support through Patreon</a>.<br />We’re currently at
-				$256/month.</p>
+
+	<div id="sidebarBottom">
+
+		<div class="betaMessage">
+			<div>
+
+				<p>Type.World is now in Beta stage.<br />Report problems to <a
+						href="https://github.com/typeworld/typeworld/issues">Github</a> and don’t forget to <a
+						href="https://www.patreon.com/typeWorld">support through Patreon</a>.<br />We’re currently at
+					$256/month.</p>
+
+			</div>
 
 		</div>
 
-	</div>
-
-
-	<!-- <img src="file://##htmlroot##/main/iconbackground.svg" id="atomBackground"> -->
-	<canvas id="atom" width="120" height="120" onclick="showAddSubscription();"
-		alt="#(Tooltip-AtomAddSubscriptionButton)"></canvas>
-	<!-- <div id="atomButton" class="centerOuter">
-		<div class="centerInner" style="padding-top: 66px;"><a onclick="showAddSubscription();">+</a></div>
-	</div> -->
-
-	<div id="userWrapper">
-		<div id="userBadge">
-			<span class="alert" style="display: none;"><a href="x-python://self.displaySyncProblems()">⚠️</a></span>
-
-			<a id="pullServerUpdates">
-				<span class="noAlert">
-					<img src="file://##htmlroot##/userIcon.svg"
-						style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;">
-
-				</span>
-				<span id="userName"></span>
-			</a>
-
-			<span class="visibleWhenProStatus visitUserAccount" alt="#(Tooltip_ProUser)"><span
-					class="proUserStatusBadge">PRO</span></span>
-			<span class="visibleWhenNormalStatus visitUserAccount"><span alt="#(Tooltip_NormalUser)"
-					class="proUserStatusBadge">PRO</span></span>
+		<div class="atomWrapper">
+			<canvas id="atom" width="120" height="120" onclick="showAddSubscription();"
+				alt="#(Tooltip-AtomAddSubscriptionButton)"></canvas>
 		</div>
 
+		<div id="userBadgeWrapper">
+			<div id="userBadge">
+				<span class="alert" style="display: none;"><a href="x-python://self.displaySyncProblems()">⚠️</a></span>
+
+				<a id="pullServerUpdates">
+					<span class="noAlert">
+						<img src="file://##htmlroot##/userIcon.svg"
+							style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;">
+
+					</span>
+					<span id="userName"></span>
+				</a>
+
+				<span class="visibleWhenProStatus visitUserAccount" alt="#(Tooltip_ProUser)"><span
+						class="proUserStatusBadge">PRO</span></span>
+				<span class="visibleWhenNormalStatus visitUserAccount"><span alt="#(Tooltip_NormalUser)"
+						class="proUserStatusBadge">PRO</span></span>
+			</div>
+		</div>
+
+		<div id="alertWrapper">
+			<div id="updateAvailable" alt="#(UpdateAppTooltip)" onclick="python('self.onCheckForUpdates(None)')">
+				#(Update App)
+			</div>
+		</div>
 
 		<style>
 			.tippy-box[data-theme~='black'] {

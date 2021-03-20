@@ -1151,6 +1151,7 @@ if MAC and RUNTIME:
             self.downloadStarted = False
 
             global app
+            app.frame.javaScript("$('#updateAvailable').slideDown();")
             waitForUpdateThread = Thread(
                 target=waitForUpdateToFinish, args=(app, updater, self)
             )
@@ -1159,6 +1160,10 @@ if MAC and RUNTIME:
             client.log("sparkleUpdateDelegate.updater_didFindValidUpdate_() finished")
 
         def updaterDidNotFindUpdate_(self, updater):
+
+            global app
+            app.frame.javaScript("$('#updateAvailable').slideUp();")
+
             client.log("sparkleUpdateDelegate.updaterDidNotFindUpdate_()")
             self.updateFound = False
             self.destroyIfRemotelyCalled()
@@ -1232,10 +1237,16 @@ if WIN:
             client.log("No update found")
             self.updateInProgress = False
 
+            global app
+            app.frame.javaScript("$('#updateAvailable').slideUp();")
+
         def pywinsparkle_found_update(self):
             """ log that an update was found """
             client.log("New Update Available")
             # self.updateInProgress = False
+
+            global app
+            app.frame.javaScript("$('#updateAvailable').slideDown();")
 
         def pywinsparkle_encountered_error(self):
             client.log("An error occurred")
@@ -1586,12 +1597,20 @@ class AppFrame(wx.Frame):
             ### DEVELOPER
 
             menu = wx.Menu()
+
             m_Upload = menu.Append(
                 wx.NewIdRef(count=1),
-                "%s..." % (localizeString("#(Upload Subscriptions As Is)")),
+                "Upload Subscriptions As Is",
             )
             self.Bind(wx.EVT_MENU, self.onUploadSubscriptionAsIs, m_Upload)
-            menuBar.Append(menu, "&%s" % (localizeString("#(Developer)")))
+
+            # m_Toggle = menu.Append(
+            #     wx.NewIdRef(count=1),
+            #     "Toggle update notification",
+            # )
+            # self.Bind(wx.EVT_MENU, self.onToggleUpdateNotification, m_Toggle)
+
+            menuBar.Append(menu, "Developer")
 
             self.SetMenuBar(menuBar)
 
@@ -1665,6 +1684,7 @@ class AppFrame(wx.Frame):
 
     def onCheckForUpdates(self, event):
         try:
+
             if MAC:
                 sparkle.resetUpdateCycle()
                 self.setAppCastURL()
@@ -1685,6 +1705,17 @@ class AppFrame(wx.Frame):
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
+
+    # def onToggleUpdateNotification(self, event):
+    #     try:
+    #         self.javaScript(
+    #             "if ($('#updateAvailable').is(':visible')) { $('#updateAvailable').slideUp(); } else { $('#updateAvailable').slideDown(); }"
+    #         )
+
+    #     except Exception as e:
+    #         client.handleTraceback(
+    #             sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+    #         )
 
     def onClose(self, event):
         try:
@@ -1817,13 +1848,13 @@ class AppFrame(wx.Frame):
                 subscriptionsUpdatedNotification(message)
                 agent("amountOutdatedFonts %s" % client.amountOutdatedFonts())
 
-                self.javaScript('$("#userWrapper .alert").hide();')
-                self.javaScript('$("#userWrapper .noAlert").show();')
+                self.javaScript('$("#sidebarBottom .alert").hide();')
+                self.javaScript('$("#sidebarBottom .noAlert").show();')
 
             else:
 
-                self.javaScript('$("#userWrapper .alert").show();')
-                self.javaScript('$("#userWrapper .noAlert").hide();')
+                self.javaScript('$("#sidebarBottom .alert").show();')
+                self.javaScript('$("#sidebarBottom .noAlert").hide();')
 
         except Exception as e:
             client.handleTraceback(
@@ -2564,7 +2595,7 @@ class AppFrame(wx.Frame):
                 )
                 html.append("</p>")
                 html.append("<p>")
-                html.append('<select id="customLocaleChoice" style="" onchange="">')
+                html.append('<select id="customLocaleChoice" style="">')
                 for code, name in locales.supportedLocales():
                     html.append(
                         '<option value="%s" %s>%s</option>'
@@ -2578,13 +2609,20 @@ class AppFrame(wx.Frame):
                     )
                 html.append("</select>")
                 html.append(
-                    """<script>$("#preferences #customLocaleChoice").click(function() {
+                    """<script>
+                $("#preferences #customLocaleChoice").click(function() {
+                    python("self.setCustomLanguage(____" + $("#preferences #customLocaleChoice").val() + "____)");
+                });
 
-                    setPreference("customLocaleChoice", $("#preferences #customLocaleChoice").val());
-                     
-                });</script>"""
+                    
+                </script>"""
                 )
                 html.append("</p>")
+
+                # $("#preferences #customLocaleChoice").click(function() {
+                #     setCustomLanguage($("#preferences #customLocaleChoice").val());
+
+                # });
 
                 html.append("<hr>")
 
@@ -6417,6 +6455,15 @@ class AppFrame(wx.Frame):
             else:
                 self.javaScript('$("#userBadge").hide();')
 
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
+    def setCustomLanguage(self, language):
+        try:
+            client.set("customLocaleChoice", language)
+            client.set("localizationType", "customLocale")
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e

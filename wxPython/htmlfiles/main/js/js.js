@@ -138,6 +138,10 @@ function documentReady() {
 	setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
 
 
+	$(".pullServerUpdates").click(function () {
+		python('self.pullServerUpdates(force = True)');
+	});
+
 
 	$(document).bind("contextmenu", function (evt) {
 		contextmenu(evt);

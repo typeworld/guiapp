@@ -557,6 +557,21 @@ class ClientDelegate(TypeWorldClientDelegate):
         if key == "appUpdateProfile":
             self.app.frame.setAppCastURL()
 
+    def messageQueueConnected(self):
+        if hasattr(self, "app"):
+            self.app.frame.javaScript(
+                '$(".messageQueue .connected").show(); $(".messageQueue .disconnected").hide();'
+            )
+
+    def messageQueueDisconnected(self):
+        if hasattr(self, "app"):
+            self.app.frame.javaScript(
+                '$(".messageQueue .connected").hide(); $(".messageQueue .disconnected").show();'
+            )
+
+    # def requiresMessageQueueConnection(self):
+    #     return False
+
 
 delegate = ClientDelegate()
 client = None  # set in startApp()
@@ -1803,6 +1818,7 @@ class AppFrame(wx.Frame):
         webbrowser.open_new_tab("http://0.0.0.0/account?userAccountToken=" + token)
 
     def pullServerUpdates(self, force=False):
+        print("pullServerUpdates()")
 
         try:
             if (
@@ -1832,6 +1848,7 @@ class AppFrame(wx.Frame):
 
         try:
             success, message = delayedResult.get()
+            client.manageMessageQueueConnection()
 
             # print(success, message)
 
@@ -6544,6 +6561,11 @@ class AppFrame(wx.Frame):
                     pywinsparkle.win_sparkle_check_update_without_ui()
 
             client.delegate.userAccountHasBeenUpdated()
+
+            if client._zmqRunning:
+                client.delegate.messageQueueConnected()
+            else:
+                client.delegate.messageQueueDisconnected()
 
         except Exception as e:
             client.handleTraceback(

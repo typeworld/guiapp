@@ -1167,6 +1167,20 @@ body.dark {
 	/* background-color: #111; */
 }
 
+.messageQueue {
+	position: relative;
+	top: 1px;
+	margin-right: 3px;
+}
+
+.messageQueue .connected {
+	color: #82368C;
+	display: none;
+}
+
+.messageQueue .disconnected {
+}
+
 #userBadgeWrapper {
 	margin-bottom: 30px;
 }

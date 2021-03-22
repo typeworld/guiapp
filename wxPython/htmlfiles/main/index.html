@@ -228,14 +228,19 @@
 			<div id="userBadge">
 				<span class="alert" style="display: none;"><a href="x-python://self.displaySyncProblems()">⚠️</a></span>
 
-				<a id="pullServerUpdates">
+				<span class="messageQueue"><a class="pullServerUpdates"><span class="connected"
+							alt="#(AppIsReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span><span
+							class="disconnected"
+							alt="#(AppIsNotReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span></a></span>
+
+				<!-- <a id="pullServerUpdates">
 					<span class="noAlert">
 						<img src="file://##htmlroot##/userIcon.svg"
 							style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;">
 
 					</span>
-					<span id="userName"></span>
-				</a>
+				</a> -->
+				<span id="userName"></span>
 
 				<span class="visibleWhenProStatus visitUserAccount" alt="#(Tooltip_ProUser)"><span
 						class="proUserStatusBadge">PRO</span></span>
@@ -273,15 +278,6 @@
 				border-right-color: #222 !important;
 			}
 		</style>
-		<script>
-
-			$("#pullServerUpdates").click(function () {
-
-				python('self.pullServerUpdates(force = True)');
-
-			});
-
-		</script>
 	</div>
 
 

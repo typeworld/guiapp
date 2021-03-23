@@ -1498,9 +1498,9 @@ class AppFrame(wx.Frame):
             self.setMenuBar()
             self.CentreOnScreen()
 
-            # Restart agent after restart
-            if client.get("menuBarIcon") and not agentIsRunning():
-                installAgent()
+            # # Restart agent after restart
+            # if client.get("menuBarIcon") and not agentIsRunning():
+            #     installAgent()
 
             self.Bind(wx.EVT_SIZE, self.onResize, self)
             self.Bind(wx.EVT_ACTIVATE, self.onActivate, self)

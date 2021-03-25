@@ -63,6 +63,7 @@ visibility: hidden;
 html {
 	height: 100%;
 	width: 100%;
+
 }
 
 body {
@@ -71,6 +72,10 @@ body {
     line-height: 14pt;
     margin: none;
     color: #444;
+	display: flex;
+
+	max-height: 100% !important;
+	overflow-y: hidden;
 }
 
 a {
@@ -370,6 +375,17 @@ label {
 	padding-left: 2px;
 	padding-right: 2px;
 	float: right;
+}
+
+.sidebar .badge.liveConnectionStatus {
+}
+
+.liveConnectionStatus .connected {
+	color: #00FFA8;
+}
+
+.liveConnectionStatus .disconnected {
+	color: #555;
 }
 
 .sidebar .badge.numbers {
@@ -1174,7 +1190,7 @@ body.dark {
 }
 
 .messageQueue .connected {
-	color: #82368C;
+	color: #00FFA8;
 	display: none;
 }
 
@@ -1302,3 +1318,4 @@ a:hover.declineInvitation {
 
 .visibleWhenNormalStatus .proUserStatusBadge {
 }
+

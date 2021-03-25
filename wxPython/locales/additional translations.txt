@@ -5,3 +5,7 @@
 # Server responses that aren't hard-wired in code
 #(response.passwordInvalid)
 #(response.passwordInvalid.headline)
+#(response.linkingMoreAppInstancesRequiresProUserAccount)
+#(response.linkingMoreAppInstancesRequiresProUserAccount.headline)
+#(response.invitationsRequireProAccount)
+#(response.invitationsRequireProAccount.headline)

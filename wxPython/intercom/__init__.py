@@ -260,7 +260,7 @@ try:
                 else:
                     log("hwnd: %s" % hwnd)
 
-        def notification(self, text, title=None):
+        def notification(self, text, data-tippy-content=None):
 
             if MAC:
                 notification = NSUserNotification.alloc().init()

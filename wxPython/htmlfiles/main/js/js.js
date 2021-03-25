@@ -8,8 +8,8 @@ function stopLoadingAnimation() {
 }
 
 function replace(incoming) {
-	return incoming;
-	//	return incoming.replace("'", "____");
+	// return incoming;
+	return incoming.replace("'", "____");
 }
 
 window.onerror = function (msg, url, lineNo, columnNo, error) {
@@ -125,6 +125,17 @@ function recalcMinutesCountdown() {
 }
 
 function documentReady() {
+
+	// $.get("https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find,Promise,Object.assign", function (data) {
+	// 	$("#download").html(data);
+	// 	python("self.data(____" + data + "____)");
+	// });
+
+
+	// load("https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find,Promise,Object.assign", function (contents) {
+	// 	// contents is now set to the contents of "site.com/t.txt"
+	// 	$("#download").html(contents);
+	// });
 	// // Automatically reload subscriptions
 	// minutely = function () {
 	// 	python('self.minutely()');
@@ -143,11 +154,11 @@ function documentReady() {
 	});
 
 
-	$(document).bind("contextmenu", function (evt) {
-		contextmenu(evt);
-		evt.preventDefault();
-		return false;
-	});
+	// $(document).bind("contextmenu", function (evt) {
+	// 	contextmenu(evt);
+	// 	evt.preventDefault();
+	// 	return false;
+	// });
 
 	$("#main #publisher .removePublisherButton").click(function () {
 		$(this).addClass("hover");
@@ -181,7 +192,6 @@ function documentReady() {
 		}
 	});
 
-
 	tippy.setDefaultProps({
 		delay: 1000,
 		theme: "black",
@@ -190,6 +200,7 @@ function documentReady() {
 	$('[alt]').each(function () {
 		tippy(this, {
 			content: $(this).attr('alt'),
+			allowHTML: true,
 		});
 	});
 

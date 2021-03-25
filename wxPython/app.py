@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
+import logging
 import os
 import sys
 
@@ -47,7 +47,7 @@ from string import Template
 
 WIN = platform.system() == "Windows"
 MAC = platform.system() == "Darwin"
-
+print("a")
 if WIN:
     import plyer
 
@@ -1815,10 +1815,10 @@ class AppFrame(wx.Frame):
         token = client.keyring().get_password(
             client.userKeychainKey(client.user()), "typeWorldWebsiteToken"
         )
-        webbrowser.open_new_tab("http://0.0.0.0/account?userAccountToken=" + token)
+        webbrowser.open_new_tab("https://type.world/account?userAccountToken=" + token)
 
     def pullServerUpdates(self, force=False):
-        print("pullServerUpdates()")
+        # print("pullServerUpdates()")
 
         try:
             if (
@@ -2758,10 +2758,7 @@ class AppFrame(wx.Frame):
                         html.append("<p>")
                         html.append("#(Provided by) ")
                         if rootCommand.websiteURL:
-                            html.append(
-                                '<a href="%s" title="%s">'
-                                % (rootCommand.websiteURL, rootCommand.websiteURL)
-                            )
+                            html.append('<a href="%s">' % (rootCommand.websiteURL))
                         html.append(
                             "<b>" + rootCommand.name.getText(client.locale()) + "</b>"
                         )
@@ -2993,10 +2990,7 @@ class AppFrame(wx.Frame):
                         html.append("<p>")
                         html.append("#(Provided by) ")
                         if rootCommand.websiteURL:
-                            html.append(
-                                '<a href="%s" title="%s">'
-                                % (rootCommand.websiteURL, rootCommand.websiteURL)
-                            )
+                            html.append('<a href="%s">' % (rootCommand.websiteURL))
                         html.append(
                             "<b>" + rootCommand.name.getText(client.locale()) + "</b>"
                         )
@@ -3024,8 +3018,14 @@ class AppFrame(wx.Frame):
                         html.append(
                             '<a id="inviteUsersButton" class="button">#(Invite Users)</a>'
                         )
-
                         html.append("</p>")
+
+                        if client.get("userAccountStatus") != "pro":
+                            html.append("<p>")
+                            html.append("<a class='visitUserAccount'>")
+                            html.append("#(Tooltip_NormalUser)")
+                            html.append("</a>")
+                            html.append("</p>")
 
                         html.append(
                             """<script>
@@ -3116,6 +3116,7 @@ class AppFrame(wx.Frame):
                             + '</div>");'
                         )
                         self.javaScript(js)
+                        self.javaScript("documentReady();")
                         self.javaScript("showPreferences();")
 
                         # # Print HTML
@@ -3148,7 +3149,10 @@ class AppFrame(wx.Frame):
                 code = code.replace("____", "'")
                 code = code.replace("'", "'")
                 # client.log("Python code:", code)
+                # try:
                 exec(code)
+                # except:
+                # print("Error printing debug to console.")
                 evt.Veto()
             elif uri.startswith("http://") or uri.startswith("https://"):
 
@@ -4736,6 +4740,8 @@ class AppFrame(wx.Frame):
     def selectFont(self, b64ID):
         try:
 
+            # print("selectFont()", b64ID)
+
             fontID = self.b64decode(b64ID)
             publisher = client.publisher(client.get("currentPublisher"))
             subscription = publisher.subscription(publisher.get("currentSubscription"))
@@ -4790,6 +4796,8 @@ class AppFrame(wx.Frame):
 
     def setMetadataHTML(self, b64ID):
         try:
+
+            # print("setMetadataHTML()")
 
             if b64ID:
 
@@ -5935,6 +5943,7 @@ class AppFrame(wx.Frame):
                     html.append(
                         """<script>     
 
+    $( document ).ready(function() {
 
                 $("#main .section .title").hover(function() {
                     $( this ).closest(".section").addClass( "hover" );
@@ -5967,6 +5976,8 @@ class AppFrame(wx.Frame):
                     $(this).addClass('selected');
                     python("self.selectFont(____' + $(this).attr('id') + '____)");
                 });
+
+        });
 
             </script>"""
                         % (b64ID, b64ID, b64ID)
@@ -6168,6 +6179,7 @@ class AppFrame(wx.Frame):
                                 direction,
                             )
                         )
+
                         html.append('<div class="name">')
                         html.append(
                             "%s %s"
@@ -6207,21 +6219,31 @@ class AppFrame(wx.Frame):
 
                             badges = []
 
+                            # Connection status
+                            if client.requiresMessageQueueConnection():
+                                subscription = publisher.subscriptions()[0]
+                                (
+                                    success,
+                                    endpointCommand,
+                                ) = subscription.protocol.rootCommand()
+                                badges.append(
+                                    (
+                                        f'<div class="badge liveConnectionStatus">'
+                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}">●</span>'
+                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}">●</span>'
+                                        "</div>"
+                                    )
+                                )
+
                             subscription = publisher.subscriptions()[0]
                             if client.user() and subscription.get("revealIdentity"):
                                 badges.append(
-                                    '<div class="badge revealIdentity" style="display: block;" title="'
-                                    + localizeString(
-                                        "#(YourIdentityWillBeRevealedTooltip)"
-                                    )
-                                    + '"><img src="file://##htmlroot##/userIcon_Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
+                                    '<div class="badge revealIdentity" style="display: block;" alt="#(YourIdentityWillBeRevealedTooltip)""><img src="file://##htmlroot##/userIcon_Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
                                 )
 
                             if client.user() and subscription.invitationAccepted():
                                 badges.append(
-                                    '<div class="badge revealIdentity" style="display: block;" title="'
-                                    + localizeString("#(IsInvitationExplanation)")
-                                    + '"><img src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
+                                    '<div class="badge revealIdentity" style="display: block;" alt="#(IsInvitationExplanation)"><img src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
                                 )
 
                             if badges:
@@ -6277,6 +6299,7 @@ class AppFrame(wx.Frame):
                                         b64ID,
                                     )
                                 )
+
                                 html.append('<div class="name">')
                                 html.append(subscription.name(locale=client.locale()))
                                 html.append("</div>")
@@ -6310,20 +6333,29 @@ class AppFrame(wx.Frame):
                                 # Identity Revealed Icon
                                 badges = []
 
+                                # Connection status
+                                subscription = publisher.subscriptions()[0]
+                                (
+                                    success,
+                                    endpointCommand,
+                                ) = subscription.protocol.rootCommand()
+                                badges.append(
+                                    (
+                                        f'<div class="badge liveConnectionStatus">'
+                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}">●</span>'
+                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}">●</span>'
+                                        "</div>"
+                                    )
+                                )
+
                                 if client.user() and subscription.get("revealIdentity"):
                                     badges.append(
-                                        '<div class="badge revealIdentity" style="display: %s;" title="'
-                                        + localizeString(
-                                            "#(YourIdentityWillBeRevealedTooltip)"
-                                        )
-                                        + '"><img src="file://##htmlroot##/userIcon_Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
+                                        '<div class="badge revealIdentity" style="display: %s;" alt="#(YourIdentityWillBeRevealedTooltip)"><img src="file://##htmlroot##/userIcon_Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
                                     )
 
                                 if client.user() and subscription.invitationAccepted():
                                     badges.append(
-                                        '<div class="badge revealIdentity" style="display: block;" title="'
-                                        + localizeString("#(IsInvitationExplanation)")
-                                        + '"><img src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
+                                        '<div class="badge revealIdentity" style="display: block;" alt="#(IsInvitationExplanation)"><img src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
                                     )
 
                                 if badges:
@@ -6462,6 +6494,7 @@ class AppFrame(wx.Frame):
             js = '$("#sidebar").html("' + html + '");'
 
             self.javaScript(js)
+            self.javaScript("documentReady();")
 
             if client.user():
                 self.javaScript(
@@ -7518,6 +7551,8 @@ def createClient(startWithCommand=None, externallyControlled=True):
         mothership=customMothership,
         externallyControlled=externallyControlled,
         inCompiledApp=RUNTIME,
+        commercial=True,
+        appID="world.type.app",
     )
 
 
@@ -7537,8 +7572,8 @@ def startApp(startWithCommand=None):
             sys.exit(1)
 
     # Start Intercom Server
-    listenerThread = Thread(target=listenerFunction)
-    listenerThread.start()
+    # listenerThread = Thread(target=listenerFunction)
+    # listenerThread.start()
 
     # Start App
     app = MyApp(redirect=DEBUG and WIN, filename=startWithCommand)

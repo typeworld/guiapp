@@ -5475,17 +5475,7 @@ class AppFrame(wx.Frame):
                         html.append(
                             '<a href="%s">→ %s</a>'
                             % (
-                                addAttributeToURL(
-                                    rootCommand.termsOfServiceURL,
-                                    "locales="
-                                    + ",".join(client.locale())
-                                    + "&canonicalURL="
-                                    + urllib.parse.quote(rootCommand.canonicalURL)
-                                    + "&subscriptionID="
-                                    + urllib.parse.quote(
-                                        subscription.protocol.url.subscriptionID
-                                    ),
-                                ),
+                                rootCommand.termsOfServiceURL,
                                 localizeString(
                                     "#(Read X)",
                                     replace={
@@ -5508,17 +5498,7 @@ class AppFrame(wx.Frame):
                         html.append(
                             '<a href="%s">→ %s</a>'
                             % (
-                                addAttributeToURL(
-                                    rootCommand.privacyPolicyURL,
-                                    "locales="
-                                    + ",".join(client.locale())
-                                    + "&canonicalURL="
-                                    + urllib.parse.quote(rootCommand.canonicalURL)
-                                    + "&subscriptionID="
-                                    + urllib.parse.quote(
-                                        subscription.protocol.url.subscriptionID
-                                    ),
-                                ),
+                                rootCommand.privacyPolicyURL,
                                 localizeString(
                                     "#(Read X)",
                                     replace={

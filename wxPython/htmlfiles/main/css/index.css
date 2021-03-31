@@ -68,13 +68,14 @@ html {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 10pt;
-    line-height: 14pt;
+    font-size: 14px;
+    line-height: 18px;
     margin: none;
     color: #444;
 	display: flex;
 
 	max-height: 100% !important;
+	max-width: 100% !important;
 	overflow-y: hidden;
 }
 
@@ -233,7 +234,7 @@ label {
 	background-color: rgba(0, 0, 0, .8);
 	color: white;
 
-	font-size: 14pt;
+	font-size: 18px;
 
 	border-radius: 8px; -moz-border-radius:8px; -webkit-border-radius:8px; -khtml-border-radius:8px;
 
@@ -252,7 +253,7 @@ label {
 }
 ::-webkit-scrollbar {
     width: 0px;  /* remove scrollbar space */
-    background: transparent;  /* optional: just make scrollbar invisible */
+    background: transparent;  /* opxional: just make scrollbar invisible */
 }
 
 .sidebar {
@@ -670,7 +671,7 @@ body.dark {
 	padding: inherit;
 	text-transform: none;
 	color: white;
-	font-size: 12px;
+	font-size: 18px;
 	letter-spacing: 0px;
 
 	padding-top: 3px;
@@ -967,14 +968,14 @@ body.dark {
 .closePanelButton {
 	color: #000;
 	text-align: right;
-	font-size: 24pt;
+	font-size: 24px;
 	margin-right: 20px;
 	margin-top: 20px;
 	z-index: 300;
 }
 
 #metadata .closePanelButton {
-	font-size: 10pt;
+	font-size: 14px;
 }
 
 .closePanelButton a {
@@ -992,7 +993,7 @@ body.dark {
 
 	/* font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif; */
 	font-weight: bold;
-    font-size: 24pt;
+    font-size: 24px;
     line-height: 120%;
 
 	left: 300px;
@@ -1027,8 +1028,8 @@ body.dark {
 
     overflow: scroll;
 
-    font-size: 10pt;
-    line-height: 15pt;
+    font-size: 14px;
+    line-height: 15px;
 
 	text-align: center;
 
@@ -1086,7 +1087,7 @@ body.dark {
 .panel h2 {
 	/* font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif; */
 	font-weight: bold;
-    font-size: 24pt;
+    font-size: 24px;
     line-height: 120%;
 	
 }
@@ -1206,7 +1207,7 @@ body.dark {
 	display: none;
 	display: inline-block;
 
-	font-size: 10pt;
+	font-size: 14px;
 
 	transition: color .5s;
 
@@ -1309,7 +1310,7 @@ a:hover.declineInvitation {
 	margin-left: 2px;
 	margin-right: 2px;
 
-	font-size: 10px;
+	font-size: 14px;
 }
 
 .visibleWhenProStatus .proUserStatusBadge {

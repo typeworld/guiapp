@@ -34,7 +34,7 @@ function python(code) {
 
 function debug(string) {
 	// window.location.href = "x-python://self.debug(____" + string + "____)";
-	python("self.debug(____" + string + "____)");
+	python("self.debug(____" + parseStr(string) + "____)");
 }
 
 function linkout(url) {
@@ -154,11 +154,11 @@ function documentReady() {
 	});
 
 
-	// $(document).bind("contextmenu", function (evt) {
-	// 	contextmenu(evt);
-	// 	evt.preventDefault();
-	// 	return false;
-	// });
+	$(document).bind("contextmenu", function (evt) {
+		contextmenu(evt);
+		evt.preventDefault();
+		return false;
+	});
 
 	$("#main #publisher .removePublisherButton").click(function () {
 		$(this).addClass("hover");

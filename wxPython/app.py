@@ -2737,11 +2737,11 @@ class AppFrame(wx.Frame):
                         )  # .replace('secretKey', '<span style="color: orange;">secretKey</span>')
                         html.append("</em></p>")
 
-                        success, message = subscription.protocol.rootCommand()
+                        success, message = subscription.protocol.endpointCommand()
                         if success:
-                            rootCommand = message
+                            endpointCommand = message
                         else:
-                            rootCommand = None
+                            endpointCommand = None
 
                         (
                             success,
@@ -2757,12 +2757,14 @@ class AppFrame(wx.Frame):
 
                         html.append("<p>")
                         html.append("#(Provided by) ")
-                        if rootCommand.websiteURL:
-                            html.append('<a href="%s">' % (rootCommand.websiteURL))
+                        if endpointCommand.websiteURL:
+                            html.append('<a href="%s">' % (endpointCommand.websiteURL))
                         html.append(
-                            "<b>" + rootCommand.name.getText(client.locale()) + "</b>"
+                            "<b>"
+                            + endpointCommand.name.getText(client.locale())
+                            + "</b>"
                         )
-                        if rootCommand.websiteURL:
+                        if endpointCommand.websiteURL:
                             html.append("</a> ")
                         if userName or userEmail:
                             html.append("#(for) ")
@@ -2934,8 +2936,11 @@ class AppFrame(wx.Frame):
                         success, message = subscription.revokeUser(email)
 
                         if success:
-                            client.downloadSubscriptions()
-                            self.showSubscriptionInvitations(None, b64ID)
+                            success, message = client.downloadSubscriptions()
+                            if success:
+                                self.showSubscriptionInvitations(None, b64ID)
+                            else:
+                                self.errorMessage(message)
 
                         else:
                             self.errorMessage(message)
@@ -2969,11 +2974,11 @@ class AppFrame(wx.Frame):
                         )  # .replace('secretKey', '<span style="color: orange;">secretKey</span>')
                         html.append("</em></p>")
 
-                        success, message = subscription.protocol.rootCommand()
+                        success, message = subscription.protocol.endpointCommand()
                         if success:
-                            rootCommand = message
+                            endpointCommand = message
                         else:
-                            rootCommand = None
+                            endpointCommand = None
 
                         (
                             success,
@@ -2989,12 +2994,14 @@ class AppFrame(wx.Frame):
 
                         html.append("<p>")
                         html.append("#(Provided by) ")
-                        if rootCommand.websiteURL:
-                            html.append('<a href="%s">' % (rootCommand.websiteURL))
+                        if endpointCommand.websiteURL:
+                            html.append('<a href="%s">' % (endpointCommand.websiteURL))
                         html.append(
-                            "<b>" + rootCommand.name.getText(client.locale()) + "</b>"
+                            "<b>"
+                            + endpointCommand.name.getText(client.locale())
+                            + "</b>"
                         )
-                        if rootCommand.websiteURL:
+                        if endpointCommand.websiteURL:
                             html.append("</a> ")
                         if userName or userEmail:
                             html.append("#(for) ")
@@ -4665,9 +4672,9 @@ class AppFrame(wx.Frame):
             if (
                 keepString == "#(response.loginRequired)"
                 and subscription
-                and subscription.protocol.rootCommand()[1].loginURL
+                and subscription.protocol.endpointCommand()[1].loginURL
             ):
-                url = subscription.protocol.rootCommand()[1].loginURL
+                url = subscription.protocol.endpointCommand()[1].loginURL
                 url = addAttributeToURL(
                     url,
                     "subscriptionID=%s"
@@ -5379,11 +5386,11 @@ class AppFrame(wx.Frame):
 
                 if subscription and subscription.exists:
 
-                    success, message = subscription.protocol.rootCommand()
+                    success, message = subscription.protocol.endpointCommand()
                     if success:
-                        rootCommand = message
+                        endpointCommand = message
                     else:
-                        rootCommand = None
+                        endpointCommand = None
 
                     html.append('<div class="publisher" id="%s">' % (b64ID))
 
@@ -5475,7 +5482,7 @@ class AppFrame(wx.Frame):
                         html.append(
                             '<a href="%s">→ %s</a>'
                             % (
-                                rootCommand.termsOfServiceURL,
+                                endpointCommand.termsOfServiceURL,
                                 localizeString(
                                     "#(Read X)",
                                     replace={
@@ -5498,7 +5505,7 @@ class AppFrame(wx.Frame):
                         html.append(
                             '<a href="%s">→ %s</a>'
                             % (
-                                rootCommand.privacyPolicyURL,
+                                endpointCommand.privacyPolicyURL,
                                 localizeString(
                                     "#(Read X)",
                                     replace={
@@ -6205,7 +6212,7 @@ class AppFrame(wx.Frame):
                                 (
                                     success,
                                     endpointCommand,
-                                ) = subscription.protocol.rootCommand()
+                                ) = subscription.protocol.endpointCommand()
                                 badges.append(
                                     (
                                         f'<div class="badge liveConnectionStatus">'
@@ -6318,7 +6325,7 @@ class AppFrame(wx.Frame):
                                 (
                                     success,
                                     endpointCommand,
-                                ) = subscription.protocol.rootCommand()
+                                ) = subscription.protocol.endpointCommand()
                                 badges.append(
                                     (
                                         f'<div class="badge liveConnectionStatus">'

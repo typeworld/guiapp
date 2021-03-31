@@ -5,6 +5,7 @@
 	<title>Type.World</title>
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!-- <meta name="viewport" content="initial-scale=2.0, minimum-scale=2.0, maximum-scale=2.0, user-scalable=no" /> -->
 
 	<script type="text/javascript" src="file://##htmlroot##/main/js/jquery-3.6.0.js"></script>
 
@@ -33,7 +34,7 @@
 		<div id="centerMessage">#(Loading Subscription)</div>
 	</div>
 
-	<div id="addSubscription" class="panel">
+	<div id="addSubscription" class="panel zoom">
 		<div class="closePanelButton">
 			<a onclick="hidePanel();">✕</a>
 		</div>
@@ -92,17 +93,82 @@
 
 				});
 
+				if (WIN) {
+					loadCSS("file://##htmlroot##/main/css/tippy-scaled.css");
+				}
+				else {
+					loadCSS("file://##htmlroot##/main/css/tippy.css");
+				}
+
 			});
 		</script>
 
 	</div>
 
 
-	<div class="wrapper">
-		<div id="sidebar" class="sidebar">
+	<div class="wrapper sidebar">
+		<div id="sidebar" class=" zoom">
 
 		</div>
 
+		<div id="sidebarBottom" class="">
+
+			<div class="zoom">
+
+				<div class="betaMessage">
+					<div>
+
+						<p>Type.World is now in Beta stage.<br />Report problems to <a
+								href="https://github.com/typeworld/typeworld/issues">Github</a> and don’t forget to <a
+								href="https://www.patreon.com/typeWorld">support through Patreon</a>.<br />We’re
+							currently
+							at
+							$256/month.</p>
+
+					</div>
+
+				</div>
+
+				<div class="atomWrapper">
+					<canvas class="nozoom" id="atom" width="120" height="120" onclick="showAddSubscription();"
+						alt="#(Tooltip-AtomAddSubscriptionButton)"></canvas>
+				</div>
+
+				<div id="userBadgeWrapper">
+					<div id="userBadge">
+						<span class="alert" style="display: none;"><a
+								href="x-python://self.displaySyncProblems()">⚠️</a></span>
+
+						<span class="messageQueue"><a class="pullServerUpdates"><span class="connected"
+									alt="#(AppIsReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span><span
+									class="disconnected"
+									alt="#(AppIsNotReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span></a></span>
+
+						<!-- <a id="pullServerUpdates">
+						<span class="noAlert">
+							<img src="file://##htmlroot##/userIcon.svg"
+								style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;">
+	
+						</span>
+					</a> -->
+						<span id="userName"></span>
+
+						<span class="visibleWhenProStatus visitUserAccount" alt="#(Tooltip_ProUser)"><span
+								class="proUserStatusBadge">PRO</span></span>
+						<span class="visibleWhenNormalStatus visitUserAccount"><span alt="#(Tooltip_NormalUser)"
+								class="proUserStatusBadge">PRO</span></span>
+					</div>
+				</div>
+
+				<div id="alertWrapper">
+					<div id="updateAvailable" alt="#(UpdateAppTooltip)"
+						onclick="python('self.onCheckForUpdates(None)')">
+						#(Update App)
+					</div>
+				</div>
+
+			</div>
+		</div>
 	</div>
 
 	<!--
@@ -131,11 +197,11 @@
 		</div>
 	</div>
  -->
-		<div id="main">
+		<div id="main" class="main zoom">
 		</div>
 
 		<div id="metadataWrapper">
-			<div id="metadata">
+			<div id="metadata" class="zoom">
 				<div class="inner">
 					<!-- 				<div class="closePanelButton">
 					<a onclick="hideMetadata();">✕</a>
@@ -146,10 +212,10 @@
 			</div>
 		</div>
 
-		<div id="welcome" class="centerOuter">
-			<div class="vertCenterOuter" style="width: 100%; height: 100%;">
-				<div class="vertCenterMiddle">
-					<div class="vertCenterInner centerInner" style="text-align: center;">
+		<div id="welcome" class="main centerOuter ">
+			<div class="vertCenterOuter " style="width: 100%; height: 100%;">
+				<div class="vertCenterMiddle ">
+					<div class="vertCenterInner centerInner zoom" style="text-align: center;">
 						<img src="file://##htmlroot##/illustration.svg"
 							style="width: 500px; height: 500px; margin-top: -35px;"><br />
 						#(WelcomeMessage)
@@ -158,7 +224,7 @@
 			</div>
 		</div>
 
-		<div id="about" class="panel">
+		<div id="about" class="panel zoom">
 			<div class="closePanelButton">
 				<a onclick="hidePanel();">✕</a>
 			</div>
@@ -169,7 +235,7 @@
 			</div>
 		</div>
 
-		<div id="subscriptionPreferences" class="panel">
+		<div id="subscriptionPreferences" class="panel zoom">
 			<div class="closePanelButton">
 				<a onclick="hidePanel();">✕</a>
 			</div>
@@ -180,7 +246,7 @@
 			</div>
 		</div>
 
-		<div id="publisherPreferences" class="panel">
+		<div id="publisherPreferences" class="panel zoom">
 			<div class="closePanelButton">
 				<a onclick="hidePanel();">✕</a>
 			</div>
@@ -191,7 +257,7 @@
 			</div>
 		</div>
 
-		<div id="preferences" class="panel">
+		<div id="preferences" class="panel zoom">
 			<div class="closePanelButton">
 				<a onclick="hidePanel();">✕</a>
 			</div>
@@ -202,85 +268,6 @@
 			</div>
 		</div>
 
-	</div>
-
-
-
-	<div id="sidebarBottom">
-
-
-
-		<div class="betaMessage">
-			<div>
-
-				<p>Type.World is now in Beta stage.<br />Report problems to <a
-						href="https://github.com/typeworld/typeworld/issues">Github</a> and don’t forget to <a
-						href="https://www.patreon.com/typeWorld">support through Patreon</a>.<br />We’re currently at
-					$256/month.</p>
-
-			</div>
-
-		</div>
-
-		<div class="atomWrapper">
-			<canvas id="atom" width="120" height="120" onclick="showAddSubscription();"
-				alt="#(Tooltip-AtomAddSubscriptionButton)"></canvas>
-		</div>
-
-		<div id="userBadgeWrapper">
-			<div id="userBadge">
-				<span class="alert" style="display: none;"><a href="x-python://self.displaySyncProblems()">⚠️</a></span>
-
-				<span class="messageQueue"><a class="pullServerUpdates"><span class="connected"
-							alt="#(AppIsReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span><span
-							class="disconnected"
-							alt="#(AppIsNotReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span></a></span>
-
-				<!-- <a id="pullServerUpdates">
-					<span class="noAlert">
-						<img src="file://##htmlroot##/userIcon.svg"
-							style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;">
-
-					</span>
-				</a> -->
-				<span id="userName"></span>
-
-				<span class="visibleWhenProStatus visitUserAccount" alt="#(Tooltip_ProUser)"><span
-						class="proUserStatusBadge">PRO</span></span>
-				<span class="visibleWhenNormalStatus visitUserAccount"><span alt="#(Tooltip_NormalUser)"
-						class="proUserStatusBadge">PRO</span></span>
-			</div>
-		</div>
-
-		<div id="alertWrapper">
-			<div id="updateAvailable" alt="#(UpdateAppTooltip)" onclick="python('self.onCheckForUpdates(None)')">
-				#(Update App)
-			</div>
-		</div>
-
-		<style>
-			.tippy-box[data-theme~='black'] {
-				background-color: #222;
-				/* font-size: 10px; */
-				padding: 5px;
-			}
-
-			.tippy-box[data-placement^="top"]>.tippy-arrow:before {
-				border-top-color: #222 !important;
-			}
-
-			.tippy-box[data-placement^="bottom"]>.tippy-arrow:before {
-				border-bottom-color: #222 !important;
-			}
-
-			.tippy-box[data-placement^="left"]>.tippy-arrow:before {
-				border-left-color: #222 !important;
-			}
-
-			.tippy-box[data-placement^="right"]>.tippy-arrow:before {
-				border-right-color: #222 !important;
-			}
-		</style>
 	</div>
 
 

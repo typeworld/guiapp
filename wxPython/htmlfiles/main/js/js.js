@@ -1,3 +1,22 @@
+WIN = false;
+MAC = false;
+LINUX = false;
+
+
+loadCSS = function (href) {
+
+	var cssLink = $("<link>");
+	$("head").append(cssLink); //IE hack: append before setting href
+
+	cssLink.attr({
+		rel: "stylesheet",
+		type: "text/css",
+		href: href
+	});
+
+};
+
+
 
 function startLoadingAnimation() {
 	startAnimation();
@@ -34,7 +53,7 @@ function python(code) {
 
 function debug(string) {
 	// window.location.href = "x-python://self.debug(____" + string + "____)";
-	python("self.debug(____" + parseStr(string) + "____)");
+	python("self.debug(____" + string + "____)");
 }
 
 function linkout(url) {
@@ -145,9 +164,6 @@ function documentReady() {
 
 	// };
 
-	setTimeout(function () { python('self.minutely()'); setInterval(function () { python('self.minutely()'); }, 1000 * 30); }, 2000); // First load after 2 seconds
-	setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
-
 
 	$(".pullServerUpdates").click(function () {
 		python('self.pullServerUpdates(force = True)');
@@ -156,7 +172,7 @@ function documentReady() {
 
 	$(document).bind("contextmenu", function (evt) {
 		contextmenu(evt);
-		evt.preventDefault();
+		// evt.preventDefault();
 		return false;
 	});
 
@@ -196,17 +212,75 @@ function documentReady() {
 		delay: 1000,
 		theme: "black",
 	});
-
 	$('[alt]').each(function () {
 		tippy(this, {
 			content: $(this).attr('alt'),
 			allowHTML: true,
+			maxWidth: 350 * zoomFactor,
 		});
+	});
+
+	resize();
+
+	$(window).resize(function () {
+		resize();
 	});
 
 }
 
+function resize() {
+	$('.main').css('width', (($(window).width() - $(".sidebar").width() - $("#metadataWrapper").width()) / zoomFactor) + 'px');
+	// $('.main').css('width', (($(window).width() - $("#sidebar").width() * zoomFactor - $("#metadataWrapper").width() * zoomFactor) / zoomFactor) + 'px');
+	$('.panel').css('width', ($(window).width() / zoomFactor) + 'px');
+	$('#main').css('height', ($(window).height() / zoomFactor) + 'px');
+	$('.sidebar').css('height', ($(window).height()) + 'px');
+
+	// $('#sidebarBottom').css('bottom', 0 + 'px');
+
+	// $('#main, #welcome').css('height', ($(window).height()) + 'px');
+	// $('#metadata').css('width', sideBarSize * zoomFactor + 'px');
+	// $('#metadata').css('max-width', sideBarSize * zoomFactor + 'px');
+}
+
+var zoomFactor = 1.0;
+var sideBarSize = 300;
+
+function zoom() {
+
+	$('.zoom').css('zoom', zoomFactor);
+	$('.tippy-popper, .tippy-tooltip, .tippy-content').css('zoom', zoomFactor);
+	$('.nozoom').css('zoom', 1.0);
+	$('.sidebar').css('width', (sideBarSize * zoomFactor) + 'px');
+	$('#sidebar').css('width', (sideBarSize) + 'px');
+	// $('#sidebarBottom').css('width', (sideBarSize) + 'px');
+	$('.main').css('left', (sideBarSize * zoomFactor) + 'px');
+	$('#atom').css('width', (120 / zoomFactor) + 'px');
+	$('#atom').css('height', (120 / zoomFactor) + 'px');
+
+	// $('.main').css('width', ($(window).width() / zoomFactor) + 'px');
+	resize();
+}
+
+function showMetadata() {
+	// $("#metadataWrapper").animate({ width: sideBarSize * zoomFactor }, 300);
+	$("#metadataWrapper").animate({ width: sideBarSize * zoomFactor }, 300, function () { resize(); });
+	// $(".main").animate({ width: $(".main").width() - sideBarSize * zoomFactor }, 300);
+	resize();
+}
+
+function hideMetadata() {
+	$("#metadataWrapper").animate({ width: 0 }, 300, function () { resize(); });
+	// $(".main").animate({ width: $(".main").width() + sideBarSize * zoomFactor }, 300);
+	resize();
+}
+
+
+
+
 $(document).ready(function () {
+
+	setTimeout(function () { python('self.minutely()'); setInterval(function () { python('self.minutely()'); }, 1000 * 30); }, 2000); // First load after 2 seconds
+	setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
 
 	documentReady();
 
@@ -272,16 +346,6 @@ function hidePanel() {
 
 }
 
-function showMetadata() {
-
-	$("#metadataWrapper").animate({ width: 300 }, 300);
-	$("#main").animate({ right: 300 }, 300);
-}
-
-function hideMetadata() {
-	$("#metadataWrapper").animate({ width: 0 }, 300);
-	$("#main").animate({ right: 0 }, 300);
-}
 
 function showCenterMessage(html, completeFunction) {
 	$('#centerMessage').html(html);

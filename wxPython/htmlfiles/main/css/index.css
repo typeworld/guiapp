@@ -258,21 +258,21 @@ label {
 
 .sidebar {
 	font-size: 14px;
-	position:absolute;
+	position:relative;
     background-color: #333;
     color: #DDD;
     width: 300px;
 /*    height: 100%;
 */
-    top: 0;
-    bottom: 0;
+    /* top: 0;
+    bottom: 0; */
 
     overflow-y: scroll;
 
 
 }
 
-.sidebar .headline {
+#sidebar .headline {
 	font-size: 75%;
 	text-transform: uppercase;
 	font-weight: bold;
@@ -287,7 +287,7 @@ label {
 
 
 
-.sidebar .line {
+#sidebar .line {
     padding: 13px;
     padding-top: 4px;
     padding-bottom: 4px;
@@ -296,30 +296,30 @@ label {
 
 }
 
-.sidebar .line.hover {
+#sidebar .line.hover {
 	background-color: rgba(0, 0, 0, .15);
 }
 
-.sidebar .publisher.line.selected {
+#sidebar .publisher.line.selected {
 	background-color: rgba(0, 0, 0, 1);
 }
 
-.sidebar .subscription.line.selected {
+#sidebar .subscription.line.selected {
 	background-color: rgba(0, 0, 0, .1);
 }
 
-.sidebar .publisher.line.single.selected {
+#sidebar .publisher.line.single.selected {
 	border-left: 3px solid #259CD3;
 	padding-left: 10px;
 }
 
-.sidebar .subscription.line.selected {
+#sidebar .subscription.line.selected {
 	border-left: 3px solid #259CD3;
 	padding-left: 10px;
 }
 
 
-.sidebar .line .name {
+#sidebar .line .name {
 	position: relative;
 	padding: 3px;
 	padding-left: 0px;
@@ -327,23 +327,23 @@ label {
 	float: left;
 }
 
-.sidebar .subscription.line .name {
+#sidebar .subscription.line .name {
 	color: #999;
 	padding-left: 9px;
 }
 
 
-.sidebar .publisherWrapper .subscriptions {
+#sidebar .publisherWrapper .subscriptions {
 	background-color: rgba(0, 0, 0, .1);
 }
 
-.sidebar .publisherWrapper .subscriptions div.margin {
+#sidebar .publisherWrapper .subscriptions div.margin {
 	height: 10px;
 	z-index: 100;
 	pointer-events: none;
 }
 
-.sidebar .publisherWrapper .subscriptions div.margin.top {
+#sidebar .publisherWrapper .subscriptions div.margin.top {
 	background: linear-gradient(rgba(0, 0, 0, .5), rgba(0, 0, 0, 0));
 	margin-bottom: -10px;
 	position: relative;
@@ -351,13 +351,13 @@ label {
 	z-index: 100;
 }
 
-.sidebar .publisherWrapper .subscriptions div.margin.bottom {
+#sidebar .publisherWrapper .subscriptions div.margin.bottom {
 	background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, .4));
 	margin-top: -10px;
 }
 
 
-.sidebar .badges {
+#sidebar .badges {
 	position: relative;
 	border-radius: 5px;
 	float: right;
@@ -371,14 +371,14 @@ label {
 
 */}
 
-.sidebar .badge {
+#sidebar .badge {
 	padding: 3px;
 	padding-left: 2px;
 	padding-right: 2px;
 	float: right;
 }
 
-.sidebar .badge.liveConnectionStatus {
+#sidebar .badge.liveConnectionStatus {
 }
 
 .liveConnectionStatus .connected {
@@ -389,19 +389,19 @@ label {
 	color: #555;
 }
 
-.sidebar .badge.numbers {
+#sidebar .badge.numbers {
 	padding-left: 6px;
 	padding-right: 6px;
 }
 
-.sidebar .reloadAnimation {
+#sidebar .reloadAnimation {
 	position: relative;
 	float: right;
 
 /*	display: none;*/
 }
 
-.sidebar .alert {
+#sidebar .alert {
 	position: relative;
 	float: right;
 	margin-left: 5px;
@@ -411,7 +411,7 @@ label {
 /*	display: none;*/
 }
 
-.sidebar .revealIdentity {
+#sidebar .revealIdentity {
 	position: relative;
 	float: right;
 	margin-left: 2px;
@@ -421,43 +421,43 @@ label {
 /*	display: none;*/
 }
 
-.sidebar .line[dir="rtl"] .name {
+#sidebar .line[dir="rtl"] .name {
 	float: right;
 	text-align: right;
  }
 
-.sidebar .line[dir="rtl"] .badge {
+#sidebar .line[dir="rtl"] .badge {
 	float: left;
  }
 
-.sidebar .line[dir="rtl"] .reloadAnimation {
+#sidebar .line[dir="rtl"] .reloadAnimation {
 	float: left;
 
 /*	display: none;*/
 }
 
 
-.sidebar .line .badge.installed {
+#sidebar .line .badge.installed {
 	color: black;
 	background-color: #666;
 }
 
-.sidebar .subscription.line .badge.installed {
+#sidebar .subscription.line .badge.installed {
 	color: black;
 	background-color: #444;
 }
 
-.sidebar .line .badge.outdated {
+#sidebar .line .badge.outdated {
 	color: black;
 	background-color: #EC7029;
 }
 
-.sidebar .subscription.line .badge.outdated {
+#sidebar .subscription.line .badge.outdated {
 	color: black;
 	background-color: #8C5337;
 }
 
-.sidebar #bottom {
+#sidebar #bottom {
 	position: absolute;
 	padding: 20px;
 	bottom: 0px;
@@ -508,8 +508,7 @@ body.dark {
 	color: 999999;
 }
 
-
-#main {
+.main {
 
 	/*display: none;*/
 	position:absolute;
@@ -517,7 +516,7 @@ body.dark {
 	left: 300px;
 	top: 0;
 	bottom: 0;
-	right: 0px;
+	/* right: 0px; */
 
     height: 100%;
 
@@ -893,7 +892,7 @@ body.dark {
 
 #metadata .inner {
     width: 300px;
-    max-width: 300px;
+    /* max-width: 300px; */
 }
 
 
@@ -988,23 +987,15 @@ body.dark {
 
 #welcome {
 
-	/*display: none;*/
-	position:absolute;
-
 	/* font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif; */
 	font-weight: bold;
     font-size: 24px;
     line-height: 120%;
 
-	left: 300px;
-	top: 0;
-	bottom: 0;
-	right: 0px;
-
     height: 100%;
     background-color: #EDEBDD;
 
-    overflow-y: scroll;
+    overflow-y: hidden;
 
 
 }
@@ -1166,8 +1157,8 @@ body.dark {
 	height: 100px;
 */
 	/* position: absolute; */
-	bottom: 70px;
-	left: 90px;
+	/* bottom: 70px;
+	left: 90px; */
 
 /*	background-color: #222;*/
 
@@ -1178,7 +1169,7 @@ body.dark {
 	position: absolute;
 	bottom: 0px;
 	width: 300px;
-
+	display:inline-block;
 
 	text-align: center;
 	/* background-color: #111; */
@@ -1204,7 +1195,6 @@ body.dark {
 
 #userBadge {
 
-	display: none;
 	display: inline-block;
 
 	font-size: 14px;
@@ -1319,4 +1309,5 @@ a:hover.declineInvitation {
 
 .visibleWhenNormalStatus .proUserStatusBadge {
 }
+
 

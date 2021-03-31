@@ -1459,6 +1459,8 @@ class AppFrame(wx.Frame):
 
             # Window Size
             minSize = [1100, 700]
+            if WIN:
+                minSize = [1100 * 1.8, 700 * 1.8]
             if client.get("sizeMainWindow"):
                 size = list(client.get("sizeMainWindow"))
 
@@ -5987,6 +5989,7 @@ class AppFrame(wx.Frame):
                 # print(html)
                 js = '$("#main").html("' + html + '");'
                 self.javaScript(js)
+                self.javaScript("documentReady();")
 
                 # Set Sidebar Focus
                 self.javaScript("$('#sidebar .publisher').removeClass('selected');")
@@ -6512,7 +6515,7 @@ class AppFrame(wx.Frame):
             self.fullyLoaded = True
 
             if MAC:
-                self.javaScript("$('.sidebar').css('padding-top', '32px');")
+                self.javaScript("MAC = true; $('#sidebar').css('padding-top', '32px');")
                 # self.javaScript("$('.panel').css('padding-left', '50px');")
                 # self.javaScript("$('.panel').css('padding-top', '90px');")
                 # self.javaScript("$('.panel').css('padding-bottom', '90px');")
@@ -6525,8 +6528,15 @@ class AppFrame(wx.Frame):
 
             if WIN:
                 self.javaScript(
-                    "$('#atomButton .centerInner').css('padding-top', '72px');"
+                    (
+                        "WIN = true;"
+                        "zoomFactor = 1.8;"
+                        "$('#atomButton .centerInner').css('padding-top', '72px');"
+                        "zoom();"
+                    )
                 )
+
+            self.javaScript("documentReady();")
 
             self.setSideBarHTML()
 
@@ -7238,7 +7248,7 @@ class MyApp(wx.App):
                     )
                     w.contentView().addSubview_(self.frame.dragView)
 
-                    self.frame.javaScript("$('.sidebar').css('padding-top', '32px');")
+                    self.frame.javaScript("$('#sidebar').css('padding-top', '32px');")
                     self.frame.SetTitle("")
 
                     w.setStyleMask_(1 << 0 | 1 << 1 | 1 << 2 | 1 << 3 | 1 << 15)

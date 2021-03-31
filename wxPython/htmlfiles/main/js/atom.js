@@ -201,6 +201,9 @@ function animationHasStopped() {
 function setupCanvas(canvas) {
 	// Get the device pixel ratio, falling back to 1.
 	var dpr = window.devicePixelRatio || 1;
+	if (zoomFactor != 1) {
+		dpr = zoomFactor;
+	}
 	// Get the size of the canvas in CSS pixels.
 	var rect = canvas.getBoundingClientRect();
 	// Give the canvas pixel dimensions of their CSS
@@ -262,8 +265,8 @@ $(document).ready(function () {
 				// Initial save
 				ctx.save();
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				ctx.translate(rect.width / 2.0, rect.height / 2.0);
-				ctx.scale(-1 * factor, factor);
+				ctx.translate(rect.width / 2.0 / zoomFactor, rect.height / 2.0 / zoomFactor);
+				ctx.scale(-1 * factor / zoomFactor, factor / zoomFactor);
 
 				// draw ellipses first
 				ctx.save();
@@ -301,8 +304,14 @@ $(document).ready(function () {
 
 				ctx.save();
 
-				ctx.scale(opticalSize, opticalSize);
-				ctx.translate((rect.width / opticalSize - rect.width) / 2.0, (rect.height / opticalSize - rect.height) / 2.0);
+				if (MAC) {
+					ctx.scale(opticalSize / zoomFactor, opticalSize / zoomFactor);
+					ctx.translate((rect.width / opticalSize - rect.width) / 2.0 / zoomFactor, (rect.height / opticalSize - rect.height) / 2.0 / zoomFactor);
+				}
+				else if (WIN) {
+					ctx.translate((rect.width / opticalSize - rect.width) / 2.0 / zoomFactor, (rect.height / opticalSize - rect.height) / 2.0 / zoomFactor);
+					ctx.scale(opticalSize / zoomFactor, opticalSize / zoomFactor);
+				}
 
 				// Draw Plus
 				ctx.lineWidth = 20 * factor / opticalSize;

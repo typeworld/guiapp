@@ -1,0 +1,21 @@
+.tippy-box[data-theme~='black'] {
+    background-color: #222;
+    font-size: 25px;
+    padding: 25px;
+}
+
+.tippy-box[data-placement^="top"]>.tippy-arrow:before {
+    border-top-color: #222 !important;
+}
+
+.tippy-box[data-placement^="bottom"]>.tippy-arrow:before {
+    border-bottom-color: #222 !important;
+}
+
+.tippy-box[data-placement^="left"]>.tippy-arrow:before {
+    border-left-color: #222 !important;
+}
+
+.tippy-box[data-placement^="right"]>.tippy-arrow:before {
+    border-right-color: #222 !important;
+}

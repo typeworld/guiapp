@@ -232,7 +232,8 @@ function resize() {
 	$('.main').css('width', (($(window).width() - $(".sidebar").width() - $("#metadataWrapper").width()) / zoomFactor) + 'px');
 	// $('.main').css('width', (($(window).width() - $("#sidebar").width() * zoomFactor - $("#metadataWrapper").width() * zoomFactor) / zoomFactor) + 'px');
 	$('.panel').css('width', ($(window).width() / zoomFactor) + 'px');
-	$('#main').css('height', ($(window).height() / zoomFactor) + 'px');
+	// $('#welcome').css('width', ($(window).width()) + 'px');
+	$('.main').css('height', ($(window).height() / zoomFactor) + 'px');
 	$('.sidebar').css('height', ($(window).height()) + 'px');
 
 	// $('#sidebarBottom').css('bottom', 0 + 'px');
@@ -283,6 +284,8 @@ $(document).ready(function () {
 	setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
 
 	documentReady();
+
+	// debug($("#dpiMeasurementInPt").width() / parseFloat($("#dpiMeasurementInPx").width()));
 
 });
 

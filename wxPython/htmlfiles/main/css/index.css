@@ -94,6 +94,8 @@ hr {
 }
 
 h1, h2, h3, h4, h5, h6 {
+	/* font-family: "noname_sans", -apple-system, BlinkMacSystemFont, sans-serif; */
+
 	font-weight: normal;
 	margin-bottom: 15px;
 	margin-top: 10px;
@@ -1077,7 +1079,7 @@ body.dark {
 
 .panel h2 {
 	/* font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif; */
-	font-weight: bold;
+	font-weight: normal;
     font-size: 24px;
     line-height: 120%;
 	
@@ -1274,13 +1276,20 @@ a:hover.declineInvitation {
 /*  border: 1px solid yellow;*/
 }
 
-
 .vertCenterInner {
 	margin-left: auto;
   margin-right: auto;
 
 /*  border: 1px solid green;*/
 }
+
+.centered {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);}
+
 
 .visibleWhenProStatus {
 	display: none;

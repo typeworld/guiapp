@@ -1458,9 +1458,9 @@ class AppFrame(wx.Frame):
             self.panelVisible = None
 
             # Window Size
-            minSize = [1100, 700]
+            minSize = [1200, 700]
             if WIN:
-                minSize = [1100 * 1.8, 700 * 1.8]
+                minSize = [1200 * 1.8, 700 * 1.8]
             if client.get("sizeMainWindow"):
                 size = list(client.get("sizeMainWindow"))
 
@@ -4124,122 +4124,132 @@ class AppFrame(wx.Frame):
 
             if "contextmenu publisher" in target:
 
+                publisher = None
                 for publisher in client.publishers():
                     if publisher.canonicalURL == self.b64decode(b64ID):
                         break
 
-                menu = wx.Menu()
+                if publisher:
+                    menu = wx.Menu()
 
-                if len(publisher.subscriptions()) > 1:
-                    item = wx.MenuItem(
-                        menu,
-                        wx.NewIdRef(count=1),
-                        localizeString("#(Update All Subscriptions)"),
-                    )
-                    menu.Append(item)
-                    menu.Bind(
-                        wx.EVT_MENU, partial(self.reloadPublisher, b64ID=b64ID), item
-                    )
-                else:
-                    item = wx.MenuItem(
-                        menu,
-                        wx.NewIdRef(count=1),
-                        localizeString("#(Update Subscription)"),
-                    )
-                    menu.Append(item)
-                    menu.Bind(
-                        wx.EVT_MENU,
-                        partial(
-                            self.reloadSubscription,
-                            b64ID=self.b64encode(
-                                publisher.subscriptions()[0].protocol.unsecretURL()
+                    if len(publisher.subscriptions()) > 1:
+                        item = wx.MenuItem(
+                            menu,
+                            wx.NewIdRef(count=1),
+                            localizeString("#(Update All Subscriptions)"),
+                        )
+                        menu.Append(item)
+                        menu.Bind(
+                            wx.EVT_MENU,
+                            partial(self.reloadPublisher, b64ID=b64ID),
+                            item,
+                        )
+                    else:
+                        item = wx.MenuItem(
+                            menu,
+                            wx.NewIdRef(count=1),
+                            localizeString("#(Update Subscription)"),
+                        )
+                        menu.Append(item)
+                        menu.Bind(
+                            wx.EVT_MENU,
+                            partial(
+                                self.reloadSubscription,
+                                b64ID=self.b64encode(
+                                    publisher.subscriptions()[0].protocol.unsecretURL()
+                                ),
+                                subscription=None,
                             ),
-                            subscription=None,
-                        ),
-                        item,
-                    )
+                            item,
+                        )
 
-                if publisher.amountOutdatedFonts():
-                    item = wx.MenuItem(
-                        menu,
-                        wx.NewIdRef(count=1),
-                        localizeString("#(Update All Fonts)"),
-                    )
-                    menu.Append(item)
-                    menu.Bind(
-                        wx.EVT_MENU,
-                        partial(
-                            self.updateAllFonts,
-                            publisherB64ID=b64ID,
-                            subscriptionB64ID=None,
-                        ),
-                        item,
-                    )
-
-                if publisher.get("type") == "GitHub":
-                    item = wx.MenuItem(
-                        menu,
-                        wx.NewIdRef(count=1),
-                        localizeString("#(Publisher Preferences)"),
-                    )
-                    menu.Append(item)
-                    menu.Bind(
-                        wx.EVT_MENU,
-                        partial(self.showPublisherPreferences, b64ID=b64ID),
-                        item,
-                    )
-
-                if len(publisher.subscriptions()) == 1:
-                    item = wx.MenuItem(
-                        menu,
-                        wx.NewIdRef(count=1),
-                        localizeString("#(Subscription Preferences)"),
-                    )
-                    menu.Append(item)
-                    menu.Bind(
-                        wx.EVT_MENU,
-                        partial(
-                            self.showSubscriptionPreferences,
-                            b64ID=self.b64encode(
-                                publisher.subscriptions()[0].protocol.unsecretURL()
+                    if publisher.amountOutdatedFonts():
+                        item = wx.MenuItem(
+                            menu,
+                            wx.NewIdRef(count=1),
+                            localizeString("#(Update All Fonts)"),
+                        )
+                        menu.Append(item)
+                        menu.Bind(
+                            wx.EVT_MENU,
+                            partial(
+                                self.updateAllFonts,
+                                publisherB64ID=b64ID,
+                                subscriptionB64ID=None,
                             ),
-                        ),
-                        item,
-                    )
+                            item,
+                        )
+
+                    if publisher.get("type") == "GitHub":
+                        item = wx.MenuItem(
+                            menu,
+                            wx.NewIdRef(count=1),
+                            localizeString("#(Publisher Preferences)"),
+                        )
+                        menu.Append(item)
+                        menu.Bind(
+                            wx.EVT_MENU,
+                            partial(self.showPublisherPreferences, b64ID=b64ID),
+                            item,
+                        )
+
+                    if len(publisher.subscriptions()) == 1:
+                        item = wx.MenuItem(
+                            menu,
+                            wx.NewIdRef(count=1),
+                            localizeString("#(Subscription Preferences)"),
+                        )
+                        menu.Append(item)
+                        menu.Bind(
+                            wx.EVT_MENU,
+                            partial(
+                                self.showSubscriptionPreferences,
+                                b64ID=self.b64encode(
+                                    publisher.subscriptions()[0].protocol.unsecretURL()
+                                ),
+                            ),
+                            item,
+                        )
+
+                        item = wx.MenuItem(
+                            menu,
+                            wx.NewIdRef(count=1),
+                            localizeString("#(Invite Users)"),
+                        )
+                        menu.Append(item)
+                        menu.Bind(
+                            wx.EVT_MENU,
+                            partial(
+                                self.showSubscriptionInvitations,
+                                b64ID=self.b64encode(
+                                    publisher.subscriptions()[0].protocol.unsecretURL()
+                                ),
+                            ),
+                            item,
+                        )
 
                     item = wx.MenuItem(
-                        menu, wx.NewIdRef(count=1), localizeString("#(Invite Users)")
+                        menu, wx.NewIdRef(count=1), localizeString("#(Show in Finder)")
                     )
                     menu.Append(item)
                     menu.Bind(
                         wx.EVT_MENU,
-                        partial(
-                            self.showSubscriptionInvitations,
-                            b64ID=self.b64encode(
-                                publisher.subscriptions()[0].protocol.unsecretURL()
-                            ),
-                        ),
+                        partial(self.showPublisherInFinder, b64ID=b64ID),
                         item,
                     )
 
-                item = wx.MenuItem(
-                    menu, wx.NewIdRef(count=1), localizeString("#(Show in Finder)")
-                )
-                menu.Append(item)
-                menu.Bind(
-                    wx.EVT_MENU, partial(self.showPublisherInFinder, b64ID=b64ID), item
-                )
+                    menu.AppendSeparator()
 
-                menu.AppendSeparator()
+                    item = wx.MenuItem(
+                        menu, wx.NewIdRef(count=1), localizeString("#(Remove)")
+                    )
+                    menu.Append(item)
+                    menu.Bind(
+                        wx.EVT_MENU, partial(self.removePublisher, b64ID=b64ID), item
+                    )
 
-                item = wx.MenuItem(
-                    menu, wx.NewIdRef(count=1), localizeString("#(Remove)")
-                )
-                menu.Append(item)
-                menu.Bind(wx.EVT_MENU, partial(self.removePublisher, b64ID=b64ID), item)
-
-                self.PopupMenu(menu, wx.Point(int(x), int(y)))
-                menu.Destroy()
+                    self.PopupMenu(menu, wx.Point(int(x), int(y)))
+                    menu.Destroy()
 
             elif "contextmenu subscription" in target:
                 menu = wx.Menu()
@@ -6527,11 +6537,17 @@ class AppFrame(wx.Frame):
                 # print('darkModeDetection created', self.darkModeDetection)
 
             if WIN:
+
+                # For wxPython > 4.1, currently throws JavaScript errors, so not using this
+                # TODO: Upgrade to wxPython > 4.1 at some point an use this instead
+                # self.html.SetZoomType(wx.html2.WEBVIEW_ZOOM_TYPE_LAYOUT)
+                # self.html.SetZoomFactor(1.8)
+
                 self.javaScript(
                     (
                         "WIN = true;"
-                        "zoomFactor = 1.8;"
                         "$('#atomButton .centerInner').css('padding-top', '72px');"
+                        "zoomFactor = 1.8;"
                         "zoom();"
                     )
                 )

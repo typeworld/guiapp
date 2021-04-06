@@ -48,7 +48,7 @@ window.onerror = function (msg, url, lineNo, columnNo, error) {
 
 function python(code) {
 	// debug(code);
-	window.location.href = "x-python://" + code;
+	window.location.href = "https://type.world/x-python/" + code;
 }
 
 function debug(string) {

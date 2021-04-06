@@ -3148,8 +3148,8 @@ class AppFrame(wx.Frame):
     def onNavigating(self, evt):
         try:
             uri = evt.GetURL()  # you may need to deal with unicode here
-            if uri.startswith("x-python://"):
-                code = uri.split("x-python://")[1]
+            if uri.startswith("https://type.world/x-python/"):
+                code = uri.split("https://type.world/x-python/")[1]
                 code = urllib.parse.unquote(code)
                 if code.endswith("/"):
                     code = code[:-1]
@@ -6547,8 +6547,8 @@ class AppFrame(wx.Frame):
                     (
                         "WIN = true;"
                         "$('#atomButton .centerInner').css('padding-top', '72px');"
-                        "zoomFactor = 1.8;"
-                        "zoom();"
+                        # "zoomFactor = 1.8;"
+                        # "zoom();"
                     )
                 )
 

@@ -2204,7 +2204,7 @@ class AppFrame(wx.Frame):
                     )
                     if keyword != section:
                         html.append(
-                            '<a href="x-python://self.onPreferences(None, ____%s____)">'
+                            '<a onclick="python("self.onPreferences(None, ____%s____)")">'
                             % keyword
                         )
                     html.append(title)
@@ -2347,11 +2347,11 @@ class AppFrame(wx.Frame):
                         if not instance.anonymousAppID == client.anonymousAppID():
                             if instance.revoked:
                                 html.append(
-                                    f'<a class="button" href="x-python://self.reactivateAppInstance(____{instance.anonymousAppID}____)">#(Reactivate App)</a>'
+                                    f'<a class="button" onclick="python("self.reactivateAppInstance(____{instance.anonymousAppID}____)")">#(Reactivate App)</a>'
                                 )
                             else:
                                 html.append(
-                                    f'<a class="button" href="x-python://self.revokeAppInstance(____{instance.anonymousAppID}____)">#(Revoke App)</a>'
+                                    f'<a class="button" onclick="python("self.revokeAppInstance(____{instance.anonymousAppID}____)")">#(Revoke App)</a>'
                                 )
                         html.append("</div>")  # Revoke/Activate
 
@@ -4876,7 +4876,7 @@ class AppFrame(wx.Frame):
                             )
                             for i, billboard in enumerate(font.getBillboardURLs()):
                                 html.append(
-                                    '<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="x-python://self.setFontImage(____%s____)" style="color: inherit;">•</a></span>'
+                                    '<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a onclick="python("self.setFontImage(____%s____)")" style="color: inherit;">•</a></span>'
                                     % (i, "selected" if i == index else "", i)
                                 )
                             html.append("</div>")
@@ -4912,7 +4912,7 @@ class AppFrame(wx.Frame):
                             )
                             if client.get("metadataCategory") != keyword:
                                 html.append(
-                                    '<a href="x-python://self.showMetadataCategory(____%s____)">'
+                                    '<a onclick="python("self.showMetadataCategory(____%s____)")">'
                                     % keyword
                                 )
                             html.append("%s&thinsp;→" % name)
@@ -5092,7 +5092,7 @@ class AppFrame(wx.Frame):
                                 )
                             )
                             html.append(
-                                '<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">'
+                                '<a onclick="python("self.installFont(____%s____, ____%s____, ____%s____, ____%s____)")" class="installButton button">'
                                 % (
                                     self.b64encode(subscription.parent.canonicalURL),
                                     self.b64encode(subscription.protocol.unsecretURL()),
@@ -5112,7 +5112,7 @@ class AppFrame(wx.Frame):
                                 )
                             )
                             html.append(
-                                '<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">'
+                                '<a onclick="python("self.removeFont(____%s____, ____%s____, ____%s____)")" class="removeButton button">'
                                 % (
                                     self.b64encode(subscription.parent.canonicalURL),
                                     self.b64encode(subscription.protocol.unsecretURL()),
@@ -5290,7 +5290,7 @@ class AppFrame(wx.Frame):
                         html.append('<div style="margin-top: 15px;">')
 
                         html.append(
-                            '<a class="acceptInvitation" id="%s" href="x-python://self.acceptInvitation(____%s____)">'
+                            '<a class="acceptInvitation" id="%s" onclick="python("self.acceptInvitation(____%s____)")">'
                             % (
                                 self.b64encode(invitation.url),
                                 self.b64encode(invitation.url),
@@ -5309,7 +5309,7 @@ class AppFrame(wx.Frame):
                         # 						html.append('&nbsp;&nbsp;')
 
                         html.append(
-                            '<a class="declineInvitation" id="%s" href="x-python://self.declineInvitation(____%s____)">'
+                            '<a class="declineInvitation" id="%s" onclick="python("self.declineInvitation(____%s____)")">'
                             % (
                                 self.b64encode(invitation.url),
                                 self.b64encode(invitation.url),
@@ -5729,7 +5729,7 @@ class AppFrame(wx.Frame):
                                                         '<div class="install installButton right">'
                                                     )
                                                     html.append(
-                                                        '<a href="x-python://self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">'
+                                                        '<a onclick="python("self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)")" class="installAllFonts installButton button">'
                                                         % (
                                                             self.b64encode(ID),
                                                             self.b64encode(
@@ -5755,7 +5755,7 @@ class AppFrame(wx.Frame):
                                                         '<div class="remove installButton right">'
                                                     )
                                                     html.append(
-                                                        '<a href="x-python://self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">'
+                                                        '<a onclick="python("self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)")" class="removeAllFonts removeButton button ">'
                                                         % (
                                                             self.b64encode(ID),
                                                             self.b64encode(
@@ -5857,7 +5857,7 @@ class AppFrame(wx.Frame):
                                                         '<div class="installButton status install">'
                                                     )
                                                     html.append(
-                                                        '<a href="x-python://self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">'
+                                                        '<a onclick="python("self.installFont(____%s____, ____%s____, ____%s____, ____%s____)")" class="installButton button">'
                                                         % (
                                                             self.b64encode(
                                                                 subscription.parent.canonicalURL
@@ -5884,7 +5884,7 @@ class AppFrame(wx.Frame):
                                                         '<div class="installButton status remove">'
                                                     )
                                                     html.append(
-                                                        '<a href="x-python://self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">'
+                                                        '<a onclick="python("self.removeFont(____%s____, ____%s____, ____%s____)")" class="removeButton button">'
                                                         % (
                                                             self.b64encode(
                                                                 subscription.parent.canonicalURL
@@ -6165,7 +6165,7 @@ class AppFrame(wx.Frame):
                         )
 
                         html.append('<div class="publisherWrapper">')
-                        #                html.append('<a class="publisher" href="x-python://self.setPublisherHTML(____%s____)">' % b64ID)
+                        #                html.append('<a class="publisher" onclick="python(\"self.setPublisherHTML(____%s____)\")">' % b64ID)
                         html.append(
                             '<div id="%s" class="contextmenu publisher line clear %s %s %s" lang="%s" dir="%s">'
                             % (
@@ -6256,7 +6256,7 @@ class AppFrame(wx.Frame):
                             % ("block" if publisher.updatingProblem() else "none")
                         )
                         html.append(
-                            '<a href="x-python://self.displayPublisherSidebarAlert(____%s____)">'
+                            '<a onclick="python("self.displayPublisherSidebarAlert(____%s____)")">'
                             % b64ID
                         )
                         html.append("⚠️")
@@ -6372,7 +6372,7 @@ class AppFrame(wx.Frame):
                                     )
                                 )
                                 html.append(
-                                    '<a href="x-python://self.displaySubscriptionSidebarAlert(____%s____)">'
+                                    '<a onclick="python("self.displaySubscriptionSidebarAlert(____%s____)")">'
                                     % self.b64encode(
                                         subscription.protocol.unsecretURL()
                                     )

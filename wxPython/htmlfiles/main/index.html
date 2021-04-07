@@ -14,6 +14,7 @@
 	<script type="text/javascript" src="file://##htmlroot##/main/js/atom.js"></script>
 	<script type="text/javascript" src="file://##htmlroot##/main/js/prototypes.js"></script>
 
+	<link rel="stylesheet" href="file://##htmlroot##/main/css/tippy.css">
 	<script type="text/javascript"
 		src="file://##htmlroot##/main/js/polyfill.min.js?features=Array.prototype.find,Promise,Object.assign"></script>
 	<script type="text/javascript" src="file://##htmlroot##/main/js/tippy/popper.min.js"></script>
@@ -57,13 +58,11 @@
 					<p>
 						#(Subscription URL)<br />
 						<input type="text" id="url" name="url" placeholder="typeworld://json+">
-						<script>$('#addSubscription #url').keyup(function () { if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });</script>
 					</p>
 					<div id="authenticationCheckBox" style="display: none;">
 						<p>
 							<span style="width: 20px;"><input type="checkbox" id="usePassword"><label
 									for="usePassword">#(Use Authentication)</label></span>
-							<script>$('#addSubscription #usePassword').click(function () { debug($('#addSubscription #usePassword').val()); if ($('#addSubscription #usePassword').is(":checked")) { } else { } });</script>
 						</p>
 					</div>
 					</p>
@@ -77,36 +76,6 @@
 				</form>
 			</div>
 		</div>
-		<script>
-			$(document).ready(function () {
-
-				$("#addSubscriptionForm").submit(function (event) {
-
-					event.preventDefault();
-					$("#addSubscriptionFormSubmitButton").click();
-
-
-				});
-
-				$("#addSubscriptionFormSubmitButton").click(function () {
-
-					$("#addSubscriptionFormSubmitButton").hide();
-					$("#addSubscriptionFormCancelButton").hide();
-					$("#addSubscriptionFormSubmitAnimation").show();
-
-					python('self.addSubscriptionViaDialog(____' + $('#addSubscriptionForm #url').val() + '____, ____' + $('#addSubscriptionForm #username').val() + '____, ____' + $('#addSubscriptionForm #password').val() + '____)');
-
-				});
-
-				// if (WIN) {
-				// 	loadCSS("file://##htmlroot##/main/css/tippy-scaled.css");
-				// }
-				// else {
-				loadCSS("file://##htmlroot##/main/css/tippy.css");
-				// }
-
-			});
-		</script>
 
 	</div>
 

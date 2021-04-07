@@ -280,10 +280,38 @@ function hideMetadata() {
 
 $(document).ready(function () {
 
+	// if (WIN) {
+	python("self.onLoad(None)");
+	// }
+
+	documentReady();
+
 	setTimeout(function () { python('self.minutely()'); setInterval(function () { python('self.minutely()'); }, 1000 * 30); }, 2000); // First load after 2 seconds
 	setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
 
-	documentReady();
+	$('#addSubscription #url').keyup(function () { if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });
+	$('#addSubscription #usePassword').click(function () { debug($('#addSubscription #usePassword').val()); if ($('#addSubscription #usePassword').is(":checked")) { } else { } });
+
+	$("#addSubscriptionForm").submit(function (event) {
+
+		event.preventDefault();
+		$("#addSubscriptionFormSubmitButton").click();
+
+
+	});
+
+	$("#addSubscriptionFormSubmitButton").click(function () {
+
+		$("#addSubscriptionFormSubmitButton").hide();
+		$("#addSubscriptionFormCancelButton").hide();
+		$("#addSubscriptionFormSubmitAnimation").show();
+
+		python('self.addSubscriptionViaDialog(____' + $('#addSubscriptionForm #url').val() + '____, ____' + $('#addSubscriptionForm #username').val() + '____, ____' + $('#addSubscriptionForm #password').val() + '____)');
+
+	});
+
+	// loadCSS("file://##htmlroot##/main/css/tippy.css");
+
 
 	// debug($("#dpiMeasurementInPt").width() / parseFloat($("#dpiMeasurementInPx").width()));
 

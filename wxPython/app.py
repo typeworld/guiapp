@@ -452,11 +452,19 @@ class ClientDelegate(TypeWorldClientDelegate):
             self.app.frame.threadSafeExec('self.onPreferences(None, "userAccount")')
 
         if client.get("userAccountStatus") == "pro":
-            self.app.frame.javaScript("$('.visibleWhenNormalStatus').hide();")
-            self.app.frame.javaScript("$('.visibleWhenProStatus').show();")
+            self.app.frame.javaScript(
+                """
+                $('.visibleWhenNormalStatus').hide();
+                $('.visibleWhenProStatus').show();
+            """
+            )
         else:
-            self.app.frame.javaScript("$('.visibleWhenNormalStatus').show();")
-            self.app.frame.javaScript("$('.visibleWhenProStatus').hide();")
+            self.app.frame.javaScript(
+                """
+                $('.visibleWhenNormalStatus').show();
+                $('.visibleWhenProStatus').hide();
+            """
+            )
 
     def subscriptionHasBeenDeleted(self, subscription):
         # print("subscriptionHasBeenDeleted(%s)" % subscription)
@@ -482,21 +490,15 @@ class ClientDelegate(TypeWorldClientDelegate):
             subscription.protocol.unsecretURL()
         )
 
-        # Publisher
         self.app.frame.javaScript(
-            "$('#sidebar #%s.publisher .reloadAnimation').show();" % b64publisherID
-        )
-        self.app.frame.javaScript(
-            "$('#sidebar #%s.publisher .badges').hide();" % b64publisherID
-        )
-
-        # Subscription
-        self.app.frame.javaScript(
-            "$('#sidebar #%s.subscription .reloadAnimation').show();"
-            % b64subscriptionID
-        )
-        self.app.frame.javaScript(
-            "$('#sidebar #%s.subscription .badges').hide();" % b64subscriptionID
+            (
+                # Publisher
+                f"$('#sidebar #{b64publisherID}.publisher .reloadAnimation').show();"
+                f"$('#sidebar #{b64publisherID}.publisher .badges').hide();"
+                # Subscription
+                f"$('#sidebar #{b64subscriptionID}.subscription .reloadAnimation').show();"
+                f"$('#sidebar #{b64subscriptionID}.subscription .badges').hide();"
+            )
         )
 
     def subscriptionHasBeenUpdated(self, subscription, success, message, changes):
@@ -514,20 +516,20 @@ class ClientDelegate(TypeWorldClientDelegate):
 
             # Hide alert
             self.app.frame.javaScript(
-                "$('#sidebar #%s .alert').hide();" % b64publisherID
-            )
-            self.app.frame.javaScript(
-                "$('#sidebar #%s .alert').hide();" % b64subscriptionID
+                (
+                    f"$('#sidebar #{b64publisherID} .alert').hide();"
+                    f"$('#sidebar #{b64subscriptionID} .alert').hide();"
+                )
             )
 
         else:
             # Show alert
             # 				if subscription.updatingProblem():
             self.app.frame.javaScript(
-                "$('#sidebar #%s .alert').show();" % b64publisherID
-            )
-            self.app.frame.javaScript(
-                "$('#sidebar #%s .alert ').show();" % b64subscriptionID
+                (
+                    f"$('#sidebar #{b64publisherID} .alert').show();"
+                    f"$('#sidebar #{b64subscriptionID} .alert ').show();"
+                )
             )
 
         # Subscription
@@ -1485,7 +1487,8 @@ class AppFrame(wx.Frame):
             self.Bind(wx.html2.EVT_WEBVIEW_NAVIGATING, self.onNavigating, self.html)
             self.Bind(wx.html2.EVT_WEBVIEW_NAVIGATED, self.onNavigated, self.html)
             self.Bind(wx.html2.EVT_WEBVIEW_ERROR, self.onError, self.html)
-            self.Bind(wx.html2.EVT_WEBVIEW_LOADED, self.onLoad, self.html)
+            # if MAC:
+            #     self.Bind(wx.html2.EVT_WEBVIEW_LOADED, self.onLoad, self.html)
             sizer = wx.BoxSizer(wx.VERTICAL)
             sizer.Add(self.html, 1, wx.EXPAND)
             self.SetSizer(sizer)
@@ -1505,8 +1508,8 @@ class AppFrame(wx.Frame):
             #     installAgent()
 
             self.Bind(wx.EVT_SIZE, self.onResize, self)
-            self.Bind(wx.EVT_ACTIVATE, self.onActivate, self)
-            self.Bind(wx.EVT_KILL_FOCUS, self.onInactivate)
+            # self.Bind(wx.EVT_ACTIVATE, self.onActivate, self)
+            # self.Bind(wx.EVT_KILL_FOCUS, self.onInactivate)
 
             import signal
 
@@ -1529,7 +1532,6 @@ class AppFrame(wx.Frame):
             )
 
     def onMouseDown(self, event):
-        # print(event)
         pass
 
     def setMenuBar(self):
@@ -1637,6 +1639,13 @@ class AppFrame(wx.Frame):
             )
 
     def javaScript(self, code):
+        if self.fullyLoaded:
+            if threading.current_thread() == self.thread:
+                self.executeJavaScript(code)
+            else:
+                self.threadSafeJavaScript(code)
+
+    def threadSafeJavaScript(self, code):
         try:
             startWorker(
                 self.threadSafeJavaScript_consumer,
@@ -1660,24 +1669,16 @@ class AppFrame(wx.Frame):
     def threadSafeJavaScript_consumer(self, delayedResult):
         try:
             code = delayedResult.get()
-            self._javaScript(code)
+            self.executeJavaScript(code)
 
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
-    def _javaScript(self, script):
+    def executeJavaScript(self, code):
         try:
-            if self.fullyLoaded:
-                if threading.current_thread() == self.thread:
-                    if script:
-                        self.html.RunScript(script)
-                    # pass
-                else:
-                    client.log(
-                        "JavaScript called from another thread: %s" % script[:100]
-                    )
+            self.html.RunScript(code)
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -1867,13 +1868,21 @@ class AppFrame(wx.Frame):
                 subscriptionsUpdatedNotification(message)
                 agent("amountOutdatedFonts %s" % client.amountOutdatedFonts())
 
-                self.javaScript('$("#sidebarBottom .alert").hide();')
-                self.javaScript('$("#sidebarBottom .noAlert").show();')
+                self.javaScript(
+                    (
+                        '$("#sidebarBottom .alert").hide();'
+                        '$("#sidebarBottom .noAlert").show();'
+                    )
+                )
 
             else:
 
-                self.javaScript('$("#sidebarBottom .alert").show();')
-                self.javaScript('$("#sidebarBottom .noAlert").hide();')
+                self.javaScript(
+                    (
+                        '$("#sidebarBottom .alert").show();'
+                        '$("#sidebarBottom .noAlert").hide();'
+                    )
+                )
 
         except Exception as e:
             client.handleTraceback(
@@ -1892,8 +1901,10 @@ class AppFrame(wx.Frame):
     def onActivate(self, event):
         try:
 
-            if self.active:
+            # print("onActivate()")
+            if False:
 
+                # if self.active:
                 resize = False
 
                 # If Window is outside of main screen (like after screen unplugging)
@@ -1980,9 +1991,13 @@ class AppFrame(wx.Frame):
     def applyDarkMode(self):
         try:
             if platform.mac_ver()[0].split(".") > "10.14.0".split("."):
-                self.javaScript("$('body').removeClass('light');")
-                self.javaScript("$('body').removeClass('dark');")
-                self.javaScript("$('body').addClass('%s');" % self.theme())
+                self.javaScript(
+                    (
+                        "$('body').removeClass('light');"
+                        "$('body').removeClass('dark');"
+                        "$('body').addClass('%s');" % self.theme()
+                    )
+                )
 
         except Exception as e:
             client.handleTraceback(
@@ -2049,11 +2064,10 @@ class AppFrame(wx.Frame):
             html = self.replaceHTML(html)
             html = localizeString(html, html=True)
             html = html.replace('"', "'")
-            html = html.replace("\n", "")
+            html = html.replace("\n", " ")
             js = '$("#about .inner").html("' + html + '");'
-            self.javaScript(js)
+            self.javaScript((f"{js}" "documentReady();" "showAbout();"))
 
-            self.javaScript("showAbout();")
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -2204,7 +2218,7 @@ class AppFrame(wx.Frame):
                     )
                     if keyword != section:
                         html.append(
-                            '<a onclick="python("self.onPreferences(None, ____%s____)")">'
+                            '<a href="https://type.world/x-python/self.onPreferences(None, ____%s____)">'
                             % keyword
                         )
                     html.append(title)
@@ -2347,11 +2361,11 @@ class AppFrame(wx.Frame):
                         if not instance.anonymousAppID == client.anonymousAppID():
                             if instance.revoked:
                                 html.append(
-                                    f'<a class="button" onclick="python("self.reactivateAppInstance(____{instance.anonymousAppID}____)")">#(Reactivate App)</a>'
+                                    f'<a class="button" href="https://type.world/x-python/self.reactivateAppInstance(____{instance.anonymousAppID}____)">#(Reactivate App)</a>'
                                 )
                             else:
                                 html.append(
-                                    f'<a class="button" onclick="python("self.revokeAppInstance(____{instance.anonymousAppID}____)")">#(Revoke App)</a>'
+                                    f'<a class="button" href="https://type.world/x-python/self.revokeAppInstance(____{instance.anonymousAppID}____)">#(Revoke App)</a>'
                                 )
                         html.append("</div>")  # Revoke/Activate
 
@@ -2681,13 +2695,9 @@ class AppFrame(wx.Frame):
             html = "".join(map(str, html))
             html = html.replace('"', "'")
             html = localizeString(html, html=True)
-            html = html.replace("\n", "")
+            html = html.replace("\n", " ")
             js = '$("#preferences .centerOuter").html("<div>' + html + '</div>");'
-            self.javaScript(js)
-            self.javaScript("documentReady();")
-
-            self.javaScript("showPreferences();")
-            # print(self.panelVisible)
+            self.javaScript((f"{js}" "documentReady();" "showPreferences();"))
 
         except Exception as e:
             client.handleTraceback(
@@ -2871,15 +2881,16 @@ class AppFrame(wx.Frame):
                         html = "".join(map(str, html))
                         html = html.replace('"', "'")
                         html = localizeString(html, html=True)
-                        html = html.replace("\n", "")
+                        html = html.replace("\n", " ")
                         html = self.replaceHTML(html)
                         js = (
                             '$("#preferences .centerOuter").html("<div class=\'inner\'>'
                             + html
                             + '</div>");'
                         )
-                        self.javaScript(js)
-                        self.javaScript("showPreferences();")
+                        self.javaScript(
+                            (f"{js}" "documentReady();" "showPreferences();")
+                        )
 
         except Exception as e:
             client.handleTraceback(
@@ -3031,7 +3042,7 @@ class AppFrame(wx.Frame):
 
                         if client.get("userAccountStatus") != "pro":
                             html.append("<p>")
-                            html.append("<a class='visitUserAccount'>")
+                            html.append('<a class="visitUserAccount">')
                             html.append("#(Tooltip_NormalUser)")
                             html.append("</a>")
                             html.append("</p>")
@@ -3117,16 +3128,16 @@ class AppFrame(wx.Frame):
                         html = "".join(map(str, html))
                         html = html.replace('"', "'")
                         html = localizeString(html, html=True)
-                        html = html.replace("\n", "")
+                        html = html.replace("\n", " ")
                         html = self.replaceHTML(html)
                         js = (
                             '$("#preferences .centerOuter").html("<div class=\'inner\'>'
                             + html
                             + '</div>");'
                         )
-                        self.javaScript(js)
-                        self.javaScript("documentReady();")
-                        self.javaScript("showPreferences();")
+                        self.javaScript(
+                            (f"{js}" "documentReady();" "showPreferences();")
+                        )
 
                         # # Print HTML
                         # html = ''.join(map(str, html))
@@ -3357,11 +3368,14 @@ class AppFrame(wx.Frame):
                 self.errorMessage(message)
 
             # Reset Form
-            self.javaScript('$("#addSubscriptionFormSubmitButton").show();')
-            self.javaScript('$("#addSubscriptionFormCancelButton").show();')
-            self.javaScript('$("#addSubscriptionFormSubmitAnimation").hide();')
-
-            self.javaScript("hideCenterMessage();")
+            self.javaScript(
+                (
+                    '$("#addSubscriptionFormSubmitButton").show();'
+                    '$("#addSubscriptionFormCancelButton").show();'
+                    '$("#addSubscriptionFormSubmitAnimation").hide();'
+                    "hideCenterMessage();"
+                )
+            )
 
         except Exception as e:
             client.handleTraceback(
@@ -3554,8 +3568,7 @@ class AppFrame(wx.Frame):
                 publisher.delete()
                 client.set("currentPublisher", "")
                 self.setSideBarHTML()
-                self.javaScript("hideMain();")
-                self.javaScript("hideMetadata();")
+                self.javaScript(("hideMain();" "hideMetadata();"))
 
             self.allowedToPullServerUpdates = True
         except Exception as e:
@@ -3599,8 +3612,7 @@ class AppFrame(wx.Frame):
                                     self.b64encode(publisher.canonicalURL)
                                 )
                             else:
-                                self.javaScript("hideMain();")
-                                self.javaScript("hideMetadata();")
+                                self.javaScript(("hideMain();" "hideMetadata();"))
 
             self.setSideBarHTML()
 
@@ -3712,8 +3724,12 @@ class AppFrame(wx.Frame):
     def installFont(self, b64publisherURL, b64subscriptionURL, b64fontID, version):
         try:
             self.selectFont(b64fontID)
-            self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
-            self.javaScript('$("#metadata .seatsInstalled").fadeTo(500, .1);')
+            self.javaScript(
+                (
+                    f'$(".font.{b64fontID}").addClass("loading");'
+                    '$("#metadata .seatsInstalled").fadeTo(500, .1);'
+                )
+            )
             startWorker(
                 self.installFonts_consumer,
                 self.installFonts_worker,
@@ -3816,8 +3832,12 @@ class AppFrame(wx.Frame):
     def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
         try:
             self.selectFont(b64fontID)
-            self.javaScript('$(".font.%s").addClass("loading");' % b64fontID)
-            self.javaScript('$("#metadata .seatsInstalled").fadeTo(500, .1);')
+            self.javaScript(
+                (
+                    f'$(".font.{b64fontID}").addClass("loading");'
+                    '$("#metadata .seatsInstalled").fadeTo(500, .1);'
+                )
+            )
             startWorker(
                 self.removeFonts_consumer,
                 self.removeFonts_worker,
@@ -4076,7 +4096,7 @@ class AppFrame(wx.Frame):
 
                 html = self.fontInstalledText(font)
                 html = html.replace('"', "'")
-                html = html.replace("\n", "")
+                html = html.replace("\n", " ")
                 html = localizeString(html, html=True)
                 html = self.replaceHTML(html)
                 self.javaScript(
@@ -4120,7 +4140,7 @@ class AppFrame(wx.Frame):
         try:
             #       print x, y, target, b64ID, self.b64decode(b64ID)
 
-            x = max(0, int(x) - 70)
+            x = max(0, int(float(x)) - 70)
 
             if "contextmenu publisher" in target:
 
@@ -4248,7 +4268,7 @@ class AppFrame(wx.Frame):
                         wx.EVT_MENU, partial(self.removePublisher, b64ID=b64ID), item
                     )
 
-                    self.PopupMenu(menu, wx.Point(int(x), int(y)))
+                    self.PopupMenu(menu, wx.Point(int(float(x)), int(float(y))))
                     menu.Destroy()
 
             elif "contextmenu subscription" in target:
@@ -4415,7 +4435,9 @@ class AppFrame(wx.Frame):
 
                                         #    def installFontFromMenu(self, event, b64publisherURL, b64subscriptionURL, b64fontID, version):
 
-                                        self.PopupMenu(menu, wx.Point(int(x), int(y)))
+                                        self.PopupMenu(
+                                            menu, wx.Point(int(float(x)), int(float(y)))
+                                        )
                                         menu.Destroy()
 
                                         break
@@ -4430,7 +4452,7 @@ class AppFrame(wx.Frame):
                 menu.Append(item)
                 menu.Bind(wx.EVT_MENU, self.onPreferences, item)
 
-                self.PopupMenu(menu, wx.Point(int(x), int(y)))
+                self.PopupMenu(menu, wx.Point(int(float(x)), int(float(y))))
                 menu.Destroy()
         except Exception as e:
             client.handleTraceback(
@@ -4471,13 +4493,14 @@ class AppFrame(wx.Frame):
                     # Print HTML
                     html = "".join(map(str, html))
                     html = html.replace('"', "'")
-                    html = html.replace("\n", "")
+                    html = html.replace("\n", " ")
                     html = localizeString(html)
                     #       print html
                     js = '$("#publisherPreferences .inner").html("' + html + '");'
-                    self.javaScript(js)
 
-                    self.javaScript("showPublisherPreferences();")
+                    self.javaScript(
+                        (f"{js}" "documentReady();" "showPublisherPreferences();")
+                    )
 
         except Exception as e:
             client.handleTraceback(
@@ -4731,7 +4754,7 @@ class AppFrame(wx.Frame):
             # Print HTML
             html = "".join(map(str, html))
             html = html.replace('"', "'")
-            html = html.replace("\n", "")
+            html = html.replace("\n", " ")
             html = localizeString(html)
             html = self.replaceHTML(html)
 
@@ -4814,6 +4837,7 @@ class AppFrame(wx.Frame):
             )
 
     def setMetadataHTML(self, b64ID):
+        # print("setMetadataHTML()")
         try:
 
             # print("setMetadataHTML()")
@@ -4876,7 +4900,7 @@ class AppFrame(wx.Frame):
                             )
                             for i, billboard in enumerate(font.getBillboardURLs()):
                                 html.append(
-                                    '<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a onclick="python("self.setFontImage(____%s____)")" style="color: inherit;">•</a></span>'
+                                    '<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="https://type.world/x-python/self.setFontImage(____%s____)" style="color: inherit;">•</a></span>'
                                     % (i, "selected" if i == index else "", i)
                                 )
                             html.append("</div>")
@@ -4912,7 +4936,7 @@ class AppFrame(wx.Frame):
                             )
                             if client.get("metadataCategory") != keyword:
                                 html.append(
-                                    '<a onclick="python("self.showMetadataCategory(____%s____)")">'
+                                    '<a href="https://type.world/x-python/self.showMetadataCategory(____%s____)">'
                                     % keyword
                                 )
                             html.append("%s&thinsp;→" % name)
@@ -5092,7 +5116,7 @@ class AppFrame(wx.Frame):
                                 )
                             )
                             html.append(
-                                '<a onclick="python("self.installFont(____%s____, ____%s____, ____%s____, ____%s____)")" class="installButton button">'
+                                '<a href="https://type.world/x-python/self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">'
                                 % (
                                     self.b64encode(subscription.parent.canonicalURL),
                                     self.b64encode(subscription.protocol.unsecretURL()),
@@ -5112,7 +5136,7 @@ class AppFrame(wx.Frame):
                                 )
                             )
                             html.append(
-                                '<a onclick="python("self.removeFont(____%s____, ____%s____, ____%s____)")" class="removeButton button">'
+                                '<a href="https://type.world/x-python/self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">'
                                 % (
                                     self.b64encode(subscription.parent.canonicalURL),
                                     self.b64encode(subscription.protocol.unsecretURL()),
@@ -5132,7 +5156,7 @@ class AppFrame(wx.Frame):
 
                 html = "".join(map(str, html))
                 html = html.replace('"', "'")
-                html = html.replace("\n", "")
+                html = html.replace("\n", " ")
                 html = localizeString(html)
                 html = self.replaceHTML(html)
                 js = '$("#metadata .content").html("' + html + '");'
@@ -5143,6 +5167,8 @@ class AppFrame(wx.Frame):
             )
 
     def setPublisherHTML(self, b64ID=None):
+
+        # print("setPublisherHTML()")
         try:
 
             # import cProfile
@@ -5290,7 +5316,7 @@ class AppFrame(wx.Frame):
                         html.append('<div style="margin-top: 15px;">')
 
                         html.append(
-                            '<a class="acceptInvitation" id="%s" onclick="python("self.acceptInvitation(____%s____)")">'
+                            '<a class="acceptInvitation" id="%s" href="https://type.world/x-python/self.acceptInvitation(____%s____)">'
                             % (
                                 self.b64encode(invitation.url),
                                 self.b64encode(invitation.url),
@@ -5309,7 +5335,7 @@ class AppFrame(wx.Frame):
                         # 						html.append('&nbsp;&nbsp;')
 
                         html.append(
-                            '<a class="declineInvitation" id="%s" onclick="python("self.declineInvitation(____%s____)")">'
+                            '<a class="declineInvitation" id="%s" href="https://type.world/x-python/self.declineInvitation(____%s____)">'
                             % (
                                 self.b64encode(invitation.url),
                                 self.b64encode(invitation.url),
@@ -5352,7 +5378,7 @@ class AppFrame(wx.Frame):
                 # Print HTML
                 html = "".join(map(str, html))
                 html = html.replace('"', "'")
-                html = html.replace("\n", "")
+                html = html.replace("\n", " ")
                 html = localizeString(html)
                 html = self.replaceHTML(html)
 
@@ -5729,7 +5755,7 @@ class AppFrame(wx.Frame):
                                                         '<div class="install installButton right">'
                                                     )
                                                     html.append(
-                                                        '<a onclick="python("self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)")" class="installAllFonts installButton button">'
+                                                        '<a href="https://type.world/x-python/self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">'
                                                         % (
                                                             self.b64encode(ID),
                                                             self.b64encode(
@@ -5755,7 +5781,7 @@ class AppFrame(wx.Frame):
                                                         '<div class="remove installButton right">'
                                                     )
                                                     html.append(
-                                                        '<a onclick="python("self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)")" class="removeAllFonts removeButton button ">'
+                                                        '<a href="https://type.world/x-python/self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">'
                                                         % (
                                                             self.b64encode(ID),
                                                             self.b64encode(
@@ -5857,7 +5883,7 @@ class AppFrame(wx.Frame):
                                                         '<div class="installButton status install">'
                                                     )
                                                     html.append(
-                                                        '<a onclick="python("self.installFont(____%s____, ____%s____, ____%s____, ____%s____)")" class="installButton button">'
+                                                        '<a href="https://type.world/x-python/self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">'
                                                         % (
                                                             self.b64encode(
                                                                 subscription.parent.canonicalURL
@@ -5884,7 +5910,7 @@ class AppFrame(wx.Frame):
                                                         '<div class="installButton status remove">'
                                                     )
                                                     html.append(
-                                                        '<a onclick="python("self.removeFont(____%s____, ____%s____, ____%s____)")" class="removeButton button">'
+                                                        '<a href="https://type.world/x-python/self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">'
                                                         % (
                                                             self.b64encode(
                                                                 subscription.parent.canonicalURL
@@ -5993,7 +6019,7 @@ class AppFrame(wx.Frame):
                 # Print HTML
                 html = "".join(map(str, html))
                 html = html.replace('"', "'")
-                html = html.replace("\n", "")
+                html = html.replace("\n", " ")
                 html = localizeString(html, html=True)
                 html = self.replaceHTML(html)
                 # print(html)
@@ -6102,6 +6128,7 @@ class AppFrame(wx.Frame):
             )
 
     def setSideBarHTML(self):
+        # print("setSideBarHTML()")
         try:
             # Set publishers
 
@@ -6165,7 +6192,7 @@ class AppFrame(wx.Frame):
                         )
 
                         html.append('<div class="publisherWrapper">')
-                        #                html.append('<a class="publisher" onclick="python(\"self.setPublisherHTML(____%s____)\")">' % b64ID)
+                        #                html.append('<a class="publisher" href="https://type.world/x-python/self.setPublisherHTML(____%s____)">' % b64ID)
                         html.append(
                             '<div id="%s" class="contextmenu publisher line clear %s %s %s" lang="%s" dir="%s">'
                             % (
@@ -6256,7 +6283,7 @@ class AppFrame(wx.Frame):
                             % ("block" if publisher.updatingProblem() else "none")
                         )
                         html.append(
-                            '<a onclick="python("self.displayPublisherSidebarAlert(____%s____)")">'
+                            '<a href="https://type.world/x-python/self.displayPublisherSidebarAlert(____%s____)">'
                             % b64ID
                         )
                         html.append("⚠️")
@@ -6372,7 +6399,7 @@ class AppFrame(wx.Frame):
                                     )
                                 )
                                 html.append(
-                                    '<a onclick="python("self.displaySubscriptionSidebarAlert(____%s____)")">'
+                                    '<a href="https://type.world/x-python/self.displaySubscriptionSidebarAlert(____%s____)">'
                                     % self.b64encode(
                                         subscription.protocol.unsecretURL()
                                     )
@@ -6488,7 +6515,7 @@ class AppFrame(wx.Frame):
             html = "".join(map(str, html))
             html = html.replace('"', "'")
             html = localizeString(html, html=True)
-            html = html.replace("\n", "")
+            html = html.replace("\n", " ")
             html = self.replaceHTML(html)
             #        client.log(html)
             js = '$("#sidebar").html("' + html + '");'

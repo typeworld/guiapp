@@ -228,27 +228,12 @@ function documentReady() {
 		});
 	});
 
-	resize();
+	// resize();
 
 	$(window).resize(function () {
-		resize();
+		// resize();
 	});
 
-}
-
-function resize() {
-	$('.main').css('width', (($(window).width() - $(".sidebar").width() - $("#metadataWrapper").width()) / zoomFactor) + 'px');
-	// $('.main').css('width', (($(window).width() - $("#sidebar").width() * zoomFactor - $("#metadataWrapper").width() * zoomFactor) / zoomFactor) + 'px');
-	$('.panel').css('width', ($(window).width() / zoomFactor) + 'px');
-	// $('#welcome').css('width', ($(window).width()) + 'px');
-	$('.main').css('height', ($(window).height() / zoomFactor) + 'px');
-	$('.sidebar').css('height', ($(window).height()) + 'px');
-
-	// $('#sidebarBottom').css('bottom', 0 + 'px');
-
-	// $('#main, #welcome').css('height', ($(window).height()) + 'px');
-	// $('#metadata').css('width', sideBarSize * zoomFactor + 'px');
-	// $('#metadata').css('max-width', sideBarSize * zoomFactor + 'px');
 }
 
 var zoomFactor = 1.0;
@@ -267,20 +252,17 @@ function zoom() {
 	$('#atom').css('height', (120 / zoomFactor) + 'px');
 
 	// $('.main').css('width', ($(window).width() / zoomFactor) + 'px');
-	resize();
+	// resize();
 }
 
 function showMetadata() {
-	// $("#metadataWrapper").animate({ width: sideBarSize * zoomFactor }, 300);
-	$("#metadataWrapper").animate({ width: sideBarSize * zoomFactor }, 300, function () { resize(); });
-	// $(".main").animate({ width: $(".main").width() - sideBarSize * zoomFactor }, 300);
-	resize();
+	$("#metadataWrapper").animate({ width: sideBarSize }, 300);
+	$(".main").animate({ right: sideBarSize }, 300);
 }
 
 function hideMetadata() {
 	$("#metadataWrapper").animate({ width: 0 }, 300, function () { resize(); });
-	// $(".main").animate({ width: $(".main").width() + sideBarSize * zoomFactor }, 300);
-	resize();
+	$(".main").animate({ right: 0 }, 300);
 }
 
 

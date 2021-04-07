@@ -84,67 +84,65 @@
 		<div id="sidebar" class=" zoom">
 
 		</div>
+	</div>
 
-		<div id="sidebarBottom" class="">
+	<div id="sidebarBottom" class="">
 
-			<div class="zoom">
+		<div class="zoom">
 
-				<div class="betaMessage">
-					<div>
+			<div class="betaMessage">
+				<div>
 
-						<p>Type.World is now in Beta stage.<br />Report problems to <a
-								href="https://github.com/typeworld/typeworld/issues">Github</a> and don’t forget to <a
-								href="https://www.patreon.com/typeWorld">support through Patreon</a>.<br />We’re
-							currently
-							at
-							$256/month.</p>
+					<p>Type.World is now in Beta stage.<br />Report problems to <a
+							href="https://github.com/typeworld/typeworld/issues">Github</a> and don’t forget to <a
+							href="https://www.patreon.com/typeWorld">support through Patreon</a>.<br />We’re
+						currently
+						at
+						$256/month.</p>
 
-					</div>
-
-				</div>
-
-				<div class="atomWrapper">
-					<canvas class="nozoom" id="atom" width="120" height="120" onclick="showAddSubscription();"
-						alt="#(Tooltip-AtomAddSubscriptionButton)"></canvas>
-				</div>
-
-				<div id="userBadgeWrapper">
-					<div id="userBadge">
-						<span class="alert" style="display: none;"><a
-								onclick="python('self.displaySyncProblems()')">⚠️</a></span>
-
-						<span class="messageQueue"><a class="pullServerUpdates"><span class="connected"
-									alt="#(AppIsReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span><span
-									class="disconnected"
-									alt="#(AppIsNotReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span></a></span>
-
-						<!-- <a id="pullServerUpdates">
-						<span class="noAlert">
-							<img src="file://##htmlroot##/userIcon.svg"
-								style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;">
-	
-						</span>
-					</a> -->
-						<span id="userName"></span>
-
-						<span class="visibleWhenProStatus visitUserAccount" alt="#(Tooltip_ProUser)"><span
-								class="proUserStatusBadge">PRO</span></span>
-						<span class="visibleWhenNormalStatus visitUserAccount"><span alt="#(Tooltip_NormalUser)"
-								class="proUserStatusBadge">PRO</span></span>
-					</div>
-				</div>
-
-				<div id="alertWrapper">
-					<div id="updateAvailable" alt="#(UpdateAppTooltip)"
-						onclick="python('self.onCheckForUpdates(None)')">
-						#(Update App)
-					</div>
 				</div>
 
 			</div>
+
+			<div class="atomWrapper">
+				<canvas class="nozoom" id="atom" width="120" height="120" onclick="showAddSubscription();"
+					alt="#(Tooltip-AtomAddSubscriptionButton)"></canvas>
+			</div>
+
+			<div id="userBadgeWrapper">
+				<div id="userBadge">
+					<span class="alert" style="display: none;"><a
+							onclick="python('self.displaySyncProblems()')">⚠️</a></span>
+
+					<span class="messageQueue"><a class="pullServerUpdates"><span class="connected"
+								alt="#(AppIsReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span><span
+								class="disconnected"
+								alt="#(AppIsNotReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span></a></span>
+
+					<!-- <a id="pullServerUpdates">
+					<span class="noAlert">
+						<img src="file://##htmlroot##/userIcon.svg"
+							style="width: 16px; height: 16px; position: relative; top: 4px; margin-top: -3px;">
+
+					</span>
+				</a> -->
+					<span id="userName"></span>
+
+					<span class="visibleWhenProStatus visitUserAccount" alt="#(Tooltip_ProUser)"><span
+							class="proUserStatusBadge">PRO</span></span>
+					<span class="visibleWhenNormalStatus visitUserAccount"><span alt="#(Tooltip_NormalUser)"
+							class="proUserStatusBadge">PRO</span></span>
+				</div>
+			</div>
+
+			<div id="alertWrapper">
+				<div id="updateAvailable" alt="#(UpdateAppTooltip)" onclick="python('self.onCheckForUpdates(None)')">
+					#(Update App)
+				</div>
+			</div>
+
 		</div>
 	</div>
-
 	<!--
 <div class="wrapper">
 	<div id="subscriptions" class="sidebar">

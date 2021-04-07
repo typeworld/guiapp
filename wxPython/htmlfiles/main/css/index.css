@@ -260,14 +260,13 @@ label {
 
 .sidebar {
 	font-size: 14px;
-	position:relative;
+	position:absolute;
     background-color: #333;
     color: #DDD;
     width: 300px;
-/*    height: 100%;
-*/
-    /* top: 0;
-    bottom: 0; */
+    /* height: 100%; */
+
+	bottom: 0;
 
     overflow-y: scroll;
 
@@ -518,7 +517,7 @@ body.dark {
 	left: 300px;
 	top: 0;
 	bottom: 0;
-	/* right: 0px; */
+	right: 0px;
 
     height: 100%;
 

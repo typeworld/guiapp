@@ -304,14 +304,14 @@ $(document).ready(function () {
 
 				ctx.save();
 
-				if (MAC) {
-					ctx.scale(opticalSize / zoomFactor, opticalSize / zoomFactor);
-					ctx.translate((rect.width / opticalSize - rect.width) / 2.0 / zoomFactor, (rect.height / opticalSize - rect.height) / 2.0 / zoomFactor);
-				}
-				else if (WIN) {
-					ctx.translate((rect.width / opticalSize - rect.width) / 2.0 / zoomFactor, (rect.height / opticalSize - rect.height) / 2.0 / zoomFactor);
-					ctx.scale(opticalSize / zoomFactor, opticalSize / zoomFactor);
-				}
+				// if (MAC) {
+				ctx.scale(opticalSize / zoomFactor, opticalSize / zoomFactor);
+				ctx.translate((rect.width / opticalSize - rect.width) / 2.0 / zoomFactor, (rect.height / opticalSize - rect.height) / 2.0 / zoomFactor);
+				// }
+				// else if (WIN) {
+				// 	ctx.translate((rect.width / opticalSize - rect.width) / 2.0 / zoomFactor, (rect.height / opticalSize - rect.height) / 2.0 / zoomFactor);
+				// 	ctx.scale(opticalSize / zoomFactor, opticalSize / zoomFactor);
+				// }
 
 				// Draw Plus
 				ctx.lineWidth = 20 * factor / opticalSize;

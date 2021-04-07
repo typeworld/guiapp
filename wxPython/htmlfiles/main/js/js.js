@@ -84,7 +84,15 @@ function setPublisherPassword(b64ID, username, password) {
 }
 
 function contextmenu(evt) {
-	python('self.onContextMenu(____' + evt.pageX + '____, ____' + evt.pageY + '____, ____' + $(evt.target).closest('.contextmenu').attr('class') + '____, ____' + $(evt.target).closest('.contextmenu').attr('id') + '____)');
+	if (WIN) {
+		x = evt.pageX * window.devicePixelRatio;
+		y = evt.pageY * window.devicePixelRatio;
+	}
+	else {
+		x = evt.pageX;
+		y = evt.pageY;
+	}
+	python('self.onContextMenu(____' + x + '____, ____' + y + '____, ____' + $(evt.target).closest('.contextmenu').attr('class') + '____, ____' + $(evt.target).closest('.contextmenu').attr('id') + '____)');
 }
 
 function resetFontAppearance(fontID) {

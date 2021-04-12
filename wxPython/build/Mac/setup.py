@@ -165,6 +165,7 @@ options = {
             "decimal",
             "_pydecimal",
             "numbers",
+            "numpy",
             "ordered_set",
             "ast",
         ],

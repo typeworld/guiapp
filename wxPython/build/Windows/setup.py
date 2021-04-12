@@ -86,6 +86,7 @@ setup(
                 # "proto",
                 "win32timezone",
                 "pkg_resources",
+                "numpy",
             ],
             "optimize": 1,
             "build_exe": destinationFolder,

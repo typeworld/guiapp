@@ -1325,6 +1325,7 @@ if WIN:
             # set application details
             update_url = f"https://api.type.world/appcast/world.type.guiapp/windows/normal/appcast.xml?t={int(time.time())}"
             pywinsparkle.win_sparkle_set_appcast_url(update_url)
+            pywinsparkle.win_sparkle_set_automatic_check_for_updates(1)
             pywinsparkle.win_sparkle_set_app_details(
                 "Type.World", "Type.World", APPVERSION
             )
@@ -6632,7 +6633,6 @@ class AppFrame(wx.Frame):
                 windll.kernel32.RegisterApplicationRestart(None, 0)
 
                 if RUNTIME:
-                    pywinsparkle.win_sparkle_set_automatic_check_for_updates(1)
                     pywinsparkle.win_sparkle_check_update_without_ui()
 
             client.delegate.userAccountHasBeenUpdated()

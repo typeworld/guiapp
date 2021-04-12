@@ -1708,6 +1708,7 @@ class AppFrame(wx.Frame):
                 self.setAppCastURL()
                 sparkle.checkForUpdates_(self)
             elif WIN and RUNTIME:
+                self.setAppCastURL()
                 pywinsparkleDelegate.check_with_ui()
 
         except Exception as e:

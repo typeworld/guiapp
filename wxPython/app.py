@@ -684,6 +684,15 @@ class FoundryStyling(object):
                 0.15
             )
 
+        if self.informationViewTextColor.darkHalf():
+            self.informationViewTextColor_Darker = (
+                self.informationViewTextColor.lighten(0.5)
+            )
+        else:
+            self.informationViewTextColor_Darker = self.informationViewTextColor.darken(
+                0.5
+            )
+
     def logo(self):
 
         if self.foundry.styling:
@@ -786,6 +795,10 @@ color: #$hoverButtonTextColor;
 #metadataWrapper {
 background-color: #$informationViewBackgroundColor;
 color: #$informationViewTextColor;
+}
+
+#metadataWrapper .darker {
+color: #$informationViewTextColor_Darker;
 }
 
 #metadataWrapper a {
@@ -1324,6 +1337,7 @@ if WIN:
 
             # set application details
             update_url = f"https://api.type.world/appcast/world.type.guiapp/windows/normal/appcast.xml?t={int(time.time())}"
+            print("winsparkle init")
             pywinsparkle.win_sparkle_set_appcast_url(update_url)
             pywinsparkle.win_sparkle_set_automatic_check_for_updates(1)
             pywinsparkle.win_sparkle_set_app_details(
@@ -1624,6 +1638,12 @@ class AppFrame(wx.Frame):
             )
             self.Bind(wx.EVT_MENU, self.onUploadSubscriptionAsIs, m_Upload)
 
+            m_ReloadCSS = menu.Append(
+                wx.NewIdRef(count=1),
+                "&Reload CSS\tCtrl-R",
+            )
+            self.Bind(wx.EVT_MENU, self.onReloadCSS, m_ReloadCSS)
+
             # m_Toggle = menu.Append(
             #     wx.NewIdRef(count=1),
             #     "Toggle update notification",
@@ -1711,6 +1731,15 @@ class AppFrame(wx.Frame):
             elif WIN and RUNTIME:
                 self.setAppCastURL()
                 pywinsparkleDelegate.check_with_ui()
+
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
+    def onReloadCSS(self, event):
+        try:
+            self.javaScript("ReloadCSS()")
 
         except Exception as e:
             client.handleTraceback(
@@ -5098,7 +5127,7 @@ class AppFrame(wx.Frame):
                                 )
                             if version.releaseDate:
                                 html.append(
-                                    '<br /><span style="color: gray;">#(Published): %s</span>'
+                                    '<span class="lighter">#(Published): %s</span>'
                                     % locales.formatDate(
                                         time.mktime(
                                             datetime.date.fromisoformat(
@@ -5871,7 +5900,7 @@ class AppFrame(wx.Frame):
                                                         '<div class="left expiryText">'
                                                     )
                                                     html.append(
-                                                        '⏲<span class="countdownMinutes" timestamp="%s">%s</span>'
+                                                        '<span class="countdownMinutes" timestamp="%s"><span class="material-icons">lock_clock</span>%s</span>'
                                                         % (font.expiry, expiry)
                                                     )
                                                     html.append("</div>")  # .left
@@ -6258,8 +6287,8 @@ class AppFrame(wx.Frame):
                                 badges.append(
                                     (
                                         f'<div class="badge liveConnectionStatus">'
-                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}">●</span>'
-                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}">●</span>'
+                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span class="material-icons">sensors</span></span>'
+                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span class="material-icons">sensors_off</span></span>'
                                         "</div>"
                                     )
                                 )
@@ -6371,8 +6400,8 @@ class AppFrame(wx.Frame):
                                 badges.append(
                                     (
                                         f'<div class="badge liveConnectionStatus">'
-                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}">●</span>'
-                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}">●</span>'
+                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span class="material-icons">sensors</span></span>'
+                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span class="material-icons">sensors_off</span></span>'
                                         "</div>"
                                     )
                                 )
@@ -7131,6 +7160,7 @@ class MyApp(wx.App):
     ):
         try:
 
+            print("hidpi init")
             # Hi-DPI support on Windows, see https://discuss.wxpython.org/t/support-for-high-dpi-on-windows-10/32925/2
             try:
                 import ctypes

@@ -90,7 +90,7 @@
 
 		<div class="zoom">
 
-			<div class="betaMessage">
+			<!-- <div class="betaMessage">
 				<div>
 
 					<p>Type.World is now in Beta stage.<br />Report problems to <a
@@ -102,7 +102,7 @@
 
 				</div>
 
-			</div>
+			</div> -->
 
 			<div class="atomWrapper">
 				<canvas class="nozoom" id="atom" width="120" height="120" onclick="showAddSubscription();"
@@ -115,9 +115,14 @@
 							onclick="python('self.displaySyncProblems()')">⚠️</a></span>
 
 					<span class="messageQueue"><a class="pullServerUpdates"><span class="connected"
-								alt="#(AppIsReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span><span
-								class="disconnected"
-								alt="#(AppIsNotReceivingLiveNotifications) #(ClickToSyncUserAccount)">●</span></a></span>
+								alt="#(AppIsReceivingLiveNotifications) #(ClickToSyncUserAccount)"><span
+									class="material-icons">
+									sensors
+								</span></span><span class="disconnected"
+								alt="#(AppIsNotReceivingLiveNotifications) #(ClickToSyncUserAccount)"><span
+									class="material-icons">
+									sensors_off
+								</span></span></a></span>
 
 					<!-- <a id="pullServerUpdates">
 					<span class="noAlert">

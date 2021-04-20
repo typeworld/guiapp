@@ -307,6 +307,15 @@ $(document).ready(function () {
 
 });
 
+
+function ReloadCSS() {
+	for (var i = 0; i < document.querySelectorAll("link[rel=stylesheet]").length; i++) {
+		link = document.querySelectorAll("link[rel=stylesheet]")[i];
+		link.href = link.href.replace(/\?.*|$/, "?" + Date.now());
+	}
+}
+
+
 function showAddSubscription() {
 	$('#addSubscription #url').val(null);
 	$('#addSubscription #authenticationCheckBox').hide();

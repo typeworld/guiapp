@@ -35,6 +35,40 @@
 
 }
 
+@font-face {
+	font-family: 'Material Icons';
+	font-style: normal;
+	font-weight: 400;
+	src: url(icons.ttf) format('truetype');
+  }
+
+
+  .material-icons {
+	font-family: 'Material Icons';
+	font-weight: normal;
+	font-style: normal;
+	font-size: 18px;
+	display: inline-block;
+	line-height: .5;
+	position: relative;
+	top: 4px;
+	text-transform: none;
+	letter-spacing: normal;
+	word-wrap: normal;
+	white-space: nowrap;
+	direction: ltr;
+  
+	/* Support for all WebKit browsers. */
+	-webkit-font-smoothing: antialiased;
+	/* Support for Safari and Chrome. */
+	text-rendering: optimizeLegibility;
+  
+	/* Support for Firefox. */
+	-moz-osx-font-smoothing: grayscale;
+  
+	/* Support for IE. */
+	font-feature-settings: 'liga';
+  }
 
 
 /*---------------clear-------------*/
@@ -97,11 +131,37 @@ h1, h2, h3, h4, h5, h6 {
 	/* font-family: "noname_sans", -apple-system, BlinkMacSystemFont, sans-serif; */
 
 	font-weight: normal;
+    line-height: 120%;
 	margin-bottom: 15px;
 	margin-top: 10px;
 
 	color: #000;
 }
+
+h1 {
+	font-size: 48px;
+}
+
+h2 {
+	font-size: 36px;
+}
+
+h3 {
+	font-size: 24px;
+}
+
+h4 {
+	font-size: 20px;
+}
+
+h5 {
+	font-size: 18px;
+}
+
+h6 {
+	font-size: 16px;
+}
+
 
 .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
 
@@ -123,16 +183,33 @@ input, textarea, select {
 	font-size: inherit;
 	line-height: 120%;
 	color: #444;
-	padding: 3px;
-	padding-left: 6px;
-	padding-bottom: 5px;
+	padding: 8px;
+	padding-left: 10px;
+	padding-bottom: 8px;
 	width: 97%;
 /*	word-spacing: -3px; */
-	margin-top: 2px;
-	margin-bottom: 9px;
+	margin-top: 3px;
+	margin-bottom: 10px;
 	border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px; -khtml-border-radius:3px;
 	border: none;
 }
+
+input::-webkit-input-placeholder, {
+   color: #BBB;
+}
+
+input:-moz-placeholder {
+   color: #BBB;
+}
+
+input::-moz-p {
+   color: #BBB;
+}
+
+input:-ms-input-placeholder {
+   color: #BBB;
+}
+
 
 select {
 	width: inherit;
@@ -140,18 +217,18 @@ select {
 
 input[type=button],input[type=submit],a.button {
 	width: auto;
-	padding-top: 5px;
-	padding-bottom: 6px;
-	padding-left: 14px;
-	padding-right: 14px;
+	padding-top: 10px;
+	padding-bottom: 11px;
+	padding-left: 20px;
+	padding-right: 20px;
 	margin-top: 8px;
 	margin-left: 0px;
 	margin-bottom: 6px; 
 	margin-right: 0px;
 	cursor: pointer;
 	background-color: #197AA3;
-/*	border-radius:4px; -moz-border-radius:4px; -webkit-border-radius:4px; -khtml-border-radius:4px;
-*/	-webkit-appearance: none;
+	border-radius:20px; -moz-border-radius:20px; -webkit-border-radius:20px; -khtml-border-radius:20px;
+	-webkit-appearance: none;
 	font-family: inherit;
 	color: #FFF !important;
 	display: inline-block;
@@ -671,12 +748,14 @@ body.dark {
 	padding: inherit;
 	text-transform: none;
 	color: white;
-	font-size: 18px;
+	font-size: 14px;
 	letter-spacing: 0px;
 
+	border-radius:0px; -moz-border-radius:0px; -webkit-border-radius:0px; -khtml-border-radius:0px;
+
 	padding-top: 3px;
-	padding-left: 6px;
-	padding-right: 6px;
+	padding-left: 8px;
+	padding-right: 8px;
 	padding-bottom: 4px;
 	margin-top: -4px;
 	margin-bottom: -4px;
@@ -684,7 +763,7 @@ body.dark {
 	margin-right: -4px;
 
 	position: relative;
-	top: -1px;
+	top: 0px;
 }
 
 .section .button.installButton {
@@ -799,14 +878,15 @@ body.dark {
 
 .label {
 	background-color: lightgray;
-	border-radius:8px; -moz-border-radius:8px; -webkit-border-radius:8px; -khtml-border-radius:8px;
+	border-radius:20px; -moz-border-radius:20px; -webkit-border-radius:20px; -khtml-border-radius:20px;
 	margin-left: 5px;
 	font-size: 80%;
-	padding: 3px;
+	padding-top: 3px;
 	padding-left: 6px;
 	padding-right: 6px;
+	padding-bottom: 3px;
 	position: relative;
-	top: -1px;
+	top: 0px;
 
 /*	transition: background-color .2s; */
 }
@@ -966,7 +1046,6 @@ body.dark {
 
 
 .closePanelButton {
-	color: #000;
 	text-align: right;
 	font-size: 24px;
 	margin-right: 20px;
@@ -1018,10 +1097,10 @@ body.dark {
 
     background-color: #EDEBDD;
 
-    overflow: scroll;
+    overflow-y: scroll;
 
     font-size: 14px;
-    line-height: 15px;
+    line-height: 130%;
 
 	text-align: center;
 
@@ -1079,7 +1158,6 @@ body.dark {
 .panel h2 {
 	/* font-family: 'noname_sans', -apple-system, BlinkMacSystemFont, sans-serif; */
 	font-weight: normal;
-    font-size: 24px;
     line-height: 120%;
 	
 }

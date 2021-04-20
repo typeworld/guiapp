@@ -146,9 +146,9 @@ function recalcMinutesCountdown() {
 
 	});
 
-	python('self.checkFontExpirations()');
+	// python('self.checkFontExpirations()');
 
-	setTimeout(function () { recalcMinutesCountdown(); }, 10000);
+	// setTimeout(function () { recalcMinutesCountdown(); }, 10000);
 }
 
 function documentReady() {
@@ -277,7 +277,7 @@ $(document).ready(function () {
 	documentReady();
 
 	setTimeout(function () { python('self.minutely()'); setInterval(function () { python('self.minutely()'); }, 1000 * 30); }, 2000); // First load after 2 seconds
-	setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
+	// setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
 
 	$('#addSubscription #url').keyup(function () { if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });
 	$('#addSubscription #usePassword').click(function () { debug($('#addSubscription #usePassword').val()); if ($('#addSubscription #usePassword').is(":checked")) { } else { } });

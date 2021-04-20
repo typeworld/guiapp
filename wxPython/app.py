@@ -3912,7 +3912,9 @@ class AppFrame(wx.Frame):
                 publisher = client.publisher(publisherURL)
                 subscription = publisher.subscription(subscriptionURL)
 
-                if subscription.fontByID(fontID):
+                if subscription.fontByID(fontID) and subscription.installedFontVersion(
+                    fontID=fontID
+                ):
 
                     if not subscription in fontsBySubscription:
                         fontsBySubscription[subscription] = []
@@ -4618,6 +4620,10 @@ class AppFrame(wx.Frame):
             self.checkIfOnline()
 
             self.lastMinuteCheck = time.time()
+
+            # Trial fonts
+            self.javaScript("recalcMinutesCountdown();")
+            self.checkFontExpirations()
 
         except Exception as e:
             client.handleTraceback(
@@ -5899,10 +5905,10 @@ class AppFrame(wx.Frame):
                                                     expiry = "%s'" % font.expiryDuration
                                                 if expiry:
                                                     html.append(
-                                                        '<div class="left expiryText">'
+                                                        '<div class="left expiryText"><span class="material-icons">auto_delete</span>'
                                                     )
                                                     html.append(
-                                                        '<span class="countdownMinutes" timestamp="%s"><span class="material-icons">lock_clock</span>%s</span>'
+                                                        '<span class="countdownMinutes" timestamp="%s">%s</span>'
                                                         % (font.expiry, expiry)
                                                     )
                                                     html.append("</div>")  # .left

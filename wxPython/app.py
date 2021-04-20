@@ -1268,7 +1268,8 @@ if WIN:
             self.updateInProgress = False
 
             global app
-            app.frame.javaScript("$('#updateAvailable').slideUp();")
+            if app.frame:
+                app.frame.javaScript("$('#updateAvailable').slideUp();")
 
         def pywinsparkle_found_update(self):
             """ log that an update was found """
@@ -1276,7 +1277,8 @@ if WIN:
             # self.updateInProgress = False
 
             global app
-            app.frame.javaScript("$('#updateAvailable').slideDown();")
+            if app.frame:
+                app.frame.javaScript("$('#updateAvailable').slideDown();")
 
         def pywinsparkle_encountered_error(self):
             client.log("An error occurred")

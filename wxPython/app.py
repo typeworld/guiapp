@@ -1557,12 +1557,19 @@ class AppFrame(wx.Frame):
 
             # Exit
             menu = wx.Menu()
+
             m_opensubscription = menu.Append(
                 wx.ID_OPEN,
                 "%s...%s" % (localizeString("#(Add Subscription)"), "\tCtrl+O"),
             )  # \tCtrl-O
             self.Bind(wx.EVT_MENU, self.showAddSubscription, m_opensubscription)
             #        m_opensubscription.SetAccel(wx.AcceleratorEntry(wx.ACCEL_CTRL,  ord('o')))
+
+            m_syncaccount = menu.Append(
+                wx.NewIdRef(count=1),
+                "%s%s" % (localizeString("#(Sync User Account)"), "\tCtrl+R"),
+            )
+            self.Bind(wx.EVT_MENU, self.onSyncUserAccount, m_syncaccount)
 
             m_CheckForUpdates = menu.Append(
                 wx.NewIdRef(count=1),
@@ -1718,6 +1725,16 @@ class AppFrame(wx.Frame):
                 )
                 publishers.append((i, name, language))
             return publishers
+        except Exception as e:
+            client.handleTraceback(
+                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+            )
+
+    def onSyncUserAccount(self, event):
+        try:
+
+            self.pullServerUpdates(force=True)
+
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -4683,12 +4700,15 @@ class AppFrame(wx.Frame):
         pass
 
     def displaySyncProblems(self):
-        try:
+        print("displaySyncProblems()")
+        if client.syncProblems():
             self.errorMessage("\n\n".join(client.syncProblems()))
-        except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+        else:
+            self.errorMessage("Empty")
+        # except Exception as e:
+        #     client.handleTraceback(
+        #         sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
+        #     )
 
     def displayPublisherSidebarAlert(self, b64publisherID):
         try:

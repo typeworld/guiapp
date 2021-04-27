@@ -479,6 +479,12 @@ label {
 /*	display: none;*/
 }
 
+.alert {
+	color: yellow;
+
+/*	display: none;*/
+}
+
 #sidebar .alert {
 	position: relative;
 	float: right;

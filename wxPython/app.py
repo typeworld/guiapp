@@ -3399,6 +3399,9 @@ class AppFrame(wx.Frame):
 
             if success:
 
+                client.set("currentPublisher", publisher.canonicalURL)
+                publisher.set("currentSubscription", subscription.url)
+
                 # if subscription.latestVersion().response.getCommand().prefersRevealedUserIdentity:
 
                 # 	dlg = wx.MessageDialog(self, localizeString('#(RevealUserIdentityRequest)'), localizeString('#(Reveal Identity)'), wx.YES_NO | wx.ICON_QUESTION)

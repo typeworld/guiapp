@@ -453,6 +453,7 @@ class ClientDelegate(TypeWorldClientDelegate):
         filestore.deleteFiles(list(set(client.files()) - set(files)))
 
     def subscriptionHasBeenDeleted(self, deletedSubscription):
+        self.app.frame.javaScript("hideMetadata();")
         self.app.frame.setSideBarHTML()
 
     def publisherWillDelete(self, deletedPublisher):
@@ -467,7 +468,7 @@ class ClientDelegate(TypeWorldClientDelegate):
         if client.get("currentPublisher"):
             if not client.publishers():
                 client.set("currentPublisher", "")
-                # print("currentPublisher reset")
+        self.app.frame.javaScript("hideMetadata();")
         self.app.frame.setSideBarHTML()
 
     def subscriptionHasBeenAdded(self, subscription):

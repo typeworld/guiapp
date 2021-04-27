@@ -1,5 +1,6 @@
 from flask import Flask, request, abort, Response
 import threading
+import socket
 import urllib.parse
 import typeworld.client
 
@@ -17,8 +18,15 @@ def file():
         return abort(500)
 
 
-PORT = 8099
+def port():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(("localhost", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return port
 
+
+PORT = port()
 
 server = threading.Thread(
     target=app.run,

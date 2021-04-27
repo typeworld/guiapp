@@ -42,7 +42,6 @@ import urllib.request, urllib.parse, urllib.error, time
 from functools import partial
 from wx.lib.delayedresult import startWorker
 from multiprocessing.connection import Client
-from threading import Thread
 from string import Template
 
 WIN = platform.system() == "Windows"
@@ -54,6 +53,9 @@ from ynlib.files import ReadFromFile, WriteToFile
 from ynlib.strings import *
 from ynlib.web import GetHTTP
 from ynlib.colors import Color
+
+import filestore
+
 
 from typeworld.client import (
     APIClient,
@@ -1830,6 +1832,9 @@ class AppFrame(wx.Frame):
 
                 else:
                     return
+
+            # filestore.server.terminate()
+            # filestore.server.join()
 
             self.active = False
             client.quit()
@@ -4876,8 +4881,7 @@ class AppFrame(wx.Frame):
             publisher = client.publisher(client.get("currentPublisher"))
             subscription = publisher.subscription(publisher.get("currentSubscription"))
             font = subscription.fontByID(subscription.get("currentFont"))
-            imageURL = font.getBillboardURLs()[index]
-
+            imageURL = f"http://0.0.0.0:{filestore.PORT}/file?url={urllib.parse.quote_plus(font.getBillboardURLs()[index])}"
             self.javaScript('$("#fontBillboard").attr("src","%s");' % (imageURL))
             self.javaScript('$(".fontBillboardLinks").removeClass("selected");')
             self.javaScript('$("#fontBillboardLink_%s").addClass("selected");' % index)
@@ -4933,8 +4937,7 @@ class AppFrame(wx.Frame):
                         imageURL = font.getBillboardURLs()[index]
 
                         html.append(
-                            '<img id="fontBillboard" src="%s" style="width: 300px;">'
-                            % (imageURL)
+                            f'<img id="fontBillboard" src="http://0.0.0.0:{filestore.PORT}/file?url={urllib.parse.quote_plus(imageURL)}" style="width: 300px;">'
                         )
 
                         html.append("</div>")
@@ -5249,8 +5252,7 @@ class AppFrame(wx.Frame):
                         if invitation.logoURL:
                             html.append('<div class="logo">')
                             html.append(
-                                '<img src="%s" style="width: 100px; height: 100px;" />'
-                                % (invitation.logoURL)
+                                f'<img src="http://0.0.0.0:{filestore.PORT}/file?url={urllib.parse.quote_plus(invitation.logoURL)}" style="width: 100px; height: 100px;" />'
                             )
                             html.append("</div>")  # publisher
 
@@ -5656,8 +5658,7 @@ class AppFrame(wx.Frame):
                         if logoURL:
                             html.append('<div class="logo">')
                             html.append(
-                                '<img src="%s" style="width: 100px; height: 100px;" />'
-                                % (logoURL)
+                                f'<img src="http://0.0.0.0:{filestore.PORT}/file?url={urllib.parse.quote_plus(logoURL)}" style="width: 100px; height: 100px;" />'
                             )
                             html.append("</div>")  # publisher
 

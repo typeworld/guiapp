@@ -47,7 +47,6 @@ from string import Template
 
 WIN = platform.system() == "Windows"
 MAC = platform.system() == "Darwin"
-print("a")
 if WIN:
     import plyer
 
@@ -4877,15 +4876,9 @@ class AppFrame(wx.Frame):
             publisher = client.publisher(client.get("currentPublisher"))
             subscription = publisher.subscription(publisher.get("currentSubscription"))
             font = subscription.fontByID(subscription.get("currentFont"))
-            success, billboard, mimeType = client.resourceByURL(
-                font.getBillboardURLs()[index], binary=True
-            )
-            if success:
-                data = "data:%s;base64,%s" % (mimeType, billboard)
-            else:
-                data = font.getBillboardURLs()[index]
+            imageURL = font.getBillboardURLs()[index]
 
-            self.javaScript('$("#fontBillboard").attr("src","%s");' % (data))
+            self.javaScript('$("#fontBillboard").attr("src","%s");' % (imageURL))
             self.javaScript('$(".fontBillboardLinks").removeClass("selected");')
             self.javaScript('$("#fontBillboardLink_%s").addClass("selected");' % index)
             font.parent.parent.parent.parent.set("currentFontImage", int(index))
@@ -4937,20 +4930,12 @@ class AppFrame(wx.Frame):
                             )
 
                         html.append('<div style="max-height: 400px; height: 300px;">')
+                        imageURL = font.getBillboardURLs()[index]
 
-                        success, billboard, mimeType = client.resourceByURL(
-                            font.getBillboardURLs()[index], binary=True
+                        html.append(
+                            '<img id="fontBillboard" src="%s" style="width: 300px;">'
+                            % (imageURL)
                         )
-                        if success:
-                            html.append(
-                                '<img id="fontBillboard" src="data:%s;base64,%s" style="width: 300px;">'
-                                % (mimeType, billboard)
-                            )
-                        else:
-                            html.append(
-                                '<img id="fontBillboard" src="%s" style="width: 300px;">'
-                                % (font.getBillboardURLs()[index])
-                            )
 
                         html.append("</div>")
                         if len(font.getBillboardURLs()) > 1:
@@ -5262,23 +5247,12 @@ class AppFrame(wx.Frame):
                         )
 
                         if invitation.logoURL:
-                            success, logo, mimeType = client.resourceByURL(
-                                invitation.logoURL, binary=True
+                            html.append('<div class="logo">')
+                            html.append(
+                                '<img src="%s" style="width: 100px; height: 100px;" />'
+                                % (invitation.logoURL)
                             )
-                            if success:
-                                html.append('<div class="logo">')
-                                html.append(
-                                    '<img src="data:%s;base64,%s" style="width: 100px; height: 100px;" />'
-                                    % (mimeType, logo)
-                                )
-                                html.append("</div>")  # publisher
-                            else:
-                                html.append('<div class="logo">')
-                                html.append(
-                                    '<img src="%s" style="width: 100px; height: 100px;" />'
-                                    % (invitation.logoURL)
-                                )
-                                html.append("</div>")  # publisher
+                            html.append("</div>")  # publisher
 
                         html.append(
                             '<div class="names centerOuter"><div class="centerInner">'
@@ -5680,16 +5654,12 @@ class AppFrame(wx.Frame):
                         html.append('<div class="head clear">')
 
                         if logoURL:
-                            success, logo, mimeType = subscription.resourceByURL(
-                                logoURL, binary=True
+                            html.append('<div class="logo">')
+                            html.append(
+                                '<img src="%s" style="width: 100px; height: 100px;" />'
+                                % (logoURL)
                             )
-                            if success:
-                                html.append('<div class="logo">')
-                                html.append(
-                                    '<img src="data:%s;base64,%s" style="width: 100px; height: 100px;" />'
-                                    % (mimeType, logo)
-                                )
-                                html.append("</div>")  # publisher
+                            html.append("</div>")  # publisher
 
                         html.append(
                             '<div class="names centerOuter"><div class="centerInner">'
@@ -7188,7 +7158,6 @@ class MyApp(wx.App):
     ):
         try:
 
-            print("hidpi init")
             # Hi-DPI support on Windows, see https://discuss.wxpython.org/t/support-for-high-dpi-on-windows-10/32925/2
             try:
                 import ctypes

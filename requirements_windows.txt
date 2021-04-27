@@ -3,6 +3,7 @@ cx_freeze==6.1 # https://stackoverflow.com/questions/62951554/cx-freeze-gives-ty
 google-cloud-storage
 wheel
 psutil
+flask
 
 # GUI App
 git+https://github.com/typeworld/typeworld.git

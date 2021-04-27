@@ -196,7 +196,6 @@ function documentReady() {
 
 
 	$(".font").on("click", function () {
-		debug('font clicked');
 		showMetadata();
 	});
 
@@ -256,6 +255,7 @@ function zoom() {
 }
 
 function showMetadata() {
+	debug($("#metadataWrapper").css("display"));
 	$("#metadataWrapper").animate({ width: sideBarSize }, 300);
 	$(".main").animate({ right: sideBarSize }, 300);
 }

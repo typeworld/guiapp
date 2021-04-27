@@ -4,6 +4,7 @@
 import logging
 import os
 import sys
+from config import *
 
 # import faulthandler
 
@@ -16,23 +17,8 @@ except:
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-# Environment
-CI = os.getenv("CI", "false").lower() != "false"
 
-# Mac executable
-if "app.py" in __file__ and "/Contents/MacOS/python" in sys.executable:
-    DESIGNTIME = False
-    RUNTIME = True
-
-elif not "app.py" in __file__:
-    DESIGNTIME = False
-    RUNTIME = True
-
-else:
-    DESIGNTIME = True
-    RUNTIME = False
-
-import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, platform, logging, time
+import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, logging, time
 from threading import Thread
 import threading
 import wx.html2
@@ -44,8 +30,6 @@ from wx.lib.delayedresult import startWorker
 from multiprocessing.connection import Client
 from string import Template
 
-WIN = platform.system() == "Windows"
-MAC = platform.system() == "Darwin"
 if WIN:
     import plyer
 
@@ -192,17 +176,9 @@ if MAC:
             self.app.applyDarkMode()
 
 
-if WIN:
-    from appdirs import user_data_dir
-
-    prefDir = user_data_dir("Type.World", "Type.World")
-elif MAC:
-    prefDir = os.path.expanduser("~/Library/Preferences/")
-
-
 # Set up logging
 if WIN and DEBUG:
-    filename = os.path.join(prefDir, os.path.basename(__file__) + ".txt")
+    filename = os.path.join(PREFDIR, os.path.basename(__file__) + ".txt")
     if os.path.exists(filename):
         os.remove(filename)
     logging.basicConfig(filename=filename, level=logging.DEBUG)
@@ -467,12 +443,27 @@ class ClientDelegate(TypeWorldClientDelegate):
             """
             )
 
-    def subscriptionHasBeenDeleted(self, subscription):
-        # print("subscriptionHasBeenDeleted(%s)" % subscription)
+    def subscriptionWillDelete(self, deletedSubscription):
+        # Delete resources
+        files = []
+        for publisher in client.publishers():
+            for subscription in publisher.subscriptions():
+                if subscription != deletedSubscription:
+                    files = set(files) | set(subscription.files())
+        filestore.deleteFiles(list(set(client.files()) - set(files)))
+
+    def subscriptionHasBeenDeleted(self, deletedSubscription):
         self.app.frame.setSideBarHTML()
 
-    def publisherHasBeenDeleted(self, publisher):
-        # print("publisherHasBeenDeleted(%s)" % publisher)
+    def publisherWillDelete(self, deletedPublisher):
+        # Delete resources
+        files = []
+        for publisher in client.publishers():
+            if publisher != deletedPublisher:
+                files = set(files) | set(publisher.files())
+        filestore.deleteFiles(list(set(client.files()) - set(files)))
+
+    def publisherHasBeenDeleted(self, deletedPublisher):
         if client.get("currentPublisher"):
             if not client.publishers():
                 client.set("currentPublisher", "")
@@ -1133,114 +1124,122 @@ if MAC and RUNTIME:
         SPARKLE_PATH = os.path.join(
             os.path.dirname(__file__), "..", "Frameworks", "Sparkle.framework"
         )
-    else:
-        SPARKLE_PATH = "/Users/yanone/Code/Sparkle/Sparkle.framework"
 
-    from objc import pathForFramework, loadBundle
+        from objc import pathForFramework, loadBundle
 
-    sparkle_path = pathForFramework(SPARKLE_PATH)
-    objc_namespace = dict()
-    loadBundle("Sparkle", objc_namespace, bundle_path=sparkle_path)
+        sparkle_path = pathForFramework(SPARKLE_PATH)
+        objc_namespace = dict()
+        loadBundle("Sparkle", objc_namespace, bundle_path=sparkle_path)
 
-    sparkle = objc_namespace["SUUpdater"].sharedUpdater()
+        sparkle = objc_namespace["SUUpdater"].sharedUpdater()
 
-    def waitForUpdateToFinish(app, updater, delegate):
+        def waitForUpdateToFinish(app, updater, delegate):
 
-        client.log("Waiting for update loop to finish")
+            client.log("Waiting for update loop to finish")
 
-        while updater.updateInProgress():
-            time.sleep(1)
+            while updater.updateInProgress():
+                time.sleep(1)
 
-        client.log("Update loop finished")
+            client.log("Update loop finished")
 
-        if delegate.downloadStarted == False:
-            delegate.destroyIfRemotelyCalled()
+            if delegate.downloadStarted == False:
+                delegate.destroyIfRemotelyCalled()
 
-    from AppKit import NSObject
+        from AppKit import NSObject
 
-    class SparkleUpdateDelegate(NSObject):
-        def destroyIfRemotelyCalled(self):
-            client.log("Quitting because app was called remotely for an update")
-            global app
-            if app.startWithCommand:
-                if app.startWithCommand == "checkForUpdateInformation":
-                    app.frame.Destroy()
-                    client.log("app.frame.Destroy()")
+        class SparkleUpdateDelegate(NSObject):
+            def destroyIfRemotelyCalled(self):
+                client.log("Quitting because app was called remotely for an update")
+                global app
+                if app.startWithCommand:
+                    if app.startWithCommand == "checkForUpdateInformation":
+                        app.frame.Destroy()
+                        client.log("app.frame.Destroy()")
 
-        def updater_didAbortWithError_(self, updater, error):
-            client.log("sparkleUpdateDelegate.updater_didAbortWithError_()")
-            client.log(error)
-            self.destroyIfRemotelyCalled()
+            def updater_didAbortWithError_(self, updater, error):
+                client.log("sparkleUpdateDelegate.updater_didAbortWithError_()")
+                client.log(error)
+                self.destroyIfRemotelyCalled()
 
-        def userDidCancelDownload_(self, updater):
-            client.log("sparkleUpdateDelegate.userDidCancelDownload_()")
-            self.destroyIfRemotelyCalled()
+            def userDidCancelDownload_(self, updater):
+                client.log("sparkleUpdateDelegate.userDidCancelDownload_()")
+                self.destroyIfRemotelyCalled()
 
-        def updater_didFindValidUpdate_(self, updater, appcastItem):
+            def updater_didFindValidUpdate_(self, updater, appcastItem):
 
-            self.updateFound = True
-            self.downloadStarted = False
+                self.updateFound = True
+                self.downloadStarted = False
 
-            global app
-            app.frame.javaScript("$('#updateAvailable').slideDown();")
-            waitForUpdateThread = Thread(
-                target=waitForUpdateToFinish, args=(app, updater, self)
-            )
-            waitForUpdateThread.start()
+                global app
+                app.frame.javaScript("$('#updateAvailable').slideDown();")
+                waitForUpdateThread = Thread(
+                    target=waitForUpdateToFinish, args=(app, updater, self)
+                )
+                waitForUpdateThread.start()
 
-            client.log("sparkleUpdateDelegate.updater_didFindValidUpdate_() finished")
+                client.log(
+                    "sparkleUpdateDelegate.updater_didFindValidUpdate_() finished"
+                )
 
-        def updaterDidNotFindUpdate_(self, updater):
+            def updaterDidNotFindUpdate_(self, updater):
 
-            global app
-            app.frame.javaScript("$('#updateAvailable').slideUp();")
+                global app
+                app.frame.javaScript("$('#updateAvailable').slideUp();")
 
-            client.log("sparkleUpdateDelegate.updaterDidNotFindUpdate_()")
-            self.updateFound = False
-            self.destroyIfRemotelyCalled()
+                client.log("sparkleUpdateDelegate.updaterDidNotFindUpdate_()")
+                self.updateFound = False
+                self.destroyIfRemotelyCalled()
 
-        # Not so important
-        def updater_didFinishLoadingAppcast_(self, updater, appcast):
-            client.log("sparkleUpdateDelegate.updater_didFinishLoadingAppcast_()")
+            # Not so important
+            def updater_didFinishLoadingAppcast_(self, updater, appcast):
+                client.log("sparkleUpdateDelegate.updater_didFinishLoadingAppcast_()")
 
-        def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
-            client.log("sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()")
+            def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
+                client.log(
+                    "sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()"
+                )
 
-        def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
-            client.log("sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()")
+            def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
+                client.log(
+                    "sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()"
+                )
 
-        def updater_willDownloadUpdate_withRequest_(self, updater, appcast, request):
-            self.downloadStarted = True
-            client.log(
-                "sparkleUpdateDelegate.updater_willDownloadUpdate_withRequest_()"
-            )
+            def updater_willDownloadUpdate_withRequest_(
+                self, updater, appcast, request
+            ):
+                self.downloadStarted = True
+                client.log(
+                    "sparkleUpdateDelegate.updater_willDownloadUpdate_withRequest_()"
+                )
 
-        def updater_didDownloadUpdate_(self, updater, item):
-            client.log("sparkleUpdateDelegate.updater_didDownloadUpdate_()")
+            def updater_didDownloadUpdate_(self, updater, item):
+                client.log("sparkleUpdateDelegate.updater_didDownloadUpdate_()")
 
-        def updater_failedToDownloadUpdate_error_(self, updater, item, error):
-            client.log("sparkleUpdateDelegate.updater_failedToDownloadUpdate_error_()")
+            def updater_failedToDownloadUpdate_error_(self, updater, item, error):
+                client.log(
+                    "sparkleUpdateDelegate.updater_failedToDownloadUpdate_error_()"
+                )
 
-        def updater_willExtractUpdate_(self, updater, item):
-            client.log("sparkleUpdateDelegate.updater_willExtractUpdate_()")
+            def updater_willExtractUpdate_(self, updater, item):
+                client.log("sparkleUpdateDelegate.updater_willExtractUpdate_()")
 
-        def updater_didExtractUpdate_(self, updater, item):
-            client.log("sparkleUpdateDelegate.updater_didExtractUpdate_()")
+            def updater_didExtractUpdate_(self, updater, item):
+                client.log("sparkleUpdateDelegate.updater_didExtractUpdate_()")
 
-        def updater_willInstallUpdate_(self, updater, item):
-            client.log("sparkleUpdateDelegate.updater_willInstallUpdate_()")
+            def updater_willInstallUpdate_(self, updater, item):
+                client.log("sparkleUpdateDelegate.updater_willInstallUpdate_()")
 
-        def updaterWillRelaunchApplication_(self, updater):
-            client.log("sparkleUpdateDelegate.updater_willInstallUpdate_()")
+            def updaterWillRelaunchApplication_(self, updater):
+                client.log("sparkleUpdateDelegate.updater_willInstallUpdate_()")
 
-        def updaterWillShowModalAlert_(self, updater):
-            client.log("sparkleUpdateDelegate.updaterWillShowModalAlert_()")
+            def updaterWillShowModalAlert_(self, updater):
+                client.log("sparkleUpdateDelegate.updaterWillShowModalAlert_()")
 
-        def updaterDidShowModalAlert_(self, updater):
-            client.log("sparkleUpdateDelegate.updaterDidShowModalAlert_()")
+            def updaterDidShowModalAlert_(self, updater):
+                client.log("sparkleUpdateDelegate.updaterDidShowModalAlert_()")
 
-    sparkleDelegate = SparkleUpdateDelegate.alloc().init()
-    sparkle.setDelegate_(sparkleDelegate)
+        sparkleDelegate = SparkleUpdateDelegate.alloc().init()
+        sparkle.setDelegate_(sparkleDelegate)
 
 
 if WIN:
@@ -4881,7 +4880,7 @@ class AppFrame(wx.Frame):
             publisher = client.publisher(client.get("currentPublisher"))
             subscription = publisher.subscription(publisher.get("currentSubscription"))
             font = subscription.fontByID(subscription.get("currentFont"))
-            imageURL = f"http://0.0.0.0:{filestore.PORT}/file?url={urllib.parse.quote_plus(font.getBillboardURLs()[index])}"
+            imageURL = f"http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(font.getBillboardURLs()[index])}"
             self.javaScript('$("#fontBillboard").attr("src","%s");' % (imageURL))
             self.javaScript('$(".fontBillboardLinks").removeClass("selected");')
             self.javaScript('$("#fontBillboardLink_%s").addClass("selected");' % index)
@@ -4893,7 +4892,7 @@ class AppFrame(wx.Frame):
             )
 
     def setMetadataHTML(self, b64ID):
-        # print("setMetadataHTML()")
+        print("setMetadataHTML()", b64ID)
         try:
 
             # print("setMetadataHTML()")
@@ -4937,7 +4936,7 @@ class AppFrame(wx.Frame):
                         imageURL = font.getBillboardURLs()[index]
 
                         html.append(
-                            f'<img id="fontBillboard" src="http://0.0.0.0:{filestore.PORT}/file?url={urllib.parse.quote_plus(imageURL)}" style="width: 300px;">'
+                            f'<img id="fontBillboard" src="http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(imageURL)}" style="width: 300px;">'
                         )
 
                         html.append("</div>")
@@ -5252,7 +5251,7 @@ class AppFrame(wx.Frame):
                         if invitation.logoURL:
                             html.append('<div class="logo">')
                             html.append(
-                                f'<img src="http://0.0.0.0:{filestore.PORT}/file?url={urllib.parse.quote_plus(invitation.logoURL)}" style="width: 100px; height: 100px;" />'
+                                f'<img src="http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(invitation.logoURL)}" style="width: 100px; height: 100px;" />'
                             )
                             html.append("</div>")  # publisher
 
@@ -5658,7 +5657,7 @@ class AppFrame(wx.Frame):
                         if logoURL:
                             html.append('<div class="logo">')
                             html.append(
-                                f'<img src="http://0.0.0.0:{filestore.PORT}/file?url={urllib.parse.quote_plus(logoURL)}" style="width: 100px; height: 100px;" />'
+                                f'<img src="http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(logoURL)}" style="width: 100px; height: 100px;" />'
                             )
                             html.append("</div>")  # publisher
 
@@ -7358,7 +7357,7 @@ class MyApp(wx.App):
                 # frame.html.SetPage(html, '')
                 # frame.html.Reload()
 
-                filename = os.path.join(prefDir, "world.type.guiapp.app.html")
+                filename = os.path.join(PREFDIR, "world.type.guiapp.app.html")
                 WriteToFile(filename, html)
                 # print(filename)
                 frame.html.LoadURL("file://%s" % filename)
@@ -7597,14 +7596,14 @@ def createClient(startWithCommand=None, externallyControlled=True):
     if startWithCommand == "selftest":
         if WIN:
             prefFile = os.path.join(
-                prefDir, f"preferences.selftest.{int(time.time())}.json"
+                PREFDIR, f"preferences.selftest.{int(time.time())}.json"
             )
             prefs = JSON(prefFile)
         elif MAC:
             prefs = AppKitNSUserDefaults(f"world.type.selftest.{int(time.time())}")
     else:
         if WIN:
-            prefFile = os.path.join(prefDir, "preferences.json")
+            prefFile = os.path.join(PREFDIR, "preferences.json")
             prefs = JSON(prefFile)
         elif MAC:
             prefs = AppKitNSUserDefaults("world.type.clientapp" if DESIGNTIME else None)

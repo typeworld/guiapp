@@ -950,7 +950,7 @@ body.dark {
 
 #metadataWrapper {
 
-	display: block;
+	/* display: block; */
 	position: absolute;
 
 	right: 0px;

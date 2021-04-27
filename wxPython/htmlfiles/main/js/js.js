@@ -254,9 +254,12 @@ function zoom() {
 	// resize();
 }
 
+function resize() {
+
+}
+
 function showMetadata() {
-	debug($("#metadataWrapper").css("display"));
-	$("#metadataWrapper").animate({ width: sideBarSize }, 300);
+	$("#metadataWrapper").animate({ width: sideBarSize }, 300, function () { resize(); });
 	$(".main").animate({ right: sideBarSize }, 300);
 }
 

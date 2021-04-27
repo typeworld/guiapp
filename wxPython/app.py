@@ -4850,7 +4850,7 @@ class AppFrame(wx.Frame):
             publisher = client.publisher(client.get("currentPublisher"))
             subscription = publisher.subscription(publisher.get("currentSubscription"))
             subscription.set("currentFont", fontID)
-            font = subscription.fontByID(fontID)
+            # font = subscription.fontByID(fontID)
 
             self.setMetadataHTML(b64ID)
             self.javaScript("showMetadata();")

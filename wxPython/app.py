@@ -5461,6 +5461,9 @@ class AppFrame(wx.Frame):
 
                 if subscription and subscription.exists:
 
+                    if not subscription.get("currentFont"):
+                        self.javaScript("hideMetadata();")
+
                     success, message = subscription.protocol.endpointCommand()
                     if success:
                         endpointCommand = message

@@ -563,9 +563,6 @@ class ClientDelegate(TypeWorldClientDelegate):
                 '$(".messageQueue .connected").hide(); $(".messageQueue .disconnected").show();'
             )
 
-    # def requiresMessageQueueConnection(self):
-    #     return False
-
 
 delegate = ClientDelegate()
 client = None  # set in startApp()
@@ -2145,6 +2142,7 @@ class AppFrame(wx.Frame):
                     self.setPublisherHTML(
                         self.b64encode(client.get("currentPublisher"))
                     )
+                self.updateMessageQueueStatus()
 
             else:
 
@@ -2186,6 +2184,7 @@ class AppFrame(wx.Frame):
                 self.errorMessage(message)
             else:
                 self.onPreferences(None, "userAccount")
+                self.updateMessageQueueStatus()
 
         except Exception as e:
             client.handleTraceback(
@@ -6663,11 +6662,7 @@ class AppFrame(wx.Frame):
                     pywinsparkle.win_sparkle_check_update_without_ui()
 
             client.delegate.userAccountHasBeenUpdated()
-
-            if client._zmqRunning:
-                client.delegate.messageQueueConnected()
-            else:
-                client.delegate.messageQueueDisconnected()
+            self.updateMessageQueueStatus()
 
         except Exception as e:
             client.handleTraceback(
@@ -6707,6 +6702,13 @@ class AppFrame(wx.Frame):
         startWorker(
             self.selftest_consumer, self.selftest_worker, wargs=(None, code)
         ).join()
+
+    def updateMessageQueueStatus(self):
+        client.manageMessageQueueConnection()
+        if client._zmqRunning:
+            client.delegate.messageQueueConnected()
+        else:
+            client.delegate.messageQueueDisconnected()
 
     def sleep(self, seconds):
         return startWorker(self.sleep_consumer, self.sleep_worker, wargs=(seconds,))

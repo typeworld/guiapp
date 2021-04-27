@@ -4895,7 +4895,7 @@ class AppFrame(wx.Frame):
             )
 
     def setMetadataHTML(self, b64ID):
-        print("setMetadataHTML()", b64ID)
+        # print("setMetadataHTML()", b64ID)
         try:
 
             # print("setMetadataHTML()")

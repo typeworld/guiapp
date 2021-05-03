@@ -547,7 +547,7 @@ class ClientDelegate(TypeWorldClientDelegate):
             client.set("reloadSubscriptionsLastPerformed", int(time.time()))
             client.log("Reset reloadSubscriptionsLastPerformed")
 
-        agent("amountOutdatedFonts %s" % client.amountOutdatedFonts())
+        self.app.frame.setBadges()
 
     def clientPreferenceChanged(self, key, value):
         if key == "appUpdateProfile":
@@ -1918,7 +1918,6 @@ class AppFrame(wx.Frame):
 
             if success:
                 subscriptionsUpdatedNotification(message)
-                agent("amountOutdatedFonts %s" % client.amountOutdatedFonts())
 
                 self.javaScript(
                     (
@@ -6082,7 +6081,6 @@ class AppFrame(wx.Frame):
                     )
 
                 self.setBadges()
-                agent("amountOutdatedFonts %s" % client.amountOutdatedFonts())
 
                 if subscription and subscription.get("currentFont"):
                     self.selectFont(self.b64encode(subscription.get("currentFont")))
@@ -7036,6 +7034,7 @@ class AppFrame(wx.Frame):
                 self.setBadgeLabel(str(amount))
             else:
                 self.setBadgeLabel("")
+            agent("amountOutdatedFonts %s" % amount)
 
         # def setPublisherInstalledFontBadge(self, b64ID, string):
         #   if string:

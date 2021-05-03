@@ -1,6 +1,6 @@
 # Code Signing
 # https://stackoverflow.com/questions/5171117/import-pfx-file-into-particular-certificate-store-from-command-line
-certutil -user -p $JANGERNER_PFX_PASSWORD -importPFX wxPython\\build\\Windows\\codesigning\\jangerner.pfx NoRoot
+certutil -user -p $JANGERNER_PFX_PASSWORD -importPFX wxPython\\build\\Windows\\codesigning\\jan_gerner.p12 NoRoot
 
 # Common
 sh install_common.sh

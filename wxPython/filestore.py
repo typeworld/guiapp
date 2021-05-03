@@ -62,39 +62,41 @@ def file():
     # serve from file system
     elif fileDict:
         print("serve from file system")
-        content = open(os.path.join(FILEDIR, fileDict["filename"]), "rb").read()
+        try:
+            content = open(os.path.join(FILEDIR, fileDict["filename"]), "rb").read()
+            # Memory cache
+            memory_filestore[url] = copy.copy(fileDict)
+            memory_filestore[url]["content"] = content
+            return Response(content, mimetype=fileDict["content-type"])
+        except FileNotFoundError:
+            print("FileNotFoundError")
+            pass  # Conintue below (fetch new)
+
+    print("fetch from internet")
+    success, response, responseObject = typeworld.client.request(url, method="GET")
+    if success:
+
+        # save into DB
+        filename = str(uuid.uuid1())
+        fileDict = {
+            "filename": filename,
+            "content-type": responseObject.headers["content-type"],
+            "fetched": time.time(),
+        }
+        file = open(os.path.join(FILEDIR, filename), "wb")
+        file.write(responseObject.content)
+        file.close()
+        preferences.set(url, fileDict)
 
         # Memory cache
         memory_filestore[url] = copy.copy(fileDict)
-        memory_filestore[url]["content"] = content
-        return Response(content, mimetype=fileDict["content-type"])
+        memory_filestore[url]["content"] = responseObject.content
 
+        return Response(
+            responseObject.content, mimetype=responseObject.headers["content-type"]
+        )
     else:
-        print("fetch from internet")
-        success, response, responseObject = typeworld.client.request(url, method="GET")
-        if success:
-
-            # save into DB
-            filename = str(uuid.uuid1())
-            fileDict = {
-                "filename": filename,
-                "content-type": responseObject.headers["content-type"],
-                "fetched": time.time(),
-            }
-            file = open(os.path.join(FILEDIR, filename), "wb")
-            file.write(responseObject.content)
-            file.close()
-            preferences.set(url, fileDict)
-
-            # Memory cache
-            memory_filestore[url] = copy.copy(fileDict)
-            memory_filestore[url]["content"] = responseObject.content
-
-            return Response(
-                responseObject.content, mimetype=responseObject.headers["content-type"]
-            )
-        else:
-            return abort(500)
+        return abort(500)
 
 
 def port():

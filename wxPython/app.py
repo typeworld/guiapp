@@ -5,7 +5,6 @@ import logging
 import os
 import sys
 import subprocess
-from config import *
 
 # import faulthandler
 
@@ -19,6 +18,7 @@ except:
 sys.path.insert(0, os.path.dirname(__file__))
 
 
+from config import *
 import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, logging, time
 from threading import Thread
 import threading

@@ -28,7 +28,9 @@ options = {
             "wxPython/build/Mac/Little Snitch Translations",
             "wxPython/htmlfiles",
             "wxPython/patrons",
+            "wxPython/patrons",
             "wxPython/locales",
+            "wxPython/typeworldguiapp",
             # "appbadge.docktileplugin",
         ],
         "packages": [

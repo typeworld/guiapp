@@ -60,6 +60,7 @@ setup(
                 os.path.join(baseFolder, "icon"),
                 os.path.join(baseFolder, "patrons"),
                 os.path.join(baseFolder, "intercom"),
+                os.path.join(baseFolder, "typeworldguiapp"),
             ],
             "excludes": ["win32ctypes", "tkinter", "test"],
             "packages": [

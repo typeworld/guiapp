@@ -7055,8 +7055,9 @@ class AppFrame(wx.Frame):
     def setBadges(self):
         try:
             amount = client.amountOutdatedFonts()
-            if client.get("pendingInvitations"):
-                amount += len(client.get("pendingInvitations"))
+            pendingInvitations = client.pendingInvitations()
+            if pendingInvitations:
+                amount += len(pendingInvitations)
             if amount > 0:
                 self.setBadgeLabel(str(amount))
             else:

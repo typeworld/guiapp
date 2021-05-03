@@ -4610,13 +4610,18 @@ class AppFrame(wx.Frame):
             font = subscription.fontByID(fontID)
             version = subscription.installedFontVersion(fontID)
             folder = subscription.parent.folder()
-            font, path = subscription.fontPath(folder, fontID)
+            # font, path = subscription.fontPath(folder, fontID)
+
+            path = os.path.join(
+                folder, subscription.uniqueID() + "-" + font.filename(version)
+            )
 
             # TODO:
             # Make this for Windows, too.
-            import subprocess
+            if MAC:
+                import subprocess
 
-            subprocess.call(["open", "-R", path])
+                subprocess.call(["open", "-R", path])
 
         except Exception as e:
             client.handleTraceback(

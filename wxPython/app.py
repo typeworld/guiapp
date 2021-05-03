@@ -4329,16 +4329,6 @@ class AppFrame(wx.Frame):
                             item,
                         )
 
-                    item = wx.MenuItem(
-                        menu, wx.NewIdRef(count=1), localizeString("#(Show in Finder)")
-                    )
-                    menu.Append(item)
-                    menu.Bind(
-                        wx.EVT_MENU,
-                        partial(self.showPublisherInFinder, b64ID=b64ID),
-                        item,
-                    )
-
                     menu.AppendSeparator()
 
                     item = wx.MenuItem(
@@ -4587,23 +4577,6 @@ class AppFrame(wx.Frame):
                         (f"{js}" "documentReady();" "showPublisherPreferences();")
                     )
 
-        except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
-
-    def showPublisherInFinder(self, evt, b64ID):
-        try:
-
-            publisher = client.publisher(self.b64decode(b64ID))
-            path = publisher.folder()
-
-            if not os.path.exists(path):
-                os.makedirs(path)
-
-            import subprocess
-
-            subprocess.call(["open", path])
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e

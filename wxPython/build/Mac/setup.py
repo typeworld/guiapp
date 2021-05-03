@@ -62,6 +62,7 @@ options = {
             "collections",
             "operator",
             "keyword",
+            "flask",
             "heapq",
             "reprlib",
             "tokenize",

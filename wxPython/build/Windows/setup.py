@@ -83,6 +83,7 @@ setup(
                 "winreg",
                 "win32api",
                 "plyer",
+                "flask",
                 "pywinsparkle",
                 # "proto",
                 "win32timezone",

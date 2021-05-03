@@ -32,17 +32,15 @@ environment:
 
       # Code Signing
       JANGERNER_PFX_PASSWORD:
-        secure: SyJ1LD1C5EkoQ3BBTr50DKcS31A4tnhrS9zRAiolLJw=
+        secure: IFtScemD75puAJt7Tb008wxIubzsj3u6J7EuU1f9Bh8qtHt60W7TLDh1Iho5atndKpismj7XXpdEZdvHkPJlEg==
+      JANGERNER_PFX_SALT:
+        secure: OGLa5N9UZK9nWF0+I8kxCffV/CYw0yAX/vflAsMgIDBazIMokQmku45lgyWvcMtJuzKzFDhi181ahKIRKl50Vw==
 
       # Secure Files
-      SECUREFILE_DECODE_SECRET_1: # Forgot to note this one down in gh/access
-        secure: HkOoVoV1CRFaOQNkeqEFcwjTylsVm0Z14st2eUole9M=
       SECUREFILE_DECODE_SECRET_2: # So use this one onwards
         secure: sAO8iII4QbSEFjgrW7FybecR+m/8UK80xkPlFM3qJIQ=
       WINSPARKLE_PRIVATEKEY_DECODE_SALT:
         secure: gSsvWsS2TRkjiEvl9pP6txEemgpAkejqPjLMLw2E9UQBbq3Ewp48VEvdj/EzzOK2Crv3FCLR8ZDU63x8SLIWWQ==
-      JANGERNER_PFX_SALT:
-        secure: AbufXBFzA+Ep2imQGhKf4Iu320bYDq7OphfeC87pHEuVG3yekZpWGjiuyP7CV8Xc8zQRrG7LJQvD7IhRAAYkHg==
 
 
 
@@ -81,7 +79,7 @@ for:
 
     # Decrypt secure files
     - ps: iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
-    - cmd: appveyor-tools\secure-file -decrypt wxPython\build\Windows\codesigning\jangerner.pfx.enc -secret "%SECUREFILE_DECODE_SECRET_1%" -salt "%JANGERNER_PFX_SALT%"
+    - cmd: appveyor-tools\secure-file -decrypt wxPython\build\Windows\codesigning\jan_gerner.p12.enc -secret "%SECUREFILE_DECODE_SECRET_2%" -salt "%JANGERNER_PFX_SALT%"
     - cmd: appveyor-tools\secure-file -decrypt wxPython\build\Windows\winsparkle\dsa_priv.pem.enc -secret "%SECUREFILE_DECODE_SECRET_2%" -salt "%WINSPARKLE_PRIVATEKEY_DECODE_SALT%"
 
     # - cmd: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/windows/started/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"

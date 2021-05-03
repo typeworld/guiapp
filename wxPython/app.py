@@ -545,11 +545,28 @@ class ClientDelegate(TypeWorldClientDelegate):
 
         amountOutdatedFonts = subscription.amountOutdatedFonts()
         if amountOutdatedFonts:
+            success, endpointCommand = subscription.protocol.endpointCommand()
+            (
+                success,
+                installableFontsCommand,
+            ) = subscription.protocol.installableFontsCommand()
+            if installableFontsCommand.name:
+                subscriptionName = installableFontsCommand.name.getText(
+                    locale=client.locale()
+                )
+            else:
+                subscriptionName = localizeString("#(Unnamed)")
+            publisherName = endpointCommand.name.getText(locale=client.locale())
+
             notification(
                 localizeString("#(FontUpdatesNotificationTitle)"),
                 localizeString(
                     "#(FontUpdatesNotification)",
-                    replace={"amount": amountOutdatedFonts},
+                    replace={
+                        "amount": amountOutdatedFonts,
+                        "subscriptionName": subscriptionName,
+                        "publisherName": publisherName,
+                    },
                 ),
             )
 

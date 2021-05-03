@@ -7699,7 +7699,10 @@ def startApp(startWithCommand=None):
     # listenerThread.start()
 
     # Start App
-    app = MyApp(redirect=DEBUG and WIN, filename=startWithCommand)
+    debug = DEBUG and WIN
+    app = MyApp(
+        redirect=debug, filename=os.path.join(PREFDIR, "output.txt") if debug else None
+    )
     client.delegate.app = app
 
     # Last call, no more code after this point

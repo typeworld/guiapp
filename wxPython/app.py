@@ -1101,7 +1101,7 @@ def localizeString(string, html=False, replace={}):
         string = locales.localizeString(string, languages=client.locale(), html=html)
         if replace:
             for key in replace:
-                string = string.replace("%" + key + "%", str(replace[key]))
+                string = string.replace("%" + str(key) + "%", str(replace[key]))
 
         if html:
             # string = string.replace("\n", "")
@@ -3904,7 +3904,7 @@ class AppFrame(wx.Frame):
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
-    def removeFonts(self, fonts):
+    def removeFonts(self, fonts, reason=None):
         try:
             for b64publisherURL, b64subscriptionURL, b64fontID in fonts:
 
@@ -3915,14 +3915,16 @@ class AppFrame(wx.Frame):
                 # self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
 
             startWorker(
-                self.removeFonts_consumer, self.removeFonts_worker, wargs=([fonts])
+                self.removeFonts_consumer,
+                self.removeFonts_worker,
+                wargs=([fonts, reason]),
             )
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
             )
 
-    def removeFonts_worker(self, fonts):
+    def removeFonts_worker(self, fonts, reason=None):
         try:
             fontsBySubscription = {}
 
@@ -3952,10 +3954,17 @@ class AppFrame(wx.Frame):
                 )
 
                 if success == False:
-                    return success, message, b64publisherURL, subscription, fonts
+                    return (
+                        success,
+                        message,
+                        b64publisherURL,
+                        subscription,
+                        fonts,
+                        reason,
+                    )
 
             # TODO: differentiate between b64publisherURLs here, as fonts could be from different publishers. Works for now, until fonts can be mixed in collections
-            return True, None, b64publisherURL, subscription, fonts
+            return True, None, b64publisherURL, subscription, fonts, reason
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -3963,13 +3972,26 @@ class AppFrame(wx.Frame):
 
     def removeFonts_consumer(self, delayedResult):
         try:
-            success, message, b64publisherURL, subscription, fonts = delayedResult.get()
+            (
+                success,
+                message,
+                b64publisherURL,
+                subscription,
+                fonts,
+                reason,
+            ) = delayedResult.get()
 
             self.setFontStatuses(fonts)
 
             if success:
 
-                pass
+                if reason == "expired":
+                    notification(
+                        localizeString("#(FontExpiryNotificationTitle)"),
+                        localizeString(
+                            "#(FontExpiryNotification)", replace={"amount": len(fonts)}
+                        ),
+                    )
 
             else:
 
@@ -4187,7 +4209,7 @@ class AppFrame(wx.Frame):
                                 )
 
             if fonts:
-                self.removeFonts(fonts)
+                self.removeFonts(fonts, reason="expired")
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e

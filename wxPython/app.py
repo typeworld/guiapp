@@ -18,7 +18,7 @@ except:
 sys.path.insert(0, os.path.dirname(__file__))
 
 
-from config import *
+from app.config import *
 import wx, webbrowser, urllib.request, urllib.parse, urllib.error, base64, plistlib, json, datetime, traceback, semver, logging, time
 from threading import Thread
 import threading
@@ -39,7 +39,7 @@ from ynlib.strings import *
 from ynlib.web import GetHTTP
 from ynlib.colors import Color
 
-import filestore
+from app import filestore
 
 
 from typeworld.client import (

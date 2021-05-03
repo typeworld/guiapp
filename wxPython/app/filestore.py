@@ -12,7 +12,7 @@ import logging
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
-from config import *
+from .config import *
 
 if WIN:
     prefFile = os.path.join(PREFDIR, "filestore.json")

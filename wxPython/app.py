@@ -444,6 +444,16 @@ class ClientDelegate(TypeWorldClientDelegate):
             """
             )
 
+        pendingInvitations = client.pendingInvitations()
+        if pendingInvitations:
+            notification(
+                localizeString("#(InvitationsNotificationTitle)"),
+                localizeString(
+                    "#(InvitationsNotification)",
+                    replace={"amount": len(pendingInvitations)},
+                ),
+            )
+
     def subscriptionWillDelete(self, deletedSubscription):
         # Delete resources
         files = []

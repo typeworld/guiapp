@@ -543,6 +543,16 @@ class ClientDelegate(TypeWorldClientDelegate):
                 """
             )
 
+        amountOutdatedFonts = subscription.amountOutdatedFonts()
+        if amountOutdatedFonts:
+            notification(
+                localizeString("#(FontUpdatesNotificationTitle)"),
+                localizeString(
+                    "#(FontUpdatesNotification)",
+                    replace={"amount": amountOutdatedFonts},
+                ),
+            )
+
         if client.allSubscriptionsUpdated():
             client.set("reloadSubscriptionsLastPerformed", int(time.time()))
             client.log("Reset reloadSubscriptionsLastPerformed")

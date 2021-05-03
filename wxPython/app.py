@@ -4,6 +4,7 @@
 import logging
 import os
 import sys
+import subprocess
 from config import *
 
 # import faulthandler
@@ -4448,7 +4449,11 @@ class AppFrame(wx.Frame):
                                             item = wx.MenuItem(
                                                 menu,
                                                 wx.NewIdRef(count=1),
-                                                localizeString("#(Show in Finder)"),
+                                                localizeString("#(Show in Finder)")
+                                                if MAC
+                                                else localizeString(
+                                                    "#(Show in Explorer)"
+                                                ),
                                             )
                                             menu.Bind(
                                                 wx.EVT_MENU,
@@ -4619,9 +4624,9 @@ class AppFrame(wx.Frame):
             # TODO:
             # Make this for Windows, too.
             if MAC:
-                import subprocess
-
                 subprocess.call(["open", "-R", path])
+            if WIN:
+                subprocess.Popen(f'explorer /select,"{path}"')
 
         except Exception as e:
             client.handleTraceback(

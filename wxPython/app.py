@@ -7702,9 +7702,7 @@ def startApp(startWithCommand=None):
 
     # Start App
     debug = DEBUG and WIN
-    app = MyApp(
-        redirect=debug, filename=os.path.join(PREFDIR, "output.txt") if debug else None
-    )
+    app = MyApp(redirect=DEBUG and WIN, filename=startWithCommand)
     client.delegate.app = app
 
     # Last call, no more code after this point

@@ -266,9 +266,9 @@ if "normal" in profile:
     if "sign" in profile:
         signApp("dist/Type.World.app")
 
-    executeCommands(
-        (("Self Test", "dist/Type.World.app/Contents/MacOS/Type.World selftest", True),)
-    )
+    # executeCommands(
+    #     (("Self Test", "dist/Type.World.app/Contents/MacOS/Type.World selftest", True),)
+    # )
 
 
 if not "sign" in profile:

@@ -11,6 +11,9 @@ python wxPython/build/build-canupload.py $APP_BUILD_VERSION mac
 echo "Build"
 python wxPython/build/Mac/build-main.py $APP_BUILD_VERSION
 
+echo "Self Test"
+dist/Type.World.app/Contents/MacOS/Type.World selftest
+
 # Pack for notarization
 echo "Create .dmg"
 dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dist/TypeWorldApp.notarize.dmg

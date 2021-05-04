@@ -63,6 +63,7 @@ options = {
             "operator",
             "keyword",
             "flask",
+            "jinja2",
             "heapq",
             "reprlib",
             "tokenize",

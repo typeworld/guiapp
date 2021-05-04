@@ -73,6 +73,7 @@ options = {
             "werkzeug",  # flask
             # "html",  # flask
             "itsdangerous",  # flask
+            "click",  # flask
             "heapq",
             "reprlib",
             "tokenize",

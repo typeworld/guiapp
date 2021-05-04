@@ -21,7 +21,7 @@ options = {
     "py2app": {
         "argv_emulation": False,  # this puts the names of dropped files into sys.argv when starting the app.
         "iconfile": "wxPython/icon/tw.icns",
-        "includes": ["importlib_metadata", "os"],
+        "includes": ["importlib_metadata", "os", "html"],
         "frameworks": ["Python.framework"],
         "resources": [
             "wxPython/build/Mac/InternetAccessPolicy.plist",
@@ -66,7 +66,7 @@ options = {
             "jinja2",  # flask
             "markupsafe",  # flask
             "werkzeug",  # flask
-            # "htmlentitydefs",  # flask
+            # "html",  # flask
             "heapq",
             "reprlib",
             "tokenize",

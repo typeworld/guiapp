@@ -6841,6 +6841,29 @@ class AppFrame(wx.Frame):
             if not condition:
                 return self.quitSelftest(message, 20)
 
+            # filestore
+            (
+                success,
+                installableFontsCommand,
+            ) = subscription.protocol.installableFontsCommand()
+            assert success
+            logoURL = None
+            if installableFontsCommand.foundries[0].styling:
+                for theme in installableFontsCommand.foundries[0].styling:
+                    styling = installableFontsCommand.foundries[0].styling[theme]
+                    if "logoURL" in styling:
+                        logoURL = styling["logoURL"]
+            assert logoURL
+            url = f"http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(logoURL)}"
+            success, responseContent, response = typeworld.client.request(
+                url, method="GET"
+            )
+            success, responseContent, response = typeworld.client.request(
+                url, method="GET"
+            )
+            assert success
+            assert responseContent.decode().startswith('<?xml version="1.0" encoding="utf-8"?>')
+
             # Check user account ZMQ message
             loop = 0
             while client.delegate._accountUpdateCheck is False and loop < 10:  # wait

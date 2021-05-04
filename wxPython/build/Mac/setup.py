@@ -24,8 +24,8 @@ options = {
         "includes": [
             "importlib_metadata",
             "os",
-            "html",
-            "/Users/appveyor/.localpython3.7.9/lib/python3.7/html",
+            # "html",
+            # "/Users/appveyor/.localpython3.7.9/lib/python3.7/html",
         ],
         "frameworks": ["Python.framework"],
         "resources": [

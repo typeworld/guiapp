@@ -213,6 +213,16 @@ executeCommands(
     )
 )
 
+executeCommands(
+    (
+        (
+            "Copy html module",
+            "cp -R /Users/appveyor/.localpython3.7.9/lib/python3.7/html dist/Type.World.app/Contents/Resources/lib/python3.7/",
+            True,
+        ),
+    )
+)
+
 # executeCommands((
 # 	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
 # 	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/', True),

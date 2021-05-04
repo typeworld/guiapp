@@ -31,7 +31,7 @@ security import wxPython/build/Mac/codesigning/AppleWWDRCA.cer -k ~/Library/Keyc
 # 2) Developer Authentication Certification Authority
 security import wxPython/build/Mac/codesigning/DevAuthCA.cer -k ~/Library/Keychains/$KEYCHAIN -T /usr/bin/codesign
 # 3) Developer ID (That's you!)
-security import wxPython/build/Mac/codesigning/developerID_application.cer -k ~/Library/Keychains/$KEYCHAIN -P $MACOS_CERT_PASSWORD -T /usr/bin/codesign
+security import wxPython/build/Mac/codesigning/jangerner.p12 -k ~/Library/Keychains/$KEYCHAIN -P $MACOS_CERT_PASSWORD -T /usr/bin/codesign
 # 2>&1 >/dev/null;
 
 # Then the keychain should be unlocked. Otherwise a prompt asking for the keychain password will be displayed:

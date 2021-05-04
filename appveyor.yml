@@ -20,7 +20,7 @@ environment:
       MACOS_CERT_PASSWORD:
         secure: IFtScemD75puAJt7Tb008wxIubzsj3u6J7EuU1f9Bh8qtHt60W7TLDh1Iho5atndKpismj7XXpdEZdvHkPJlEg==
       MACOS_CERT_SALT:
-        secure: /O0kMPuNftIZlUtqxD73GgS5OnTb8SV0NFQBWfHq1EXaw5MMwsEZqsJYFi1lVO4L8NcPRCCV3+pxiIHv0u/2yQ==
+        secure: vpeEv60RRXpvdUVn7eX1Ly0Pq10S2txegZEgjqubAz1unlhxQDD405XrUgtjaDbOn9/GRcSG4p9wrZsfFGn1Gg==
       NOTARIZATION_PASSWORD:
         secure: GSx9RwIptxysFhknySGtbDVTxoLRsjNLDSDhixYAakY=
       # Secure Files
@@ -64,7 +64,7 @@ for:
     # - sh: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/mac/started/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"
     - sh: sh wxPython/build/build-canbuild.sh mac
     - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/secure-file/master/install.sh' | bash -e -
-    - sh: ./appveyor-tools/secure-file -decrypt wxPython/build/Mac/codesigning/developerID_application.cer.enc -secret $SECUREFILE_DECODE_SECRET_2 -salt $MACOS_CERT_SALT
+    - sh: ./appveyor-tools/secure-file -decrypt wxPython/build/Mac/codesigning/jangerner.p12.enc -secret $SECUREFILE_DECODE_SECRET_2 -salt $MACOS_CERT_SALT
     - sh: sh install_mac.sh
     # - sh: python -m coverage run wxPython/app.py selftest && codecov -n "Mac on AppVeyor"
   build_script: 

@@ -213,6 +213,8 @@ executeCommands(
     )
 )
 
+# Flask requirements
+# py2app doesn't copy these (at least html module)
 executeCommands(
     (
         (

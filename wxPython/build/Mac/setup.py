@@ -72,6 +72,7 @@ options = {
             "markupsafe",  # flask
             "werkzeug",  # flask
             # "html",  # flask
+            "itsdangerous",  # flask
             "heapq",
             "reprlib",
             "tokenize",

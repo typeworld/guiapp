@@ -20,7 +20,7 @@ environment:
       MACOS_CERT_PASSWORD:
         secure: IFtScemD75puAJt7Tb008wxIubzsj3u6J7EuU1f9Bh8qtHt60W7TLDh1Iho5atndKpismj7XXpdEZdvHkPJlEg==
       MACOS_CERT_SALT:
-        secure: vpeEv60RRXpvdUVn7eX1Ly0Pq10S2txegZEgjqubAz1unlhxQDD405XrUgtjaDbOn9/GRcSG4p9wrZsfFGn1Gg==
+        secure: DwdKByBf2xzjNVFfo/gM0MUpxRGAf0LbUPvhjUx10/mDEyma+EyRCnoSvx5xffT8g1Eppgkka/Pnj7MRxtKpXg==
       NOTARIZATION_PASSWORD:
         secure: GSx9RwIptxysFhknySGtbDVTxoLRsjNLDSDhixYAakY=
       # Secure Files

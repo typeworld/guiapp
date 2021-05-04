@@ -62,9 +62,10 @@ options = {
             "collections",
             "operator",
             "keyword",
-            "flask",
-            "jinja2",
-            "markupsafe",
+            "flask",  # flask
+            "jinja2",  # flask
+            "markupsafe",  # flask
+            "werkzeug",  # flask
             "heapq",
             "reprlib",
             "tokenize",

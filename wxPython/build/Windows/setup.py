@@ -64,6 +64,14 @@ setup(
             ],
             "excludes": ["win32ctypes", "tkinter", "test"],
             "packages": [
+                "flask",  # flask
+                "jinja2",  # flask
+                "markupsafe",  # flask
+                "werkzeug",  # flask
+                "itsdangerous",  # flask
+                "click",  # flask
+                "html",  # flask
+                "socketserver",  # flask
                 "zmq",
                 "typeworld",
                 "packaging",

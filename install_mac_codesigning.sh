@@ -3,10 +3,10 @@
 # great discussion on https://stackoverflow.com/questions/39868578/security-codesign-in-sierra-keychain-ignores-access-control-settings-and-ui-p
 
 # Set the filename
-export CERTIFICATE_P12=cert.p12;
+# export CERTIFICATE_P12=cert.p12;
 
 # Decode the environment variable into our file
-echo $MACOS_CERT_P12 | base64 --decode > $CERTIFICATE_P12;
+# echo $MACOS_CERT_P12 | base64 --decode > $CERTIFICATE_P12;
 
 # Let's invent a new keychain
 export KEYCHAIN=build.keychain;
@@ -31,7 +31,7 @@ security import wxPython/build/Mac/codesigning/AppleWWDRCA.cer -k ~/Library/Keyc
 # 2) Developer Authentication Certification Authority
 security import wxPython/build/Mac/codesigning/DevAuthCA.cer -k ~/Library/Keychains/$KEYCHAIN -T /usr/bin/codesign
 # 3) Developer ID (That's you!)
-security import $CERTIFICATE_P12 -k ~/Library/Keychains/$KEYCHAIN -P $MACOS_CERT_PASSWORD -T /usr/bin/codesign
+security import wxPython/build/Mac/codesigning/developerID_application.cer -k ~/Library/Keychains/$KEYCHAIN -P $MACOS_CERT_PASSWORD -T /usr/bin/codesign
 # 2>&1 >/dev/null;
 
 # Then the keychain should be unlocked. Otherwise a prompt asking for the keychain password will be displayed:
@@ -41,7 +41,7 @@ security unlock-keychain -p travis $KEYCHAIN
 security set-keychain-settings $KEYCHAIN
 
 # Let's delete the file, we no longer need it
-rm $CERTIFICATE_P12;
+# rm $CERTIFICATE_P12;
 
 # Set the partition list (sort of like an access control list)
 security set-key-partition-list -S apple-tool:,apple: -s -k travis $KEYCHAIN

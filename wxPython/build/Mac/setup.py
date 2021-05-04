@@ -66,7 +66,7 @@ options = {
             "jinja2",  # flask
             "markupsafe",  # flask
             "werkzeug",  # flask
-            "htmlentitydefs",  # flask
+            # "htmlentitydefs",  # flask
             "heapq",
             "reprlib",
             "tokenize",

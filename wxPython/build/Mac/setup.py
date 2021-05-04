@@ -21,7 +21,12 @@ options = {
     "py2app": {
         "argv_emulation": False,  # this puts the names of dropped files into sys.argv when starting the app.
         "iconfile": "wxPython/icon/tw.icns",
-        "includes": ["importlib_metadata", "os", "html"],
+        "includes": [
+            "importlib_metadata",
+            "os",
+            "html",
+            "/Users/appveyor/.localpython3.7.9/lib/python3.7/html",
+        ],
         "frameworks": ["Python.framework"],
         "resources": [
             "wxPython/build/Mac/InternetAccessPolicy.plist",

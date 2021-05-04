@@ -1,5 +1,3 @@
-python -c "import html; print(html)"
-
 # Mac Code Signing
 sh install_mac_codesigning.sh
 

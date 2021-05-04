@@ -64,6 +64,7 @@ options = {
             "keyword",
             "flask",
             "jinja2",
+            "markupsafe",
             "heapq",
             "reprlib",
             "tokenize",

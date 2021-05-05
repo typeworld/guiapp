@@ -2356,7 +2356,7 @@ class AppFrame(wx.Frame):
                         image = instance.image
                         if image:
                             html.append(
-                                f'<img src="{os.path.join(os.path.dirname(__file__), "htmlfiles", "machineModels", image)}" style="width: 80px; margin-top: 10px;">'
+                                f'<img src="file://##htmlroot##/machineModels/{image}" style="width: 80px; margin-top: 10px;">'
                             )
 
                         html.append("</div>")
@@ -2400,8 +2400,9 @@ class AppFrame(wx.Frame):
                             else:
                                 src = None
                             if src:
+                                url = f"file://##htmlroot##/machineModels/{src}"
                                 html.append(
-                                    f'<img src="{os.path.join(os.path.dirname(__file__), "htmlfiles", "machineModels", src)}" style="width: 16px; position: relative; top: 3px; margin-right: 5px;">'
+                                    f'<img src="{url}" style="width: 16px; position: relative; top: 3px; margin-right: 5px;">'
                                 )
                             html.append(instance.machineOSVersion)
 

@@ -1544,7 +1544,10 @@ class AppFrame(wx.Frame):
             #     self.Bind(wx.html2.EVT_WEBVIEW_LOADED, self.onLoad, self.html)
             sizer = wx.BoxSizer(wx.VERTICAL)
             flagsExpand = wx.SizerFlags(1)
-            flagsExpand.Expand().Border(wx.ALL, -2)
+            if WIN:
+                flagsExpand.Expand().Border(wx.ALL, -2)
+            else:
+                flagsExpand.Expand()
             sizer.Add(self.html, flagsExpand)
             self.SetSizer(sizer)
 

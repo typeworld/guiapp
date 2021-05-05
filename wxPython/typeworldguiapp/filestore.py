@@ -53,7 +53,7 @@ def file():
 
     # serve from memory
     if url in memory_filestore:
-        print("serve from memory")
+        # print("serve from memory")
         return Response(
             memory_filestore[url]["content"],
             mimetype=memory_filestore[url]["content-type"],
@@ -61,7 +61,7 @@ def file():
 
     # serve from file system
     elif fileDict:
-        print("serve from file system")
+        # print("serve from file system")
         try:
             content = open(os.path.join(FILEDIR, fileDict["filename"]), "rb").read()
             # Memory cache
@@ -69,10 +69,10 @@ def file():
             memory_filestore[url]["content"] = content
             return Response(content, mimetype=fileDict["content-type"])
         except FileNotFoundError:
-            print("FileNotFoundError")
+            # print("FileNotFoundError")
             pass  # Conintue below (fetch new)
 
-    print("fetch from internet")
+    # print("fetch from internet")
     success, response, responseObject = typeworld.client.request(url, method="GET")
     if success:
 

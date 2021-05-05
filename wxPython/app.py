@@ -6540,18 +6540,18 @@ class AppFrame(wx.Frame):
                 python('self.setPublisherHTML(____' + $(this).attr('id') + '____)');
             }
 
-                if ($(this).hasClass('selected')) {
-
-                }
-                else {
-                    $("#sidebar div.subscriptions").slideUp();
-                    $(this).parent().children(".subscriptions").slideDown();
-                }
-                $("#sidebar div.publisher").removeClass('selected');
-                $(this).parent().children(".publisher").addClass('selected');
+            if ($(this).hasClass('selected')) {
 
             }
-        );
+            else {
+                $("#sidebar div.subscriptions").slideUp();
+                $(this).parent().children(".subscriptions").slideDown();
+            }
+/*            $("#sidebar div.publisher").removeClass('selected'); */
+            $(this).parent().children(".publisher").addClass('selected');
+
+        }
+    );
 
         $("#sidebar div.subscription").click(function() {
 
@@ -6862,7 +6862,9 @@ class AppFrame(wx.Frame):
                 url, method="GET"
             )
             assert success
-            assert responseContent.decode().startswith('<?xml version="1.0" encoding="utf-8"?>')
+            assert responseContent.decode().startswith(
+                '<?xml version="1.0" encoding="utf-8"?>'
+            )
 
             # Check user account ZMQ message
             loop = 0

@@ -7085,7 +7085,10 @@ class AppFrame(wx.Frame):
                     path = path[2:]
                 # path = path.replace('Mac/', 'mac/')
 
-            html = html.replace("##htmlroot##", path)
+            if WIN:
+                html = html.replace("##htmlroot##", "/" + path)
+            else:
+                html = html.replace("##htmlroot##", path)
             return html
         except Exception as e:
             client.handleTraceback(

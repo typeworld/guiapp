@@ -2791,6 +2791,7 @@ class AppFrame(wx.Frame):
             html = html.replace('"', "'")
             html = localizeString(html, html=True)
             html = html.replace("\n", " ")
+            html = self.replaceHTML(html)
             js = '$("#preferences .centerOuter").html("<div>' + html + '</div>");'
             self.javaScript((f"{js}" "documentReady();" "showPreferences();"))
 

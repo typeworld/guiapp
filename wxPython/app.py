@@ -593,13 +593,19 @@ class ClientDelegate(TypeWorldClientDelegate):
     def messageQueueConnected(self):
         if hasattr(self, "app"):
             self.app.frame.javaScript(
-                '$(".messageQueue .connected").show(); $(".messageQueue .disconnected").hide();'
+                '$(".messageQueue .connected").show(); $(".messageQueue .error").hide(); $(".messageQueue .disconnected").hide();'
+            )
+
+    def messageQueueError(self, status=None):
+        if hasattr(self, "app"):
+            self.app.frame.javaScript(
+                '$(".messageQueue .connected").hide(); $(".messageQueue .error").show(); $(".messageQueue .disconnected").hide();'
             )
 
     def messageQueueDisconnected(self):
         if hasattr(self, "app"):
             self.app.frame.javaScript(
-                '$(".messageQueue .connected").hide(); $(".messageQueue .disconnected").show();'
+                '$(".messageQueue .connected").hide(); $(".messageQueue .error").hide(); $(".messageQueue .disconnected").show();'
             )
 
 

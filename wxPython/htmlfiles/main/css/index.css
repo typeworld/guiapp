@@ -1271,6 +1271,11 @@ body.dark {
 	display: none;
 }
 
+.messageQueue .error {
+	color: red;
+	display: none;
+}
+
 .messageQueue .disconnected {
 }
 

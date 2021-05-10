@@ -425,6 +425,12 @@ class ClientDelegate(TypeWorldClientDelegate):
         # print('fontHasUninstalled', success, message, font)
         assert type(font) == typeworld.api.Font
 
+    def userAccountIsReloading(self):
+        self.app.frame.javaScript("$('#userAccountLoading').show();")
+
+    def userAccountHasReloaded(self):
+        self.app.frame.javaScript("$('#userAccountLoading').hide();")
+
     def userAccountHasBeenUpdated(self):
         if self.app.frame.panelVisible == "preferences(userAccount)":
             self.app.frame.threadSafeExec('self.onPreferences(None, "userAccount")')

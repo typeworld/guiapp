@@ -1702,7 +1702,7 @@ class AppFrame(wx.Frame):
 
             m_ReloadCSS = menu.Append(
                 wx.NewIdRef(count=1),
-                "&Reload CSS\tCtrl-R",
+                "&Reload CSS\tCtrl-T",
             )
             self.Bind(wx.EVT_MENU, self.onReloadCSS, m_ReloadCSS)
 

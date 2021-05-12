@@ -267,6 +267,8 @@ def appIsRunning(ID):
 
 
 def notification(title, text):
+    title = localizeString(title)
+    text = localizeString(text)
     if MAC:
         notification = NSUserNotification.alloc().init()
         notification.setTitle_(title)

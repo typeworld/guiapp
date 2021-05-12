@@ -471,7 +471,28 @@ class ClientDelegate(TypeWorldClientDelegate):
                     files = set(files) | set(subscription.files())
         filestore.deleteFiles(list(set(client.files()) - set(files)))
 
-    def subscriptionHasBeenDeleted(self, deletedSubscription):
+    def subscriptionHasBeenDeleted(
+        self, deletedSubscription, withinPublisherDeletion, remotely
+    ):
+        publisher = deletedSubscription.parent
+        if publisher.subscriptions():
+            publisher.set(
+                "currentSubscription",
+                publisher.subscriptions()[-1].protocol.unsecretURL(),
+            )
+            self.app.frame.setPublisherHTML(
+                self.app.frame.b64encode(publisher.canonicalURL)
+            )
+        else:
+            client.set("currentPublisher", "")
+            self.app.frame.javaScript(("hideMain();"))
+
+        if remotely:
+            notification(
+                "#(SubscriptionHasBeenRemovedNotificationTitle)",
+                "#(SubscriptionHasBeenRemovedNotification)",
+            )
+
         self.app.frame.javaScript("hideMetadata();")
         self.app.frame.setSideBarHTML()
 
@@ -490,10 +511,15 @@ class ClientDelegate(TypeWorldClientDelegate):
         self.app.frame.javaScript("hideMetadata();")
         self.app.frame.setSideBarHTML()
 
-    def subscriptionHasBeenAdded(self, subscription):
+    def subscriptionHasBeenAdded(self, subscription, remotely):
         if not client.get("currentPublisher"):
             self.app.frame.setPublisherHTML(
                 self.app.frame.b64encode(subscription.parent.canonicalURL)
+            )
+        if remotely:
+            notification(
+                "#(SubscriptionHasBeenAddedNotificationTitle)",
+                "#(SubscriptionHasBeenAddedNotification)",
             )
 
     def subscriptionWillUpdate(self, subscription):
@@ -3710,17 +3736,6 @@ class AppFrame(wx.Frame):
 
                         if result:
                             subscription.delete()
-
-                            if publisher.subscriptions():
-                                publisher.set(
-                                    "currentSubscription",
-                                    publisher.subscriptions()[0].protocol.unsecretURL(),
-                                )
-                                self.setPublisherHTML(
-                                    self.b64encode(publisher.canonicalURL)
-                                )
-                            else:
-                                self.javaScript(("hideMain();" "hideMetadata();"))
 
             self.setSideBarHTML()
 

@@ -3499,8 +3499,6 @@ class AppFrame(wx.Frame):
     def acceptInvitation(self, url):
         try:
 
-            self.javaScript("startLoadingAnimation();")
-
             startWorker(
                 self.acceptInvitation_consumer,
                 self.acceptInvitation_worker,
@@ -3546,7 +3544,6 @@ class AppFrame(wx.Frame):
 
                 pass
 
-            self.javaScript("stopLoadingAnimation();")
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -3587,7 +3584,6 @@ class AppFrame(wx.Frame):
                                 dlg.Destroy()
 
                                 if result:
-                                    self.javaScript("startLoadingAnimation();")
                                     startWorker(
                                         self.declineInvitation_consumer,
                                         self.declineInvitation_worker,
@@ -3650,8 +3646,6 @@ class AppFrame(wx.Frame):
             else:
 
                 pass
-
-            self.javaScript("stopLoadingAnimation();")
 
         except Exception as e:
             client.handleTraceback(

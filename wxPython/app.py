@@ -1179,7 +1179,13 @@ def localizeString(string, html=False, replace={}):
         string = locales.localizeString(string, languages=client.locale(), html=html)
         if replace:
             for key in replace:
-                string = string.replace("%" + str(key) + "%", str(replace[key]))
+                if type(replace[key]) == dict:
+                    text = typeworld.api.MultiLanguageText(dict=replace[key])
+                    string = string.replace(
+                        "%" + str(key) + "%", text.getText(client.locale())
+                    )
+                else:
+                    string = string.replace("%" + str(key) + "%", str(replace[key]))
 
         if html:
             # string = string.replace("\n", "")

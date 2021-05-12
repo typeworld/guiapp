@@ -488,9 +488,20 @@ class ClientDelegate(TypeWorldClientDelegate):
             self.app.frame.javaScript(("hideMain();"))
 
         if remotely:
+            (
+                success,
+                installableFontsCommand,
+            ) = deletedSubscription.protocol.installableFontsCommand()
+            success, endpointCommand = deletedSubscription.protocol.endpointCommand()
             notification(
                 "#(SubscriptionHasBeenRemovedNotificationTitle)",
-                "#(SubscriptionHasBeenRemovedNotification)",
+                localizeString(
+                    "#(SubscriptionHasBeenRemovedNotification)",
+                    replace={
+                        "subscription": installableFontsCommand.name or "#(Unnamed)",
+                        "publisher": endpointCommand.name,
+                    },
+                ),
             )
 
         self.app.frame.javaScript("hideMetadata();")
@@ -517,9 +528,20 @@ class ClientDelegate(TypeWorldClientDelegate):
                 self.app.frame.b64encode(subscription.parent.canonicalURL)
             )
         if remotely:
+            (
+                success,
+                installableFontsCommand,
+            ) = subscription.protocol.installableFontsCommand()
+            success, endpointCommand = subscription.protocol.endpointCommand()
             notification(
                 "#(SubscriptionHasBeenAddedNotificationTitle)",
-                "#(SubscriptionHasBeenAddedNotification)",
+                localizeString(
+                    "#(SubscriptionHasBeenAddedNotification)",
+                    replace={
+                        "subscription": installableFontsCommand.name or "#(Unnamed)",
+                        "publisher": endpointCommand.name,
+                    },
+                ),
             )
 
     def subscriptionWillUpdate(self, subscription):

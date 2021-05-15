@@ -3475,6 +3475,11 @@ class AppFrame(wx.Frame):
     def addSubscription_worker(self, url, username, password):
         try:
 
+            # import cProfile
+
+            # profile = cProfile.Profile()
+            # profile.enable()
+
             for protocol in typeworld.api.PROTOCOLS:
                 url = url.replace(protocol + "//", protocol + "://")
             # url = url.replace('http//', 'http://')
@@ -3498,6 +3503,9 @@ class AppFrame(wx.Frame):
             success, message, publisher, subscription = client.addSubscription(
                 url, username, password
             )
+
+            # profile.disable()
+            # profile.print_stats(sort="time")
 
             return success, message, publisher, subscription
         except Exception as e:

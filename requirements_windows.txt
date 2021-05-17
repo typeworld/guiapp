@@ -4,6 +4,7 @@ google-cloud-storage
 wheel
 psutil
 flask
+markdown2
 
 # GUI App
 git+https://github.com/typeworld/typeworld.git

@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 import subprocess
+import markdown2
 
 # import faulthandler
 
@@ -5077,11 +5078,49 @@ class AppFrame(wx.Frame):
                     )
                     html.append('<div class="categories">')
 
+                    def fontHasInformation(font):
+                        if font.parent.description:
+                            return True
+                        if font.dateFirstPublished or font.parent.dateFirstPublished:
+                            return True
+                        if font.pdfURL or font.parent.pdfURL:
+                            return True
+                        if font.parent.galleryURL:
+                            return True
+                        if font.parent.sourceURL:
+                            return True
+                        if font.getDesigners():
+                            return True
+                        return False
+
+                    def fontHasHelp(font):
+                        if font.parent.issueTrackerURL:
+                            return True
+                        if font.parent.parent.supportEmail:
+                            return True
+                        if font.parent.parent.supportTelephone:
+                            return True
+                        if font.parent.parent.supportURL:
+                            return True
+                        return False
+
+                    def fontHasFoundryInformation(font):
+                        # if font.parent.issueTrackerURL:
+                        #     return True
+                        # if font.parent.parent.supportEmail:
+                        #     return True
+                        # if font.parent.parent.supportTelephone:
+                        #     return True
+                        # if font.parent.parent.supportURL:
+                        #     return True
+                        return False
+
                     for keyword, name, condition in (
-                        ("license", "#(License)", True),
-                        ("information", "#(Information)", font.parent.description),
                         ("versions", "#(Versions)", True),
-                        # 				('billboardURLs', '#(Images)', font.getBillboardURLs()),
+                        ("information", "#(Information)", fontHasInformation(font)),
+                        ("license", "#(License)", True),
+                        ("help", "#(Help)", fontHasHelp(font)),
+                        ("foundry", "#(Foundry)", fontHasFoundryInformation(font)),
                     ):
 
                         if condition:
@@ -5199,7 +5238,8 @@ class AppFrame(wx.Frame):
                             license = usedLicense.getLicense()
                             html.append("<div>")
                             html.append(
-                                "<p>%s<br />" % license.name.getText(client.locale())
+                                '<p><span class="metadataCategory lighter">%s</span><br />'
+                                % license.name.getText(client.locale())
                             )
                             html.append(
                                 '<a href="%s">%s&thinsp;↗︎</a></p>'
@@ -5224,12 +5264,169 @@ class AppFrame(wx.Frame):
                                 html.append("</p>")
                             html.append("</div>")
 
+                    # def fontHasHelp(font):
+                    #     if font.parent.issueTrackerURL:
+                    #         return True
+                    #     if font.parent.parent.supportEmail:
+                    #         return True
+                    #     if font.parent.parent.supportTelephone:
+                    #         return True
+                    #     if font.parent.parent.supportURL:
+                    #         return True
+                    #     return False
+
+                    if (
+                        client.get("metadataCategory") == "help"
+                        and font.parent.description
+                    ):
+
+                        # URLs
+                        if font.parent.issueTrackerURL:
+                            html.append(
+                                '<p><span class="metadataCategory lighter">#(Issue Tracker)</span></p>'
+                            )
+                            html.append("<p>")
+                            html.append(
+                                f'<span class="material-icons">track_changes</span> <a href="{font.parent.issueTrackerURL}">{font.parent.issueTrackerURL}</a><br />'
+                            )
+                            html.append("</p>")
+                            html.append("<br />")
+
+                        if (
+                            font.parent.parent.supportEmail
+                            or font.parent.parent.supportTelephone
+                            or font.parent.parent.supportURL
+                        ):
+                            html.append(
+                                '<p><span class="metadataCategory lighter">#(Support)</span></p>'
+                            )
+                            html.append("<p>")
+                            if font.parent.parent.supportEmail:
+                                html.append(
+                                    f'<span class="material-icons">email</span> <a href="mailto:{font.parent.parent.supportEmail}" alt="{font.parent.parent.supportEmail}">#(Email)</a><br />'
+                                )
+                            if font.parent.parent.supportTelephone:
+                                html.append(
+                                    f'<span class="material-icons">call</span> {font.parent.parent.supportTelephone}<br />'
+                                )
+                            if font.parent.parent.supportURL:
+                                html.append(
+                                    f'<span class="material-icons">help_center</span> <a href="{font.parent.parent.supportURL}" alt="{font.parent.parent.supportURL}">#(Support Website)</a><br />'
+                                )
+                            html.append("</p>")
+                            html.append("<br />")
+
+                    # def fontHasInformation(font):
+                    #     if font.parent.description:
+                    #         return True
+                    #     if font.dateFirstPublished or font.parent.dateFirstPublished:
+                    #         return True
+                    #     if font.pdfURL or font.parent.pdfURL:
+                    #         return True
+                    #     if font.parent.galleryURL:
+                    #         return True
+                    #     if font.parent.sourceURL:
+                    #         return True
+                    #     if font.getDesigners():
+                    #         return True
+                    #     return False
+
                     if (
                         client.get("metadataCategory") == "information"
                         and font.parent.description
                     ):
-                        text, locale = font.parent.description.getTextAndLocale()
-                        html.append("%s" % text)
+
+                        # URLs
+                        if (
+                            font.pdfURL
+                            or font.parent.pdfURL
+                            or font.parent.galleryURL
+                            or font.parent.sourceURL
+                        ):
+                            html.append(
+                                '<p><span class="metadataCategory lighter">#(Links)</span></p>'
+                            )
+                            html.append("<p>")
+                            if font.pdfURL or font.parent.pdfURL:
+                                html.append(
+                                    f'<span class="material-icons">picture_as_pdf</span> <a href="{font.pdfURL or font.parent.pdfURL}" alt="{font.pdfURL or font.parent.pdfURL}">PDF&thinsp;↗︎</a><br />'
+                                )
+                            if font.parent.galleryURL:
+                                html.append(
+                                    f'<span class="material-icons">image</span> <a href="{font.parent.galleryURL}" alt="{font.parent.galleryURL}">#(Gallery)&thinsp;↗︎</a><br />'
+                                )
+                            html.append("</p>")
+                            if font.parent.sourceURL:
+                                html.append(
+                                    f'<span class="material-icons">construction</span> <a href="{font.parent.sourceURL}" alt="{font.parent.sourceURL}">#(Source)&thinsp;↗︎</a><br />'
+                                )
+                            html.append("</p>")
+                            html.append("<br />")
+
+                        # Description
+                        if font.parent.description:
+                            text, locale = font.parent.description.getTextAndLocale(
+                                locale=client.locale()
+                            )
+                            html.append("<p>")
+                            html.append(
+                                '<span class="metadataCategory lighter">#(Description)</span>'
+                            )
+                            html.append("</p>")
+                            html.append(markdown2.markdown(text))
+                            html.append("<br />")
+
+                        # dateFirstPublished
+                        if font.dateFirstPublished or font.parent.dateFirstPublished:
+                            html.append("<p>")
+                            html.append(
+                                '<span class="metadataCategory lighter">#(Published)</span>'
+                            )
+                            html.append("</p>")
+                            html.append("<p>")
+                            html.append(
+                                locales.formatDate(
+                                    time.mktime(
+                                        datetime.date.fromisoformat(
+                                            font.dateFirstPublished
+                                            or font.parent.dateFirstPublished
+                                        ).timetuple()
+                                    ),
+                                    client.locale(),
+                                )
+                            )
+                            html.append("</p>")
+                            html.append("<br />")
+
+                        # Designers
+                        if font.getDesigners():
+                            html.append("<p>")
+                            html.append(
+                                '<span class="metadataCategory lighter">#(Designers)</span>'
+                            )
+                            html.append("</p>")
+                            for designer in font.getDesigners():
+                                name, locale = designer.name.getTextAndLocale(
+                                    locale=client.locale()
+                                )
+                                html.append("<p>")
+                                html.append("<b>")
+                                html.append(name)
+                                html.append("</b>")
+                                if designer.websiteURL:
+                                    html.append(
+                                        f'<a href="{designer.websiteURL}" alt="{designer.websiteURL}">&thinsp;↗︎</a>'
+                                    )
+                                html.append("<br />")
+                                (
+                                    description,
+                                    locale,
+                                ) = designer.description.getTextAndLocale(
+                                    locale=client.locale()
+                                )
+                                html.append(description)
+                                html.append("</p>")
+                            html.append("<br />")
 
                     if client.get("metadataCategory") == "versions":
                         html.append("<div>")
@@ -5321,6 +5518,7 @@ class AppFrame(wx.Frame):
                 html = self.replaceHTML(html)
                 js = '$("#metadata .content").html("' + html + '");'
                 self.javaScript(js)
+                self.javaScript("documentReady();")
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e

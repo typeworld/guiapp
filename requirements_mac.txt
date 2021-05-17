@@ -3,6 +3,7 @@ py2app
 pystray
 wxPython
 flask
+markdown2
 
 # weird app dependencies
 jsonpickle

@@ -350,7 +350,7 @@ label {
 
 }
 
-#sidebar .headline {
+#sidebar .headline, .metadataCategory {
 	font-size: 75%;
 	text-transform: uppercase;
 	font-weight: bold;
@@ -1007,8 +1007,8 @@ body.dark {
 	word-wrap: normal;
 }
 
-#metadata .categoryBody.license, .categoryBody.information, .categoryBody.versions {
-	padding: 10px 7px 10px 15px; /* top right bottom left */
+#metadata .categoryBody.license, .categoryBody.information, .categoryBody.versions, .categoryBody.help {
+	padding: 10px 10px 20px 15px; /* top right bottom left */
 }
 
 
@@ -1028,6 +1028,17 @@ body.dark {
 	margin-bottom: 8px;
 }
 
+.metadataCategory {
+	/* font-size: 75%;
+	text-transform: uppercase;
+	font-weight: bold;
+	letter-spacing: 2px; */
+    padding: 15px;
+    padding-bottom: 12px;
+    padding-left: 0px;
+    padding-right: 20px;
+	opacity: .8;
+}
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 

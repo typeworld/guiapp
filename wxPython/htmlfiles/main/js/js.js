@@ -269,6 +269,10 @@ function hideMetadata() {
 }
 
 
+function startMinutely() {
+	setTimeout(function () { python('self.minutely()'); setInterval(function () { python('self.minutely()'); }, 1000 * 30); }, 0); // First load after 2 seconds
+}
+
 
 
 $(document).ready(function () {
@@ -279,7 +283,6 @@ $(document).ready(function () {
 
 	documentReady();
 
-	setTimeout(function () { python('self.minutely()'); setInterval(function () { python('self.minutely()'); }, 1000 * 30); }, 2000); // First load after 2 seconds
 	// setTimeout(function () { recalcMinutesCountdown(); }, 3000); // First load after 3 seconds	
 
 	$('#addSubscription #url').keyup(function () { if ($('#addSubscription #url').val().startsWith("typeworldgithub://")) { $('#addSubscription #authenticationCheckBox').slideDown(); } else { $('#addSubscription #authenticationCheckBox').slideUp(); } });

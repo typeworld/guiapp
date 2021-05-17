@@ -6695,6 +6695,7 @@ class AppFrame(wx.Frame):
         try:
 
             self.fullyLoaded = True
+            self.javaScript("startMinutely();")
 
             if MAC:
                 self.javaScript("MAC = true; $('#sidebar').css('padding-top', '32px');")

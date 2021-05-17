@@ -4735,7 +4735,7 @@ class AppFrame(wx.Frame):
             self.wentOffline()
             self.online = False
 
-        # If offline, call method anyway to display warning un UI
+        # If offline, call method anyway to display warning in UI
         elif not self.online and not isOnline:
             self.pullServerUpdates(force=True)
 

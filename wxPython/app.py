@@ -544,6 +544,10 @@ class ClientDelegate(TypeWorldClientDelegate):
                 ),
             )
 
+        else:
+            uploadThread = Thread(target=client.uploadSubscriptions)
+            uploadThread.start()
+
     def subscriptionWillUpdate(self, subscription):
         b64publisherID = self.app.frame.b64encode(subscription.parent.canonicalURL)
         b64subscriptionID = self.app.frame.b64encode(

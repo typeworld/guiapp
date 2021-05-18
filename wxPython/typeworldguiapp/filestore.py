@@ -148,5 +148,5 @@ PORT = port()
 
 server_address = ("127.0.0.1", PORT)
 httpd = HTTPServer(server_address, S)
-listenerThread = threading.Thread(target=httpd.serve_forever)
+listenerThread = threading.Thread(target=httpd.serve_forever, daemon=True)
 listenerThread.start()

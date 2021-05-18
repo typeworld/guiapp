@@ -2144,6 +2144,7 @@ class AppFrame(wx.Frame):
                         "$('body').addClass('%s');" % self.theme()
                     )
                 )
+                self.redraw()
 
         except Exception as e:
             client.handleTraceback(

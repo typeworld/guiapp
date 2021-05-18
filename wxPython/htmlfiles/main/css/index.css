@@ -1014,12 +1014,9 @@ body.dark {
 
 .fontBillboardLinks {
 	padding: 2px;
-	color: gray;
 }
 
 .fontBillboardLinks.selected {
-	color: black;
-	
 }
 
 
@@ -1037,7 +1034,7 @@ body.dark {
     padding-bottom: 12px;
     padding-left: 0px;
     padding-right: 20px;
-	opacity: .8;
+	/* opacity: .5; */
 }
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */

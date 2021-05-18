@@ -287,27 +287,6 @@ def notification(title, text):
         )
 
 
-def subscriptionsUpdatedNotification(message):
-    if type(message) == int:
-        if message > 0:
-            notification(
-                localizeString("#(Subscriptions added)"),
-                localizeString(
-                    "#(SubscriptionAddedLongText)", replace={"number": abs(message)}
-                ),
-            )
-        if message < 0:
-            notification(
-                localizeString("#(Subscriptions removed)"),
-                localizeString(
-                    "#(SubscriptionRemovedLongText)", replace={"number": abs(message)}
-                ),
-            )
-
-
-# Read app version number
-
-
 def getFileProperties(fname):
     """
     Read all properties of the given file return them as a dictionary.
@@ -2043,8 +2022,6 @@ class AppFrame(wx.Frame):
             self.setBadges()
 
             if success:
-                subscriptionsUpdatedNotification(message)
-
                 self.javaScript(
                     (
                         '$("#sidebarBottom .alert").hide();'

@@ -9,3 +9,5 @@
 #(response.linkingMoreAppInstancesRequiresProUserAccount.headline)
 #(response.invitationsRequireProAccount)
 #(response.invitationsRequireProAccount.headline)
+#(response.fontExpired)
+#(response.fontExpired.headline)

@@ -1960,6 +1960,7 @@ class AppFrame(wx.Frame):
             client.quit()
 
             # client.log('onQuit()')
+            filestore.httpd.shutdown()
 
             while locked():
                 client.log("Waiting for locks to disappear")

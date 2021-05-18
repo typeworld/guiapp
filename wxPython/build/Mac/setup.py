@@ -67,15 +67,15 @@ options = {
             "collections",
             "operator",
             "keyword",
-            "flask",  # flask
-            "jinja2",  # flask
-            "markupsafe",  # flask
-            "werkzeug",  # flask
-            # "html",  # flask
-            "itsdangerous",  # flask
-            "click",  # flask
-            "dataclasses",  # flask
-            "secrets",  # flask
+            # "flask",  # flask
+            # "jinja2",  # flask
+            # "markupsafe",  # flask
+            # "werkzeug",  # flask
+            # # "html",  # flask
+            # "itsdangerous",  # flask
+            # "click",  # flask
+            # "dataclasses",  # flask
+            # "secrets",  # flask
             "heapq",
             "reprlib",
             "tokenize",

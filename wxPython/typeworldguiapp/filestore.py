@@ -1,4 +1,6 @@
-from flask import Flask, request, abort, Response
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import urlparse
+
 import threading
 import socket
 import urllib.parse
@@ -23,7 +25,6 @@ elif MAC:
         "world.type.guiapp.filestore" if RUNTIME else "world.type.clientapp.filestore"
     )
 
-app = Flask(__name__)
 
 # Memory cache
 memory_filestore = {}
@@ -51,7 +52,6 @@ def base64URL(url):
             + ";base64,"
             + base64.b64encode(content).decode()
         )
-        # return Response(content, mimetype=fileDict["content-type"])
         return b64
 
     return f"http://127.0.0.1:{PORT}/file?url={urllib.parse.quote_plus(url)}"
@@ -74,57 +74,65 @@ def deleteFiles(urls):
                 preferences.remove(url)
 
 
-@app.route("/file", methods=["GET"])
-def file():
-    url = urllib.parse.unquote(request.values.get("url"))
-    fileDict = preferences.get(url) or {}
+class S(BaseHTTPRequestHandler):
+    def do_GET(self):
 
-    # serve from memory
-    if url in memory_filestore:
-        # print("serve from memory")
-        return Response(
-            memory_filestore[url]["content"],
-            mimetype=memory_filestore[url]["content-type"],
-        )
+        query = urlparse(self.path).query
+        query_components = dict(qc.split("=") for qc in query.split("&"))
 
-    # serve from file system
-    elif fileDict:
-        # print("serve from file system")
-        try:
-            content = open(os.path.join(FILEDIR, fileDict["filename"]), "rb").read()
+        url = urllib.parse.unquote(query_components["url"])
+        fileDict = preferences.get(url) or {}
+
+        # serve from memory
+        if url in memory_filestore:
+            # print("serve from memory")
+            self.send_response(200)
+            self.send_header("Content-type", memory_filestore[url]["content-type"])
+            self.end_headers()
+            self.wfile.write(memory_filestore[url]["content"])
+
+        # serve from file system
+        elif fileDict:
+            # print("serve from file system")
+            try:
+                content = open(os.path.join(FILEDIR, fileDict["filename"]), "rb").read()
+                # Memory cache
+                memory_filestore[url] = copy.copy(fileDict)
+                memory_filestore[url]["content"] = content
+
+                self.send_response(200)
+                self.send_header("Content-type", fileDict["content-type"])
+                self.end_headers()
+                self.wfile.write(content)
+
+            except FileNotFoundError:
+                # print("FileNotFoundError")
+                pass  # Conintue below (fetch new)
+
+        # print("fetch from internet")
+        success, response, responseObject = typeworld.client.request(url, method="GET")
+        if success:
+
+            # save into DB
+            filename = str(uuid.uuid1())
+            fileDict = {
+                "filename": filename,
+                "content-type": responseObject.headers["content-type"],
+                "fetched": time.time(),
+            }
+            file = open(os.path.join(FILEDIR, filename), "wb")
+            file.write(responseObject.content)
+            file.close()
+            preferences.set(url, fileDict)
+
             # Memory cache
             memory_filestore[url] = copy.copy(fileDict)
-            memory_filestore[url]["content"] = content
-            return Response(content, mimetype=fileDict["content-type"])
-        except FileNotFoundError:
-            # print("FileNotFoundError")
-            pass  # Conintue below (fetch new)
+            memory_filestore[url]["content"] = responseObject.content
 
-    # print("fetch from internet")
-    success, response, responseObject = typeworld.client.request(url, method="GET")
-    if success:
-
-        # save into DB
-        filename = str(uuid.uuid1())
-        fileDict = {
-            "filename": filename,
-            "content-type": responseObject.headers["content-type"],
-            "fetched": time.time(),
-        }
-        file = open(os.path.join(FILEDIR, filename), "wb")
-        file.write(responseObject.content)
-        file.close()
-        preferences.set(url, fileDict)
-
-        # Memory cache
-        memory_filestore[url] = copy.copy(fileDict)
-        memory_filestore[url]["content"] = responseObject.content
-
-        return Response(
-            responseObject.content, mimetype=responseObject.headers["content-type"]
-        )
-    else:
-        return abort(500)
+            self.send_response(200)
+            self.send_header("Content-type", responseObject.headers["content-type"])
+            self.end_headers()
+            self.wfile.write(responseObject.content)
 
 
 def port():
@@ -137,9 +145,8 @@ def port():
 
 PORT = port()
 
-server = threading.Thread(
-    target=app.run,
-    kwargs={"host": "127.0.0.1", "port": PORT, "debug": False, "use_reloader": False},
-    daemon=True,
-)
-server.start()
+
+server_address = ("127.0.0.1", PORT)
+httpd = HTTPServer(server_address, S)
+listenerThread = threading.Thread(target=httpd.serve_forever)
+listenerThread.start()

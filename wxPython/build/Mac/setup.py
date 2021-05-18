@@ -75,6 +75,7 @@ options = {
             "itsdangerous",  # flask
             "click",  # flask
             "dataclasses",  # flask
+            "secrets",  # flask
             "heapq",
             "reprlib",
             "tokenize",

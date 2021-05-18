@@ -1932,16 +1932,27 @@ class AppFrame(wx.Frame):
                 result = dlg.ShowModal()
                 if result == wx.ID_YES:
 
-                    fontIDs = [x.uniqueID for x in expiringInstalledFonts]
-                    (
-                        success,
-                        message,
-                    ) = font.parent.parent.parent.parent.subscription.removeFonts(
-                        fontIDs
-                    )
-                    if not success:
-                        self.errorMessage(message, "Error deleting fonts")
-                        return
+                    fontsBySubscription = {}
+
+                    # fontIDs = [x.uniqueID for x in expiringInstalledFonts]
+
+                    # Sort fonts by subscription
+                    for font in expiringInstalledFonts:
+                        subscription = font.parent.parent.parent.parent.subscription
+                        if not subscription in fontsBySubscription:
+                            fontsBySubscription[subscription] = []
+                        fontsBySubscription[subscription].append(font.uniqueID)
+
+                    print(fontsBySubscription)
+
+                    for subscription in fontsBySubscription:
+                        (
+                            success,
+                            message,
+                        ) = subscription.removeFonts(fontsBySubscription[subscription])
+                        if not success:
+                            self.errorMessage(message, "Error deleting fonts")
+                            return
 
                 else:
                     return

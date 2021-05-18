@@ -8,6 +8,7 @@ import uuid
 import time
 import copy
 import logging
+import base64
 
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
@@ -26,6 +27,34 @@ app = Flask(__name__)
 
 # Memory cache
 memory_filestore = {}
+
+
+def base64URL(url):
+    fileDict = preferences.get(url) or {}
+
+    # serve from memory
+    if url in memory_filestore:
+        content = memory_filestore[url]["content"]
+        contentType = memory_filestore[url]["content-type"]
+        b64 = "data:" + contentType + ";base64," + base64.b64encode(content).decode()
+        return b64
+
+    # serve from file system
+    elif fileDict:
+        content = open(os.path.join(FILEDIR, fileDict["filename"]), "rb").read()
+        # Memory cache
+        memory_filestore[url] = copy.copy(fileDict)
+        memory_filestore[url]["content"] = content
+        b64 = (
+            "data:"
+            + fileDict["content-type"]
+            + ";base64,"
+            + base64.b64encode(content).decode()
+        )
+        # return Response(content, mimetype=fileDict["content-type"])
+        return b64
+
+    return f"http://127.0.0.1:{PORT}/file?url={urllib.parse.quote_plus(url)}"
 
 
 def deleteFiles(urls):
@@ -48,7 +77,6 @@ def deleteFiles(urls):
 @app.route("/file", methods=["GET"])
 def file():
     url = urllib.parse.unquote(request.values.get("url"))
-
     fileDict = preferences.get(url) or {}
 
     # serve from memory

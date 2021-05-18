@@ -1956,9 +1956,6 @@ class AppFrame(wx.Frame):
                 else:
                     return
 
-            # filestore.server.terminate()
-            # filestore.server.join()
-
             self.active = False
             client.quit()
 
@@ -4994,7 +4991,7 @@ class AppFrame(wx.Frame):
             publisher = client.publisher(client.get("currentPublisher"))
             subscription = publisher.subscription(publisher.get("currentSubscription"))
             font = subscription.fontByID(subscription.get("currentFont"))
-            imageURL = f"http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(font.getBillboardURLs()[index])}"
+            imageURL = filestore.base64URL(font.getBillboardURLs()[index])
             self.javaScript('$("#fontBillboard").attr("src","%s");' % (imageURL))
             self.javaScript('$(".fontBillboardLinks").removeClass("selected");')
             self.javaScript('$("#fontBillboardLink_%s").addClass("selected");' % index)
@@ -5050,7 +5047,7 @@ class AppFrame(wx.Frame):
                         imageURL = font.getBillboardURLs()[index]
 
                         html.append(
-                            f'<img id="fontBillboard" src="http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(imageURL)}" style="width: 300px;">'
+                            f'<img id="fontBillboard" src="{filestore.base64URL(imageURL)}" style="width: 300px;">'
                         )
 
                         html.append("</div>")
@@ -5612,7 +5609,7 @@ class AppFrame(wx.Frame):
                         if invitation.logoURL:
                             html.append('<div class="logo">')
                             html.append(
-                                f'<img src="http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(invitation.logoURL)}" style="width: 100px; height: 100px;" />'
+                                f'<img src="{filestore.base64URL(invitation.logoURL)}" style="width: 100px; height: 100px;" />'
                             )
                             html.append("</div>")  # publisher
 
@@ -6021,7 +6018,7 @@ class AppFrame(wx.Frame):
                         if logoURL:
                             html.append('<div class="logo">')
                             html.append(
-                                f'<img src="http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(logoURL)}" style="width: 100px; height: 100px;" />'
+                                f'<img src="{filestore.base64URL(logoURL)}" style="width: 100px; height: 100px;" />'
                             )
                             html.append("</div>")  # publisher
 
@@ -7170,7 +7167,7 @@ class AppFrame(wx.Frame):
                     if "logoURL" in styling:
                         logoURL = styling["logoURL"]
             assert logoURL
-            url = f"http://127.0.0.1:{filestore.PORT}/file?url={urllib.parse.quote_plus(logoURL)}"
+            url = filestore.base64URL(logoURL)
             success, responseContent, response = typeworld.client.request(
                 url, method="GET"
             )

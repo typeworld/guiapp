@@ -74,6 +74,7 @@ options = {
             # "html",  # flask
             "itsdangerous",  # flask
             "click",  # flask
+            "dataclasses",  # flask
             "heapq",
             "reprlib",
             "tokenize",

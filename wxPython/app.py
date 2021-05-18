@@ -5215,7 +5215,7 @@ class AppFrame(wx.Frame):
 
                                 if licenseLink:
                                     html.append(
-                                        '<div style="float: left; width: 140px; height: 100px; text-align: left; display: table;">'
+                                        '<div style="float: left; width: 130px; height: 100px; text-align: left; display: table;">'
                                     )
                                     html.append(
                                         '<div style="display: table-cell; vertical-align: middle; ">'

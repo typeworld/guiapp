@@ -645,7 +645,7 @@ class ClientDelegate(TypeWorldClientDelegate):
             client.set("reloadSubscriptionsLastPerformed", int(time.time()))
             client.log("Reset reloadSubscriptionsLastPerformed")
 
-        self.app.frame.setBadges()
+        self.app.frame.redraw()
 
     def clientPreferenceChanged(self, key, value):
         if key == "appUpdateProfile":
@@ -3987,9 +3987,8 @@ class AppFrame(wx.Frame):
                     self.javaScript('$(".font.%s").removeClass("loading");' % b64fontID)
                 self.errorMessage(message, subscription=subscription)
 
-            self.setSideBarHTML()
-            self.setBadges()
-            self.setPublisherHTML(b64publisherURL)
+            self.redraw()
+
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
@@ -4110,9 +4109,8 @@ class AppFrame(wx.Frame):
                 else:
                     self.errorMessage("Server: %s" % message.getText(client.locale()))
 
-            self.setSideBarHTML()
-            self.setBadges()
-            self.setPublisherHTML(b64publisherURL)
+            self.redraw()
+
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e

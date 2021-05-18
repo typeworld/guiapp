@@ -2009,17 +2009,7 @@ class AppFrame(wx.Frame):
         try:
             success, message = delayedResult.get()
             client.manageMessageQueueConnection()
-
-            # print(success, message)
-
-            self.setSideBarHTML()
-            if client.get("currentPublisher"):
-                self.setPublisherHTML(
-                    self.b64encode(
-                        client.publisher(client.get("currentPublisher")).canonicalURL
-                    )
-                )
-            self.setBadges()
+            self.redraw()
 
             if success:
                 self.javaScript(

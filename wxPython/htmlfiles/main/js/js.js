@@ -136,7 +136,7 @@ function recalcMinutesCountdown() {
 				min = '<1';
 			}
 
-			$(this).html(min + "'");
+			$(this).html(min);
 			$(this).addClass('countdown');
 		}
 		else {

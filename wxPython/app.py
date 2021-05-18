@@ -2064,7 +2064,7 @@ class AppFrame(wx.Frame):
         try:
 
             # print("onActivate()")
-            if False:
+            if True:
 
                 # if self.active:
                 resize = False
@@ -2093,8 +2093,7 @@ class AppFrame(wx.Frame):
                     if resize:
                         self.SetSize(size)
 
-                redrawThread = Thread(target=self.redraw)
-                redrawThread.start()
+                self.redraw()
 
                 if WIN and self.allowCheckForURLInFile:
                     self.checkForURLInFile()

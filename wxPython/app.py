@@ -5102,6 +5102,8 @@ class AppFrame(wx.Frame):
                             return True
                         if font.getDesigners():
                             return True
+                        if font.expiryDuration:
+                            return True
                         return False
 
                     def fontHasHelp(font):
@@ -5341,6 +5343,55 @@ class AppFrame(wx.Frame):
                     #     return False
 
                     if client.get("metadataCategory") == "information":
+
+                        # Expiry
+                        if font.expiryDuration:
+                            text, locale = font.parent.description.getTextAndLocale(
+                                locale=client.locale()
+                            )
+                            html.append("<p>")
+                            html.append(
+                                '<span class="metadataCategory lighter">#(Expiry)</span>'
+                            )
+                            html.append("</p>")
+
+                            amount = font.expiryDuration
+                            # if font.expiry:
+                            #     amount = f'<span class="countdownMinutes" timestamp="{font.expiry}">{font.expiryDuration}</span>'
+                            html.append("<p>")
+                            html.append(
+                                localizeString(
+                                    "#(ExpiryDurationExplanation)",
+                                    replace={
+                                        "amount": amount,
+                                        "timeframe": localizeString(
+                                            "#(datetime.minutes)"
+                                        ),
+                                    },
+                                )
+                            )
+                            html.append("</p>")
+                            if font.expiry:
+                                html.append("<p>")
+                                html.append(
+                                    localizeString(
+                                        "#(ExpiredExplanation)"
+                                        if font.expiry < time.time()
+                                        else "#(ExpiresExplanation)",
+                                        replace={
+                                            "date": locales.formatDate(
+                                                font.expiry,
+                                                client.locale(),
+                                            ),
+                                            "time": locales.formatTime(
+                                                font.expiry,
+                                                client.locale(),
+                                            ),
+                                        },
+                                    )
+                                )
+                                html.append("</p>")
+                            html.append("<br />")
 
                         # URLs
                         if (
@@ -6213,13 +6264,13 @@ class AppFrame(wx.Frame):
 
                                                 expiry = ""
                                                 if font.expiryDuration:
-                                                    expiry = "%s'" % font.expiryDuration
+                                                    expiry = "%s" % font.expiryDuration
                                                 if expiry:
                                                     html.append(
                                                         '<div class="left expiryText"><span class="material-icons">auto_delete</span>'
                                                     )
                                                     html.append(
-                                                        '<span class="countdownMinutes" timestamp="%s">%s</span>'
+                                                        '<span class="countdownMinutes" timestamp="%s">%s</span>min'
                                                         % (font.expiry, expiry)
                                                     )
                                                     html.append("</div>")  # .left

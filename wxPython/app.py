@@ -760,7 +760,8 @@ class FoundryStyling(object):
 
         if self.informationViewTextColor.darkHalf():
             self.informationViewTextColor_Darker = (
-                self.informationViewTextColor.lighten(0.5)
+                self.informationViewTextColor * 0.4
+                + self.informationViewBackgroundColor * 0.6
             )
         else:
             self.informationViewTextColor_Darker = self.informationViewTextColor.darken(
@@ -889,6 +890,25 @@ background-color: #$informationViewInactiveButtonColor;
 color: #$informationViewInactiveButtonTextColor;
 }
 
+.metadataCategory {
+    color: #$informationViewTextColor_Darker;
+}
+
+.textColor {
+    color: #$informationViewTextColor;
+}
+
+.textColorDarker {
+    color: #$informationViewTextColor_Darker;
+}
+
+.fontBillboardLinks {
+	color: #$informationViewTextColor_Darker;
+}
+
+.fontBillboardLinks.selected {
+    color: #$informationViewTextColor;
+}
 
 
 </style>"""
@@ -5040,8 +5060,12 @@ class AppFrame(wx.Frame):
                             )
                             for i, billboard in enumerate(font.getBillboardURLs()):
                                 html.append(
-                                    '<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="https://type.world/x-python/self.setFontImage(____%s____)" style="color: inherit;">•</a></span>'
-                                    % (i, "selected" if i == index else "", i)
+                                    '<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="https://type.world/x-python/self.setFontImage(____%s____)" style="color: inherit;">●</a></span>'
+                                    % (
+                                        i,
+                                        "selected" if i == index else "",
+                                        i,
+                                    )
                                 )
                             html.append("</div>")
 
@@ -5219,7 +5243,7 @@ class AppFrame(wx.Frame):
                             license = usedLicense.getLicense()
                             html.append("<div>")
                             html.append(
-                                '<p><span class="metadataCategory lighter">%s</span><br />'
+                                '<p><span class="metadataCategory textColorDarker">%s</span><br />'
                                 % license.name.getText(client.locale())
                             )
                             html.append(
@@ -5262,7 +5286,7 @@ class AppFrame(wx.Frame):
                         # URLs
                         if font.parent.issueTrackerURL:
                             html.append(
-                                '<p><span class="metadataCategory lighter">#(Issue Tracker)</span></p>'
+                                '<p><span class="metadataCategory textColorDarker">#(Issue Tracker)</span></p>'
                             )
                             html.append("<p>")
                             html.append(
@@ -5277,7 +5301,7 @@ class AppFrame(wx.Frame):
                             or font.parent.parent.supportURL
                         ):
                             html.append(
-                                '<p><span class="metadataCategory lighter">#(Support)</span></p>'
+                                '<p><span class="metadataCategory textColorDarker">#(Support)</span></p>'
                             )
                             html.append("<p>")
                             if font.parent.parent.supportEmail:
@@ -5319,7 +5343,7 @@ class AppFrame(wx.Frame):
                             )
                             html.append("<p>")
                             html.append(
-                                '<span class="metadataCategory lighter">#(Expiry)</span>'
+                                '<span class="metadataCategory textColorDarker">#(Expiry)</span>'
                             )
                             html.append("</p>")
 
@@ -5369,7 +5393,7 @@ class AppFrame(wx.Frame):
                             or font.parent.sourceURL
                         ):
                             html.append(
-                                '<p><span class="metadataCategory lighter">#(Links)</span></p>'
+                                '<p><span class="metadataCategory textColorDarker">#(Links)</span></p>'
                             )
                             html.append("<p>")
                             if font.pdfURL or font.parent.pdfURL:
@@ -5395,7 +5419,7 @@ class AppFrame(wx.Frame):
                             )
                             html.append("<p>")
                             html.append(
-                                '<span class="metadataCategory lighter">#(Description)</span>'
+                                '<span class="metadataCategory textColorDarker">#(Description)</span>'
                             )
                             html.append("</p>")
                             html.append(markdown2.markdown(text))
@@ -5405,7 +5429,7 @@ class AppFrame(wx.Frame):
                         if font.dateFirstPublished or font.parent.dateFirstPublished:
                             html.append("<p>")
                             html.append(
-                                '<span class="metadataCategory lighter">#(Published)</span>'
+                                '<span class="metadataCategory textColorDarker">#(Published)</span>'
                             )
                             html.append("</p>")
                             html.append("<p>")
@@ -5427,7 +5451,7 @@ class AppFrame(wx.Frame):
                         if font.getDesigners():
                             html.append("<p>")
                             html.append(
-                                '<span class="metadataCategory lighter">#(Designers)</span>'
+                                '<span class="metadataCategory textColorDarker">#(Designers)</span>'
                             )
                             html.append("</p>")
                             for designer in font.getDesigners():
@@ -5478,7 +5502,7 @@ class AppFrame(wx.Frame):
                                 )
                             if version.releaseDate:
                                 html.append(
-                                    '<span class="lighter">#(Published): %s</span>'
+                                    '<span class="darker">#(Published): %s</span>'
                                     % locales.formatDate(
                                         time.mktime(
                                             datetime.date.fromisoformat(

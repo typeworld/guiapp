@@ -5246,8 +5246,9 @@ class AppFrame(wx.Frame):
                                 % (license.URL, license.URL)
                             )
                             if (
-                                usedLicense.seatsAllowed != None
-                                and usedLicense.seatsInstalled != None
+                                usedLicense.seatsAllowed
+                                != None
+                                # and usedLicense.seatsInstalled != None
                             ):
                                 html.append("<p>")
                                 html.append(
@@ -5255,8 +5256,8 @@ class AppFrame(wx.Frame):
                                     + localizeString(
                                         "#(%x% out of %y%)",
                                         replace={
-                                            "x": f'<span class="seatsInstalled">{usedLicense.seatsInstalled}</span>',
-                                            "y": usedLicense.seatsAllowed,
+                                            "x": f'<span class="seatsInstalled">{usedLicense.seatsInstalled or 0}</span>',
+                                            "y": usedLicense.seatsAllowed or 0,
                                         },
                                     )
                                     + "</b>"

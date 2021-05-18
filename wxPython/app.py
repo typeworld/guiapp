@@ -5287,10 +5287,7 @@ class AppFrame(wx.Frame):
                     #         return True
                     #     return False
 
-                    if (
-                        client.get("metadataCategory") == "help"
-                        and font.parent.description
-                    ):
+                    if client.get("metadataCategory") == "help":
 
                         # URLs
                         if font.parent.issueTrackerURL:
@@ -5343,10 +5340,7 @@ class AppFrame(wx.Frame):
                     #         return True
                     #     return False
 
-                    if (
-                        client.get("metadataCategory") == "information"
-                        and font.parent.description
-                    ):
+                    if client.get("metadataCategory") == "information":
 
                         # URLs
                         if (

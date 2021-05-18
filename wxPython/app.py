@@ -2130,6 +2130,8 @@ class AppFrame(wx.Frame):
                         self.setMetadataHTML(
                             self.b64encode(subscription.get("currentFont"))
                         )
+            self.setSideBarHTML()
+            self.setBadges()
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e

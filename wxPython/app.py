@@ -1958,6 +1958,7 @@ class AppFrame(wx.Frame):
 
             self.active = False
             filestore.httpd.shutdown()
+            filestore.listenerThread.join()
             client.quit()
 
             # client.log('onQuit()')

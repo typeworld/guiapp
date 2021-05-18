@@ -8050,6 +8050,7 @@ def startApp(startWithCommand=None):
     app.MainLoop()
 
     print("app.exitCode:", app.exitCode)
+    print(threading.enumerate())
     sys.exit(app.exitCode)
 
 

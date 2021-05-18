@@ -11,7 +11,7 @@ python wxPython/build/build-canupload.py $APP_BUILD_VERSION mac
 echo "Build"
 python wxPython/build/Mac/build-main.py $APP_BUILD_VERSION
 
-ls -la /Users/appveyor/projects/guiapp/dist/Type.World.app/Contents/Resources/lib/python3.7
+# ls -la /Users/appveyor/projects/guiapp/dist/Type.World.app/Contents/Resources/lib/python3.7
 
 echo "Self Test"
 dist/Type.World.app/Contents/MacOS/Type.World selftest

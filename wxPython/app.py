@@ -4720,13 +4720,13 @@ class AppFrame(wx.Frame):
 
     def checkIfOnline(self):
         isOnline = client.online()
-        if (
-            not self.online
-            and isOnline
-            or self.online
-            and isOnline
-            and time.time() - self.lastOnlineCheck > 40  # after sleep
-        ):
+        # print("self.online", self.online)
+        # print("isOnline", isOnline)
+        wasAsleep = time.time() - self.lastOnlineCheck > 65
+        if wasAsleep:
+            print(f"was asleep for {time.time() - self.lastOnlineCheck} seconds")
+
+        if (not self.online and isOnline) or wasAsleep:
             self.wentOnline()
             self.online = True
         elif self.online and not isOnline:

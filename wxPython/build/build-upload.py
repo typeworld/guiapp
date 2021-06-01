@@ -25,6 +25,6 @@ storage_client = storage.Client.from_service_account_json(
 )
 
 # Upload
-bucket = storage_client.bucket("typeworld2")
+bucket = storage_client.bucket("storage.type.world")
 blob = bucket.blob(f"downloads/guiapp/TypeWorldApp.{version}.{ending}")
 blob.upload_from_filename(filename=f"dmg/TypeWorldApp.{ending}")

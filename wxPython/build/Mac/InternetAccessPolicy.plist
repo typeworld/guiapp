@@ -14,11 +14,11 @@
 			<key>IsIncoming</key>
 			<false/>
 			<key>Host</key>
-			<string>type.world, api.type.world, storage.googleapis.com</string>
+			<string>type.world</string>
 			<key>NetworkProtocol</key>
 			<string>TCP</string>
 			<key>Port</key>
-			<string>80, 443</string>
+			<string>443</string>
 			<key>Relevance</key>
 			<string>Essential</string>
 			<key>Purpose</key>

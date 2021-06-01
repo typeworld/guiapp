@@ -25,7 +25,7 @@ storage_client = storage.Client.from_service_account_json(
 )
 
 # Check
-bucket = storage_client.bucket("typeworld2")
+bucket = storage_client.bucket("storage.type.world")
 blobPath = f"downloads/guiapp/TypeWorldApp.{version}.{ending}"
 blob = bucket.get_blob(blobPath)
 if blob:

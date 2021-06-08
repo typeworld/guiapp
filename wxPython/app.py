@@ -7298,6 +7298,27 @@ class AppFrame(wx.Frame):
 
             seenDialogs = client.get("seenDialogs") or []
 
+            # Ask to install agent
+            if not "sendCrashReports" in seenDialogs:
+
+                dlg = wx.MessageDialog(
+                    None,
+                    localizeString("#(SendCrashReportsExplanation)"),
+                    localizeString("#(Send Crash Reports)"),
+                    wx.YES_NO | wx.ICON_QUESTION,
+                )
+                dlg.SetYesNoLabels(
+                    localizeString("#(I Agree)"), localizeString("#(No Thanks)")
+                )
+                result = dlg.ShowModal()
+                if result == wx.ID_YES:
+                    client.set("sendCrashReports", True)
+                else:
+                    client.set("sendCrashReports", False)
+
+                seenDialogs.append("sendCrashReports")
+                client.set("seenDialogs", seenDialogs)
+
             # # Ask to install agent
             # if not 'installMenubarIcon' in seenDialogs:
 

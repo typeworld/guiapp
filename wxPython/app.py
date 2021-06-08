@@ -7293,20 +7293,24 @@ class AppFrame(wx.Frame):
             # Ask to install agent
             if not "sendCrashReports" in seenDialogs:
 
-                dlg = wx.MessageDialog(
-                    None,
-                    localizeString("#(SendCrashReportsExplanation)"),
-                    localizeString("#(Send Crash Reports)"),
-                    wx.YES_NO | wx.ICON_QUESTION,
-                )
-                dlg.SetYesNoLabels(
-                    localizeString("#(I Agree)"), localizeString("#(No Thanks)")
-                )
-                result = dlg.ShowModal()
-                if result == wx.ID_YES:
+                if self.parent.startWithCommand == "selftest":
                     client.set("sendCrashReports", True)
+
                 else:
-                    client.set("sendCrashReports", False)
+                    dlg = wx.MessageDialog(
+                        None,
+                        localizeString("#(SendCrashReportsExplanation)"),
+                        localizeString("#(Send Crash Reports)"),
+                        wx.YES_NO | wx.ICON_QUESTION,
+                    )
+                    dlg.SetYesNoLabels(
+                        localizeString("#(I Agree)"), localizeString("#(No Thanks)")
+                    )
+                    result = dlg.ShowModal()
+                    if result == wx.ID_YES:
+                        client.set("sendCrashReports", True)
+                    else:
+                        client.set("sendCrashReports", False)
 
                 seenDialogs.append("sendCrashReports")
                 client.set("seenDialogs", seenDialogs)

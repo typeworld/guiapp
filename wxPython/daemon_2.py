@@ -85,7 +85,7 @@ try:
 
     # if MAC:
     # 	# URL to Appcast.xml, eg. https://yourserver.com/Appcast.xml
-    # 	APPCAST_URL = 'https://type.world/downloads/guiapp/appcast.xml'
+    # 	APPCAST_URL = 'https://type.world/app/appcast.xml'
     # 	# Path to Sparkle's "Sparkle.framework" inside your app bundle
 
     # 	if '.app' in os.path.dirname(__file__):

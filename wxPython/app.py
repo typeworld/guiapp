@@ -7169,16 +7169,8 @@ class AppFrame(wx.Frame):
                         logoURL = styling["logoURL"]
             assert logoURL
             url = filestore.base64URL(logoURL)
-            success, responseContent, response = typeworld.client.request(
-                url, method="GET"
-            )
-            success, responseContent, response = typeworld.client.request(
-                url, method="GET"
-            )
-            assert success
-            assert responseContent.decode().startswith(
-                '<?xml version="1.0" encoding="utf-8"?>'
-            )
+            url = filestore.base64URL(logoURL)
+            assert success, f"Response: {response}"
 
             # Check user account ZMQ message
             loop = 0

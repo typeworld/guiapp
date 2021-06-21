@@ -1371,39 +1371,49 @@ if WIN:
 
         def pywinsparkle_no_update_found(self):
             """ when no update has been found, close the updater"""
+            print("pywinsparkle_no_update_found()")
+
             client.log("No update found")
             self.updateInProgress = False
 
             app = wx.GetApp()
+            print(app, app.frame)
             if app.frame:
                 app.frame.javaScript("$('#updateAvailable').slideUp();")
 
         def pywinsparkle_found_update(self):
             """ log that an update was found """
+            print("pywinsparkle_found_update()")
+
             client.log("New Update Available")
             # self.updateInProgress = False
 
             app = wx.GetApp()
+            print(app, app.frame)
             if app.frame:
                 app.frame.javaScript("$('#updateAvailable').slideDown();")
 
         def pywinsparkle_encountered_error(self):
+            print("pywinsparkle_encountered_error()")
             client.log("An error occurred")
             self.updateInProgress = False
             self.destroyIfRemotelyCalled()
 
         def pywinsparkle_update_cancelled(self):
+            print("pywinsparkle_update_cancelled()")
             """ when the update was cancelled, close the updater"""
             client.log("Update was cancelled")
             self.updateInProgress = False
 
         def pywinsparkle_shutdown(self):
             """ The installer is being launched signal the updater to shutdown """
+            print("pywinsparkle_shutdown()")
             # actually shutdown the app here
             client.log("Safe to shutdown before installing")
             self.updateInProgress = False
 
         def check_with_ui(self):
+            print("check_with_ui()")
             client.log("check_with_ui()")
             self.updateInProgress = True
 
@@ -1415,6 +1425,7 @@ if WIN:
             self.waitForUpdateToFinish()
 
         def check_without_ui(self):
+            print("check_without_ui()")
             client.log("check_without_ui()")
             self.updateInProgress = True
 
@@ -1426,6 +1437,7 @@ if WIN:
             self.waitForUpdateToFinish()
 
         def setup(self):
+            print("pywinsparkle delegate check_without_ui()")
 
             # register callbacks
             pywinsparkle.win_sparkle_set_did_find_update_callback(

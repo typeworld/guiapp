@@ -261,7 +261,7 @@ if __name__ == "__main__":
 def formatTime(timestamp, languages=["en"]):
 
     formatString = localizeString("#(FormatTimeString)", languages=languages).replace(
-        "//", "%"
+        "$", "%"
     )
     return time.strftime(formatString, time.localtime(timestamp))
 
@@ -269,6 +269,6 @@ def formatTime(timestamp, languages=["en"]):
 def formatDate(timestamp, languages=["en"]):
 
     formatString = localizeString("#(FormatDateString)", languages=languages).replace(
-        "//", "%"
+        "$", "%"
     )
     return datetime.date.fromtimestamp(timestamp).strftime(formatString)

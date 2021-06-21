@@ -1,36 +1,37 @@
 # -*- coding: utf-8 -*-
 
 import os
-from ynlib.web import GetHTTP
+from typeworld.client import request
 from ynlib.files import WriteToFile, ReadFromFile
 import json
 
-print('Calling server...')
+print("Calling server...")
 
-url = 'https://type.world/downloadLocalization?authKey=8KW8jyBtEW3my2U'
-j = GetHTTP(url)
+url = "https://type.world/downloadLocalization?authKey=8KW8jyBtEW3my2U"
+# url = "http://0.0.0.0/downloadLocalization?authKey=8KW8jyBtEW3my2U"
+success, content, response = request(url, timeout=120, method="GET")
 
-print('Received response...')
+print("Received response...")
 
-a = json.loads(j)
+a = json.loads(content)
 locales = []
 for keyword in a:
-	for locale in a[keyword]:
-		if not locale in locales:
-			locales.append(locale)
+    for locale in a[keyword]:
+        if not locale in locales:
+            locales.append(locale)
 
-print('Received locales:', locales)
+print("Received locales:", locales)
 
 
-path = os.path.join(os.path.dirname(__file__), 'localization.json')
+path = os.path.join(os.path.dirname(__file__), "localization.json")
 WriteToFile(path, json.dumps(a))
 
 
 languages = []
 for word in a:
-	for lang in a[word]:
-		if not lang in languages:
-			languages.append(lang)
+    for lang in a[word]:
+        if not lang in languages:
+            languages.append(lang)
 
 # count = 0
 # for word in a[app]:
@@ -43,17 +44,26 @@ for word in a:
 # print('Google Translate Costs: $%s' % (20*count/10**6))
 
 
-
 # Little Snitch Internet Access Policy
 from __init__ import localizeString
-strings = ReadFromFile(os.path.join(os.path.dirname(__file__), '..', 'build', 'Mac', 'InternetAccessPolicy.strings'))
 
-folder = os.path.join(os.path.dirname(__file__), '..', 'build', 'Mac', 'Little Snitch Translations')
+strings = ReadFromFile(
+    os.path.join(
+        os.path.dirname(__file__), "..", "build", "Mac", "InternetAccessPolicy.strings"
+    )
+)
+
+folder = os.path.join(
+    os.path.dirname(__file__), "..", "build", "Mac", "Little Snitch Translations"
+)
 os.system('rm -rf "%s"' % folder)
 os.makedirs(folder)
 
 for language in languages:
-	os.makedirs(os.path.join(folder, '%s.lproj' % language))
-	WriteToFile(os.path.join(folder, '%s.lproj' % language, 'InternetAccessPolicy.strings'), localizeString(strings, languages = [language]))
+    os.makedirs(os.path.join(folder, "%s.lproj" % language))
+    WriteToFile(
+        os.path.join(folder, "%s.lproj" % language, "InternetAccessPolicy.strings"),
+        localizeString(strings, languages=[language]),
+    )
 
-print('Done.')
+print("Done.")

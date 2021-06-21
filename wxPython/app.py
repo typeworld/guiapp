@@ -7062,9 +7062,6 @@ class AppFrame(wx.Frame):
 
                 windll.kernel32.RegisterApplicationRestart(None, 0)
 
-                if RUNTIME:
-                    pywinsparkle.win_sparkle_check_update_without_ui()
-
             client.delegate.userAccountHasBeenUpdated()
             self.updateMessageQueueStatus()
 

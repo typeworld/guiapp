@@ -7136,7 +7136,7 @@ class AppFrame(wx.Frame):
             if MAC and CI:
                 sparkle.resetUpdateCycle()
                 self.setAppCastURL()
-                sparkle.checkForUpdates_(self)
+                sparkle.checkForUpdatesInBackground()
             elif WIN and RUNTIME:
                 pywinsparkleDelegate.check_without_ui()
 

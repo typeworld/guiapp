@@ -1258,7 +1258,7 @@ if MAC and RUNTIME:
         class SparkleUpdateDelegate(NSObject):
             def destroyIfRemotelyCalled(self):
                 client.log("Quitting because app was called remotely for an update")
-                global app
+                app = wx.GetApp()
                 if app.startWithCommand:
                     if app.startWithCommand == "checkForUpdateInformation":
                         app.frame.Destroy()
@@ -1274,27 +1274,26 @@ if MAC and RUNTIME:
                 self.destroyIfRemotelyCalled()
 
             def updater_didFindValidUpdate_(self, updater, appcastItem):
+                client.log(
+                    "sparkleUpdateDelegate.updater_didFindValidUpdate_() finished"
+                )
 
                 self.updateFound = True
                 self.downloadStarted = False
 
-                global app
+                app = wx.GetApp()
                 app.frame.javaScript("$('#updateAvailable').slideDown();")
                 waitForUpdateThread = Thread(
                     target=waitForUpdateToFinish, args=(app, updater, self)
                 )
                 waitForUpdateThread.start()
 
-                client.log(
-                    "sparkleUpdateDelegate.updater_didFindValidUpdate_() finished"
-                )
-
             def updaterDidNotFindUpdate_(self, updater):
+                client.log("sparkleUpdateDelegate.updaterDidNotFindUpdate_()")
 
-                global app
+                app = wx.GetApp()
                 app.frame.javaScript("$('#updateAvailable').slideUp();")
 
-                client.log("sparkleUpdateDelegate.updaterDidNotFindUpdate_()")
                 self.updateFound = False
                 self.destroyIfRemotelyCalled()
 
@@ -1315,10 +1314,11 @@ if MAC and RUNTIME:
             def updater_willDownloadUpdate_withRequest_(
                 self, updater, appcast, request
             ):
-                self.downloadStarted = True
                 client.log(
                     "sparkleUpdateDelegate.updater_willDownloadUpdate_withRequest_()"
                 )
+
+                self.downloadStarted = True
 
             def updater_didDownloadUpdate_(self, updater, item):
                 client.log("sparkleUpdateDelegate.updater_didDownloadUpdate_()")
@@ -1375,7 +1375,7 @@ if WIN:
             client.log("No update found")
             self.updateInProgress = False
 
-            global app
+            app = wx.GetApp()
             if app.frame:
                 app.frame.javaScript("$('#updateAvailable').slideUp();")
 
@@ -1384,7 +1384,7 @@ if WIN:
             client.log("New Update Available")
             # self.updateInProgress = False
 
-            global app
+            app = wx.GetApp()
             if app.frame:
                 app.frame.javaScript("$('#updateAvailable').slideDown();")
 

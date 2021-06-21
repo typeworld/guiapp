@@ -1525,6 +1525,7 @@ class AppFrame(wx.Frame):
             self.online = False
             self.lastMinuteCheck = 0
             self.lastOnlineCheck = 0
+            self.lastSystemWake = None
 
             self.allowedToPullServerUpdates = True
             self.allowCheckForURLInFile = True
@@ -1997,7 +1998,7 @@ class AppFrame(wx.Frame):
         webbrowser.open_new_tab("https://type.world/account?userAccountToken=" + token)
 
     def pullServerUpdates(self, force=False):
-        # print("pullServerUpdates()")
+        print("pullServerUpdates()", time.time())
 
         try:
             if (
@@ -2198,6 +2199,9 @@ class AppFrame(wx.Frame):
             html.append("#(AboutText)")
             html.append("</p>")
 
+            # html.append("<br />")
+
+            # Patrons:
             html.append('<p style="margin-bottom: 20px;">')
             html.append("#(We thank our Patrons):")
             html.append("<br />")
@@ -2211,6 +2215,18 @@ class AppFrame(wx.Frame):
                 + "</b>, <b>".join([x.replace(" ", "&nbsp;") for x in patrons])
                 + "</b>"
             )
+            html.append("</p>")
+
+            # Translators
+            html.append('<p style="margin-bottom: 20px;">')
+            html.append("Translators:")
+            html.append("<br />")
+            translators = []
+            for code, locale in locales.supportedLocales():
+                name = locales.localize("TranslatorName", languages=[code])
+                if name != "TranslatorName":
+                    translators.append(f"{locale}: <b>{name}</b>")
+            html.append(", ".join(translators))
             html.append("</p>")
 
             html.append('<p style="margin-bottom: 20px;">')

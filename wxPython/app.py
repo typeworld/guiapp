@@ -2605,12 +2605,10 @@ class AppFrame(wx.Frame):
                     html.append("<hr>")
 
                     html.append("<h2>#(Pro User Account)</h2>")
-                    html.append("<p>")
                     if client.get("userAccountStatus") == "pro":
                         html.append("#(ProUserAccountExplanation)")
                     else:
                         html.append("#(NormalUserAccountExplanation)")
-                    html.append("</p>")
 
                     html.append("<hr>")
 

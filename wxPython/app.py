@@ -6995,6 +6995,7 @@ class AppFrame(wx.Frame):
                 print("RUNTIME", RUNTIME)
                 print("CI", CI)
                 print("__file__", __file__)
+                print("sys.executable", sys.executable)
 
                 self.javaScript(
                     (

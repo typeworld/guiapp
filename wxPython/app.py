@@ -2194,7 +2194,7 @@ class AppFrame(wx.Frame):
                 '<img src="file://##htmlroot##/icon.svg" style="width: 150px; height: 150px;"><br />'
             )
             html.append("</p>")
-            html.append("<p>")
+            html.append('<p style="margin-bottom: 20px;">')
             html.append("#(AboutText)")
             html.append("</p>")
 

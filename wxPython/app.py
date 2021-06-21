@@ -7352,6 +7352,14 @@ class AppFrame(wx.Frame):
                     client.log("Agent is outdated (%s), needs restart." % agentVersion)
                     restartAgent(2)
 
+            # Sparkle Update
+            if MAC and RUNTIME:
+                sparkle.resetUpdateCycle()
+                self.setAppCastURL()
+                sparkle.checkForUpdatesInBackground()
+            elif WIN and RUNTIME:
+                pywinsparkleDelegate.check_without_ui()
+
         except Exception as e:
             client.handleTraceback(
                 sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e

@@ -17,6 +17,10 @@ elif not "config.py" in __file__:
     DESIGNTIME = False
     RUNTIME = True
 
+elif "TypeWorld.exe" in __file__:
+    DESIGNTIME = False
+    RUNTIME = True
+
 else:
     DESIGNTIME = True
     RUNTIME = False

@@ -6990,7 +6990,11 @@ class AppFrame(wx.Frame):
                 # self.html.SetZoomType(wx.html2.WEBVIEW_ZOOM_TYPE_LAYOUT)
                 # self.html.SetZoomFactor(1.8)
                 print("WIN", WIN)
+                print("MAC", MAC)
+                print("DESIGNTIME", DESIGNTIME)
                 print("RUNTIME", RUNTIME)
+                print("CI", CI)
+                print("__file__", __file__)
 
                 self.javaScript(
                     (

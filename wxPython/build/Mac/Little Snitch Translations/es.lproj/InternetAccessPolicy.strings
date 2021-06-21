@@ -1,3 +1,3 @@
-"ApplicationDescription" = "La aplicación Type.World es un frontal para instalaciones de tipos de letra por Internet. Mejora sobremanera la experiencia de usuario relativa a la distribución de tipos de letra de fabricantes participantes.";
-"Purpose" = "La aplicación está bien integrada con su servicio web complementario en https://type.world, así como con varios servicios proporcionados por Google en https://googleapis.com";
-"DenyConsequences" = "Si rechaza esta conexión se verán perjudicadas varias funcionalidades, tales como la descarga e instalación de tipos de letra, la sincronización con la cuenta y las autoactualizaciones del programa.";
+"ApplicationDescription" = "Type.World es una aplicación de usuario final para instalar fuentes a través de internet que mejora sobremanera la experiencia de usuario de las tipograf´ías distribuidas por los fabricantes participantes.";
+"Purpose" = "La aplicación está estrechamente integrada con su servicio web complementario en https://type.world, así como con varios servicios proporcionados por Google en https://googleapis.com";
+"DenyConsequences" = "Si rechazas esta conexión varias funcionalidades de la aplicación se verán afectadas, como la descarga e instalación de fuentes, la sincronización con la cuenta de usuario y las actualizaciones automáticas del programa.";

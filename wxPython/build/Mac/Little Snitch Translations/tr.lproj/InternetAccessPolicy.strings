@@ -1,0 +1,3 @@
+"ApplicationDescription" = "Type.World uygulaması, web üzerinden yazı tipi kurulumuna yarayan bir arayüz uygulamasıdır. Katılan yayıncılar aracılığıyla dağıtılan yazı tipleri için font kullanıcı deneyimini büyük ölçüde geliştirir.";
+"Purpose" = "Uygulama, https://type.world adresindeki tamamlayıcı web hizmetiyle ve https://googleapis.com adresinde Google tarafından sağlanan çeşitli hizmetlerle derinlemesine entegre edilmiştir.";
+"DenyConsequences" = "Bu bağlantıyı reddederseniz, yazı tiplerinin indirilmesi ve yüklenmesi, kullanıcı hesabı eşzamanlaması ve yazılımın kendi kendini güncellemesi gibi çeşitli temel işlevleri bozulacaktır.";

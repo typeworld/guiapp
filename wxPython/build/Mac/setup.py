@@ -4,14 +4,12 @@ import sys
 
 import urllib.request, ssl, certifi
 
-# request = urllib.request.Request(
-#     f"https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/?TYPEWORLD_APIKEY={os.environ['TYPEWORLD_APIKEY']}"
-# )
-# sslcontext = ssl.create_default_context(cafile=certifi.where())
-# response = urllib.request.urlopen(request, context=sslcontext)
-# version = response.read().decode()
-
-version = "0.2.10-beta"
+request = urllib.request.Request(
+    f"https://api.type.world/latestUnpublishedVersion/world.type.guiapp/mac/?TYPEWORLD_APIKEY={os.environ['TYPEWORLD_APIKEY']}"
+)
+sslcontext = ssl.create_default_context(cafile=certifi.where())
+response = urllib.request.urlopen(request, context=sslcontext)
+version = response.read().decode()
 
 import zmq
 
@@ -150,7 +148,7 @@ options = {
             "pprint",
             "sysconfig",
             "_osx_support",
-            # "_sysconfigdata_m_darwin_darwin",
+            "_sysconfigdata_m_darwin_darwin",
             "typing",
             "Foundation",
             "six",

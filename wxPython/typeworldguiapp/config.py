@@ -9,15 +9,11 @@ MAC = platform.system() == "Darwin"
 CI = os.getenv("CI", "false").lower() != "false"
 
 # Mac executable
-if "config.py" in __file__ and "/Contents/MacOS/python" in sys.executable:
+if MAC and "config.py" in __file__ and "/Contents/MacOS/python" in sys.executable:
     DESIGNTIME = False
     RUNTIME = True
 
-elif not "config.py" in __file__:
-    DESIGNTIME = False
-    RUNTIME = True
-
-elif "TypeWorld.exe" in __file__:
+elif WIN and "TypeWorld.exe" in sys.executable:
     DESIGNTIME = False
     RUNTIME = True
 

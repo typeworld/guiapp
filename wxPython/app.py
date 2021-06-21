@@ -5420,7 +5420,7 @@ class AppFrame(wx.Frame):
                                 '<span class="metadataCategory textColorDarker">#(Description)</span>'
                             )
                             html.append("</p>")
-                            html.append(markdown2.markdown(text))
+                            html.append(markdown2.markdown(text.replace("\\n", "\n")))
                             html.append("<br />")
 
                         # dateFirstPublished

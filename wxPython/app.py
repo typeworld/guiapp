@@ -6663,6 +6663,9 @@ class AppFrame(wx.Frame):
                                     '<div class="badge revealIdentity" style="display: block;" alt="#(IsInvitationExplanation)"><span class="material-icons">cloud_download</span></div>'
                                 )
 
+                            if client.user() and subscription.invitationSent():
+                                badges.append(
+                                    '<div class="badge revealIdentity" style="display: block;" alt="#(InvitationSentExplanation)"><span class="material-icons">cloud_upload</span></div>'
                                 )
 
                             if badges:

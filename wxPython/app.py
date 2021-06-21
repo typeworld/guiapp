@@ -6646,8 +6646,8 @@ class AppFrame(wx.Frame):
                                 badges.append(
                                     (
                                         f'<div class="badge liveConnectionStatus">'
-                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span class="material-icons">sensors</span></span>'
-                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span class="material-icons">sensors_off</span></span>'
+                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span class="material-icons">notifications_active</span></span>'
+                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span class="material-icons">notifications_off</span></span>'
                                         "</div>"
                                     )
                                 )
@@ -6655,12 +6655,14 @@ class AppFrame(wx.Frame):
                             subscription = publisher.subscriptions()[0]
                             if client.user() and subscription.get("revealIdentity"):
                                 badges.append(
-                                    '<div class="badge revealIdentity" style="display: block;" alt="#(YourIdentityWillBeRevealedTooltip)""><img src="file://##htmlroot##/userIcon_Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
+                                    '<div class="badge revealIdentity" style="display: block;" alt="#(YourIdentityWillBeRevealedTooltip)""><span class="material-icons">face</span></div>'
                                 )
 
                             if client.user() and subscription.invitationAccepted():
                                 badges.append(
-                                    '<div class="badge revealIdentity" style="display: block;" alt="#(IsInvitationExplanation)"><img src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
+                                    '<div class="badge revealIdentity" style="display: block;" alt="#(IsInvitationExplanation)"><span class="material-icons">cloud_download</span></div>'
+                                )
+
                                 )
 
                             if badges:
@@ -6759,8 +6761,8 @@ class AppFrame(wx.Frame):
                                 badges.append(
                                     (
                                         f'<div class="badge liveConnectionStatus">'
-                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span class="material-icons">sensors</span></span>'
-                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span class="material-icons">sensors_off</span></span>'
+                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span class="material-icons">notifications_active</span></span>'
+                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span class="material-icons">notifications_off</span></span>'
                                         "</div>"
                                     )
                                 )

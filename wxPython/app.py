@@ -1868,12 +1868,13 @@ class AppFrame(wx.Frame):
     def onCheckForUpdates(self, event):
         try:
 
-            if MAC:
+            if MAC and RUNTIME:
                 sparkle.resetUpdateCycle()
                 self.setAppCastURL()
                 sparkle.checkForUpdates_(self)
             elif WIN and RUNTIME:
                 self.setAppCastURL()
+                print(pywinsparkleDelegate)
                 pywinsparkleDelegate.check_with_ui()
 
         except Exception as e:
@@ -6988,6 +6989,8 @@ class AppFrame(wx.Frame):
                 # TODO: Upgrade to wxPython > 4.1 at some point an use this instead
                 # self.html.SetZoomType(wx.html2.WEBVIEW_ZOOM_TYPE_LAYOUT)
                 # self.html.SetZoomFactor(1.8)
+                print("WIN", WIN)
+                print("RUNTIME", RUNTIME)
 
                 self.javaScript(
                     (

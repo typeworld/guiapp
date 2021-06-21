@@ -1764,27 +1764,26 @@ class AppFrame(wx.Frame):
 
             ### DEVELOPER
 
-            menu = wx.Menu()
+            # menu = wx.Menu()
 
-            m_Upload = menu.Append(
-                wx.NewIdRef(count=1),
-                "Upload Subscriptions As Is",
-            )
-            self.Bind(wx.EVT_MENU, self.onUploadSubscriptionAsIs, m_Upload)
-
-            m_ReloadCSS = menu.Append(
-                wx.NewIdRef(count=1),
-                "&Reload CSS\tCtrl-T",
-            )
-            self.Bind(wx.EVT_MENU, self.onReloadCSS, m_ReloadCSS)
-
-            # m_Toggle = menu.Append(
+            # m_Upload = menu.Append(
             #     wx.NewIdRef(count=1),
-            #     "Toggle update notification",
+            #     "Upload Subscriptions As Is",
             # )
-            # self.Bind(wx.EVT_MENU, self.onToggleUpdateNotification, m_Toggle)
+            # self.Bind(wx.EVT_MENU, self.onUploadSubscriptionAsIs, m_Upload)
 
-            menuBar.Append(menu, "Developer")
+            # m_ReloadCSS = menu.Append(
+            #     wx.NewIdRef(count=1),
+            #     "&Reload CSS\tCtrl-T",
+            # )
+            # self.Bind(wx.EVT_MENU, self.onReloadCSS, m_ReloadCSS)
+
+            # # m_Toggle = menu.Append(
+            # #     wx.NewIdRef(count=1),
+            # #     "Toggle update notification",
+            # # )
+            # # self.Bind(wx.EVT_MENU, self.onToggleUpdateNotification, m_Toggle)
+            # menuBar.Append(menu, "Developer")
 
             self.SetMenuBar(menuBar)
 

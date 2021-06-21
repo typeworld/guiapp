@@ -5354,9 +5354,7 @@ class AppFrame(wx.Frame):
                                     "#(ExpiryDurationExplanation)",
                                     replace={
                                         "amount": amount,
-                                        "timeframe": localizeString(
-                                            "#(datetime.minutes)"
-                                        ),
+                                        "timeframe": localizeString("#(Minutes)"),
                                     },
                                 )
                             )

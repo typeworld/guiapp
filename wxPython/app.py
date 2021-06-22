@@ -55,7 +55,7 @@ import typeworld.api
 APPNAME = "Type.World"
 APPVERSION = "n/a"
 DEBUG = False
-BUILDSTAGE = "beta"  # "beta"
+BUILDSTAGE = None  # "beta"
 PULLSERVERUPDATEINTERVAL = 60
 
 # Is Online Helper Function

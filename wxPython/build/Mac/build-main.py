@@ -201,6 +201,23 @@ executeCommands(
     )
 )
 
+# Remove stuff that py2app doesn't remove
+# py2app doesn't copy these (at least html module)
+executeCommands(
+    (
+        (
+            "Remove wx.locale",
+            "rm -rf dist/Type.World.app/Contents/Resources/lib/python3.7/wx/lib/agw",
+            True,
+        ),
+        (
+            "Remove wx.locale",
+            "rm -rf dist/Type.World.app/Contents/Resources/lib/python3.7/wx/locale",
+            True,
+        ),
+    )
+)
+
 # executeCommands((
 # 	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/', True),
 # 	('ynlib', 'ls -la dist/Type.World.app/Contents/Resources/lib/python3.7/ynlib/', True),

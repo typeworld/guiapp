@@ -27,6 +27,9 @@ options = {
             # "html",
             # "/Users/appveyor/.localpython3.7.9/lib/python3.7/html",
         ],
+        "excludes": [
+            "numpy",
+        ],
         "frameworks": ["Python.framework"],
         "resources": [
             "wxPython/build/Mac/InternetAccessPolicy.plist",

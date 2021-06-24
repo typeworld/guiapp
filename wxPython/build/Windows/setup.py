@@ -85,7 +85,7 @@ setup(
                 "pywinsparkle",
                 "win32timezone",
                 "pkg_resources",
-                "numpy",
+                # "numpy",
             ],
             "optimize": 1,
             "build_exe": destinationFolder,

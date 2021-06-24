@@ -13,7 +13,7 @@ wxPython
 pystray
 plyer
 packaging
-cryptography
+# cryptography
 pywin32
 pywinsparkle
 numpy

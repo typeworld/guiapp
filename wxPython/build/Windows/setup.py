@@ -64,24 +64,14 @@ setup(
             ],
             "excludes": ["win32ctypes", "tkinter", "test"],
             "packages": [
-                # "flask",  # flask
-                # "jinja2",  # flask
-                # "markupsafe",  # flask
-                # "werkzeug",  # flask
-                # "itsdangerous",  # flask
-                # "click",  # flask
-                # "html",  # flask
-                # "socketserver",  # flask
                 "zmq",
                 "typeworld",
                 "packaging",
-                # "grpc",
                 "requests",
                 "idna",
                 "pyasn1",
                 "rsa",
                 "cachetools",
-                # "grpc",
                 "cryptography",
                 "pyasn1_modules",
                 "typeworld",
@@ -93,7 +83,6 @@ setup(
                 "plyer",
                 "flask",
                 "pywinsparkle",
-                # "proto",
                 "win32timezone",
                 "pkg_resources",
                 "numpy",

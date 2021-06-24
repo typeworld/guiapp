@@ -62,7 +62,7 @@ setup(
                 os.path.join(baseFolder, "intercom"),
                 os.path.join(baseFolder, "typeworldguiapp"),
             ],
-            "excludes": ["win32ctypes", "tkinter", "test"],
+            "excludes": ["win32ctypes", "tkinter", "test", "numpy"],
             "packages": [
                 "zmq",
                 "typeworld",

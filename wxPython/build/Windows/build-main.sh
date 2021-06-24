@@ -28,5 +28,8 @@ cp -r ynlib/Lib/ynlib build/lib/
 echo "Copy importlib_metadata"
 cp -r $SITEPACKAGES/importlib_metadata-*.dist-info build/lib/
 
+echo "Delete stuff"
+rm -r build/lib/wx/locale
+
 echo "App Self Test"
 "build/TypeWorld.exe" selftest

@@ -1071,10 +1071,6 @@ body.dark {
 	font-size: 14px;
 }
 
-.closePanelButton a {
-	color: #000 !important;
-}
-
 
 /* //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
@@ -1212,6 +1208,20 @@ body.dark {
 	position: fixed;
 	right: 20px;
 	top: 20px;
+}
+
+.closePanelButton a {
+	color: #000 !important;
+
+	background-color: rgba(0,0,0,.2);
+	padding: 9px;
+	padding-top: 0px;
+	padding-bottom: 7px;
+	border-radius: 30px; -moz-border-radius:30px; -webkit-border-radius:30px; -khtml-border-radius:30px;
+}
+
+#preferences.panel .closePanelButton a {
+	color: white !important;
 }
 
 /*.panel * {

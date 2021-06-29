@@ -1763,27 +1763,27 @@ class AppFrame(wx.Frame):
             menuBar.Append(menu, "&%s" % (localizeString("#(Help)")))
 
             ### DEVELOPER
+            if client.get("appUpdateProfile") == "developer":
+                menu = wx.Menu()
 
-            # menu = wx.Menu()
+                m_Upload = menu.Append(
+                    wx.NewIdRef(count=1),
+                    "Upload Subscriptions As Is",
+                )
+                self.Bind(wx.EVT_MENU, self.onUploadSubscriptionAsIs, m_Upload)
 
-            # m_Upload = menu.Append(
-            #     wx.NewIdRef(count=1),
-            #     "Upload Subscriptions As Is",
-            # )
-            # self.Bind(wx.EVT_MENU, self.onUploadSubscriptionAsIs, m_Upload)
+                m_ReloadCSS = menu.Append(
+                    wx.NewIdRef(count=1),
+                    "&Reload CSS\tCtrl-T",
+                )
+                self.Bind(wx.EVT_MENU, self.onReloadCSS, m_ReloadCSS)
 
-            # m_ReloadCSS = menu.Append(
-            #     wx.NewIdRef(count=1),
-            #     "&Reload CSS\tCtrl-T",
-            # )
-            # self.Bind(wx.EVT_MENU, self.onReloadCSS, m_ReloadCSS)
-
-            # # m_Toggle = menu.Append(
-            # #     wx.NewIdRef(count=1),
-            # #     "Toggle update notification",
-            # # )
-            # # self.Bind(wx.EVT_MENU, self.onToggleUpdateNotification, m_Toggle)
-            # menuBar.Append(menu, "Developer")
+                # m_Toggle = menu.Append(
+                #     wx.NewIdRef(count=1),
+                #     "Toggle update notification",
+                # )
+                # self.Bind(wx.EVT_MENU, self.onToggleUpdateNotification, m_Toggle)
+                menuBar.Append(menu, "Developer")
 
             self.SetMenuBar(menuBar)
 

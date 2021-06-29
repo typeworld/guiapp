@@ -3096,12 +3096,16 @@ class AppFrame(wx.Frame):
                         html = html.replace("\n", " ")
                         html = self.replaceHTML(html)
                         js = (
-                            '$("#preferences .centerOuter").html("<div class=\'inner\'>'
+                            '$("#subscriptionPreferences .centerOuter").html("<div class=\'inner\'>'
                             + html
                             + '</div>");'
                         )
                         self.javaScript(
-                            (f"{js}" "documentReady();" "showPreferences();")
+                            (
+                                f"{js}"
+                                "documentReady();"
+                                "showSubscriptionPreferences();"
+                            )
                         )
 
         except Exception as e:
@@ -3343,12 +3347,16 @@ class AppFrame(wx.Frame):
                         html = html.replace("\n", " ")
                         html = self.replaceHTML(html)
                         js = (
-                            '$("#preferences .centerOuter").html("<div class=\'inner\'>'
+                            '$("#subscriptionPreferences .centerOuter").html("<div class=\'inner\'>'
                             + html
                             + '</div>");'
                         )
                         self.javaScript(
-                            (f"{js}" "documentReady();" "showPreferences();")
+                            (
+                                f"{js}"
+                                "documentReady();"
+                                "showSubscriptionPreferences();"
+                            )
                         )
 
                         # # Print HTML

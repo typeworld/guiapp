@@ -358,17 +358,18 @@ function showAbout() {
 function showPreferences() {
 	$('#preferences').slideDown();
 	registerKeypress(27, function () { hidePanel(); });
-	// python('self.panelVisible = ____preferences____'); (Happens in Pythhon Code)
 }
 
 function showPublisherPreferences() {
 	$('#publisherPreferences').slideDown();
 	registerKeypress(27, function () { hidePanel(); });
 	python('self.panelVisible = ____publisherPreferences____');
+}
 
-	function setPublisherHTML(b64ID) {
-		python('self.setPublisherHTML(____' + b64ID + '____)');
-	}
+function showSubscriptionPreferences() {
+	$('#subscriptionPreferences').slideDown();
+	registerKeypress(27, function () { hidePanel(); });
+	python('self.panelVisible = ____subscriptionPreferences____');
 }
 
 function hidePanel() {

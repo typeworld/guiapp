@@ -2400,9 +2400,27 @@ class AppFrame(wx.Frame):
 
             # Tabs
             for keyword, title, condition in (
-                ("generalPreferences", localizeString("#(Preferences)"), True),
-                ("userAccount", localizeString("#(User Account)"), True),
-                ("linkedApps", localizeString("#(Linked Apps)"), client.user()),
+                (
+                    "generalPreferences",
+                    localizeString(
+                        '<span class="material-icons">settings</span> #(Preferences)'
+                    ),
+                    True,
+                ),
+                (
+                    "userAccount",
+                    localizeString(
+                        '<span class="material-icons">account_circle</span> #(User Account)'
+                    ),
+                    True,
+                ),
+                (
+                    "linkedApps",
+                    localizeString(
+                        '<span class="material-icons">devices</span> #(Linked Apps)'
+                    ),
+                    client.user(),
+                ),
             ):
 
                 if condition:

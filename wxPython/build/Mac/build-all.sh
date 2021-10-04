@@ -14,17 +14,17 @@ python wxPython/build/Mac/build-main.py $APP_BUILD_VERSION
 echo "Self Test"
 dist/Type.World.app/Contents/MacOS/Type.World selftest
 
-# # Notarization
-# echo "Create .dmg"
-# dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dist/TypeWorldApp.notarize.dmg
-# echo "Sign .dmg"
-# codesign -vvvv -s "Jan Gerner" dist/TypeWorldApp.notarize.dmg
-# echo "Verify .dmg"
-# codesign -vvvv -dv dist/TypeWorldApp.notarize.dmg
-# echo "Notarization"
-# python wxPython/build/Mac/build-notarize.py $APP_BUILD_VERSION
-# echo "Verify Notarization"
-# sh wxPython/build/Mac/build-verifynotarization.sh
+# Notarization
+echo "Create .dmg"
+dmgbuild -s wxPython/build/Mac/dmgbuild.py "Type.World App" dist/TypeWorldApp.notarize.dmg
+echo "Sign .dmg"
+codesign -vvvv -s "Jan Gerner" dist/TypeWorldApp.notarize.dmg
+echo "Verify .dmg"
+codesign -vvvv -dv dist/TypeWorldApp.notarize.dmg
+echo "Notarization"
+python wxPython/build/Mac/build-notarize.py $APP_BUILD_VERSION
+echo "Verify Notarization"
+sh wxPython/build/Mac/build-verifynotarization.sh
 
 echo "Pack"
 sh wxPython/build/Mac/build-pack.sh

@@ -21,7 +21,7 @@ cp -R ynlib/Lib/ynlib $SITEPACKAGES
 # Link .dylib
 # Apparently, they're the same file:
 # https://groups.google.com/a/continuum.io/forum/#!topic/anaconda/4HKVl8Jhy9E
-ln -s ~/.localpython3.7.9/lib/libpython3.7m.dylib ~/.localpython3.7.9/lib/libpython3.7.dylib
+ln -s ~/.localpython3.7.11/lib/libpython3.7m.dylib ~/.localpython3.7.9/lib/libpython3.7.dylib
 
 # Use Python Framework build for testing
 # https://wiki.wxpython.org/wxPythonVirtualenvOnMac

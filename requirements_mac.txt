@@ -11,6 +11,7 @@ pyparsing
 more_itertools
 numpy
 chardet
+pytz
 
 # build time only
 google-cloud-storage

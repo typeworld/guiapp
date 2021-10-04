@@ -183,6 +183,7 @@ options = {
             "_pydecimal",
             "numbers",
             "ast",
+            "site",
         ],
         "bdist_base": "build",
         "dist_dir": "dist",

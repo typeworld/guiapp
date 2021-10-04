@@ -10,6 +10,7 @@ jsonpickle
 pyparsing
 more_itertools
 numpy
+chardet
 
 # build time only
 google-cloud-storage

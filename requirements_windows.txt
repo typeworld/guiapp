@@ -19,6 +19,7 @@ pywinsparkle
 numpy
 codecov
 appdirs
+pytz
 
 # Over-ride typeworld
 pyzmq==19.0.2

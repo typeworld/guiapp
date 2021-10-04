@@ -7,6 +7,7 @@ sh install_common.sh
 # Python requirements
 python -m pip install -r requirements_mac.txt
 python -c 'import zmq; print("zmq"); print(zmq.zmq_version()); print(zmq.pyzmq_version())'
+pythonversion=$(echo "${$(python -V)//Python /}")
 
 # Download Sparkle
 curl -O -L https://github.com/sparkle-project/Sparkle/releases/download/1.23.0/Sparkle-1.23.0.tar.bz2
@@ -21,7 +22,7 @@ cp -R ynlib/Lib/ynlib $SITEPACKAGES
 # Link .dylib
 # Apparently, they're the same file:
 # https://groups.google.com/a/continuum.io/forum/#!topic/anaconda/4HKVl8Jhy9E
-ln -s ~/.localpython3.7.11/lib/libpython3.7m.dylib ~/.localpython3.7.9/lib/libpython3.7.dylib
+ln -s ~/.localpython$pythonversion/lib/libpython3.7m.dylib ~/.localpython$pythonversion/lib/libpython3.7.dylib
 
 # Use Python Framework build for testing
 # https://wiki.wxpython.org/wxPythonVirtualenvOnMac

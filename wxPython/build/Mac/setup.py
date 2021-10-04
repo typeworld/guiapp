@@ -40,6 +40,7 @@ options = {
             # "appbadge.docktileplugin",
         ],
         "packages": [
+            "chardet",
             "zmq",
             "certifi",
             "distutils",

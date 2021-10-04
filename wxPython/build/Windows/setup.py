@@ -64,6 +64,7 @@ setup(
             ],
             "excludes": ["win32ctypes", "tkinter", "test", "numpy"],
             "packages": [
+                "appdirs",
                 "zmq",
                 "typeworld",
                 "packaging",

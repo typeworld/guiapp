@@ -184,6 +184,7 @@ options = {
             "numbers",
             "ast",
             "site",
+            "_sitebuiltins",
         ],
         "bdist_base": "build",
         "dist_dir": "dist",

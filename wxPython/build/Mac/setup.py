@@ -185,6 +185,7 @@ options = {
             "ast",
             "site",
             "_sitebuiltins",
+            "runpy",
         ],
         "bdist_base": "build",
         "dist_dir": "dist",

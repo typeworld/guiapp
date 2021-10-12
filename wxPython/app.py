@@ -635,7 +635,8 @@ class ClientDelegate(TypeWorldClientDelegate):
             self.app.frame.javaScript(
                 '$(".messageQueue .connected").show(); $(".messageQueue .error").hide(); $(".messageQueue .disconnected").hide();'
             )
-            self.userAccountUpdateNotificationHasBeenReceived()
+            # Real functionality
+            self.app.frame.pullServerUpdates(force=True)
 
     def messageQueueError(self, status=None):
         if hasattr(self, "app"):

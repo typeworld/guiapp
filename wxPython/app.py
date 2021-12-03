@@ -83,9 +83,7 @@ if WIN:
     import winreg as wreg
 
     try:
-        key = wreg.OpenKey(
-            wreg.HKEY_CURRENT_USER, "Software\\Type.World\\Type.World", 0, wreg.KEY_READ
-        )
+        key = wreg.OpenKey(wreg.HKEY_CURRENT_USER, "Software\\Type.World\\Type.World", 0, wreg.KEY_READ)
         value, regtype = wreg.QueryValueEx(key, "debug")
         wreg.CloseKey(key)
     except:
@@ -94,9 +92,7 @@ if WIN:
         DEBUG = True
 
     try:
-        key = wreg.OpenKey(
-            wreg.HKEY_CURRENT_USER, "SOFTWARE\\Type.World\\Type.World", 0, wreg.KEY_READ
-        )
+        key = wreg.OpenKey(wreg.HKEY_CURRENT_USER, "SOFTWARE\\Type.World\\Type.World", 0, wreg.KEY_READ)
         value, regtype = wreg.QueryValueEx(key, "debug")
         wreg.CloseKey(key)
     except:
@@ -157,14 +153,10 @@ if MAC:
     from AppKit import NSScreen
     from AppKit import NSUserDefaults
 
-    NSUserNotificationCenterDelegate = objc.protocolNamed(
-        "NSUserNotificationCenterDelegate"
-    )
+    NSUserNotificationCenterDelegate = objc.protocolNamed("NSUserNotificationCenterDelegate")
 
     class NotificationDelegate(NSObject, protocols=[NSUserNotificationCenterDelegate]):
-        def userNotificationCenter_didActivateNotification_(
-            self, center, aNotification
-        ):
+        def userNotificationCenter_didActivateNotification_(self, center, aNotification):
             pass
 
     # if not CI:
@@ -206,10 +198,7 @@ if WIN and RUNTIME:
                 None,
                 0,
                 wreg.REG_SZ,
-                '"%s" "%%1"'
-                % os.path.join(
-                    os.path.dirname(__file__), "TypeWorld Subscription Opener.exe"
-                ),
+                '"%s" "%%1"' % os.path.join(os.path.dirname(__file__), "TypeWorld Subscription Opener.exe"),
             )
     except:
         pass
@@ -323,9 +312,7 @@ def getFileProperties(fname):
 
         # \VarFileInfo\Translation returns list of available (language, codepage)
         # pairs that can be used to retreive string info. We are using only the first pair.
-        lang, codepage = win32api.GetFileVersionInfo(
-            fname, "\\VarFileInfo\\Translation"
-        )[0]
+        lang, codepage = win32api.GetFileVersionInfo(fname, "\\VarFileInfo\\Translation")[0]
 
         # any other must be of the form \StringfileInfo\%04X%04X\parm_name, middle
         # two are language/codepage pair returned from above
@@ -350,18 +337,14 @@ elif RUNTIME:
 
     if MAC:
         try:
-            with open(
-                os.path.join(os.path.dirname(__file__), "..", "Info.plist"), "rb"
-            ) as f:
+            with open(os.path.join(os.path.dirname(__file__), "..", "Info.plist"), "rb") as f:
                 plist = plistlib.load(f)
                 APPVERSION = plist["CFBundleShortVersionString"]
         except:
             pass
 
     elif WIN:
-        APPVERSION = getFileProperties(__file__)["StringFileInfo"][
-            "ProductVersion"
-        ].strip()
+        APPVERSION = getFileProperties(__file__)["StringFileInfo"]["ProductVersion"].strip()
 
         if len(APPVERSION.split(".")) == 4:
             APPVERSION = ".".join(APPVERSION.split(".")[0:-1])
@@ -451,21 +434,17 @@ class ClientDelegate(TypeWorldClientDelegate):
                     files = set(files) | set(subscription.files())
         filestore.deleteFiles(list(set(client.files()) - set(files)))
 
-    def subscriptionHasBeenDeleted(
-        self, deletedSubscription, withinPublisherDeletion, remotely
-    ):
+    def subscriptionHasBeenDeleted(self, deletedSubscription, withinPublisherDeletion, remotely):
         publisher = deletedSubscription.parent
         if publisher.subscriptions():
             publisher.set(
                 "currentSubscription",
                 publisher.subscriptions()[-1].protocol.unsecretURL(),
             )
-            self.app.frame.setPublisherHTML(
-                self.app.frame.b64encode(publisher.canonicalURL)
-            )
+            self.app.frame.setPublisherHTML(self.app.frame.b64encode(publisher.canonicalURL))
         else:
             client.set("currentPublisher", "")
-            self.app.frame.javaScript(("hideMain();"))
+            self.app.frame.javaScript("hideMain();")
 
         if remotely:
             (
@@ -504,9 +483,7 @@ class ClientDelegate(TypeWorldClientDelegate):
 
     def subscriptionHasBeenAdded(self, subscription, remotely):
         if not client.get("currentPublisher"):
-            self.app.frame.setPublisherHTML(
-                self.app.frame.b64encode(subscription.parent.canonicalURL)
-            )
+            self.app.frame.setPublisherHTML(self.app.frame.b64encode(subscription.parent.canonicalURL))
         if remotely:
             (
                 success,
@@ -530,9 +507,7 @@ class ClientDelegate(TypeWorldClientDelegate):
 
     def subscriptionWillUpdate(self, subscription):
         b64publisherID = self.app.frame.b64encode(subscription.parent.canonicalURL)
-        b64subscriptionID = self.app.frame.b64encode(
-            subscription.protocol.unsecretURL()
-        )
+        b64subscriptionID = self.app.frame.b64encode(subscription.protocol.unsecretURL())
 
         self.app.frame.javaScript(
             (
@@ -547,33 +522,23 @@ class ClientDelegate(TypeWorldClientDelegate):
 
     def subscriptionHasBeenUpdated(self, subscription, success, message, changes):
         b64publisherID = self.app.frame.b64encode(subscription.parent.canonicalURL)
-        b64subscriptionID = self.app.frame.b64encode(
-            subscription.protocol.unsecretURL()
-        )
+        b64subscriptionID = self.app.frame.b64encode(subscription.protocol.unsecretURL())
 
         if success:
             if client.get("currentPublisher") == subscription.parent.canonicalURL:
-                self.app.frame.setPublisherHTML(
-                    self.app.frame.b64encode(subscription.parent.canonicalURL)
-                )
+                self.app.frame.setPublisherHTML(self.app.frame.b64encode(subscription.parent.canonicalURL))
             self.app.frame.setSideBarHTML()
 
             # Hide alert
             self.app.frame.javaScript(
-                (
-                    f"$('#sidebar #{b64publisherID} .alert').hide();"
-                    f"$('#sidebar #{b64subscriptionID} .alert').hide();"
-                )
+                f"$('#sidebar #{b64publisherID} .alert').hide();$('#sidebar #{b64subscriptionID} .alert').hide();"
             )
 
         else:
             # Show alert
             # 				if subscription.updatingProblem():
             self.app.frame.javaScript(
-                (
-                    f"$('#sidebar #{b64publisherID} .alert').show();"
-                    f"$('#sidebar #{b64subscriptionID} .alert ').show();"
-                )
+                f"$('#sidebar #{b64publisherID} .alert').show();$('#sidebar #{b64subscriptionID} .alert ').show();"
             )
 
         # Subscription
@@ -601,9 +566,7 @@ class ClientDelegate(TypeWorldClientDelegate):
                 installableFontsCommand,
             ) = subscription.protocol.installableFontsCommand()
             if installableFontsCommand.name:
-                subscriptionName = installableFontsCommand.name.getText(
-                    locale=client.locale()
-                )
+                subscriptionName = installableFontsCommand.name.getText(locale=client.locale())
             else:
                 subscriptionName = localizeString("#(Unnamed)")
             publisherName = endpointCommand.name.getText(locale=client.locale())
@@ -633,7 +596,8 @@ class ClientDelegate(TypeWorldClientDelegate):
     def messageQueueConnected(self):
         if hasattr(self, "app"):
             self.app.frame.javaScript(
-                '$(".messageQueue .connected").show(); $(".messageQueue .error").hide(); $(".messageQueue .disconnected").hide();'
+                '$(".messageQueue .connected").show(); $(".messageQueue .error").hide(); $(".messageQueue'
+                ' .disconnected").hide();'
             )
             # Real functionality
             self.app.frame.pullServerUpdates(force=True)
@@ -641,13 +605,15 @@ class ClientDelegate(TypeWorldClientDelegate):
     def messageQueueError(self, status=None):
         if hasattr(self, "app"):
             self.app.frame.javaScript(
-                '$(".messageQueue .connected").hide(); $(".messageQueue .error").show(); $(".messageQueue .disconnected").hide();'
+                '$(".messageQueue .connected").hide(); $(".messageQueue .error").show(); $(".messageQueue'
+                ' .disconnected").hide();'
             )
 
     def messageQueueDisconnected(self):
         if hasattr(self, "app"):
             self.app.frame.javaScript(
-                '$(".messageQueue .connected").hide(); $(".messageQueue .error").hide(); $(".messageQueue .disconnected").show();'
+                '$(".messageQueue .connected").hide(); $(".messageQueue .error").hide(); $(".messageQueue'
+                ' .disconnected").show();'
             )
 
 
@@ -714,10 +680,10 @@ class FoundryStyling(object):
         # Selection Hover Color
         if self.selectionColor.darkHalf():
             self.selectionHoverColor = self.selectionColor.lighten(0.1)
-            self.selectionInactiveTextColor = self.selectionColor.lighten(0.3)
+            self.selectionInactiveTextColor = self.selectionColor.lighten(0.4)
         else:
             self.selectionHoverColor = self.selectionColor.darken(0.1)
-            self.selectionInactiveTextColor = self.selectionColor.darken(0.3)
+            self.selectionInactiveTextColor = self.selectionColor.darken(0.4)
 
         # Selection Button Color
         if self.selectionColor.darkHalf():
@@ -737,38 +703,23 @@ class FoundryStyling(object):
 
         # Information View Inactive Button Color
         if self.informationViewBackgroundColor.darkHalf():
-            self.informationViewInactiveButtonColor = (
-                self.informationViewBackgroundColor.lighten(0.15)
-            )
-            self.informationViewInactiveButtonTextColor = (
-                self.informationViewInactiveButtonColor.lighten(0.2)
-            )
+            self.informationViewInactiveButtonColor = self.informationViewBackgroundColor.lighten(0.15)
+            self.informationViewInactiveButtonTextColor = self.informationViewInactiveButtonColor.lighten(0.2)
         else:
-            self.informationViewInactiveButtonColor = (
-                self.informationViewBackgroundColor.darken(0.15)
-            )
-            self.informationViewInactiveButtonTextColor = (
-                self.informationViewInactiveButtonColor.darken(0.2)
-            )
+            self.informationViewInactiveButtonColor = self.informationViewBackgroundColor.darken(0.15)
+            self.informationViewInactiveButtonTextColor = self.informationViewInactiveButtonColor.darken(0.2)
 
         if self.informationViewLinkColor.darkHalf():
-            self.informationViewLinkColor_Darker = (
-                self.informationViewLinkColor.lighten(0.15)
-            )
+            self.informationViewLinkColor_Darker = self.informationViewLinkColor.lighten(0.15)
         else:
-            self.informationViewLinkColor_Darker = self.informationViewLinkColor.darken(
-                0.15
-            )
+            self.informationViewLinkColor_Darker = self.informationViewLinkColor.darken(0.15)
 
         if self.informationViewTextColor.darkHalf():
             self.informationViewTextColor_Darker = (
-                self.informationViewTextColor * 0.4
-                + self.informationViewBackgroundColor * 0.6
+                self.informationViewTextColor * 0.4 + self.informationViewBackgroundColor * 0.6
             )
         else:
-            self.informationViewTextColor_Darker = self.informationViewTextColor.darken(
-                0.5
-            )
+            self.informationViewTextColor_Darker = self.informationViewTextColor.darken(0.5)
 
     def logo(self):
 
@@ -960,9 +911,7 @@ def agentIsRunning():
             # Kill running app
             ID = "world.type.agent"
             # App is running, so activate it
-            apps = list(
-                NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID)
-            )
+            apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
             if apps:
                 mainApp = apps[0]
                 return True
@@ -980,13 +929,8 @@ def waitToLaunchAgent():
         time.sleep(2)
 
         if MAC:
-            agentPath = os.path.expanduser(
-                "~/Library/Application Support/Type.World/Type.World Agent.app"
-            )
-            os.system(
-                '"%s" &'
-                % os.path.join(agentPath, "Contents", "MacOS", "Type.World Agent")
-            )
+            agentPath = os.path.expanduser("~/Library/Application Support/Type.World/Type.World Agent.app")
+            os.system('"%s" &' % os.path.join(agentPath, "Contents", "MacOS", "Type.World Agent"))
 
             unlock()
 
@@ -1033,15 +977,9 @@ def installAgent():
 
                         from AppKit import NSBundle
 
-                        zipPath = NSBundle.mainBundle().pathForResource_ofType_(
-                            "agent", "tar.bz2"
-                        )
-                        plistPath = os.path.expanduser(
-                            "~/Library/LaunchAgents/world.type.agent.plist"
-                        )
-                        agentPath = os.path.expanduser(
-                            "~/Library/Application Support/Type.World/Type.World Agent.app"
-                        )
+                        zipPath = NSBundle.mainBundle().pathForResource_ofType_("agent", "tar.bz2")
+                        plistPath = os.path.expanduser("~/Library/LaunchAgents/world.type.agent.plist")
+                        agentPath = os.path.expanduser("~/Library/Application Support/Type.World/Type.World Agent.app")
                         plist = (
                             """<?xml version="1.0" encoding="UTF-8"?>
                 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -1102,9 +1040,7 @@ def installAgent():
                         client.log("lock() from within installAgent()")
 
                         # 			file_path = os.path.join(os.path.dirname(__file__), r'TypeWorld Taskbar Agent.exe')
-                        file_path = os.path.join(
-                            os.path.dirname(__file__), r"TypeWorld Taskbar Agent.exe"
-                        )
+                        file_path = os.path.join(os.path.dirname(__file__), r"TypeWorld Taskbar Agent.exe")
                         file_path = file_path.replace(r"\\Mac\Home", "Z:")
                         client.log(file_path)
 
@@ -1113,8 +1049,7 @@ def installAgent():
                         USER_NAME = getpass.getuser()
 
                         bat_path = (
-                            r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup"
-                            % USER_NAME
+                            r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup" % USER_NAME
                         )
                         bat_command = 'start "" "%s"' % file_path
 
@@ -1154,19 +1089,13 @@ def uninstallAgent():
         client.log("lock() from within uninstallAgent()")
         if MAC:
 
-            plistPath = os.path.expanduser(
-                "~/Library/LaunchAgents/world.type.agent.plist"
-            )
-            agentPath = os.path.expanduser(
-                "~/Library/Application Support/Type.World/Type.World Agent.app"
-            )
+            plistPath = os.path.expanduser("~/Library/LaunchAgents/world.type.agent.plist")
+            agentPath = os.path.expanduser("~/Library/Application Support/Type.World/Type.World Agent.app")
 
             # Kill running app
             ID = "world.type.agent"
             # App is running, so activate it
-            apps = list(
-                NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID)
-            )
+            apps = list(NSRunningApplication.runningApplicationsWithBundleIdentifier_(ID))
             if apps:
                 mainApp = apps[0]
                 mainApp.terminate()
@@ -1188,8 +1117,7 @@ def uninstallAgent():
             USER_NAME = getpass.getuser()
 
             bat_path = (
-                r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\TypeWorld.bat"
-                % USER_NAME
+                r"C:\Users\%s\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\TypeWorld.bat" % USER_NAME
             )
             if os.path.exists(bat_path):
                 os.remove(bat_path)
@@ -1209,9 +1137,7 @@ def localizeString(string, html=False, replace={}):
             for key in replace:
                 if type(replace[key]) == dict:
                     text = typeworld.api.MultiLanguageText(dict=replace[key])
-                    string = string.replace(
-                        "%" + str(key) + "%", text.getText(client.locale())
-                    )
+                    string = string.replace("%" + str(key) + "%", text.getText(client.locale()))
                 else:
                     string = string.replace("%" + str(key) + "%", str(replace[key]))
 
@@ -1231,9 +1157,7 @@ if MAC and RUNTIME:
     # Path to Sparkle's "Sparkle.framework" inside your app bundle
 
     if ".app" in os.path.dirname(__file__):
-        SPARKLE_PATH = os.path.join(
-            os.path.dirname(__file__), "..", "Frameworks", "Sparkle.framework"
-        )
+        SPARKLE_PATH = os.path.join(os.path.dirname(__file__), "..", "Frameworks", "Sparkle.framework")
 
         from objc import pathForFramework, loadBundle
 
@@ -1276,18 +1200,14 @@ if MAC and RUNTIME:
                 self.destroyIfRemotelyCalled()
 
             def updater_didFindValidUpdate_(self, updater, appcastItem):
-                client.log(
-                    "sparkleUpdateDelegate.updater_didFindValidUpdate_() finished"
-                )
+                client.log("sparkleUpdateDelegate.updater_didFindValidUpdate_() finished")
 
                 self.updateFound = True
                 self.downloadStarted = False
 
                 app = wx.GetApp()
                 app.frame.javaScript("$('#updateAvailable').slideDown();")
-                waitForUpdateThread = Thread(
-                    target=waitForUpdateToFinish, args=(app, updater, self)
-                )
+                waitForUpdateThread = Thread(target=waitForUpdateToFinish, args=(app, updater, self))
                 waitForUpdateThread.start()
 
             def updaterDidNotFindUpdate_(self, updater):
@@ -1304,30 +1224,20 @@ if MAC and RUNTIME:
                 client.log("sparkleUpdateDelegate.updater_didFinishLoadingAppcast_()")
 
             def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
-                client.log(
-                    "sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()"
-                )
+                client.log("sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()")
 
             def bestValidUpdateInAppcast_forUpdater_(self, appcast, updater):
-                client.log(
-                    "sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()"
-                )
+                client.log("sparkleUpdateDelegate.bestValidUpdateInAppcast_forUpdater_()")
 
-            def updater_willDownloadUpdate_withRequest_(
-                self, updater, appcast, request
-            ):
-                client.log(
-                    "sparkleUpdateDelegate.updater_willDownloadUpdate_withRequest_()"
-                )
+            def updater_willDownloadUpdate_withRequest_(self, updater, appcast, request):
+                client.log("sparkleUpdateDelegate.updater_willDownloadUpdate_withRequest_()")
                 self.downloadStarted = True
 
             def updater_didDownloadUpdate_(self, updater, item):
                 client.log("sparkleUpdateDelegate.updater_didDownloadUpdate_()")
 
             def updater_failedToDownloadUpdate_error_(self, updater, item, error):
-                client.log(
-                    "sparkleUpdateDelegate.updater_failedToDownloadUpdate_error_()"
-                )
+                client.log("sparkleUpdateDelegate.updater_failedToDownloadUpdate_error_()")
 
             def updater_willExtractUpdate_(self, updater, item):
                 client.log("sparkleUpdateDelegate.updater_willExtractUpdate_()")
@@ -1372,7 +1282,7 @@ if WIN:
             # Do nothing here for Windows because we didn't create an app instance
 
         def pywinsparkle_no_update_found(self):
-            """ when no update has been found, close the updater"""
+            """when no update has been found, close the updater"""
             print("pywinsparkle_no_update_found()")
 
             client.log("No update found")
@@ -1384,7 +1294,7 @@ if WIN:
                 app.frame.javaScript("$('#updateAvailable').slideUp();")
 
         def pywinsparkle_found_update(self):
-            """ log that an update was found """
+            """log that an update was found"""
             print("pywinsparkle_found_update()")
 
             client.log("New Update Available")
@@ -1408,7 +1318,7 @@ if WIN:
             self.updateInProgress = False
 
         def pywinsparkle_shutdown(self):
-            """ The installer is being launched signal the updater to shutdown """
+            """The installer is being launched signal the updater to shutdown"""
             print("pywinsparkle_shutdown()")
             # actually shutdown the app here
             client.log("Safe to shutdown before installing")
@@ -1442,30 +1352,20 @@ if WIN:
             print("pywinsparkle delegate check_without_ui()")
 
             # register callbacks
-            pywinsparkle.win_sparkle_set_did_find_update_callback(
-                self.pywinsparkle_found_update
-            )
-            pywinsparkle.win_sparkle_set_did_not_find_update_callback(
-                self.pywinsparkle_no_update_found
-            )
-            pywinsparkle.win_sparkle_set_error_callback(
-                self.pywinsparkle_encountered_error
-            )
-            pywinsparkle.win_sparkle_set_update_cancelled_callback(
-                self.pywinsparkle_update_cancelled
-            )
-            pywinsparkle.win_sparkle_set_shutdown_request_callback(
-                self.pywinsparkle_shutdown
-            )
+            pywinsparkle.win_sparkle_set_did_find_update_callback(self.pywinsparkle_found_update)
+            pywinsparkle.win_sparkle_set_did_not_find_update_callback(self.pywinsparkle_no_update_found)
+            pywinsparkle.win_sparkle_set_error_callback(self.pywinsparkle_encountered_error)
+            pywinsparkle.win_sparkle_set_update_cancelled_callback(self.pywinsparkle_update_cancelled)
+            pywinsparkle.win_sparkle_set_shutdown_request_callback(self.pywinsparkle_shutdown)
 
             # set application details
-            update_url = f"https://api.type.world/appcast/world.type.guiapp/windows/normal/appcast.xml?t={int(time.time())}"
+            update_url = (
+                f"https://api.type.world/appcast/world.type.guiapp/windows/normal/appcast.xml?t={int(time.time())}"
+            )
             print("winsparkle init")
             pywinsparkle.win_sparkle_set_appcast_url(update_url)
             pywinsparkle.win_sparkle_set_automatic_check_for_updates(1)
-            pywinsparkle.win_sparkle_set_app_details(
-                "Type.World", "Type.World", APPVERSION
-            )
+            pywinsparkle.win_sparkle_set_app_details("Type.World", "Type.World", APPVERSION)
 
             pywinsparkle.win_sparkle_set_dsa_pub_pem(
                 """-----BEGIN PUBLIC KEY-----
@@ -1519,9 +1419,7 @@ ziwuJDBJ75bzmLBh1nhU9olZNEUNIqxAmAw6
 
 
 if WIN and RUNTIME:
-    sys._MEIPASS = os.path.join(
-        os.path.dirname(__file__), "lib", "pywinsparkle", "libs", "x64"
-    )
+    sys._MEIPASS = os.path.join(os.path.dirname(__file__), "lib", "pywinsparkle", "libs", "x64")
     from pywinsparkle import pywinsparkle
 
     pywinsparkleDelegate = SparkleUpdateDelegate()
@@ -1539,6 +1437,7 @@ class AppFrame(wx.Frame):
             self.lastMinuteCheck = 0
             self.lastOnlineCheck = 0
             self.lastSystemWake = None
+            self.serverSyncInProgress = False
 
             self.allowedToPullServerUpdates = True
             self.allowCheckForURLInFile = True
@@ -1564,7 +1463,9 @@ class AppFrame(wx.Frame):
                             publisher.delete()
 
                         self.messages.append(
-                            "Due to a change in the subscription security and login infrastructure, all subscriptions were removed. The API endpoints need to be adjusted and subscriptions re-added following the new guidelines. See https://type.world/app/ for the release notes."
+                            "Due to a change in the subscription security and login infrastructure, all subscriptions"
+                            " were removed. The API endpoints need to be adjusted and subscriptions re-added following"
+                            " the new guidelines. See https://type.world/app/ for the release notes."
                         )
 
             if not client.get("appVersion"):
@@ -1581,9 +1482,7 @@ class AppFrame(wx.Frame):
             client.set("appVersion", APPVERSION)
 
             # This should be unnecessary, but let's keep it here. More resilience.
-            if client.get(
-                "currentPublisher"
-            ) == "pendingInvitations" and not client.get("pendingInvitations"):
+            if client.get("currentPublisher") == "pendingInvitations" and not client.get("pendingInvitations"):
                 client.set("currentPublisher", "")
 
             if client.get("currentPublisher") == "None":
@@ -1671,9 +1570,7 @@ class AppFrame(wx.Frame):
         # 			client.log('AppFrame.__init__() finished')
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onMouseDown(self, event):
         pass
@@ -1704,9 +1601,7 @@ class AppFrame(wx.Frame):
             )
             self.Bind(wx.EVT_MENU, self.onCheckForUpdates, m_CheckForUpdates)
             if MAC:
-                m_closewindow = menu.Append(
-                    wx.ID_CLOSE, "%s\tCtrl+W" % (localizeString("#(Close Window)"))
-                )
+                m_closewindow = menu.Append(wx.ID_CLOSE, "%s\tCtrl+W" % (localizeString("#(Close Window)")))
                 self.Bind(wx.EVT_MENU, self.onClose, m_closewindow)
             m_exit = menu.Append(
                 wx.ID_EXIT,
@@ -1728,9 +1623,7 @@ class AppFrame(wx.Frame):
             editMenu = wx.Menu()
             editMenu.Append(wx.ID_UNDO, "%s\tCtrl-Z" % (localizeString("#(Undo)")))
             editMenu.AppendSeparator()
-            editMenu.Append(
-                wx.ID_SELECTALL, "%s\tCtrl-A" % (localizeString("#(Select All)"))
-            )
+            editMenu.Append(wx.ID_SELECTALL, "%s\tCtrl-A" % (localizeString("#(Select All)")))
             editMenu.Append(wx.ID_COPY, "%s\tCtrl-C" % (localizeString("#(Copy)")))
             editMenu.Append(wx.ID_CUT, "%s\tCtrl-X" % (localizeString("#(Cut)")))
             editMenu.Append(wx.ID_PASTE, "%s\tCtrl-V" % (localizeString("#(Paste)")))
@@ -1748,9 +1641,7 @@ class AppFrame(wx.Frame):
             menuBar.Append(editMenu, "&%s" % (localizeString("#(Edit)")))
 
             menu = wx.Menu()
-            m_about = menu.Append(
-                wx.ID_ABOUT, "&%s %s" % (localizeString("#(About)"), APPNAME)
-            )
+            m_about = menu.Append(wx.ID_ABOUT, "&%s %s" % (localizeString("#(About)"), APPNAME))
             self.Bind(wx.EVT_MENU, self.onAbout, m_about)
 
             if MAC:
@@ -1790,9 +1681,7 @@ class AppFrame(wx.Frame):
             self.SetMenuBar(menuBar)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def javaScript(self, code):
         if self.fullyLoaded:
@@ -1809,18 +1698,14 @@ class AppFrame(wx.Frame):
                 wargs=(code,),
             )
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def threadSafeJavaScript_worker(self, code):
         try:
             return code
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def threadSafeJavaScript_consumer(self, delayedResult):
         try:
@@ -1828,17 +1713,13 @@ class AppFrame(wx.Frame):
             self.executeJavaScript(code)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def executeJavaScript(self, code):
         try:
             self.html.RunScript(code)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def publishersNames(self):
         try:
@@ -1846,15 +1727,11 @@ class AppFrame(wx.Frame):
             publishers = []
             for i, key in enumerate(client.endpoints.keys()):
                 endpoint = client.endpoints[key]
-                name, language = endpoint.latestVersion().name.getTextAndLocale(
-                    locale=client.locale()
-                )
+                name, language = endpoint.latestVersion().name.getTextAndLocale(locale=client.locale())
                 publishers.append((i, name, language))
             return publishers
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onSyncUserAccount(self, event):
         try:
@@ -1862,9 +1739,7 @@ class AppFrame(wx.Frame):
             self.pullServerUpdates(force=True)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onCheckForUpdates(self, event):
         try:
@@ -1879,27 +1754,21 @@ class AppFrame(wx.Frame):
                 pywinsparkleDelegate.check_with_ui()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onReloadCSS(self, event):
         try:
             self.javaScript("ReloadCSS()")
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onUploadSubscriptionAsIs(self, event):
         try:
             client.uploadSubscriptions()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     # def onToggleUpdateNotification(self, event):
     #     try:
@@ -1919,9 +1788,7 @@ class AppFrame(wx.Frame):
             else:
                 self.onQuit(event)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onQuit(self, event, withExitCode=None):
         try:
@@ -1933,15 +1800,14 @@ class AppFrame(wx.Frame):
                 dlg = wx.MessageDialog(
                     None,
                     localizeString(
-                        "You have installed %s font(s) that are under active expiration. Quitting the app will remove these fonts. Do you want to continue?"
+                        "You have installed %s font(s) that are under active expiration. Quitting the app will remove"
+                        " these fonts. Do you want to continue?"
                         % len(expiringInstalledFonts)
                     ),
                     localizeString("Active expiration fonts"),
                     wx.YES_NO | wx.ICON_QUESTION,
                 )
-                dlg.SetYesNoLabels(
-                    localizeString("#(Remove and Quit)"), localizeString("#(Cancel)")
-                )
+                dlg.SetYesNoLabels(localizeString("#(Remove and Quit)"), localizeString("#(Cancel)"))
                 result = dlg.ShowModal()
                 if result == wx.ID_YES:
 
@@ -2000,14 +1866,10 @@ class AppFrame(wx.Frame):
             self.Destroy()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def visitUserAccount(self):
-        token = client.keyring().get_password(
-            client.userKeychainKey(client.user()), "typeWorldWebsiteToken"
-        )
+        token = client.keyring().get_password(client.userKeychainKey(client.user()), "typeWorldWebsiteToken")
         webbrowser.open_new_tab("https://type.world/account?userAccountToken=" + token)
 
     def pullServerUpdates(self, force=False):
@@ -2020,22 +1882,19 @@ class AppFrame(wx.Frame):
                 or force
             ):
                 if self.allowedToPullServerUpdates:
+                    self.serverSyncInProgress = True
                     startWorker(
                         self.pullServerUpdates_consumer,
                         self.pullServerUpdates_worker,
                     )
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def pullServerUpdates_worker(self):
         try:
             return client.downloadSubscriptions()
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def pullServerUpdates_consumer(self, delayedResult):
 
@@ -2045,35 +1904,24 @@ class AppFrame(wx.Frame):
             self.redraw()
 
             if success:
-                self.javaScript(
-                    (
-                        '$("#sidebarBottom .alert").hide();'
-                        '$("#sidebarBottom .noAlert").show();'
-                    )
-                )
+                client.set("lastServerSync", time.time())
+                self.javaScript('$("#sidebarBottom .alert").hide();$("#sidebarBottom .noAlert").show();')
 
             else:
 
-                self.javaScript(
-                    (
-                        '$("#sidebarBottom .alert").show();'
-                        '$("#sidebarBottom .noAlert").hide();'
-                    )
-                )
+                self.javaScript('$("#sidebarBottom .alert").show();$("#sidebarBottom .noAlert").hide();')
+
+            self.serverSyncInProgress = True
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onInactivate(self, event):
         try:
             if client.get("currentPublisher"):
                 self.setPublisherHTML(self.b64encode(client.get("currentPublisher")))
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onActivate(self, event):
         try:
@@ -2122,9 +1970,7 @@ class AppFrame(wx.Frame):
                 #     checkOnlineThread.start()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def redraw(self):
         try:
@@ -2133,55 +1979,39 @@ class AppFrame(wx.Frame):
                 publisher = client.publisher(client.get("currentPublisher"))
                 self.setPublisherHTML(self.b64encode(client.get("currentPublisher")))
                 if publisher.get("currentSubscription"):
-                    subscription = publisher.subscription(
-                        publisher.get("currentSubscription")
-                    )
+                    subscription = publisher.subscription(publisher.get("currentSubscription"))
                     if subscription.get("currentFont"):
-                        self.setMetadataHTML(
-                            self.b64encode(subscription.get("currentFont"))
-                        )
+                        self.setMetadataHTML(self.b64encode(subscription.get("currentFont")))
             self.setSideBarHTML()
             self.setBadges()
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def theme(self):
         try:
             if MAC:
-                if (
-                    NSUserDefaults.standardUserDefaults().objectForKey_(
-                        "AppleInterfaceStyle"
-                    )
-                    == "Dark"
-                ):
+                if NSUserDefaults.standardUserDefaults().objectForKey_("AppleInterfaceStyle") == "Dark":
                     return "dark"
                 else:
                     return "light"
             else:
                 return "light"
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def applyDarkMode(self):
         try:
             if platform.mac_ver()[0].split(".") > "10.14.0".split("."):
                 self.javaScript(
                     (
-                        "$('body').removeClass('light');"
-                        "$('body').removeClass('dark');"
-                        "$('body').addClass('%s');" % self.theme()
+                        "$('body').removeClass('light');$('body').removeClass('dark');$('body').addClass('%s');"
+                        % self.theme()
                     )
                 )
                 self.redraw()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onResize(self, event):
         try:
@@ -2195,18 +2025,14 @@ class AppFrame(wx.Frame):
             client.set("sizeMainWindow", (self.GetSize()[0], self.GetSize()[1]))
             event.Skip()
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onAbout(self, event):
         try:
             html = []
 
             html.append('<p style="text-align: center; margin-bottom: 20px;">')
-            html.append(
-                '<img src="file://##htmlroot##/icon.svg" style="width: 150px; height: 150px;"><br />'
-            )
+            html.append('<img src="file://##htmlroot##/icon.svg" style="width: 150px; height: 150px;"><br />')
             html.append("</p>")
             html.append('<p style="margin-bottom: 20px;">')
             html.append("#(AboutText)")
@@ -2218,16 +2044,8 @@ class AppFrame(wx.Frame):
             html.append('<p style="margin-bottom: 20px;">')
             html.append("#(We thank our Patrons):")
             html.append("<br />")
-            patrons = json.loads(
-                ReadFromFile(
-                    os.path.join(os.path.dirname(__file__), "patrons", "patrons.json")
-                )
-            )
-            html.append(
-                "<b>"
-                + "</b>, <b>".join([x.replace(" ", "&nbsp;") for x in patrons])
-                + "</b>"
-            )
+            patrons = json.loads(ReadFromFile(os.path.join(os.path.dirname(__file__), "patrons", "patrons.json")))
+            html.append("<b>" + "</b>, <b>".join([x.replace(" ", "&nbsp;") for x in patrons]) + "</b>")
             html.append("</p>")
 
             # Translators
@@ -2245,9 +2063,7 @@ class AppFrame(wx.Frame):
             html.append('<p style="margin-bottom: 20px;">')
             html.append("#(Anonymous App ID): %s<br />" % client.anonymousAppID())
             html.append("#(Version) %s<br />" % APPVERSION)
-            html.append(
-                '#(Version History) #(on) <a href="https://type.world/app">type.world/app</a>'
-            )
+            html.append('#(Version History) #(on) <a href="https://type.world/app">type.world/app</a>')
             html.append("</p>")
             # html.append(u'<p>')
             # html.append(u'<a class="button" onclick="python('self.sparkle.checkForUpdates_(None)');">#(Check for App Updates)</a>')
@@ -2260,20 +2076,16 @@ class AppFrame(wx.Frame):
             html = html.replace('"', "'")
             html = html.replace("\n", " ")
             js = '$("#about .inner").html("' + html + '");'
-            self.javaScript((f"{js}" "documentReady();" "showAbout();"))
+            self.javaScript(f"{js}documentReady();showAbout();")
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def resetDialogs(self):
         try:
             client.set("seenDialogs", [])
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def unlinkUserAccount(self):
         try:
@@ -2283,9 +2095,7 @@ class AppFrame(wx.Frame):
 
                 self.onPreferences(None, "userAccount")
                 if client.get("currentPublisher"):
-                    self.setPublisherHTML(
-                        self.b64encode(client.get("currentPublisher"))
-                    )
+                    self.setPublisherHTML(self.b64encode(client.get("currentPublisher")))
                 self.updateMessageQueueStatus()
 
             else:
@@ -2294,15 +2104,11 @@ class AppFrame(wx.Frame):
 
             self.setSideBarHTML()
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def createUserAccount(self, name, email, password1, password2):
         try:
-            success, message = client.createUserAccount(
-                name, email, password1, password2
-            )
+            success, message = client.createUserAccount(name, email, password1, password2)
             if not success:
                 self.errorMessage(message)
             else:
@@ -2310,9 +2116,7 @@ class AppFrame(wx.Frame):
                 self.onPreferences(None, "userAccount")
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def resendEmailVerification(self):
         success, message = client.resendEmailVerification()
@@ -2331,9 +2135,7 @@ class AppFrame(wx.Frame):
                 self.updateMessageQueueStatus()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def revokeAppInstance(self, anonymousAppID):
 
@@ -2358,9 +2160,7 @@ class AppFrame(wx.Frame):
                 else:
                     self.errorMessage(response, "#(Revoke App)")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def reactivateAppInstance(self, anonymousAppID):
 
@@ -2371,9 +2171,7 @@ class AppFrame(wx.Frame):
                 localizeString("#(Reactivate App)"),
                 wx.YES_NO | wx.ICON_QUESTION,
             )
-            dlg.SetYesNoLabels(
-                localizeString("#(Reactivate)"), localizeString("#(Cancel)")
-            )
+            dlg.SetYesNoLabels(localizeString("#(Reactivate)"), localizeString("#(Cancel)"))
             result = dlg.ShowModal() == wx.ID_YES
             dlg.Destroy()
 
@@ -2386,9 +2184,7 @@ class AppFrame(wx.Frame):
                 else:
                     self.errorMessage(response, "#(Reactivate App)")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onPreferences(self, event, section="generalPreferences"):
 
@@ -2404,36 +2200,26 @@ class AppFrame(wx.Frame):
             for keyword, title, condition in (
                 (
                     "generalPreferences",
-                    localizeString(
-                        '<span class="material-icons">settings</span> #(Preferences)'
-                    ),
+                    localizeString('<span class="material-icons">settings</span> #(Preferences)'),
                     True,
                 ),
                 (
                     "userAccount",
-                    localizeString(
-                        '<span class="material-icons">account_circle</span> #(User Account)'
-                    ),
+                    localizeString('<span class="material-icons">account_circle</span> #(User Account)'),
                     True,
                 ),
                 (
                     "linkedApps",
-                    localizeString(
-                        '<span class="material-icons">devices</span> #(Linked Apps)'
-                    ),
+                    localizeString('<span class="material-icons">devices</span> #(Linked Apps)'),
                     client.user(),
                 ),
             ):
 
                 if condition:
-                    html.append(
-                        '<div class="tab %s %s">'
-                        % (keyword, "active" if section == keyword else "")
-                    )
+                    html.append('<div class="tab %s %s">' % (keyword, "active" if section == keyword else ""))
                     if keyword != section:
                         html.append(
-                            '<a href="https://type.world/x-python/self.onPreferences(None, ____%s____)">'
-                            % keyword
+                            '<a href="https://type.world/x-python/self.onPreferences(None, ____%s____)">' % keyword
                         )
                     html.append(title)
                     if keyword != section:
@@ -2453,29 +2239,24 @@ class AppFrame(wx.Frame):
                 if not success:
 
                     if instances[0] == "#(response.appInstanceRevoked)":
-                        html.append(
-                            "This app instance is revoked an cannot access other app instance information."
-                        )
+                        html.append("This app instance is revoked an cannot access other app instance information.")
                     else:
                         html.append(instances)
 
                 else:
                     for instance in instances:
-                        html.append(
-                            '<div class="appInstance clear" style="margin-bottom: 20px;">'
-                        )
+                        html.append('<div class="appInstance clear" style="margin-bottom: 20px;">')
 
                         # html.append(instance.anonymousAppID)
                         # html.append('</div>') # .appInstance
 
-                        html.append(
-                            '<div style="float: left; width: 100px; margin-left: 20px;">'
-                        )
+                        html.append('<div style="float: left; width: 100px; margin-left: 20px;">')
 
                         image = instance.image
                         if image:
                             html.append(
-                                f'<img src="file://##htmlroot##/machineModels/{image}" style="width: 80px; margin-top: 10px;">'
+                                f'<img src="file://##htmlroot##/machineModels/{image}" style="width: 80px; margin-top:'
+                                ' 10px;">'
                             )
 
                         html.append("</div>")
@@ -2485,9 +2266,7 @@ class AppFrame(wx.Frame):
 
                         html.append("<b>")
                         html.append(
-                            instance.machineNodeName
-                            or instance.machineHumanReadableName
-                            or instance.anonymousAppID
+                            instance.machineNodeName or instance.machineHumanReadableName or instance.anonymousAppID
                         )
                         html.append("</b>")
                         if instance.anonymousAppID == client.anonymousAppID():
@@ -2498,9 +2277,7 @@ class AppFrame(wx.Frame):
                             instance.machineModelIdentifier
                             and instance.machineModelIdentifier.startswith("Parallels")
                             or instance.machineHumanReadableName
-                            and instance.machineHumanReadableName.startswith(
-                                "Parallels"
-                            )
+                            and instance.machineHumanReadableName.startswith("Parallels")
                         ):
                             html.append("Parallels Desktop Virtual Machine")
                             html.append("<br />")
@@ -2521,25 +2298,20 @@ class AppFrame(wx.Frame):
                             if src:
                                 url = f"file://##htmlroot##/machineModels/{src}"
                                 html.append(
-                                    f'<img src="{url}" style="width: 16px; position: relative; top: 3px; margin-right: 5px;">'
+                                    f'<img src="{url}" style="width: 16px; position: relative; top: 3px; margin-right:'
+                                    ' 5px;">'
                                 )
                             html.append(instance.machineOSVersion)
 
                         if instance.revoked:
                             html.append("<br />")
                             html.append("<div>")
-                            html.append(
-                                '<span class_="box" style="background-color: orange; padding: 3px;">'
-                            )
+                            html.append('<span class_="box" style="background-color: orange; padding: 3px;">')
                             html.append(
                                 "#(Revoked): %s %s"
                                 % (
-                                    locales.formatDate(
-                                        instance.revokedTime, client.locale()
-                                    ),
-                                    locales.formatTime(
-                                        instance.revokedTime, client.locale()
-                                    ),
+                                    locales.formatDate(instance.revokedTime, client.locale()),
+                                    locales.formatTime(instance.revokedTime, client.locale()),
                                 )
                             )
                             html.append("</span>")
@@ -2547,21 +2319,14 @@ class AppFrame(wx.Frame):
 
                         else:
                             if instance.lastUsed:
-                                if (
-                                    not instance.anonymousAppID
-                                    == client.anonymousAppID()
-                                ):
+                                if not instance.anonymousAppID == client.anonymousAppID():
                                     html.append("<br />")
                                     html.append('<span style="color: #888;">')
                                     html.append(
                                         "#(Last active): %s %s"
                                         % (
-                                            locales.formatDate(
-                                                instance.lastUsed, client.locale()
-                                            ),
-                                            locales.formatTime(
-                                                instance.lastUsed, client.locale()
-                                            ),
+                                            locales.formatDate(instance.lastUsed, client.locale()),
+                                            locales.formatTime(instance.lastUsed, client.locale()),
                                         )
                                     )
 
@@ -2576,11 +2341,15 @@ class AppFrame(wx.Frame):
                         if not instance.anonymousAppID == client.anonymousAppID():
                             if instance.revoked:
                                 html.append(
-                                    f'<a class="button" href="https://type.world/x-python/self.reactivateAppInstance(____{instance.anonymousAppID}____)">#(Reactivate App)</a>'
+                                    '<a class="button"'
+                                    f' href="https://type.world/x-python/self.reactivateAppInstance(____{instance.anonymousAppID}____)">#(Reactivate'
+                                    " App)</a>"
                                 )
                             else:
                                 html.append(
-                                    f'<a class="button" href="https://type.world/x-python/self.revokeAppInstance(____{instance.anonymousAppID}____)">#(Revoke App)</a>'
+                                    '<a class="button"'
+                                    f' href="https://type.world/x-python/self.revokeAppInstance(____{instance.anonymousAppID}____)">#(Revoke'
+                                    " App)</a>"
                                 )
                         html.append("</div>")  # Revoke/Activate
 
@@ -2595,9 +2364,7 @@ class AppFrame(wx.Frame):
                     html.append("<p>")
                     html.append("#(Linked User Account): ")
                     if client.userName() and client.userEmail():
-                        html.append(
-                            "<b>%s</b> (%s)" % (client.userName(), client.userEmail())
-                        )
+                        html.append("<b>%s</b> (%s)" % (client.userName(), client.userEmail()))
                     elif client.userEmail():
                         html.append("<b>%s</b>" % (client.userEmail()))
                     html.append("</p>")
@@ -2613,9 +2380,7 @@ class AppFrame(wx.Frame):
                     if client.get("userAccountEmailIsVerified"):
                         html.append("#(verified)")
                     else:
-                        html.append(
-                            '<span class_="box" style="background-color: orange; padding: 3px;">'
-                        )
+                        html.append('<span class_="box" style="background-color: orange; padding: 3px;">')
                         html.append("#(unverified)")
                         html.append("</span>")
                         html.append("</p>")
@@ -2648,18 +2413,14 @@ class AppFrame(wx.Frame):
                     html.append("#(UnlinkUserAccountExplanation)")
                     html.append("</p>")
                     html.append("<p>")
-                    html.append(
-                        '<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>'
-                    )
+                    html.append('<a id="unlinkAppButton" class="button">#(Unlink User Account)</a>')
                     html.append("</p>")
                 else:
 
                     # 				html.append('#(NoUserAccountLinked)<br />#(PleaseCreateUserAccountExplanation)')
 
                     html.append('<div class="clear">')
-                    html.append(
-                        '<div style="float: left; width: 47%; margin-right: 6%;">'
-                    )
+                    html.append('<div style="float: left; width: 47%; margin-right: 6%;">')
 
                     html.append("<div>")
                     html.append("<form>")
@@ -2667,19 +2428,22 @@ class AppFrame(wx.Frame):
                     html.append("#(Name)")
                     html.append("<br />")
                     html.append(
-                        '<input type="text" name="createAccountUserName" id="createAccountUserName" placeholder="#(John Doe)">'
+                        '<input type="text" name="createAccountUserName" id="createAccountUserName"'
+                        ' placeholder="#(John Doe)">'
                     )
                     html.append("<br />")
                     html.append("#(Email Address)")
                     html.append("<br />")
                     html.append(
-                        '<input type="text" name="createAccountUserEmail" id="createAccountUserEmail" placeholder="#(johndoe@gmail.com)" autocomplete="username">'
+                        '<input type="text" name="createAccountUserEmail" id="createAccountUserEmail"'
+                        ' placeholder="#(johndoe@gmail.com)" autocomplete="username">'
                     )
                     html.append("<br />")
                     html.append("#(Password)")
                     html.append("<br />")
                     html.append(
-                        '<input type="password" name="createAccountUserPassword" id="createAccountUserPassword" autocomplete="new-password">'
+                        '<input type="password" name="createAccountUserPassword" id="createAccountUserPassword"'
+                        ' autocomplete="new-password">'
                     )
                     html.append("<br />")
                     html.append("#(Repeat Password)")
@@ -2690,9 +2454,7 @@ class AppFrame(wx.Frame):
                     html.append("</div>")
 
                     html.append("<p>")
-                    html.append(
-                        '<a id="createAccountButton" class="button">#(Create Account)</a>'
-                    )
+                    html.append('<a id="createAccountButton" class="button">#(Create Account)</a>')
                     html.append("</p>")
                     html.append(
                         """<script>$("#preferences #createAccountButton").click(function() {
@@ -2712,13 +2474,15 @@ class AppFrame(wx.Frame):
                     html.append("#(Email Address)")
                     html.append("<br />")
                     html.append(
-                        '<input type="text" name="loginUserEmail" id="loginUserEmail" placeholder="#(johndoe@gmail.com)" autocomplete="username">'
+                        '<input type="text" name="loginUserEmail" id="loginUserEmail"'
+                        ' placeholder="#(johndoe@gmail.com)" autocomplete="username">'
                     )
                     html.append("<br />")
                     html.append("#(Password)")
                     html.append("<br />")
                     html.append(
-                        '<input type="password" name="loginUserPassword" id="loginUserPassword" autocomplete="current-password">'
+                        '<input type="password" name="loginUserPassword" id="loginUserPassword"'
+                        ' autocomplete="current-password">'
                     )
                     html.append("</div>")
 
@@ -2727,9 +2491,7 @@ class AppFrame(wx.Frame):
                     html.append("</p>")
 
                     html.append("<p>")
-                    html.append(
-                        '<a href="https://type.world/resetpassword">#(I Forgot My Password) ↗</a>'
-                    )
+                    html.append('<a href="https://type.world/resetpassword">#(I Forgot My Password) ↗</a>')
                     html.append("</p>")
 
                     html.append(
@@ -2815,29 +2577,28 @@ class AppFrame(wx.Frame):
                 html.append("<h2>App Language</h2>")
                 html.append("<p>")
                 html.append(
-                    '<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType" %s><label for="systemLocale">Use System Language (%s)</label></span>'
+                    '<span><input id="systemLocale" value="systemLocale" type="radio" name="localizationType"'
+                    ' %s><label for="systemLocale">Use System Language (%s)</label></span>'
                     % (
-                        "checked"
-                        if client.get("localizationType") == "systemLocale"
-                        else "",
+                        "checked" if client.get("localizationType") == "systemLocale" else "",
                         systemLocale,
                     )
                 )
                 html.append(
-                    '<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType", "systemLocale");});</script>'
+                    '<script>$("#preferences #systemLocale").click(function() {setPreference("localizationType",'
+                    ' "systemLocale");});</script>'
                 )
                 html.append("</p>")
                 html.append("<p>")
                 html.append(
-                    '<span><input id="customLocale" value="customLocale" type="radio" name="localizationType" %s><label for="customLocale">Use Custom Language (choose below). Requires app restart to take full effect.</label></span>'
-                    % (
-                        "checked"
-                        if client.get("localizationType") == "customLocale"
-                        else ""
-                    )
+                    '<span><input id="customLocale" value="customLocale" type="radio" name="localizationType"'
+                    ' %s><label for="customLocale">Use Custom Language (choose below). Requires app restart to take'
+                    " full effect.</label></span>"
+                    % ("checked" if client.get("localizationType") == "customLocale" else "")
                 )
                 html.append(
-                    '<script>$("#preferences #customLocale").click(function() {setPreference("localizationType", "customLocale");});</script>'
+                    '<script>$("#preferences #customLocale").click(function() {setPreference("localizationType",'
+                    ' "customLocale");});</script>'
                 )
                 html.append("</p>")
                 html.append("<p>")
@@ -2847,9 +2608,7 @@ class AppFrame(wx.Frame):
                         '<option value="%s" %s>%s</option>'
                         % (
                             code,
-                            "selected"
-                            if code == client.get("customLocaleChoice")
-                            else "",
+                            "selected" if code == client.get("customLocaleChoice") else "",
                             name,
                         )
                     )
@@ -2876,10 +2635,14 @@ class AppFrame(wx.Frame):
                 html.append("<h2>#(App Updates)</h2>")
                 html.append("<p>")
                 html.append(
-                    f'<input type="checkbox" id="developerAppUpdates" name="developerAppUpdates" {"checked" if client.get("appUpdateProfile") == "developer" else ""}><label for="developerAppUpdates">#(Receive Developer App Versions)</label>'
+                    '<input type="checkbox" id="developerAppUpdates" name="developerAppUpdates"'
+                    f' {"checked" if client.get("appUpdateProfile") == "developer" else ""}><label'
+                    ' for="developerAppUpdates">#(Receive Developer App Versions)</label>'
                 )
                 html.append(
-                    '<script>$("#preferences #developerAppUpdates").click(function() { if ($("#preferences #developerAppUpdates:checked").val()) { setPreference("appUpdateProfile", "developer"); } else { setPreference("appUpdateProfile", "normal"); } });</script>'
+                    '<script>$("#preferences #developerAppUpdates").click(function() { if ($("#preferences'
+                    ' #developerAppUpdates:checked").val()) { setPreference("appUpdateProfile", "developer"); } else {'
+                    ' setPreference("appUpdateProfile", "normal"); } });</script>'
                 )
                 html.append("</p>")
                 # python("self.setAppCastURL()");
@@ -2890,9 +2653,7 @@ class AppFrame(wx.Frame):
                 # Reset Dialogs
                 html.append("<h2>#(Reset Dialogs)</h2>")
                 html.append("<p>")
-                html.append(
-                    '<a id="resetDialogButton" class="button">#(ResetDialogsButton)</a>'
-                )
+                html.append('<a id="resetDialogButton" class="button">#(ResetDialogsButton)</a>')
                 html.append("</p>")
                 html.append(
                     """<script>$("#preferences #resetDialogButton").click(function() {
@@ -2911,22 +2672,17 @@ class AppFrame(wx.Frame):
             html = html.replace("\n", " ")
             html = self.replaceHTML(html)
             js = '$("#preferences .centerOuter").html("<div>' + html + '</div>");'
-            self.javaScript((f"{js}" "documentReady();" "showPreferences();"))
+            self.javaScript(f"{js}documentReady();showPreferences();")
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setSubscriptionPreference(self, url, key, value):
         try:
 
             for publisher in client.publishers():
                 for subscription in publisher.subscriptions():
-                    if (
-                        subscription.exists
-                        and subscription.protocol.unsecretURL() == url
-                    ):
+                    if subscription.exists and subscription.protocol.unsecretURL() == url:
 
                         if value == "true":
                             value = True
@@ -2940,19 +2696,14 @@ class AppFrame(wx.Frame):
 
                         break
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def showSubscriptionPreferences(self, event, b64ID):
 
         try:
             for publisher in client.publishers():
                 for subscription in publisher.subscriptions():
-                    if (
-                        subscription.exists
-                        and subscription.protocol.unsecretURL() == self.b64decode(b64ID)
-                    ):
+                    if subscription.exists and subscription.protocol.unsecretURL() == self.b64decode(b64ID):
 
                         html = []
 
@@ -2985,11 +2736,7 @@ class AppFrame(wx.Frame):
                         html.append("#(Provided by) ")
                         if endpointCommand.websiteURL:
                             html.append('<a href="%s">' % (endpointCommand.websiteURL))
-                        html.append(
-                            "<b>"
-                            + endpointCommand.name.getText(client.locale())
-                            + "</b>"
-                        )
+                        html.append("<b>" + endpointCommand.name.getText(client.locale()) + "</b>")
                         if endpointCommand.websiteURL:
                             html.append("</a> ")
                         if userName or userEmail:
@@ -3013,22 +2760,15 @@ class AppFrame(wx.Frame):
                             html.append("<p>")
 
                             for invitation in client.acceptedInvitations():
-                                if (
-                                    invitation.url
-                                    == subscription.protocol.unsecretURL()
-                                ):
+                                if invitation.url == subscription.protocol.unsecretURL():
 
-                                    if (
-                                        invitation.invitedByUserEmail
-                                        or invitation.invitedByUserName
-                                    ):
+                                    if invitation.invitedByUserEmail or invitation.invitedByUserName:
                                         html.append(
-                                            '#(Invited by) <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">'
+                                            '#(Invited by) <img src="file://##htmlroot##/userIcon.svg" style="width:'
+                                            " 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"
+                                            ' margin-right: 2px;">'
                                         )
-                                        if (
-                                            invitation.invitedByUserEmail
-                                            and invitation.invitedByUserName
-                                        ):
+                                        if invitation.invitedByUserEmail and invitation.invitedByUserName:
                                             html.append(
                                                 '<b>%s</b> (<a href="mailto:%s">%s</a>)'
                                                 % (
@@ -3039,11 +2779,7 @@ class AppFrame(wx.Frame):
                                             )
                                         else:
                                             html.append(
-                                                "%s"
-                                                % (
-                                                    invitation.invitedByUserName
-                                                    or invitation.invitedByUserEmail
-                                                )
+                                                "%s" % (invitation.invitedByUserName or invitation.invitedByUserEmail)
                                             )
 
                                     if invitation.time:
@@ -3068,12 +2804,10 @@ class AppFrame(wx.Frame):
                             html.append("<p>")
                             if client.user():
                                 html.append(
-                                    '<span><input id="revealidentity" type="checkbox" name="revealidentity" %s><label for="revealidentity">#(Reveal Your Identity For This Subscription)</label></span>'
-                                    % (
-                                        "checked"
-                                        if subscription.get("revealIdentity")
-                                        else ""
-                                    )
+                                    '<span><input id="revealidentity" type="checkbox" name="revealidentity" %s><label'
+                                    ' for="revealidentity">#(Reveal Your Identity For This'
+                                    " Subscription)</label></span>"
+                                    % ("checked" if subscription.get("revealIdentity") else "")
                                 )
                                 html.append(
                                     """<script>
@@ -3087,7 +2821,8 @@ class AppFrame(wx.Frame):
                                 html.append("#(RevealIdentityExplanation)")
                             else:
                                 html.append(
-                                    "#(RevealIdentityRequiresUserAccountExplanation)<br />#(PleaseCreateUserAccountExplanation)"
+                                    "#(RevealIdentityRequiresUserAccountExplanation)<br"
+                                    " />#(PleaseCreateUserAccountExplanation)"
                                 )
                             html.append("</p>")
 
@@ -3102,18 +2837,10 @@ class AppFrame(wx.Frame):
                             + html
                             + '</div>");'
                         )
-                        self.javaScript(
-                            (
-                                f"{js}"
-                                "documentReady();"
-                                "showSubscriptionPreferences();"
-                            )
-                        )
+                        self.javaScript(f"{js}documentReady();showSubscriptionPreferences();")
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def inviteUsers(self, b64ID, string):
         try:
@@ -3135,9 +2862,7 @@ class AppFrame(wx.Frame):
                 else:
                     self.errorMessage(message)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def revokeUsers(self, b64ID, string):
         try:
@@ -3156,9 +2881,7 @@ class AppFrame(wx.Frame):
                     localizeString("#(Revoke Invitation)"),
                     wx.YES_NO | wx.ICON_QUESTION,
                 )
-                dlg.SetYesNoLabels(
-                    localizeString("#(Revoke)"), localizeString("#(Cancel)")
-                )
+                dlg.SetYesNoLabels(localizeString("#(Revoke)"), localizeString("#(Cancel)"))
                 result = dlg.ShowModal()
                 if result == wx.ID_YES:
 
@@ -3176,9 +2899,7 @@ class AppFrame(wx.Frame):
                         else:
                             self.errorMessage(message)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def showSubscriptionInvitations(self, event, b64ID, loadUpdates=False):
         try:
@@ -3191,10 +2912,7 @@ class AppFrame(wx.Frame):
 
             for publisher in client.publishers():
                 for subscription in publisher.subscriptions():
-                    if (
-                        subscription.exists
-                        and subscription.protocol.unsecretURL() == self.b64decode(b64ID)
-                    ):
+                    if subscription.exists and subscription.protocol.unsecretURL() == self.b64decode(b64ID):
 
                         html = []
 
@@ -3227,11 +2945,7 @@ class AppFrame(wx.Frame):
                         html.append("#(Provided by) ")
                         if endpointCommand.websiteURL:
                             html.append('<a href="%s">' % (endpointCommand.websiteURL))
-                        html.append(
-                            "<b>"
-                            + endpointCommand.name.getText(client.locale())
-                            + "</b>"
-                        )
+                        html.append("<b>" + endpointCommand.name.getText(client.locale()) + "</b>")
                         if endpointCommand.websiteURL:
                             html.append("</a> ")
                         if userName or userEmail:
@@ -3253,9 +2967,7 @@ class AppFrame(wx.Frame):
                         html.append(
                             '<input type="text" id="inviteUserName" placeholder="#(JohnDoeEmailAddresses)"><br />'
                         )
-                        html.append(
-                            '<a id="inviteUsersButton" class="button">#(Invite Users)</a>'
-                        )
+                        html.append('<a id="inviteUsersButton" class="button">#(Invite Users)</a>')
                         html.append("</p>")
 
                         if client.get("userAccountStatus") != "pro":
@@ -3286,12 +2998,11 @@ class AppFrame(wx.Frame):
 
                         if matchedInvitations:
                             for invitation in matchedInvitations:
-                                html.append(
-                                    '<div class="clear" style="margin-bottom: 3px;">'
-                                )
+                                html.append('<div class="clear" style="margin-bottom: 3px;">')
                                 html.append('<div style="float: left; width: 300px;">')
                                 html.append(
-                                    '<img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">'
+                                    '<img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px;'
+                                    ' position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">'
                                 )
                                 html.append(
                                     '<b>%s</b> (<a href="mailto:%s">%s</a>)'
@@ -3323,9 +3034,7 @@ class AppFrame(wx.Frame):
                             html.append("<p>#(CurrentlyNoSentInvitations)</p>")
 
                         html.append("<p>")
-                        html.append(
-                            '<a id="updateInvitations" class="button">#(UpdateInfinitive)</a>'
-                        )
+                        html.append('<a id="updateInvitations" class="button">#(UpdateInfinitive)</a>')
                         html.append("</p>")
                         html.append(
                             """<script>
@@ -3353,13 +3062,7 @@ class AppFrame(wx.Frame):
                             + html
                             + '</div>");'
                         )
-                        self.javaScript(
-                            (
-                                f"{js}"
-                                "documentReady();"
-                                "showSubscriptionPreferences();"
-                            )
-                        )
+                        self.javaScript(f"{js}documentReady();showSubscriptionPreferences();")
 
                         # # Print HTML
                         # html = ''.join(map(str, html))
@@ -3374,14 +3077,13 @@ class AppFrame(wx.Frame):
                         # self.javaScript('showPreferences();')
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onNavigating(self, evt):
         try:
             uri = evt.GetURL()  # you may need to deal with unicode here
             if uri.startswith("https://type.world/x-python/"):
+                evt.Veto()
                 code = uri.split("https://type.world/x-python/")[1]
                 code = urllib.parse.unquote(code)
                 if code.endswith("/"):
@@ -3395,7 +3097,7 @@ class AppFrame(wx.Frame):
                 exec(code)
                 # except:
                 # print("Error printing debug to console.")
-                evt.Veto()
+                # evt.Veto()
             elif uri.startswith("http://") or uri.startswith("https://"):
 
                 # 				server = 'https://type.world'
@@ -3414,33 +3116,25 @@ class AppFrame(wx.Frame):
             #   exec(code)
             #   evt.Veto()
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onNavigated(self, evt):
         try:
             uri = evt.GetURL()  # you may need to deal with unicode here
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onError(self, evt):
         try:
             client.log("Error received from WebView: %s" % evt.GetString())
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def showAddSubscription(self, evt):
         try:
             self.javaScript("showAddSubscription();")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def handleURL(self, url, username=None, password=None):
         try:
@@ -3456,10 +3150,7 @@ class AppFrame(wx.Frame):
                             )
                             return
 
-                self.javaScript(
-                    "showCenterMessage('%s');"
-                    % localizeString("#(Loading Subscription)")
-                )
+                self.javaScript("showCenterMessage('%s');" % localizeString("#(Loading Subscription)"))
                 startWorker(
                     self.addSubscription_consumer,
                     self.addSubscription_worker,
@@ -3467,13 +3158,9 @@ class AppFrame(wx.Frame):
                 )
 
             elif url.startswith("typeworldapp://") or url.startswith("typeworldapp//"):
-                self.handleAppCommand(
-                    url.replace("typeworldapp://", "").replace("typeworldapp//", "")
-                )
+                self.handleAppCommand(url.replace("typeworldapp://", "").replace("typeworldapp//", ""))
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def handleAppCommand(self, url):
         try:
@@ -3507,9 +3194,7 @@ class AppFrame(wx.Frame):
                         self.message("#(JustLinkedUserAccount)")
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def addSubscriptionViaDialog(self, url, username=None, password=None):
         try:
@@ -3525,9 +3210,7 @@ class AppFrame(wx.Frame):
                     wargs=(url, username, password),
                 )
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def addSubscription_worker(self, url, username, password):
         try:
@@ -3557,18 +3240,14 @@ class AppFrame(wx.Frame):
                     None,
                 )
 
-            success, message, publisher, subscription = client.addSubscription(
-                url, username, password
-            )
+            success, message, publisher, subscription = client.addSubscription(url, username, password)
 
             # profile.disable()
             # profile.print_stats(sort="time")
 
             return success, message, publisher, subscription
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def addSubscription_consumer(self, delayedResult):
         try:
@@ -3602,18 +3281,14 @@ class AppFrame(wx.Frame):
 
             # Reset Form
             self.javaScript(
-                (
-                    '$("#addSubscriptionFormSubmitButton").show();'
-                    '$("#addSubscriptionFormCancelButton").show();'
-                    '$("#addSubscriptionFormSubmitAnimation").hide();'
-                    "hideCenterMessage();"
-                )
+                '$("#addSubscriptionFormSubmitButton").show();'
+                '$("#addSubscriptionFormCancelButton").show();'
+                '$("#addSubscriptionFormSubmitAnimation").hide();'
+                "hideCenterMessage();"
             )
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def acceptInvitation(self, url):
         try:
@@ -3625,9 +3300,7 @@ class AppFrame(wx.Frame):
             )
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def acceptInvitation_worker(self, url):
         try:
@@ -3635,9 +3308,7 @@ class AppFrame(wx.Frame):
             success, message = client.acceptInvitation(self.b64decode(url))
             return success, message, url
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def acceptInvitation_consumer(self, delayedResult):
         try:
@@ -3664,9 +3335,7 @@ class AppFrame(wx.Frame):
                 pass
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def declineInvitation(self, url):
         try:
@@ -3687,12 +3356,8 @@ class AppFrame(wx.Frame):
 
                                 dlg = wx.MessageDialog(
                                     self,
-                                    localizeString(
-                                        "#(Are you sure)\n#(RemoveInvitationConfirmationExplanation)"
-                                    ),
-                                    localizeString("#(Remove X)").replace(
-                                        "%name%", name
-                                    ),
+                                    localizeString("#(Are you sure)\n#(RemoveInvitationConfirmationExplanation)"),
+                                    localizeString("#(Remove X)").replace("%name%", name),
                                     wx.YES_NO | wx.ICON_QUESTION,
                                 )
                                 dlg.SetYesNoLabels(
@@ -3717,9 +3382,7 @@ class AppFrame(wx.Frame):
                         localizeString("#(Decline Invitation)"),
                         wx.YES_NO | wx.ICON_QUESTION,
                     )
-                    dlg.SetYesNoLabels(
-                        localizeString("#(Remove)"), localizeString("#(Cancel)")
-                    )
+                    dlg.SetYesNoLabels(localizeString("#(Remove)"), localizeString("#(Cancel)"))
                     result = dlg.ShowModal() == wx.ID_YES
                     dlg.Destroy()
 
@@ -3731,18 +3394,14 @@ class AppFrame(wx.Frame):
                             wargs=(url,),
                         )
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def declineInvitation_worker(self, url):
         try:
             success, message = client.declineInvitation(self.b64decode(url))
             return success, message, url
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def declineInvitation_consumer(self, delayedResult):
         try:
@@ -3754,9 +3413,7 @@ class AppFrame(wx.Frame):
 
                 if len(client.pendingInvitations()) == 0:
                     if client.publishers():
-                        self.setPublisherHTML(
-                            self.b64encode(client.publishers()[0].canonicalURL)
-                        )
+                        self.setPublisherHTML(self.b64encode(client.publishers()[0].canonicalURL))
                     else:
                         client.set("currentPublisher", "")
                 self.setSideBarHTML()
@@ -3767,9 +3424,7 @@ class AppFrame(wx.Frame):
                 pass
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def removePublisher(self, evt, b64ID):
         try:
@@ -3781,9 +3436,7 @@ class AppFrame(wx.Frame):
             dlg = wx.MessageDialog(
                 self,
                 localizeString("#(Are you sure)"),
-                localizeString("#(Remove X)").replace(
-                    "%name%", localizeString(publisher.name(client.locale())[0])
-                ),
+                localizeString("#(Remove X)").replace("%name%", localizeString(publisher.name(client.locale())[0])),
                 wx.YES_NO | wx.ICON_QUESTION,
             )
             dlg.SetYesNoLabels(localizeString("#(Remove)"), localizeString("#(Cancel)"))
@@ -3795,13 +3448,11 @@ class AppFrame(wx.Frame):
                 publisher.delete()
                 client.set("currentPublisher", "")
                 self.setSideBarHTML()
-                self.javaScript(("hideMain();" "hideMetadata();"))
+                self.javaScript("hideMain();hideMetadata();")
 
             self.allowedToPullServerUpdates = True
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def removeSubscription(self, evt, b64ID):
         try:
@@ -3821,9 +3472,7 @@ class AppFrame(wx.Frame):
                             ),
                             wx.YES_NO | wx.ICON_QUESTION,
                         )
-                        dlg.SetYesNoLabels(
-                            localizeString("#(Remove)"), localizeString("#(Cancel)")
-                        )
+                        dlg.SetYesNoLabels(localizeString("#(Remove)"), localizeString("#(Cancel)"))
                         result = dlg.ShowModal() == wx.ID_YES
                         dlg.Destroy()
 
@@ -3834,17 +3483,13 @@ class AppFrame(wx.Frame):
 
             self.allowedToPullServerUpdates = True
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def publisherPreferences(self, i):
         try:
             client.log(("publisherPreferences", i))
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def installAllFonts(
         self,
@@ -3866,10 +3511,7 @@ class AppFrame(wx.Frame):
             family = subscription.familyByID(familyID)
 
             for font in family.fonts:
-                if (
-                    packageKeyword in font.getPackageKeywords()
-                    and font.format == formatName
-                ):
+                if packageKeyword in font.getPackageKeywords() and font.format == formatName:
                     if not subscription.installedFontVersion(font.uniqueID):
                         fonts.append(
                             [
@@ -3882,9 +3524,7 @@ class AppFrame(wx.Frame):
 
             self.installFonts(fonts)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def removeAllFonts(
         self,
@@ -3906,10 +3546,7 @@ class AppFrame(wx.Frame):
             family = subscription.familyByID(familyID)
 
             for font in family.fonts:
-                if (
-                    packageKeyword in font.getPackageKeywords()
-                    and font.format == formatName
-                ):
+                if packageKeyword in font.getPackageKeywords() and font.format == formatName:
                     if subscription.installedFontVersion(font.uniqueID):
                         fonts.append(
                             [
@@ -3921,30 +3558,21 @@ class AppFrame(wx.Frame):
 
             self.removeFonts(fonts)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
-    def installFontFromMenu(
-        self, event, b64publisherURL, b64subscriptionURL, b64fontID, version
-    ):
+    def installFontFromMenu(self, event, b64publisherURL, b64subscriptionURL, b64fontID, version):
         try:
             client.log("installFontFromMenu()")
 
             self.installFont(b64publisherURL, b64subscriptionURL, b64fontID, version)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def installFont(self, b64publisherURL, b64subscriptionURL, b64fontID, version):
         try:
             self.selectFont(b64fontID)
             self.javaScript(
-                (
-                    f'$(".font.{b64fontID}").addClass("loading");'
-                    '$("#metadata .seatsInstalled").fadeTo(500, .1);'
-                )
+                f'$(".font.{b64fontID}").addClass("loading");$("#metadata .seatsInstalled").fadeTo(500, .1);'
             )
             startWorker(
                 self.installFonts_consumer,
@@ -3952,9 +3580,7 @@ class AppFrame(wx.Frame):
                 wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID, version]]]),
             )
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def installFonts(self, fonts):
 
@@ -3967,13 +3593,9 @@ class AppFrame(wx.Frame):
                 # self.javaScript('$("#%s.font").find("a.status").show();' % b64fontID)
                 # self.javaScript('$("#%s.font").find("a.more").hide();' % b64fontID)
 
-            startWorker(
-                self.installFonts_consumer, self.installFonts_worker, wargs=([fonts])
-            )
+            startWorker(self.installFonts_consumer, self.installFonts_worker, wargs=([fonts]))
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def installFonts_worker(self, fonts):
 
@@ -4007,9 +3629,7 @@ class AppFrame(wx.Frame):
             for subscription in fontsBySubscription:
 
                 # Install new font
-                success, message = subscription.installFonts(
-                    fontsBySubscription[subscription]
-                )
+                success, message = subscription.installFonts(fontsBySubscription[subscription])
 
                 if success == False:
                     return success, message, b64publisherURL, subscription, fonts
@@ -4017,9 +3637,7 @@ class AppFrame(wx.Frame):
             # TODO: differentiate between b64publisherURLs here, as fonts could be from different publishers. Works for now, until fonts can be mixed in collections
             return True, None, b64publisherURL, subscription, fonts
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def installFonts_consumer(self, delayedResult):
         try:
@@ -4040,18 +3658,13 @@ class AppFrame(wx.Frame):
             self.redraw()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def removeFont(self, b64publisherURL, b64subscriptionURL, b64fontID):
         try:
             self.selectFont(b64fontID)
             self.javaScript(
-                (
-                    f'$(".font.{b64fontID}").addClass("loading");'
-                    '$("#metadata .seatsInstalled").fadeTo(500, .1);'
-                )
+                f'$(".font.{b64fontID}").addClass("loading");$("#metadata .seatsInstalled").fadeTo(500, .1);'
             )
             startWorker(
                 self.removeFonts_consumer,
@@ -4059,9 +3672,7 @@ class AppFrame(wx.Frame):
                 wargs=([[[b64publisherURL, b64subscriptionURL, b64fontID]]]),
             )
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def removeFonts(self, fonts, reason=None):
         try:
@@ -4079,9 +3690,7 @@ class AppFrame(wx.Frame):
                 wargs=([fonts, reason]),
             )
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def removeFonts_worker(self, fonts, reason=None):
         try:
@@ -4096,9 +3705,7 @@ class AppFrame(wx.Frame):
                 publisher = client.publisher(publisherURL)
                 subscription = publisher.subscription(subscriptionURL)
 
-                if subscription.fontByID(fontID) and subscription.installedFontVersion(
-                    fontID=fontID
-                ):
+                if subscription.fontByID(fontID) and subscription.installedFontVersion(fontID=fontID):
 
                     if not subscription in fontsBySubscription:
                         fontsBySubscription[subscription] = []
@@ -4108,9 +3715,7 @@ class AppFrame(wx.Frame):
             for subscription in fontsBySubscription:
 
                 # Install new font
-                success, message = subscription.removeFonts(
-                    fontsBySubscription[subscription]
-                )
+                success, message = subscription.removeFonts(fontsBySubscription[subscription])
 
                 if success == False:
                     return (
@@ -4125,9 +3730,7 @@ class AppFrame(wx.Frame):
             # TODO: differentiate between b64publisherURLs here, as fonts could be from different publishers. Works for now, until fonts can be mixed in collections
             return True, None, b64publisherURL, subscription, fonts, reason
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def removeFonts_consumer(self, delayedResult):
         try:
@@ -4147,9 +3750,7 @@ class AppFrame(wx.Frame):
                 if reason == "expired":
                     notification(
                         localizeString("#(FontExpiryNotificationTitle)"),
-                        localizeString(
-                            "#(FontExpiryNotification)", replace={"amount": len(fonts)}
-                        ),
+                        localizeString("#(FontExpiryNotification)", replace={"amount": len(fonts)}),
                     )
 
             else:
@@ -4162,9 +3763,7 @@ class AppFrame(wx.Frame):
             self.redraw()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def updateAllFonts(self, evt, publisherB64ID, subscriptionB64ID):
         try:
@@ -4173,9 +3772,7 @@ class AppFrame(wx.Frame):
             if publisherB64ID:
                 publisher = client.publisher(self.b64decode(publisherB64ID))
                 for subscription in publisher.subscriptions():
-                    subscriptionB64ID = self.b64encode(
-                        subscription.protocol.unsecretURL()
-                    )
+                    subscriptionB64ID = self.b64encode(subscription.protocol.unsecretURL())
 
                     success, message = subscription.protocol.installableFontsCommand()
                     if success:
@@ -4186,13 +3783,10 @@ class AppFrame(wx.Frame):
                     for foundry in command.foundries:
                         for family in foundry.families:
                             for font in family.fonts:
-                                installedFontVersion = (
-                                    subscription.installedFontVersion(font=font)
-                                )
+                                installedFontVersion = subscription.installedFontVersion(font=font)
                                 if (
                                     installedFontVersion
-                                    and subscription.installedFontVersion(font=font)
-                                    != font.getVersions()[-1].number
+                                    and subscription.installedFontVersion(font=font) != font.getVersions()[-1].number
                                 ):
                                     fonts.append(
                                         [
@@ -4207,9 +3801,7 @@ class AppFrame(wx.Frame):
 
                 for publisher in client.publishers():
                     for subscription in publisher.subscriptions():
-                        if subscription.protocol.unsecretURL() == self.b64decode(
-                            subscriptionB64ID
-                        ):
+                        if subscription.protocol.unsecretURL() == self.b64decode(subscriptionB64ID):
                             publisherB64ID = self.b64encode(publisher.canonicalURL)
                             break
 
@@ -4222,13 +3814,10 @@ class AppFrame(wx.Frame):
                 for foundry in command.foundries:
                     for family in foundry.families:
                         for font in family.fonts:
-                            installedFontVersion = subscription.installedFontVersion(
-                                font=font
-                            )
+                            installedFontVersion = subscription.installedFontVersion(font=font)
                             if (
                                 installedFontVersion
-                                and subscription.installedFontVersion(font=font)
-                                != font.getVersions()[-1].number
+                                and subscription.installedFontVersion(font=font) != font.getVersions()[-1].number
                             ):
                                 fonts.append(
                                     [
@@ -4242,29 +3831,21 @@ class AppFrame(wx.Frame):
             self.installFonts(fonts)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def threadSafeExec(self, code):
         try:
             # print("threadSafeExec:", code)
-            startWorker(
-                self.threadSafeExec_consumer, self.threadSafeExec_worker, wargs=(code,)
-            )
+            startWorker(self.threadSafeExec_consumer, self.threadSafeExec_worker, wargs=(code,))
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def threadSafeExec_worker(self, code):
         try:
             return code
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def threadSafeExec_consumer(self, delayedResult):
         try:
@@ -4272,9 +3853,7 @@ class AppFrame(wx.Frame):
             exec(code)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setFontStatuses(self, fonts):
         try:
@@ -4285,38 +3864,26 @@ class AppFrame(wx.Frame):
                 b64subscriptionURL = line[1]
                 b64fontID = line[2]
 
-                subscription = client.publisher(
-                    self.b64decode(b64publisherURL)
-                ).subscription(self.b64decode(b64subscriptionURL))
+                subscription = client.publisher(self.b64decode(b64publisherURL)).subscription(
+                    self.b64decode(b64subscriptionURL)
+                )
                 font = subscription.fontByID(self.b64decode(b64fontID))
                 installedVersion = subscription.installedFontVersion(font=font)
 
                 self.javaScript('$(".font.%s").removeClass("loading");' % b64fontID)
                 self.javaScript('$(".font.%s").removeClass("installed");' % b64fontID)
                 self.javaScript('$(".font.%s").removeClass("installed");' % b64fontID)
-                self.javaScript(
-                    '$(".font.%s").removeClass("notInstalled");' % b64fontID
-                )
-                self.javaScript(
-                    '$(".font.%s").removeClass("notInstalled");' % b64fontID
-                )
+                self.javaScript('$(".font.%s").removeClass("notInstalled");' % b64fontID)
+                self.javaScript('$(".font.%s").removeClass("notInstalled");' % b64fontID)
                 if installedVersion:
                     self.javaScript('$(".font.%s").addClass("installed");' % b64fontID)
                 else:
-                    self.javaScript(
-                        '$(".font.%s").addClass("notInstalled");' % b64fontID
-                    )
+                    self.javaScript('$(".font.%s").addClass("notInstalled");' % b64fontID)
 
                 # metadata bar
-                self.javaScript(
-                    '$(".font.%s .version .status.install").show();' % b64fontID
-                )
-                self.javaScript(
-                    '$(".font.%s .version .status.remove").hide();' % b64fontID
-                )
-                self.javaScript(
-                    '$(".font.%s .version .label.installedVersion").hide();' % b64fontID
-                )
+                self.javaScript('$(".font.%s .version .status.install").show();' % b64fontID)
+                self.javaScript('$(".font.%s .version .status.remove").hide();' % b64fontID)
+                self.javaScript('$(".font.%s .version .label.installedVersion").hide();' % b64fontID)
 
                 if installedVersion:
                     self.javaScript(
@@ -4337,13 +3904,9 @@ class AppFrame(wx.Frame):
                 html = html.replace("\n", " ")
                 html = localizeString(html, html=True)
                 html = self.replaceHTML(html)
-                self.javaScript(
-                    '$(".font.%s .installedText").html("%s");' % (b64fontID, html)
-                )
+                self.javaScript('$(".font.%s .installedText").html("%s");' % (b64fontID, html))
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def checkFontExpirations(self):
         try:
@@ -4359,9 +3922,7 @@ class AppFrame(wx.Frame):
                                 fonts.append(
                                     [
                                         self.b64encode(publisher.canonicalURL),
-                                        self.b64encode(
-                                            subscription.protocol.unsecretURL()
-                                        ),
+                                        self.b64encode(subscription.protocol.unsecretURL()),
                                         self.b64encode(font.uniqueID),
                                     ]
                                 )
@@ -4369,9 +3930,7 @@ class AppFrame(wx.Frame):
             if fonts:
                 self.removeFonts(fonts, reason="expired")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onContextMenu(self, x, y, target, b64ID):
 
@@ -4413,9 +3972,7 @@ class AppFrame(wx.Frame):
                             wx.EVT_MENU,
                             partial(
                                 self.reloadSubscription,
-                                b64ID=self.b64encode(
-                                    publisher.subscriptions()[0].protocol.unsecretURL()
-                                ),
+                                b64ID=self.b64encode(publisher.subscriptions()[0].protocol.unsecretURL()),
                                 subscription=None,
                             ),
                             item,
@@ -4462,9 +4019,7 @@ class AppFrame(wx.Frame):
                             wx.EVT_MENU,
                             partial(
                                 self.showSubscriptionPreferences,
-                                b64ID=self.b64encode(
-                                    publisher.subscriptions()[0].protocol.unsecretURL()
-                                ),
+                                b64ID=self.b64encode(publisher.subscriptions()[0].protocol.unsecretURL()),
                             ),
                             item,
                         )
@@ -4479,22 +4034,16 @@ class AppFrame(wx.Frame):
                             wx.EVT_MENU,
                             partial(
                                 self.showSubscriptionInvitations,
-                                b64ID=self.b64encode(
-                                    publisher.subscriptions()[0].protocol.unsecretURL()
-                                ),
+                                b64ID=self.b64encode(publisher.subscriptions()[0].protocol.unsecretURL()),
                             ),
                             item,
                         )
 
                     menu.AppendSeparator()
 
-                    item = wx.MenuItem(
-                        menu, wx.NewIdRef(count=1), localizeString("#(Remove)")
-                    )
+                    item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString("#(Remove)"))
                     menu.Append(item)
-                    menu.Bind(
-                        wx.EVT_MENU, partial(self.removePublisher, b64ID=b64ID), item
-                    )
+                    menu.Bind(wx.EVT_MENU, partial(self.removePublisher, b64ID=b64ID), item)
 
                     self.PopupMenu(menu, wx.Point(int(float(x)), int(float(y))))
                     menu.Destroy()
@@ -4502,9 +4051,7 @@ class AppFrame(wx.Frame):
             elif "contextmenu subscription" in target:
                 menu = wx.Menu()
 
-                item = wx.MenuItem(
-                    menu, wx.NewIdRef(count=1), localizeString("#(Update Subscription)")
-                )
+                item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString("#(Update Subscription)"))
                 menu.Append(item)
                 menu.Bind(
                     wx.EVT_MENU,
@@ -4545,9 +4092,7 @@ class AppFrame(wx.Frame):
                     item,
                 )
 
-                item = wx.MenuItem(
-                    menu, wx.NewIdRef(count=1), localizeString("#(Invite Users)")
-                )
+                item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString("#(Invite Users)"))
                 menu.Append(item)
                 menu.Bind(
                     wx.EVT_MENU,
@@ -4557,13 +4102,9 @@ class AppFrame(wx.Frame):
 
                 menu.AppendSeparator()
 
-                item = wx.MenuItem(
-                    menu, wx.NewIdRef(count=1), localizeString("#(Remove)")
-                )
+                item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString("#(Remove)"))
                 menu.Append(item)
-                menu.Bind(
-                    wx.EVT_MENU, partial(self.removeSubscription, b64ID=b64ID), item
-                )
+                menu.Bind(wx.EVT_MENU, partial(self.removeSubscription, b64ID=b64ID), item)
 
                 self.PopupMenu(menu, wx.Point(int(x), int(y)))
                 menu.Destroy()
@@ -4590,17 +4131,13 @@ class AppFrame(wx.Frame):
                                 for font in family.fonts:
                                     if font.uniqueID == fontID:
 
-                                        if subscription.installedFontVersion(
-                                            font.uniqueID
-                                        ):
+                                        if subscription.installedFontVersion(font.uniqueID):
                                             item = wx.MenuItem(
                                                 menu,
                                                 wx.NewIdRef(count=1),
                                                 localizeString("#(Show in Finder)")
                                                 if MAC
-                                                else localizeString(
-                                                    "#(Show in Explorer)"
-                                                ),
+                                                else localizeString("#(Show in Explorer)"),
                                             )
                                             menu.Bind(
                                                 wx.EVT_MENU,
@@ -4623,12 +4160,7 @@ class AppFrame(wx.Frame):
 
                                         for version in font.getVersions():
 
-                                            if (
-                                                subscription.installedFontVersion(
-                                                    font.uniqueID
-                                                )
-                                                == version.number
-                                            ):
+                                            if subscription.installedFontVersion(font.uniqueID) == version.number:
                                                 item = wx.MenuItem(
                                                     subMenu,
                                                     wx.NewIdRef(count=1),
@@ -4652,9 +4184,7 @@ class AppFrame(wx.Frame):
                                                 wx.EVT_MENU,
                                                 partial(
                                                     self.installFontFromMenu,
-                                                    b64publisherURL=self.b64encode(
-                                                        publisher.canonicalURL
-                                                    ),
+                                                    b64publisherURL=self.b64encode(publisher.canonicalURL),
                                                     b64subscriptionURL=self.b64encode(
                                                         subscription.protocol.unsecretURL()
                                                     ),
@@ -4667,9 +4197,7 @@ class AppFrame(wx.Frame):
 
                                         #    def installFontFromMenu(self, event, b64publisherURL, b64subscriptionURL, b64fontID, version):
 
-                                        self.PopupMenu(
-                                            menu, wx.Point(int(float(x)), int(float(y)))
-                                        )
+                                        self.PopupMenu(menu, wx.Point(int(float(x)), int(float(y))))
                                         menu.Destroy()
 
                                         break
@@ -4678,18 +4206,14 @@ class AppFrame(wx.Frame):
 
                 menu = wx.Menu()
 
-                item = wx.MenuItem(
-                    menu, wx.NewIdRef(count=1), localizeString("#(Preferences)")
-                )
+                item = wx.MenuItem(menu, wx.NewIdRef(count=1), localizeString("#(Preferences)"))
                 menu.Append(item)
                 menu.Bind(wx.EVT_MENU, self.onPreferences, item)
 
                 self.PopupMenu(menu, wx.Point(int(float(x)), int(float(y))))
                 menu.Destroy()
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def showPublisherPreferences(self, event, b64ID):
         try:
@@ -4699,10 +4223,7 @@ class AppFrame(wx.Frame):
 
                     html = []
 
-                    html.append(
-                        "<h2>%s (%s)</h2>"
-                        % (publisher.name(client.locale())[0], publisher.get("type"))
-                    )
+                    html.append("<h2>%s (%s)</h2>" % (publisher.name(client.locale())[0], publisher.get("type")))
                     # if publisher.get('type') == 'GitHub':
 
                     # 	# Rate limits
@@ -4730,14 +4251,10 @@ class AppFrame(wx.Frame):
                     #       print html
                     js = '$("#publisherPreferences .inner").html("' + html + '");'
 
-                    self.javaScript(
-                        (f"{js}" "documentReady();" "showPublisherPreferences();")
-                    )
+                    self.javaScript(f"{js}documentReady();showPublisherPreferences();")
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def showFontInFinder(self, evt, subscription, fontID):
         try:
@@ -4747,9 +4264,7 @@ class AppFrame(wx.Frame):
             folder = subscription.parent.folder()
             # font, path = subscription.fontPath(folder, fontID)
 
-            path = os.path.join(
-                folder, subscription.uniqueID() + "-" + font.filename(version)
-            )
+            path = os.path.join(folder, subscription.uniqueID() + "-" + font.filename(version))
 
             # TODO:
             # Make this for Windows, too.
@@ -4759,9 +4274,7 @@ class AppFrame(wx.Frame):
                 subprocess.Popen(f'explorer /select,"{path}"')
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def wentOnline(self):
         print("wentOnline()")
@@ -4796,9 +4309,7 @@ class AppFrame(wx.Frame):
         try:
 
             if WIN:
-                path = os.path.expanduser(
-                    "~/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Type.World.lnk"
-                )
+                path = os.path.expanduser("~/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Type.World.lnk")
                 if os.path.exists(path):
                     os.remove(path)
 
@@ -4811,9 +4322,7 @@ class AppFrame(wx.Frame):
             self.checkFontExpirations()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def reloadPublisher(self, evt, b64ID):
         try:
@@ -4825,9 +4334,7 @@ class AppFrame(wx.Frame):
                     self.reloadSubscription(None, None, subscription)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def reloadSubscription(self, evt, b64ID=None, subscription=None):
         try:
@@ -4849,9 +4356,7 @@ class AppFrame(wx.Frame):
             )
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def reloadSubscription_worker(self, subscription):
         try:
@@ -4859,9 +4364,7 @@ class AppFrame(wx.Frame):
             success, message, changes = subscription.update()
             return success, message, changes, subscription
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def reloadSubscription_consumer(self, delayedResult):
         success, message, changes, subscription = delayedResult.get()
@@ -4870,7 +4373,10 @@ class AppFrame(wx.Frame):
     def displaySyncProblems(self):
         print("displaySyncProblems()")
         if client.syncProblems():
-            self.errorMessage("\n\n".join(client.syncProblems()))
+            if type(client.syncProblems()) in (tuple, list):
+                self.errorMessage("\n\n".join(map(str, client.syncProblems())))
+            else:
+                self.errorMessage(str(client.syncProblems()))
         else:
             self.errorMessage("Empty")
         # except Exception as e:
@@ -4885,18 +4391,14 @@ class AppFrame(wx.Frame):
             for message in publisher.updatingProblem():
                 self.errorMessage(message)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def displaySubscriptionSidebarAlert(self, b64subscriptionID):
         try:
 
             for publisher in client.publishers():
                 for subscription in publisher.subscriptions():
-                    if subscription.protocol.unsecretURL() == self.b64decode(
-                        b64subscriptionID
-                    ):
+                    if subscription.protocol.unsecretURL() == self.b64decode(b64subscriptionID):
                         message = subscription.updatingProblem()
                         if subscription.updatingProblem():
                             self.errorMessage(message)
@@ -4904,9 +4406,7 @@ class AppFrame(wx.Frame):
                             self.errorMessage("No error message defined :/")
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def errorMessage(self, message, title="", subscription=None):
         try:
@@ -4925,9 +4425,7 @@ class AppFrame(wx.Frame):
             string = localizeString(string)
             title = localizeString(title)
 
-            dlg = wx.MessageDialog(
-                self, string or "No message defined", title, wx.ICON_ERROR
-            )
+            dlg = wx.MessageDialog(self, string or "No message defined", title, wx.ICON_ERROR)
             result = dlg.ShowModal()
             dlg.Destroy()
 
@@ -4939,14 +4437,11 @@ class AppFrame(wx.Frame):
                 url = subscription.protocol.endpointCommand()[1].loginURL
                 url = addAttributeToURL(
                     url,
-                    "subscriptionID=%s"
-                    % typeworld.client.URL(subscription.url).subscriptionID,
+                    "subscriptionID=%s" % typeworld.client.URL(subscription.url).subscriptionID,
                 )
                 webbrowser.open(url, new=1)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def message(self, message, title=""):
         try:
@@ -4967,9 +4462,7 @@ class AppFrame(wx.Frame):
             result = dlg.ShowModal()
             dlg.Destroy()
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def fontHTML(self, font):
         try:
@@ -4987,9 +4480,7 @@ class AppFrame(wx.Frame):
 
             return html
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setActiveSubscription(self, publisherB64ID, subscriptionB64ID):
         try:
@@ -5002,9 +4493,7 @@ class AppFrame(wx.Frame):
             publisher.set("currentSubscription", subscription.protocol.unsecretURL())
             self.setPublisherHTML(publisherB64ID)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def selectFont(self, b64ID):
         try:
@@ -5020,9 +4509,7 @@ class AppFrame(wx.Frame):
             self.setMetadataHTML(b64ID)
             self.javaScript("showMetadata();")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def showMetadataCategory(self, categoryName):
         try:
@@ -5034,9 +4521,7 @@ class AppFrame(wx.Frame):
 
             self.setMetadataHTML(self.b64encode(font.uniqueID))
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setFontImage(self, index):
         try:
@@ -5052,9 +4537,7 @@ class AppFrame(wx.Frame):
             font.parent.parent.parent.parent.set("currentFontImage", int(index))
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setMetadataHTML(self, b64ID):
         # print("setMetadataHTML()", b64ID)
@@ -5066,9 +4549,7 @@ class AppFrame(wx.Frame):
 
                 fontID = self.b64decode(b64ID)
                 publisher = client.publisher(client.get("currentPublisher"))
-                subscription = publisher.subscription(
-                    publisher.get("currentSubscription")
-                )
+                subscription = publisher.subscription(publisher.get("currentSubscription"))
                 subscription.set("currentFont", fontID)
                 font = subscription.fontByID(fontID)
 
@@ -5087,15 +4568,10 @@ class AppFrame(wx.Frame):
 
                     if font.getBillboardURLs():
 
-                        index = (
-                            font.parent.parent.parent.parent.get("currentFontImage")
-                            or 0
-                        )
+                        index = font.parent.parent.parent.parent.get("currentFontImage") or 0
                         if index > len(font.getBillboardURLs()) - 1:
                             index = 0
-                            font.parent.parent.parent.parent.set(
-                                "currentFontImage", int(index)
-                            )
+                            font.parent.parent.parent.parent.set("currentFontImage", int(index))
 
                         html.append('<div style="max-height: 400px; height: 300px;">')
                         imageURL = font.getBillboardURLs()[index]
@@ -5106,12 +4582,12 @@ class AppFrame(wx.Frame):
 
                         html.append("</div>")
                         if len(font.getBillboardURLs()) > 1:
-                            html.append(
-                                '<div style="padding: 5px; text-align: center;">'
-                            )
+                            html.append('<div style="padding: 5px; text-align: center;">')
                             for i, billboard in enumerate(font.getBillboardURLs()):
                                 html.append(
-                                    '<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a href="https://type.world/x-python/self.setFontImage(____%s____)" style="color: inherit;">●</a></span>'
+                                    '<span id="fontBillboardLink_%s" class="fontBillboardLinks %s"><a'
+                                    ' href="https://type.world/x-python/self.setFontImage(____%s____)" style="color:'
+                                    ' inherit;">●</a></span>'
                                     % (
                                         i,
                                         "selected" if i == index else "",
@@ -5120,9 +4596,7 @@ class AppFrame(wx.Frame):
                                 )
                             html.append("</div>")
 
-                    html.append(
-                        '<div class="font %s">' % (self.b64encode(font.uniqueID))
-                    )
+                    html.append('<div class="font %s">' % (self.b64encode(font.uniqueID)))
                     html.append(
                         '<div class="name">%s %s</div>'
                         % (
@@ -5183,9 +4657,7 @@ class AppFrame(wx.Frame):
                             html.append(
                                 '<div class="category %s %s">'
                                 % (
-                                    "selected"
-                                    if client.get("metadataCategory") == keyword
-                                    else "",
+                                    "selected" if client.get("metadataCategory") == keyword else "",
                                     keyword,
                                 )
                             )
@@ -5201,10 +4673,7 @@ class AppFrame(wx.Frame):
 
                     html.append("</div>")
 
-                    html.append(
-                        '<div class="categoryBody %s">'
-                        % (client.get("metadataCategory"))
-                    )
+                    html.append('<div class="categoryBody %s">' % (client.get("metadataCategory")))
 
                     if client.get("metadataCategory") == "license":
                         for usedLicense in font.usedLicenses:
@@ -5234,32 +4703,28 @@ class AppFrame(wx.Frame):
 
                                 if licenseLink:
                                     html.append(f'<a href="{usedLicense.upgradeURL}">')
-                                html.append(
-                                    '<div class="clear" style="width: 90%; margin-bottom: -20px;">'
-                                )
+                                html.append('<div class="clear" style="width: 90%; margin-bottom: -20px;">')
                                 html.append(
                                     '<div style="float: left; width: %s; min-width: 110px; text-align: center;">'
                                     % ("30%" if licenseLink else "100%")
                                 )
 
-                                html.append(
-                                    '<div style="display: inline-block; width: 100px; ">'
-                                )
-                                html.append(
-                                    '<img src="file://##htmlroot##/seatallowance.svg" style="width: 100px;">'
-                                )
+                                html.append('<div style="display: inline-block; width: 100px; ">')
+                                html.append('<img src="file://##htmlroot##/seatallowance.svg" style="width: 100px;">')
 
                                 html.append(
-                                    '<div style="width: 100px; position: relative; top: -%spx; left; 0px; margin-left: -4px; margin-bottom: -35px;  ">'
-                                    % (80 if MAC else 82)
+                                    '<div style="width: 100px; position: relative; top: -%spx; left; 0px; margin-left:'
+                                    ' -4px; margin-bottom: -35px;  ">' % (80 if MAC else 82)
                                 )
                                 html.append(
-                                    '<div class="seatsInstalled" style="position: relative; width: 30px; left: 21px; top: 2px; text-align: right; color: black !important;">'
+                                    '<div class="seatsInstalled" style="position: relative; width: 30px; left: 21px;'
+                                    ' top: 2px; text-align: right; color: black !important;">'
                                 )
                                 html.append(usedLicense.seatsInstalled or 0)
                                 html.append("</div>")
                                 html.append(
-                                    '<div style="position: relative; width: 30px; left: 57px; top: 2px; text-align: left; color: black !important;">'
+                                    '<div style="position: relative; width: 30px; left: 57px; top: 2px; text-align:'
+                                    ' left; color: black !important;">'
                                 )
                                 html.append(usedLicense.seatsAllowed or 0)
                                 html.append("</div>")
@@ -5271,11 +4736,10 @@ class AppFrame(wx.Frame):
 
                                 if licenseLink:
                                     html.append(
-                                        '<div style="float: left; width: 130px; height: 100px; text-align: left; display: table;">'
+                                        '<div style="float: left; width: 130px; height: 100px; text-align: left;'
+                                        ' display: table;">'
                                     )
-                                    html.append(
-                                        '<div style="display: table-cell; vertical-align: middle; ">'
-                                    )
+                                    html.append('<div style="display: table-cell; vertical-align: middle; ">')
                                     html.append("#(Upgrade License)&thinsp;↗︎")
                                     html.append("</div>")
                                     html.append("</div>")  # .float left
@@ -5285,9 +4749,7 @@ class AppFrame(wx.Frame):
                                     html.append("</a>")
 
                             elif usedLicense.upgradeURL:
-                                html.append(
-                                    f'<a class="button" href="{usedLicense.upgradeURL}">'
-                                )
+                                html.append(f'<a class="button" href="{usedLicense.upgradeURL}">')
                                 html.append("#(Upgrade License)&thinsp;↗︎")
                                 html.append("</a>")
 
@@ -5297,10 +4759,7 @@ class AppFrame(wx.Frame):
                                 '<p><span class="metadataCategory textColorDarker">%s</span><br />'
                                 % license.name.getText(client.locale())
                             )
-                            html.append(
-                                '<a href="%s">%s&thinsp;↗︎</a></p>'
-                                % (license.URL, license.URL)
-                            )
+                            html.append('<a href="%s">%s&thinsp;↗︎</a></p>' % (license.URL, license.URL))
                             if (
                                 usedLicense.seatsAllowed
                                 != None
@@ -5312,7 +4771,10 @@ class AppFrame(wx.Frame):
                                     + localizeString(
                                         "#(%x% out of %y%)",
                                         replace={
-                                            "x": f'<span class="seatsInstalled">{usedLicense.seatsInstalled or 0}</span>',
+                                            "x": (
+                                                "<span"
+                                                f' class="seatsInstalled">{usedLicense.seatsInstalled or 0}</span>'
+                                            ),
                                             "y": usedLicense.seatsAllowed or 0,
                                         },
                                     )
@@ -5341,7 +4803,8 @@ class AppFrame(wx.Frame):
                             )
                             html.append("<p>")
                             html.append(
-                                f'<span class="material-icons">track_changes</span> <a href="{font.parent.issueTrackerURL}">{font.parent.issueTrackerURL}</a><br />'
+                                '<span class="material-icons">track_changes</span> <a'
+                                f' href="{font.parent.issueTrackerURL}">{font.parent.issueTrackerURL}</a><br />'
                             )
                             html.append("</p>")
                             html.append("<br />")
@@ -5351,21 +4814,24 @@ class AppFrame(wx.Frame):
                             or font.parent.parent.supportTelephone
                             or font.parent.parent.supportURL
                         ):
-                            html.append(
-                                '<p><span class="metadataCategory textColorDarker">#(Support)</span></p>'
-                            )
+                            html.append('<p><span class="metadataCategory textColorDarker">#(Support)</span></p>')
                             html.append("<p>")
                             if font.parent.parent.supportEmail:
                                 html.append(
-                                    f'<span class="material-icons">email</span> <a href="mailto:{font.parent.parent.supportEmail}" alt="{font.parent.parent.supportEmail}">#(Email)</a><br />'
+                                    '<span class="material-icons">email</span> <a'
+                                    f' href="mailto:{font.parent.parent.supportEmail}"'
+                                    f' alt="{font.parent.parent.supportEmail}">#(Email)</a><br />'
                                 )
                             if font.parent.parent.supportTelephone:
                                 html.append(
-                                    f'<span class="material-icons">call</span> {font.parent.parent.supportTelephone}<br />'
+                                    '<span class="material-icons">call</span>'
+                                    f" {font.parent.parent.supportTelephone}<br />"
                                 )
                             if font.parent.parent.supportURL:
                                 html.append(
-                                    f'<span class="material-icons">help_center</span> <a href="{font.parent.parent.supportURL}" alt="{font.parent.parent.supportURL}">#(Support Website)</a><br />'
+                                    '<span class="material-icons">help_center</span> <a'
+                                    f' href="{font.parent.parent.supportURL}"'
+                                    f' alt="{font.parent.parent.supportURL}">#(Support Website)</a><br />'
                                 )
                             html.append("</p>")
                             html.append("<br />")
@@ -5389,13 +4855,9 @@ class AppFrame(wx.Frame):
 
                         # Expiry
                         if font.expiryDuration:
-                            text, locale = font.parent.description.getTextAndLocale(
-                                locale=client.locale()
-                            )
+                            text, locale = font.parent.description.getTextAndLocale(locale=client.locale())
                             html.append("<p>")
-                            html.append(
-                                '<span class="metadataCategory textColorDarker">#(Expiry)</span>'
-                            )
+                            html.append('<span class="metadataCategory textColorDarker">#(Expiry)</span>')
                             html.append("</p>")
 
                             amount = font.expiryDuration
@@ -5435,41 +4897,35 @@ class AppFrame(wx.Frame):
                             html.append("<br />")
 
                         # URLs
-                        if (
-                            font.pdfURL
-                            or font.parent.pdfURL
-                            or font.parent.galleryURL
-                            or font.parent.sourceURL
-                        ):
-                            html.append(
-                                '<p><span class="metadataCategory textColorDarker">#(Links)</span></p>'
-                            )
+                        if font.pdfURL or font.parent.pdfURL or font.parent.galleryURL or font.parent.sourceURL:
+                            html.append('<p><span class="metadataCategory textColorDarker">#(Links)</span></p>')
                             html.append("<p>")
                             if font.pdfURL or font.parent.pdfURL:
                                 html.append(
-                                    f'<span class="material-icons">picture_as_pdf</span> <a href="{font.pdfURL or font.parent.pdfURL}" alt="{font.pdfURL or font.parent.pdfURL}">PDF&thinsp;↗︎</a><br />'
+                                    '<span class="material-icons">picture_as_pdf</span> <a'
+                                    f' href="{font.pdfURL or font.parent.pdfURL}"'
+                                    f' alt="{font.pdfURL or font.parent.pdfURL}">PDF&thinsp;↗︎</a><br />'
                                 )
                             if font.parent.galleryURL:
                                 html.append(
-                                    f'<span class="material-icons">image</span> <a href="{font.parent.galleryURL}" alt="{font.parent.galleryURL}">#(Gallery)&thinsp;↗︎</a><br />'
+                                    f'<span class="material-icons">image</span> <a href="{font.parent.galleryURL}"'
+                                    f' alt="{font.parent.galleryURL}">#(Gallery)&thinsp;↗︎</a><br />'
                                 )
                             html.append("</p>")
                             if font.parent.sourceURL:
                                 html.append(
-                                    f'<span class="material-icons">construction</span> <a href="{font.parent.sourceURL}" alt="{font.parent.sourceURL}">#(Source)&thinsp;↗︎</a><br />'
+                                    '<span class="material-icons">construction</span> <a'
+                                    f' href="{font.parent.sourceURL}"'
+                                    f' alt="{font.parent.sourceURL}">#(Source)&thinsp;↗︎</a><br />'
                                 )
                             html.append("</p>")
                             html.append("<br />")
 
                         # Description
                         if font.parent.description:
-                            text, locale = font.parent.description.getTextAndLocale(
-                                locale=client.locale()
-                            )
+                            text, locale = font.parent.description.getTextAndLocale(locale=client.locale())
                             html.append("<p>")
-                            html.append(
-                                '<span class="metadataCategory textColorDarker">#(Description)</span>'
-                            )
+                            html.append('<span class="metadataCategory textColorDarker">#(Description)</span>')
                             html.append("</p>")
                             html.append(markdown2.markdown(text.replace("\\n", "\n")))
                             html.append("<br />")
@@ -5477,17 +4933,14 @@ class AppFrame(wx.Frame):
                         # dateFirstPublished
                         if font.dateFirstPublished or font.parent.dateFirstPublished:
                             html.append("<p>")
-                            html.append(
-                                '<span class="metadataCategory textColorDarker">#(Published)</span>'
-                            )
+                            html.append('<span class="metadataCategory textColorDarker">#(Published)</span>')
                             html.append("</p>")
                             html.append("<p>")
                             html.append(
                                 locales.formatDate(
                                     time.mktime(
                                         datetime.date.fromisoformat(
-                                            font.dateFirstPublished
-                                            or font.parent.dateFirstPublished
+                                            font.dateFirstPublished or font.parent.dateFirstPublished
                                         ).timetuple()
                                     ),
                                     client.locale(),
@@ -5499,14 +4952,10 @@ class AppFrame(wx.Frame):
                         # Designers
                         if font.getDesigners():
                             html.append("<p>")
-                            html.append(
-                                '<span class="metadataCategory textColorDarker">#(Designers)</span>'
-                            )
+                            html.append('<span class="metadataCategory textColorDarker">#(Designers)</span>')
                             html.append("</p>")
                             for designer in font.getDesigners():
-                                name, locale = designer.name.getTextAndLocale(
-                                    locale=client.locale()
-                                )
+                                name, locale = designer.name.getTextAndLocale(locale=client.locale())
                                 html.append("<p>")
                                 html.append("<b>")
                                 html.append(name)
@@ -5519,9 +4968,7 @@ class AppFrame(wx.Frame):
                                 (
                                     description,
                                     locale,
-                                ) = designer.description.getTextAndLocale(
-                                    locale=client.locale()
-                                )
+                                ) = designer.description.getTextAndLocale(locale=client.locale())
                                 html.append(description)
                                 html.append("</p>")
                             html.append("<br />")
@@ -5529,49 +4976,36 @@ class AppFrame(wx.Frame):
                     if client.get("metadataCategory") == "versions":
                         html.append("<div>")
                         for version in reversed(font.getVersions()):
+                            html.append('<div class="version %s">' % self.versionEncode(version.number))
                             html.append(
-                                '<div class="version %s">'
-                                % self.versionEncode(version.number)
-                            )
-                            html.append(
-                                '<p><b>#(Version) %s</b> <span class="label installedVersion %s" style="display: %s;">#(Installed)</span><br />'
+                                '<p><b>#(Version) %s</b> <span class="label installedVersion %s" style="display:'
+                                ' %s;">#(Installed)</span><br />'
                                 % (
                                     version.number,
                                     "latestVersion"
                                     if version.number == font.getVersions()[-1].number
                                     else "olderVersion",
-                                    "inline"
-                                    if version.number == installedVersion
-                                    else "none",
+                                    "inline" if version.number == installedVersion else "none",
                                 )
                             )
                             if version.description:
-                                html.append(
-                                    "%s" % version.description.getText(client.locale())
-                                )
+                                html.append("%s" % version.description.getText(client.locale()))
                             if version.releaseDate:
                                 html.append(
                                     '<span class="darker">#(Published): %s</span>'
                                     % locales.formatDate(
-                                        time.mktime(
-                                            datetime.date.fromisoformat(
-                                                version.releaseDate
-                                            ).timetuple()
-                                        ),
+                                        time.mktime(datetime.date.fromisoformat(version.releaseDate).timetuple()),
                                         client.locale(),
                                     )
                                 )
 
                             html.append(
                                 '<div class="installButton status install" style="display: %s; margin-top: -3px;">'
-                                % (
-                                    "block"
-                                    if version.number != installedVersion
-                                    else "none"
-                                )
+                                % ("block" if version.number != installedVersion else "none")
                             )
                             html.append(
-                                '<a href="https://type.world/x-python/self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">'
+                                '<a href="https://type.world/x-python/self.installFont(____%s____, ____%s____,'
+                                ' ____%s____, ____%s____)" class="installButton button">'
                                 % (
                                     self.b64encode(subscription.parent.canonicalURL),
                                     self.b64encode(subscription.protocol.unsecretURL()),
@@ -5584,14 +5018,11 @@ class AppFrame(wx.Frame):
                             html.append("</div>")  # installButton
                             html.append(
                                 '<div class="installButton status remove" style="display: %s; margin-top: -3px;">'
-                                % (
-                                    "none"
-                                    if version.number != installedVersion
-                                    else "block"
-                                )
+                                % ("none" if version.number != installedVersion else "block")
                             )
                             html.append(
-                                '<a href="https://type.world/x-python/self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">'
+                                '<a href="https://type.world/x-python/self.removeFont(____%s____, ____%s____,'
+                                ' ____%s____)" class="removeButton button">'
                                 % (
                                     self.b64encode(subscription.parent.canonicalURL),
                                     self.b64encode(subscription.protocol.unsecretURL()),
@@ -5618,9 +5049,7 @@ class AppFrame(wx.Frame):
                 self.javaScript(js)
                 self.javaScript("documentReady();")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setPublisherHTML(self, b64ID=None):
 
@@ -5641,9 +5070,7 @@ class AppFrame(wx.Frame):
                 if pendingInvitations:
                     for invitation in pendingInvitations:
 
-                        html.append(
-                            '<div class="publisher invitation" id="%s">' % invitation.ID
-                        )
+                        html.append('<div class="publisher invitation" id="%s">' % invitation.ID)
 
                         html.append('<div class="foundry">')
                         html.append(
@@ -5661,26 +5088,19 @@ class AppFrame(wx.Frame):
                         if invitation.logoURL:
                             html.append('<div class="logo">')
                             html.append(
-                                f'<img src="{filestore.base64URL(invitation.logoURL)}" style="width: 100px; height: 100px;" />'
+                                f'<img src="{filestore.base64URL(invitation.logoURL)}" style="width: 100px; height:'
+                                ' 100px;" />'
                             )
                             html.append("</div>")  # publisher
 
-                        html.append(
-                            '<div class="names centerOuter"><div class="centerInner">'
-                        )
+                        html.append('<div class="names centerOuter"><div class="centerInner">')
 
-                        html.append(
-                            '<div class="vertCenterOuter" style="height: 100px;">'
-                        )
+                        html.append('<div class="vertCenterOuter" style="height: 100px;">')
                         html.append('<div class="vertCenterMiddle">')
                         html.append('<div class="vertCenterInner">')
 
-                        name = typeworld.api.MultiLanguageText(
-                            dict=invitation.publisherName
-                        )
-                        subscriptionName = typeworld.api.MultiLanguageText(
-                            dict=invitation.subscriptionName
-                        )
+                        name = typeworld.api.MultiLanguageText(dict=invitation.publisherName)
+                        subscriptionName = typeworld.api.MultiLanguageText(dict=invitation.subscriptionName)
                         html.append(
                             '<div class="name">%s%s</div>'
                             % (
@@ -5700,11 +5120,7 @@ class AppFrame(wx.Frame):
                             )
                             html.append("</p>")
 
-                        if (
-                            invitation.foundries
-                            or invitation.families
-                            or invitation.fonts
-                        ):
+                        if invitation.foundries or invitation.families or invitation.fonts:
                             html.append("<p>")
                             html.append(
                                 "%s #(Foundry/ies), %s #(Families/s), %s #(Font/s)"
@@ -5717,17 +5133,12 @@ class AppFrame(wx.Frame):
                             html.append("</p>")
 
                         html.append("<p>")
-                        if (
-                            invitation.invitedByUserEmail
-                            or invitation.invitedByUserName
-                        ):
+                        if invitation.invitedByUserEmail or invitation.invitedByUserName:
                             html.append(
-                                '#(Invited by): <img src="file://##htmlroot##/userIcon.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">'
+                                '#(Invited by): <img src="file://##htmlroot##/userIcon.svg" style="width: 16px;'
+                                ' height: 16px; position: relative; top: 3px; margin-top: -3px; margin-right: 2px;">'
                             )
-                            if (
-                                invitation.invitedByUserEmail
-                                and invitation.invitedByUserName
-                            ):
+                            if invitation.invitedByUserEmail and invitation.invitedByUserName:
                                 html.append(
                                     '<b>%s</b> (<a href="mailto:%s">%s</a>)'
                                     % (
@@ -5737,22 +5148,12 @@ class AppFrame(wx.Frame):
                                     )
                                 )
                             else:
-                                html.append(
-                                    "%s"
-                                    % (
-                                        invitation.invitedByUserName
-                                        or invitation.invitedByUserEmail
-                                    )
-                                )
+                                html.append("%s" % (invitation.invitedByUserName or invitation.invitedByUserEmail))
 
                         if invitation.time:
                             html.append(
                                 ", %s"
-                                % (
-                                    NaturalRelativeWeekdayTimeAndDate(
-                                        invitation.time, locale=client.locale()[0]
-                                    )
-                                )
+                                % (NaturalRelativeWeekdayTimeAndDate(invitation.time, locale=client.locale()[0]))
                             )
 
                         html.append("</p>")
@@ -5760,7 +5161,8 @@ class AppFrame(wx.Frame):
                         html.append('<div style="margin-top: 15px;">')
 
                         html.append(
-                            '<a class="acceptInvitation" id="%s" href="https://type.world/x-python/self.acceptInvitation(____%s____)">'
+                            '<a class="acceptInvitation" id="%s"'
+                            ' href="https://type.world/x-python/self.acceptInvitation(____%s____)">'
                             % (
                                 self.b64encode(invitation.url),
                                 self.b64encode(invitation.url),
@@ -5779,7 +5181,8 @@ class AppFrame(wx.Frame):
                         # 						html.append('&nbsp;&nbsp;')
 
                         html.append(
-                            '<a class="declineInvitation" id="%s" href="https://type.world/x-python/self.declineInvitation(____%s____)">'
+                            '<a class="declineInvitation" id="%s"'
+                            ' href="https://type.world/x-python/self.declineInvitation(____%s____)">'
                             % (
                                 self.b64encode(invitation.url),
                                 self.b64encode(invitation.url),
@@ -5835,9 +5238,7 @@ class AppFrame(wx.Frame):
 
                 self.javaScript("$('#sidebar .publisher').removeClass('selected');")
                 self.javaScript("$('#sidebar .subscription').removeClass('selected');")
-                self.javaScript(
-                    "$('#sidebar .pendingInvitations').addClass('selected');"
-                )
+                self.javaScript("$('#sidebar .pendingInvitations').addClass('selected');")
                 self.javaScript("showMain();")
 
             else:
@@ -5851,18 +5252,14 @@ class AppFrame(wx.Frame):
                 html = []
 
                 publisher = client.publisher(ID)
-                if publisher.subscriptions() and not publisher.get(
-                    "currentSubscription"
-                ):
+                if publisher.subscriptions() and not publisher.get("currentSubscription"):
                     publisher.set(
                         "currentSubscription",
                         publisher.subscriptions()[0].protocol.unsecretURL(),
                     )
 
                 if publisher.get("currentSubscription"):
-                    subscription = publisher.subscription(
-                        publisher.get("currentSubscription")
-                    )
+                    subscription = publisher.subscription(publisher.get("currentSubscription"))
                 else:
                     subscription = None
 
@@ -5885,10 +5282,7 @@ class AppFrame(wx.Frame):
                     else:
                         command = None
 
-                    if (
-                        command.prefersRevealedUserIdentity
-                        and subscription.get("revealIdentity") != True
-                    ):
+                    if command.prefersRevealedUserIdentity and subscription.get("revealIdentity") != True:
 
                         html.append('<div class="foundry" id="acceptRevealIdentity">')
                         html.append('<div class="head clear">')
@@ -5896,9 +5290,7 @@ class AppFrame(wx.Frame):
 
                         html.append('<div class="clear">')
 
-                        html.append(
-                            '<div class="one" style="float: left; width: 500px;">'
-                        )
+                        html.append('<div class="one" style="float: left; width: 500px;">')
                         html.append("<p>")
                         html.append("<b>#(Reveal Identity)</b>")
                         html.append("</p>")
@@ -5911,9 +5303,7 @@ class AppFrame(wx.Frame):
 
                         # # BUTTON
                         html.append('<div style="margin-top: 18px;">')
-                        html.append(
-                            '<a class="acceptInvitation" id="acceptRevealIdentityButton">'
-                        )
+                        html.append('<a class="acceptInvitation" id="acceptRevealIdentityButton">')
                         html.append('<div class="clear invitationButton agree">')
                         html.append('<div class="symbol">')
                         html.append("✓")
@@ -5946,7 +5336,7 @@ class AppFrame(wx.Frame):
                             % self.b64encode(subscription.protocol.unsecretURL())
                         )
 
-                    if subscription.get("acceptedTermsOfService") != True:
+                    if command.userIsVerified is False and subscription.get("acceptedTermsOfService") is not True:
 
                         html.append('<div class="foundry" id="acceptTermsOfService">')
                         html.append('<div class="head clear">')
@@ -5954,9 +5344,7 @@ class AppFrame(wx.Frame):
 
                         html.append('<div class="clear">')
 
-                        html.append(
-                            '<div class="one" style="float: left; width: 500px;">'
-                        )
+                        html.append('<div class="one" style="float: left; width: 500px;">')
                         html.append("<p>")
                         html.append("<b>#(Terms of Service)</b>")
                         html.append("</p>")
@@ -5970,9 +5358,7 @@ class AppFrame(wx.Frame):
                                 endpointCommand.termsOfServiceURL,
                                 localizeString(
                                     "#(Read X)",
-                                    replace={
-                                        "content": localizeString("#(Terms of Service)")
-                                    },
+                                    replace={"content": localizeString("#(Terms of Service)")},
                                 ),
                             )
                         )
@@ -5993,9 +5379,7 @@ class AppFrame(wx.Frame):
                                 endpointCommand.privacyPolicyURL,
                                 localizeString(
                                     "#(Read X)",
-                                    replace={
-                                        "content": localizeString("#(Privacy Policy)")
-                                    },
+                                    replace={"content": localizeString("#(Privacy Policy)")},
                                 ),
                             )
                         )
@@ -6007,9 +5391,7 @@ class AppFrame(wx.Frame):
 
                         # # BUTTON
                         html.append('<div style="margin-top: 18px;">')
-                        html.append(
-                            '<a class="acceptInvitation" id="acceptTermsOfServiceButton">'
-                        )
+                        html.append('<a class="acceptInvitation" id="acceptTermsOfServiceButton">')
                         html.append('<div class="clear invitationButton agree">')
                         html.append('<div class="symbol">')
                         html.append("✓")
@@ -6049,22 +5431,15 @@ class AppFrame(wx.Frame):
                         ## STYLING
                         styling = FoundryStyling(foundry, theme)
                         logoURL = styling.logo()
-                        html.append(
-                            styling.foundryView(self.b64encode(foundry.uniqueID))
-                        )
+                        html.append(styling.foundryView(self.b64encode(foundry.uniqueID)))
 
-                        backgroundColorFoundryStyling = FoundryStyling(
-                            foundry.parent.foundries[-1], theme
-                        )
+                        backgroundColorFoundryStyling = FoundryStyling(foundry.parent.foundries[-1], theme)
                         html.append(
                             """<style> #main { background-color: #%s; } </style>"""
                             % backgroundColorFoundryStyling.backgroundColor.hex
                         )
 
-                        html.append(
-                            '<div class="foundry" id="%s">'
-                            % self.b64encode(foundry.uniqueID)
-                        )
+                        html.append('<div class="foundry" id="%s">' % self.b64encode(foundry.uniqueID))
                         html.append('<div class="head clear">')
 
                         if logoURL:
@@ -6074,20 +5449,13 @@ class AppFrame(wx.Frame):
                             )
                             html.append("</div>")  # publisher
 
-                        html.append(
-                            '<div class="names centerOuter"><div class="centerInner">'
-                        )
+                        html.append('<div class="names centerOuter"><div class="centerInner">')
 
-                        html.append(
-                            '<div class="vertCenterOuter" style="height: 100px;">'
-                        )
+                        html.append('<div class="vertCenterOuter" style="height: 100px;">')
                         html.append('<div class="vertCenterMiddle">')
                         html.append('<div class="vertCenterInner">')
 
-                        html.append(
-                            '<div class="name">%s</div>'
-                            % (foundry.name.getText(client.locale()))
-                        )
+                        html.append('<div class="name">%s</div>' % (foundry.name.getText(client.locale())))
                         if foundry.websiteURL:
                             html.append("<p>")
                             html.append(
@@ -6107,10 +5475,7 @@ class AppFrame(wx.Frame):
                         html.append('<div class="families">')
 
                         for family in foundry.families:
-                            html.append(
-                                '<div class="contextmenu family" id="%s">'
-                                % self.b64encode(family.uniqueID)
-                            )
+                            html.append('<div class="contextmenu family" id="%s">' % self.b64encode(family.uniqueID))
 
                             html.append('<div class="title">')
                             html.append('<div class="clear">')
@@ -6120,9 +5485,7 @@ class AppFrame(wx.Frame):
                             html.append("</div>")  # .clear
                             html.append("</div>")  # .title
 
-                            for package in family.getPackages(
-                                filterByFontPurpose=["desktop"]
-                            ):
+                            for package in family.getPackages(filterByFontPurpose=["desktop"]):
 
                                 for variableFont in (True, False):
                                     for formatName in package.getFormats():
@@ -6135,55 +5498,35 @@ class AppFrame(wx.Frame):
 
                                             amountInstalled = 0
                                             for font in fonts:
-                                                if subscription.installedFontVersion(
-                                                    font.uniqueID
-                                                ):
+                                                if subscription.installedFontVersion(font.uniqueID):
                                                     amountInstalled += 1
 
                                             completeSetName = ""
                                             if package.keyword != typeworld.api.DEFAULT:
-                                                completeSetName += (
-                                                    package.name.getText(
-                                                        client.locale()
-                                                    )
-                                                    + ", "
-                                                )
+                                                completeSetName += package.name.getText(client.locale()) + ", "
 
-                                            if (
-                                                formatName
-                                                in typeworld.api.FILEEXTENSIONNAMES
-                                            ):
-                                                completeSetName += (
-                                                    typeworld.api.FILEEXTENSIONNAMES[
-                                                        formatName
-                                                    ]
-                                                )
+                                            if formatName in typeworld.api.FILEEXTENSIONNAMES:
+                                                completeSetName += typeworld.api.FILEEXTENSIONNAMES[formatName]
                                             if variableFont:
                                                 completeSetName += ", Variable Fonts"
 
                                             html.append(
                                                 '<div class="section %s" id="%s">'
                                                 % (
-                                                    "multipleFonts"
-                                                    if len(fonts) > 1
-                                                    else "",
+                                                    "multipleFonts" if len(fonts) > 1 else "",
                                                     completeSetName,
                                                 )
                                             )
 
                                             html.append('<div class="title clear">')
-                                            html.append(
-                                                '<div class="name left">%s</div>'
-                                                % completeSetName
-                                            )
+                                            html.append('<div class="name left">%s</div>' % completeSetName)
 
                                             if len(fonts) > 1:
 
+                                                html.append('<div class="more right" style="padding-top: 5px;">')
                                                 html.append(
-                                                    '<div class="more right" style="padding-top: 5px;">'
-                                                )
-                                                html.append(
-                                                    '<img src="file://##htmlroot##/more_darker.svg" style="height: 8px; position: relative; top: 0px;">'
+                                                    '<img src="file://##htmlroot##/more_darker.svg" style="height:'
+                                                    ' 8px; position: relative; top: 0px;">'
                                                 )
                                                 html.append("</div>")
 
@@ -6193,56 +5536,40 @@ class AppFrame(wx.Frame):
                                                 html.append('<div class="clear">')
 
                                                 if amountInstalled < len(fonts):
+                                                    html.append('<div class="install installButton right">')
                                                     html.append(
-                                                        '<div class="install installButton right">'
-                                                    )
-                                                    html.append(
-                                                        '<a href="https://type.world/x-python/self.installAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="installAllFonts installButton button">'
+                                                        '<a href="https://type.world/x-python/self.installAllFonts(____%s____,'
+                                                        ' ____%s____, ____%s____, ____%s____, ____%s____)"'
+                                                        ' class="installAllFonts installButton button">'
                                                         % (
                                                             self.b64encode(ID),
-                                                            self.b64encode(
-                                                                subscription.protocol.unsecretURL()
-                                                            ),
-                                                            self.b64encode(
-                                                                family.uniqueID
-                                                            ),
-                                                            self.b64encode(
-                                                                package.keyword
-                                                            ),
+                                                            self.b64encode(subscription.protocol.unsecretURL()),
+                                                            self.b64encode(family.uniqueID),
+                                                            self.b64encode(package.keyword),
                                                             formatName,
                                                         )
                                                     )
                                                     html.append("✓ #(Install All)")
                                                     html.append("</a>")
-                                                    html.append(
-                                                        "</div>"
-                                                    )  # .installButton
+                                                    html.append("</div>")  # .installButton
 
                                                 if amountInstalled > 0:
+                                                    html.append('<div class="remove installButton right">')
                                                     html.append(
-                                                        '<div class="remove installButton right">'
-                                                    )
-                                                    html.append(
-                                                        '<a href="https://type.world/x-python/self.removeAllFonts(____%s____, ____%s____, ____%s____, ____%s____, ____%s____)" class="removeAllFonts removeButton button ">'
+                                                        '<a href="https://type.world/x-python/self.removeAllFonts(____%s____,'
+                                                        ' ____%s____, ____%s____, ____%s____, ____%s____)"'
+                                                        ' class="removeAllFonts removeButton button ">'
                                                         % (
                                                             self.b64encode(ID),
-                                                            self.b64encode(
-                                                                subscription.protocol.unsecretURL()
-                                                            ),
-                                                            self.b64encode(
-                                                                family.uniqueID
-                                                            ),
-                                                            self.b64encode(
-                                                                package.keyword
-                                                            ),
+                                                            self.b64encode(subscription.protocol.unsecretURL()),
+                                                            self.b64encode(family.uniqueID),
+                                                            self.b64encode(package.keyword),
                                                             formatName,
                                                         )
                                                     )
                                                     html.append("✕ #(Remove All)")
                                                     html.append("</a>")
-                                                    html.append(
-                                                        "</div>"
-                                                    )  # .installButton
+                                                    html.append("</div>")  # .installButton
 
                                                 html.append("</div>")  # .clear
                                                 html.append("</div>")  # .installButtons
@@ -6250,57 +5577,33 @@ class AppFrame(wx.Frame):
                                             html.append("</div>")  # .title
 
                                             for font in fonts:
-                                                installedVersion = (
-                                                    subscription.installedFontVersion(
-                                                        font.uniqueID
-                                                    )
-                                                )
+                                                installedVersion = subscription.installedFontVersion(font.uniqueID)
 
                                                 html.append(
                                                     '<div class="contextmenu font %s %s %s" id="%s">'
                                                     % (
                                                         self.b64encode(font.uniqueID),
-                                                        "installed"
-                                                        if installedVersion
-                                                        else "notInstalled",
+                                                        "installed" if installedVersion else "notInstalled",
                                                         "selected"
-                                                        if subscription.get(
-                                                            "currentFont"
-                                                        )
-                                                        == font.uniqueID
+                                                        if subscription.get("currentFont") == font.uniqueID
                                                         else "",
                                                         self.b64encode(font.uniqueID),
                                                     )
                                                 )
                                                 html.append('<div class="clear">')
 
-                                                html.append(
-                                                    '<div class="left" style="width: 50%;">'
-                                                )
-                                                html.append(
-                                                    font.name.getText(client.locale())
-                                                )
+                                                html.append('<div class="left" style="width: 50%;">')
+                                                html.append(font.name.getText(client.locale()))
                                                 if font.free:
-                                                    html.append(
-                                                        '<span class="label free">free</span>'
-                                                    )
+                                                    html.append('<span class="label free">free</span>')
                                                 if font.status != "stable":
-                                                    html.append(
-                                                        '<span class="label pre">%s</span>'
-                                                        % font.status
-                                                    )
+                                                    html.append('<span class="label pre">%s</span>' % font.status)
                                                 if font.variableFont:
-                                                    html.append(
-                                                        '<span class="label var">OTVar</span>'
-                                                    )
+                                                    html.append('<span class="label var">OTVar</span>')
                                                 html.append("</div>")  # .left
 
-                                                html.append(
-                                                    '<div class="left installedText">'
-                                                )
-                                                html.append(
-                                                    self.fontInstalledText(font)
-                                                )
+                                                html.append('<div class="left installedText">')
+                                                html.append(self.fontInstalledText(font))
                                                 html.append("</div>")  # .left
 
                                                 expiry = ""
@@ -6308,7 +5611,8 @@ class AppFrame(wx.Frame):
                                                     expiry = "%s" % font.expiryDuration
                                                 if expiry:
                                                     html.append(
-                                                        '<div class="left expiryText"><span class="material-icons">auto_delete</span>'
+                                                        '<div class="left expiryText"><span'
+                                                        ' class="material-icons">auto_delete</span>'
                                                     )
                                                     html.append(
                                                         '<span class="countdownMinutes" timestamp="%s">%s</span>min'
@@ -6318,65 +5622,40 @@ class AppFrame(wx.Frame):
 
                                                 if font.purpose == "desktop":
 
+                                                    html.append('<div class="installButtons right">')
+                                                    html.append('<div class="installButton status install">')
                                                     html.append(
-                                                        '<div class="installButtons right">'
-                                                    )
-                                                    html.append(
-                                                        '<div class="installButton status install">'
-                                                    )
-                                                    html.append(
-                                                        '<a href="https://type.world/x-python/self.installFont(____%s____, ____%s____, ____%s____, ____%s____)" class="installButton button">'
+                                                        '<a href="https://type.world/x-python/self.installFont(____%s____,'
+                                                        ' ____%s____, ____%s____, ____%s____)" class="installButton'
+                                                        ' button">'
                                                         % (
-                                                            self.b64encode(
-                                                                subscription.parent.canonicalURL
-                                                            ),
-                                                            self.b64encode(
-                                                                subscription.protocol.unsecretURL()
-                                                            ),
-                                                            self.b64encode(
-                                                                font.uniqueID
-                                                            ),
-                                                            font.getVersions()[
-                                                                -1
-                                                            ].number
+                                                            self.b64encode(subscription.parent.canonicalURL),
+                                                            self.b64encode(subscription.protocol.unsecretURL()),
+                                                            self.b64encode(font.uniqueID),
+                                                            font.getVersions()[-1].number
                                                             if font.getVersions()
                                                             else "",
                                                         )
                                                     )
                                                     html.append("✓ #(Install)")
                                                     html.append("</a>")
+                                                    html.append("</div>")  # installButton
+                                                    html.append('<div class="installButton status remove">')
                                                     html.append(
-                                                        "</div>"
-                                                    )  # installButton
-                                                    html.append(
-                                                        '<div class="installButton status remove">'
-                                                    )
-                                                    html.append(
-                                                        '<a href="https://type.world/x-python/self.removeFont(____%s____, ____%s____, ____%s____)" class="removeButton button">'
+                                                        '<a href="https://type.world/x-python/self.removeFont(____%s____,'
+                                                        ' ____%s____, ____%s____)" class="removeButton button">'
                                                         % (
-                                                            self.b64encode(
-                                                                subscription.parent.canonicalURL
-                                                            ),
-                                                            self.b64encode(
-                                                                subscription.protocol.unsecretURL()
-                                                            ),
-                                                            self.b64encode(
-                                                                font.uniqueID
-                                                            ),
+                                                            self.b64encode(subscription.parent.canonicalURL),
+                                                            self.b64encode(subscription.protocol.unsecretURL()),
+                                                            self.b64encode(font.uniqueID),
                                                         )
                                                     )
                                                     html.append("✕ #(Remove)")
                                                     html.append("</a>")
-                                                    html.append(
-                                                        "</div>"
-                                                    )  # installButton
-                                                    html.append(
-                                                        "</div>"
-                                                    )  # .installButtons
+                                                    html.append("</div>")  # installButton
+                                                    html.append("</div>")  # .installButtons
 
-                                                    html.append(
-                                                        '<div class="status loading right">'
-                                                    )
+                                                    html.append('<div class="status loading right">')
                                                     html.append('<a class="status">')
                                                     html.append(
                                                         """<img src="file://##htmlroot##/loading.gif" style="width: 50px; height: 13px; position: relative; top: 2px;">"""
@@ -6384,9 +5663,7 @@ class AppFrame(wx.Frame):
                                                     html.append("</a>")
                                                     html.append("</div>")  # .right
 
-                                                    html.append(
-                                                        '<div class="more right">'
-                                                    )
+                                                    html.append('<div class="more right">')
                                                     html.append('<a class="more">')
                                                     html.append(
                                                         """<img src="file://##htmlroot##/more_lighter.svg" style="height: 8px; position: relative; top: 0px;">"""
@@ -6472,9 +5749,7 @@ class AppFrame(wx.Frame):
                 # Set Sidebar Focus
                 self.javaScript("$('#sidebar .publisher').removeClass('selected');")
                 self.javaScript("$('#sidebar .subscription').removeClass('selected');")
-                self.javaScript(
-                    "$('#sidebar #%s.publisher').addClass('selected');" % b64ID
-                )
+                self.javaScript("$('#sidebar #%s.publisher').addClass('selected');" % b64ID)
                 self.javaScript("recalcMinutesCountdown();")
 
                 if subscription:
@@ -6495,9 +5770,7 @@ class AppFrame(wx.Frame):
             self.setSideBarHTML()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def fontInstalledText(self, font):
         try:
@@ -6511,29 +5784,21 @@ class AppFrame(wx.Frame):
                 html.append(
                     '#(Installed): <span class="label installedVersion %s">%s</a>'
                     % (
-                        "latestVersion"
-                        if installedVersion == font.getVersions()[-1].number
-                        else "olderVersion",
+                        "latestVersion" if installedVersion == font.getVersions()[-1].number else "olderVersion",
                         installedVersion,
                     )
                 )
             else:
-                html.append(
-                    '<span class="inactive notInstalled">#(Not Installed)</span>'
-                )
+                html.append('<span class="inactive notInstalled">#(Not Installed)</span>')
             return "".join(html)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def versionEncode(self, version):
         try:
             return version.replace(".", "_")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def b64encode(self, string):
         try:
@@ -6543,9 +5808,7 @@ class AppFrame(wx.Frame):
 
             return s.replace("=", "-")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def b64decode(self, string):
         try:
@@ -6555,18 +5818,14 @@ class AppFrame(wx.Frame):
 
             return s
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def hidePanel(self):
         try:
             self.panelVisible = None
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setSideBarHTML(self):
         # print("setSideBarHTML()")
@@ -6576,9 +5835,7 @@ class AppFrame(wx.Frame):
             if not client.get("currentPublisher"):
                 self.javaScript("hideMain();")
 
-            if client.get(
-                "currentPublisher"
-            ) == "pendingInvitations" and not client.get("pendingInvitations"):
+            if client.get("currentPublisher") == "pendingInvitations" and not client.get("pendingInvitations"):
                 client.set("currentPublisher", "")
 
             if not client.get("currentPublisher"):
@@ -6589,11 +5846,7 @@ class AppFrame(wx.Frame):
                     client.set("currentPublisher", client.publishers()[0].canonicalURL)
                     self.setActiveSubscription(
                         self.b64encode(client.publishers()[0].canonicalURL),
-                        self.b64encode(
-                            client.publishers()[0]
-                            .subscriptions()[0]
-                            .protocol.unsecretURL()
-                        ),
+                        self.b64encode(client.publishers()[0].subscriptions()[0].protocol.unsecretURL()),
                     )
 
             html = []
@@ -6622,15 +5875,9 @@ class AppFrame(wx.Frame):
 
                         installedFonts = publisher.amountInstalledFonts()
                         outdatedFonts = publisher.amountOutdatedFonts()
-                        selected = (
-                            client.get("currentPublisher") == publisher.canonicalURL
-                        )
+                        selected = client.get("currentPublisher") == publisher.canonicalURL
 
-                        _type = (
-                            "multiple"
-                            if len(publisher.subscriptions()) > 1
-                            else "single"
-                        )
+                        _type = "multiple" if len(publisher.subscriptions()) > 1 else "single"
 
                         html.append('<div class="publisherWrapper">')
                         #                html.append('<a class="publisher" href="https://type.world/x-python/self.setPublisherHTML(____%s____)">' % b64ID)
@@ -6640,9 +5887,7 @@ class AppFrame(wx.Frame):
                                 b64ID,
                                 _type,
                                 "selected" if selected else "",
-                                "expanded"
-                                if len(publisher.subscriptions()) > 1
-                                else "",
+                                "expanded" if len(publisher.subscriptions()) > 1 else "",
                                 language,
                                 direction,
                             )
@@ -6653,7 +5898,8 @@ class AppFrame(wx.Frame):
                             "%s %s"
                             % (
                                 name,
-                                '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px; width:16px; height:16px;">'
+                                '<img src="file://##htmlroot##/github.svg" style="position:relative; top: 3px;'
+                                ' width:16px; height:16px;">'
                                 if publisher.get("type") == "GitHub"
                                 else "",
                             )
@@ -6664,7 +5910,8 @@ class AppFrame(wx.Frame):
                             % ("block" if publisher.stillUpdating() else "none")
                         )
                         html.append(
-                            '<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">'
+                            '<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px;'
+                            ' height:20px;">'
                         )
                         html.append("</div>")
                         html.append('<div class="badges clear">')
@@ -6695,28 +5942,36 @@ class AppFrame(wx.Frame):
                                     endpointCommand,
                                 ) = subscription.protocol.endpointCommand()
                                 badges.append(
-                                    (
-                                        f'<div class="badge liveConnectionStatus">'
-                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span class="material-icons">notifications_active</span></span>'
-                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span class="material-icons">notifications_off</span></span>'
-                                        "</div>"
-                                    )
+                                    '<div class="badge liveConnectionStatus"><span'
+                                    ' alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display:'
+                                    f' {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span'
+                                    ' class="material-icons">notifications_active</span></span><span'
+                                    ' alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected"'
+                                    ' style="display:'
+                                    f' {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span'
+                                    ' class="material-icons">notifications_off</span></span></div>'
                                 )
 
                             subscription = publisher.subscriptions()[0]
                             if client.user() and subscription.get("revealIdentity"):
                                 badges.append(
-                                    '<div class="badge revealIdentity" style="display: block;" alt="#(YourIdentityWillBeRevealedTooltip)""><span class="material-icons">face</span></div>'
+                                    '<div class="badge revealIdentity" style="display: block;"'
+                                    ' alt="#(YourIdentityWillBeRevealedTooltip)""><span'
+                                    ' class="material-icons">face</span></div>'
                                 )
 
                             if client.user() and subscription.invitationAccepted():
                                 badges.append(
-                                    '<div class="badge revealIdentity" style="display: block;" alt="#(IsInvitationExplanation)"><span class="material-icons">cloud_download</span></div>'
+                                    '<div class="badge revealIdentity" style="display: block;"'
+                                    ' alt="#(IsInvitationExplanation)"><span'
+                                    ' class="material-icons">cloud_download</span></div>'
                                 )
 
                             if client.user() and subscription.invitationSent():
                                 badges.append(
-                                    '<div class="badge revealIdentity" style="display: block;" alt="#(InvitationSentExplanation)"><span class="material-icons">cloud_upload</span></div>'
+                                    '<div class="badge revealIdentity" style="display: block;"'
+                                    ' alt="#(InvitationSentExplanation)"><span'
+                                    ' class="material-icons">cloud_upload</span></div>'
                                 )
 
                             if badges:
@@ -6739,15 +5994,12 @@ class AppFrame(wx.Frame):
                         #                html.append('</a>')
 
                         html.append(
-                            '<div class="subscriptions" style="display: %s;">'
-                            % ("block" if selected else "none")
+                            '<div class="subscriptions" style="display: %s;">' % ("block" if selected else "none")
                         )
                         if len(publisher.subscriptions()) > 1:
                             for i, subscription in enumerate(publisher.subscriptions()):
 
-                                amountInstalledFonts = (
-                                    subscription.amountInstalledFonts()
-                                )
+                                amountInstalledFonts = subscription.amountInstalledFonts()
                                 amountOutdatedFonts = subscription.amountOutdatedFonts()
                                 if publisher.get("currentSubscription"):
                                     selected = (
@@ -6761,14 +6013,13 @@ class AppFrame(wx.Frame):
 
                                 html.append("<div>")
                                 html.append(
-                                    '<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s" publisherID="%s">'
+                                    '<div class="contextmenu subscription line clear %s" lang="%s" dir="%s" id="%s"'
+                                    ' publisherID="%s">'
                                     % (
                                         "selected" if selected else "",
                                         "en",
                                         "ltr",
-                                        self.b64encode(
-                                            subscription.protocol.unsecretURL()
-                                        ),
+                                        self.b64encode(subscription.protocol.unsecretURL()),
                                         b64ID,
                                     )
                                 )
@@ -6778,14 +6029,11 @@ class AppFrame(wx.Frame):
                                 html.append("</div>")
                                 html.append(
                                     '<div class="reloadAnimation" style="display: %s;">'
-                                    % (
-                                        "block"
-                                        if subscription.stillUpdating()
-                                        else "none"
-                                    )
+                                    % ("block" if subscription.stillUpdating() else "none")
                                 )
                                 html.append(
-                                    '<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px; width:20px; height:20px;">'
+                                    '<img src="file://##htmlroot##/reload.gif" style="position:relative; top: 2px;'
+                                    ' width:20px; height:20px;">'
                                 )
                                 html.append("</div>")
                                 html.append('<div class="badges clear">')
@@ -6813,22 +6061,30 @@ class AppFrame(wx.Frame):
                                     endpointCommand,
                                 ) = subscription.protocol.endpointCommand()
                                 badges.append(
-                                    (
-                                        f'<div class="badge liveConnectionStatus">'
-                                        f'<span alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display: {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span class="material-icons">notifications_active</span></span>'
-                                        f'<span alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected" style="display: {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span class="material-icons">notifications_off</span></span>'
-                                        "</div>"
-                                    )
+                                    '<div class="badge liveConnectionStatus"><span'
+                                    ' alt="#(SubscriptionSendsLiveNotifications)" class="connected" style="display:'
+                                    f' {"inline-block" if endpointCommand.sendsLiveNotifications else "none"}"><span'
+                                    ' class="material-icons">notifications_active</span></span><span'
+                                    ' alt="#(SubscriptionDoesntSendLiveNotifications)" class="disconnected"'
+                                    ' style="display:'
+                                    f' {"none" if endpointCommand.sendsLiveNotifications else "inline-block"}"><span'
+                                    ' class="material-icons">notifications_off</span></span></div>'
                                 )
 
                                 if client.user() and subscription.get("revealIdentity"):
                                     badges.append(
-                                        '<div class="badge revealIdentity" style="display: %s;" alt="#(YourIdentityWillBeRevealedTooltip)"><img src="file://##htmlroot##/userIcon_Outline.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
+                                        '<div class="badge revealIdentity" style="display: %s;"'
+                                        ' alt="#(YourIdentityWillBeRevealedTooltip)"><img'
+                                        ' src="file://##htmlroot##/userIcon_Outline.svg" style="width: 16px; height:'
+                                        ' 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
                                     )
 
                                 if client.user() and subscription.invitationAccepted():
                                     badges.append(
-                                        '<div class="badge revealIdentity" style="display: block;" alt="#(IsInvitationExplanation)"><img src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px; position: relative; top: 3px; margin-top: -3px;"></div>'
+                                        '<div class="badge revealIdentity" style="display: block;"'
+                                        ' alt="#(IsInvitationExplanation)"><img'
+                                        ' src="file://##htmlroot##/invitation.svg" style="width: 16px; height: 16px;'
+                                        ' position: relative; top: 3px; margin-top: -3px;"></div>'
                                     )
 
                                 if badges:
@@ -6838,17 +6094,11 @@ class AppFrame(wx.Frame):
 
                                 html.append(
                                     '<div class="alert" style="display: %s;">'
-                                    % (
-                                        "block"
-                                        if subscription.updatingProblem()
-                                        else "none"
-                                    )
+                                    % ("block" if subscription.updatingProblem() else "none")
                                 )
                                 html.append(
                                     '<a href="https://type.world/x-python/self.displaySubscriptionSidebarAlert(____%s____)">'
-                                    % self.b64encode(
-                                        subscription.protocol.unsecretURL()
-                                    )
+                                    % self.b64encode(subscription.protocol.unsecretURL())
                                 )
                                 html.append("⚠️")
                                 html.append("</a>")
@@ -6870,17 +6120,14 @@ class AppFrame(wx.Frame):
 
                 html.append('<div class="publisherWrapper">')
                 html.append(
-                    '<div id="%s" class="contextmenu publisher pendingInvitations line clear %s %s" lang="en" dir="ltr">'
-                    % ("", "", "selected" if selected else "")
+                    '<div id="%s" class="contextmenu publisher pendingInvitations line clear %s %s" lang="en"'
+                    ' dir="ltr">' % ("", "", "selected" if selected else "")
                 )
                 html.append('<div class="name">')
                 html.append("#(Pending Invitations)…")
                 html.append("</div>")
                 html.append('<div class="badges clear">')
-                html.append(
-                    '<div class="badge numbers outdated" style="display: %s;">'
-                    % ("block")
-                )
+                html.append('<div class="badge numbers outdated" style="display: %s;">' % "block")
                 html.append("%s" % (len(client.get("pendingInvitations"))))
                 html.append("</div>")
                 # html.append('<div class="badge installed" style="display: %s;">' % ('block' if installedFonts else 'none'))
@@ -6971,26 +6218,21 @@ class AppFrame(wx.Frame):
 
             if client.user():
                 self.javaScript(
-                    '$("#userBadge #userName").html("%s");'
-                    % (client.userEmail() or "no email found")
+                    '$("#userBadge #userName").html("%s");' % (client.userEmail() or "no email found")
                 )  # (client.user()[:20] + '...')
                 self.javaScript('$("#userBadge").show();')
             else:
                 self.javaScript('$("#userBadge").hide();')
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setCustomLanguage(self, language):
         try:
             client.set("customLocaleChoice", language)
             client.set("localizationType", "customLocale")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onLoad(self, event):
         try:
@@ -7026,8 +6268,7 @@ class AppFrame(wx.Frame):
 
                 self.javaScript(
                     (
-                        "WIN = true;"
-                        "$('#atomButton .centerInner').css('padding-top', '72px');"
+                        "WIN = true;$('#atomButton .centerInner').css('padding-top', '72px');"
                         # "zoomFactor = 1.8;"
                         # "zoom();"
                     )
@@ -7094,9 +6335,7 @@ class AppFrame(wx.Frame):
             self.updateMessageQueueStatus()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def selftest_worker(self, pythonCode=None, javaScriptCode=None):
 
@@ -7104,9 +6343,7 @@ class AppFrame(wx.Frame):
             return pythonCode, javaScriptCode
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def selftest_consumer(self, delayedResult):
 
@@ -7120,17 +6357,13 @@ class AppFrame(wx.Frame):
                 self.javaScript(javaScriptCode)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def selftest_python(self, code):
         startWorker(self.selftest_consumer, self.selftest_worker, wargs=(code, None))
 
     def selftest_javascript(self, code):
-        startWorker(
-            self.selftest_consumer, self.selftest_worker, wargs=(None, code)
-        ).join()
+        startWorker(self.selftest_consumer, self.selftest_worker, wargs=(None, code)).join()
 
     def updateMessageQueueStatus(self):
         client.manageMessageQueueConnection()
@@ -7150,7 +6383,7 @@ class AppFrame(wx.Frame):
         seconds = delayedResult.get()
 
     def quitSelftest(self, message, exitCode):
-        print("selftest failed with:", message, "exit code:", exitCode)
+        print("selftest failed with:", message, ", exit code:", exitCode)
         self.onQuit(None, withExitCode=exitCode)
 
     def selftest(self):
@@ -7174,9 +6407,7 @@ class AppFrame(wx.Frame):
             assert keyring != None
             print(keyring)
             keyring.set_password("https://type.world", "testuser", "testpassword")
-            assert (
-                keyring.get_password("https://type.world", "testuser") == "testpassword"
-            )
+            assert keyring.get_password("https://type.world", "testuser") == "testpassword"
 
             # Badge label
             if MAC:
@@ -7195,9 +6426,7 @@ class AppFrame(wx.Frame):
             flatFreeSubscription = "typeworld://json+https//typeworldserver.com/flatapi/q8JZfYn9olyUvcCOiqHq/"
 
             # Delete User Account
-            success, message = client.deleteUserAccount(
-                "appselftest@type.world", "12345678"
-            )
+            success, message = client.deleteUserAccount("appselftest@type.world", "12345678")
             condition = success == True
             if not condition:
                 if message != [
@@ -7207,9 +6436,7 @@ class AppFrame(wx.Frame):
                     return self.quitSelftest(message, 9)
 
             # Create User Account
-            success, message = client.createUserAccount(
-                "Test User", "appselftest@type.world", "12345678", "12345678"
-            )
+            success, message = client.createUserAccount("Test User", "appselftest@type.world", "12345678", "12345678")
             if not success:
                 return self.quitSelftest(message, 10)
 
@@ -7245,9 +6472,7 @@ class AppFrame(wx.Frame):
                 time.sleep(1)
                 loop += 1
             if client.delegate._accountUpdateCheck:
-                return self.quitSelftest(
-                    "User account ZMQ message received but not supposed to", 15
-                )
+                return self.quitSelftest("User account ZMQ message received but not supposed to", 15)
 
             # Send Update Subscription Notification
             # TODO: Replace APIKey with secret, dynamically retrieved one
@@ -7267,10 +6492,7 @@ class AppFrame(wx.Frame):
 
             # Wait for ZMQ message
             loop = 0
-            while (
-                subscription not in client.delegate._subscriptionsUpdated
-                and loop < 60  # wait
-            ):
+            while subscription not in client.delegate._subscriptionsUpdated and loop < 60:  # wait
                 print(f"Waiting for subscription to be updated... {loop}s")
                 time.sleep(1)
                 loop += 1
@@ -7283,26 +6505,17 @@ class AppFrame(wx.Frame):
 
             # subscription = client.publishers()[-1].subscriptions()[-1]
 
-            font = (
-                subscription.protocol.installableFontsCommand()[1]
-                .foundries[0]
-                .families[0]
-                .fonts[0]
-            )
+            font = subscription.protocol.installableFontsCommand()[1].foundries[0].families[0].fonts[0]
 
             # Install font
-            success, message = subscription.installFonts(
-                [[font.uniqueID, font.getVersions()[-1].number]]
-            )
+            success, message = subscription.installFonts([[font.uniqueID, font.getVersions()[-1].number]])
             condition = success == False
             if not condition:
                 return self.quitSelftest(message, 30)
 
             # Terms of Service
             subscription.set("acceptedTermsOfService", True)
-            success, message = subscription.installFonts(
-                [[font.uniqueID, font.getVersions()[-1].number]]
-            )
+            success, message = subscription.installFonts([[font.uniqueID, font.getVersions()[-1].number]])
             condition = success == True
             if not condition:
                 return self.quitSelftest(message, 35)
@@ -7332,9 +6545,7 @@ class AppFrame(wx.Frame):
                 return self.quitSelftest(message, 70)
 
             # Delete User Account
-            success, message = client.deleteUserAccount(
-                "appselftest@type.world", "12345678"
-            )
+            success, message = client.deleteUserAccount("appselftest@type.world", "12345678")
             condition = success == True
             if not condition:
                 return self.quitSelftest(message, 80)
@@ -7369,9 +6580,7 @@ class AppFrame(wx.Frame):
                         localizeString("#(Send Crash Reports)"),
                         wx.YES_NO | wx.ICON_QUESTION,
                     )
-                    dlg.SetYesNoLabels(
-                        localizeString("#(I Agree)"), localizeString("#(No Thanks)")
-                    )
+                    dlg.SetYesNoLabels(localizeString("#(I Agree)"), localizeString("#(No Thanks)"))
                     result = dlg.ShowModal()
                     if result == wx.ID_YES:
                         client.set("sendCrashReports", True)
@@ -7403,18 +6612,14 @@ class AppFrame(wx.Frame):
                     restartAgent(2)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onLoadDetached_consumer(self, delayedResult):
 
         try:
             pass
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def checkForURLInFile(self):
 
@@ -7424,9 +6629,7 @@ class AppFrame(wx.Frame):
 
             from appdirs import user_data_dir
 
-            openURLFilePath = os.path.join(
-                user_data_dir("Type.World", "Type.World"), "url.txt"
-            )
+            openURLFilePath = os.path.join(user_data_dir("Type.World", "Type.World"), "url.txt")
 
             if os.path.exists(openURLFilePath):
                 urlFile = open(openURLFilePath, "r")
@@ -7447,9 +6650,7 @@ class AppFrame(wx.Frame):
             return True
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setBadgeLabel(self, label):
         try:
@@ -7465,9 +6666,7 @@ class AppFrame(wx.Frame):
                 dockTile.setBadgeLabel_(label)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def replaceHTML(self, html):
         try:
@@ -7485,9 +6684,7 @@ class AppFrame(wx.Frame):
                 html = html.replace("##htmlroot##", path)
             return html
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setBadges(self):
         try:
@@ -7513,18 +6710,14 @@ class AppFrame(wx.Frame):
         #   else:
         #       self.javaScript('$("#sidebar #%s .badge.outdated").hide();' % b64ID)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def debug(self, string):
         try:
             # print(string)
             client.log(string)
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def setAppCastURL(self):
         try:
@@ -7532,7 +6725,9 @@ class AppFrame(wx.Frame):
             profile = client.get("appUpdateProfile") or "normal"
 
             if MAC and RUNTIME:
-                update_url = f"https://api.type.world/appcast/world.type.guiapp/mac/{profile}/appcast.xml?t={int(time.time())}"
+                update_url = (
+                    f"https://api.type.world/appcast/world.type.guiapp/mac/{profile}/appcast.xml?t={int(time.time())}"
+                )
                 sparkle.setFeedURL_(NSURL.alloc().initWithString_(update_url))
 
             if WIN and RUNTIME:
@@ -7540,25 +6735,19 @@ class AppFrame(wx.Frame):
                 pywinsparkle.win_sparkle_set_appcast_url(update_url)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
 
 class DebugWindow(wx.Frame):
     def __init__(self, parent, ID, title):
         try:
-            wx.Frame.__init__(
-                self, parent, ID, title, wx.DefaultPosition, wx.Size(500, 300)
-            )
+            wx.Frame.__init__(self, parent, ID, title, wx.DefaultPosition, wx.Size(500, 300))
 
             # ------ Area for the text output of pressing button
             textarea = wx.TextCtrl(self, -1, size=(500, 300))
             self.text = textarea
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
 
 class UpdateFrame(wx.Frame):
@@ -7574,9 +6763,7 @@ class UpdateFrame(wx.Frame):
 
             client.log("sparkle.checkForUpdateInformation() finished")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def onClose(self, event=None):
         try:
@@ -7585,9 +6772,7 @@ class UpdateFrame(wx.Frame):
 
             self.Destroy()
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
 
 if MAC:
@@ -7608,16 +6793,12 @@ if MAC:
 
                         from AppKit import NSApplicationActivationPolicyAccessory
 
-                        NSApp().setActivationPolicy_(
-                            NSApplicationActivationPolicyAccessory
-                        )
+                        NSApp().setActivationPolicy_(NSApplicationActivationPolicyAccessory)
 
                 except:
                     client.log(traceback.format_exc())
             except Exception as e:
-                client.handleTraceback(
-                    sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-                )
+                client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
         def applicationDidFinishLaunching_(self, notification):
             try:
@@ -7625,15 +6806,11 @@ if MAC:
                 client.log("applicationDidFinishLaunching_()")
 
             except Exception as e:
-                client.handleTraceback(
-                    sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-                )
+                client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
 
 class MyApp(wx.App):
-    def __init__(
-        self, redirect=False, filename=None, useBestVisual=False, clearSigInt=True
-    ):
+    def __init__(self, redirect=False, filename=None, useBestVisual=False, clearSigInt=True):
         try:
 
             # Hi-DPI support on Windows, see https://discuss.wxpython.org/t/support-for-high-dpi-on-windows-10/32925/2
@@ -7666,25 +6843,17 @@ class MyApp(wx.App):
             super().__init__(redirect, None, useBestVisual, clearSigInt)
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def OnPreInit(self):
 
         try:
             if MAC:
-                if (
-                    self.startWithCommand == "checkForUpdateInformation"
-                ):  # Otherwise MacOpenURL() wont work
-                    NSApplication.sharedApplication().setDelegate_(
-                        NSAppDelegate.alloc().init()
-                    )
+                if self.startWithCommand == "checkForUpdateInformation":  # Otherwise MacOpenURL() wont work
+                    NSApplication.sharedApplication().setDelegate_(NSAppDelegate.alloc().init())
                     client.log("set NSAppDelegate")
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def MacOpenURL(self, url):
         try:
@@ -7698,9 +6867,7 @@ class MyApp(wx.App):
             self.frame.Show()
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
     def OnInit(self):
 
@@ -7752,13 +6919,9 @@ class MyApp(wx.App):
 
                             while True:
 
-                                theEvent = w.nextEventMatchingMask_(
-                                    NSLeftMouseDraggedMask | NSLeftMouseUpMask
-                                )
+                                theEvent = w.nextEventMatchingMask_(NSLeftMouseDraggedMask | NSLeftMouseUpMask)
                                 point = theEvent.locationInWindow()
-                                screenVisibleFrame = (
-                                    NSScreen.mainScreen().visibleFrame()
-                                )
+                                screenVisibleFrame = NSScreen.mainScreen().visibleFrame()
                                 windowFrame = w.frame()
                                 newOrigin = windowFrame.origin
 
@@ -7771,12 +6934,10 @@ class MyApp(wx.App):
 
                                 # Don't let window get dragged up under the menu bar
                                 if (newOrigin.y + windowFrame.size.height) > (
-                                    screenVisibleFrame.origin.y
-                                    + screenVisibleFrame.size.height
+                                    screenVisibleFrame.origin.y + screenVisibleFrame.size.height
                                 ):
                                     newOrigin.y = screenVisibleFrame.origin.y + (
-                                        screenVisibleFrame.size.height
-                                        - windowFrame.size.height
+                                        screenVisibleFrame.size.height - windowFrame.size.height
                                     )
 
                                 # Move the window to the new location
@@ -7796,9 +6957,7 @@ class MyApp(wx.App):
                         # 	NSColor.yellowColor().set()
                         # 	NSRectFill(rect)
 
-                    self.frame.dragView = MyView.alloc().initWithFrame_(
-                        NSMakeRect(0, 0, self.frame.GetSize()[0], 40)
-                    )
+                    self.frame.dragView = MyView.alloc().initWithFrame_(NSMakeRect(0, 0, self.frame.GetSize()[0], 40))
                     w.contentView().addSubview_(self.frame.dragView)
 
                     self.frame.javaScript("$('#sidebar').css('padding-top', '32px');")
@@ -7814,11 +6973,7 @@ class MyApp(wx.App):
 
                 client.log("MyApp.OnInit()")
 
-                html = ReadFromFile(
-                    os.path.join(
-                        os.path.dirname(__file__), "htmlfiles", "main", "index.html"
-                    )
-                )
+                html = ReadFromFile(os.path.join(os.path.dirname(__file__), "htmlfiles", "main", "index.html"))
 
                 #        html = html.replace('##jqueryuicss##', ReadFromFile(os.path.join(os.path.dirname(__file__), 'htmlfiles', 'main', 'css', 'jquery-ui.css')))
                 html = html.replace("APPVERSION", APPVERSION)
@@ -7857,9 +7012,7 @@ class MyApp(wx.App):
             return True
 
         except Exception as e:
-            client.handleTraceback(
-                sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e
-            )
+            client.handleTraceback(sourceMethod=getattr(self, sys._getframe().f_code.co_name), e=e)
 
 
 # class MyNSApp(NSApp):
@@ -7953,24 +7106,20 @@ def intercom(commands):
 
                 # Preference is set to check automatically
                 if (
-                    client.get("reloadSubscriptionsInterval")
-                    and int(client.get("reloadSubscriptionsInterval")) != -1
+                    client.get("reloadSubscriptionsInterval") and int(client.get("reloadSubscriptionsInterval")) != -1
                 ) or force:
 
                     # Has never been checked, set to long time ago
                     if not client.get("reloadSubscriptionsLastPerformed"):
                         client.set(
                             "reloadSubscriptionsLastPerformed",
-                            int(time.time())
-                            - int(client.get("reloadSubscriptionsInterval"))
-                            - 10,
+                            int(time.time()) - int(client.get("reloadSubscriptionsInterval")) - 10,
                         )
 
                     # See if we should check now
                     if (
                         int(client.get("reloadSubscriptionsLastPerformed"))
-                        < int(time.time())
-                        - int(client.get("reloadSubscriptionsInterval"))
+                        < int(time.time()) - int(client.get("reloadSubscriptionsInterval"))
                         or force
                     ):
 
@@ -7989,21 +7138,14 @@ def intercom(commands):
                                 if not success:
                                     client.log(message)
 
-                                client.log(
-                                    "updated %s (%1.2fs)"
-                                    % (subscription, time.time() - startTime)
-                                )
+                                client.log("updated %s (%1.2fs)" % (subscription, time.time() - startTime))
 
                         # Reset
                         if client.allSubscriptionsUpdated():
                             client.log("resetting timing")
-                            client.set(
-                                "reloadSubscriptionsLastPerformed", int(time.time())
-                            )
+                            client.set("reloadSubscriptionsLastPerformed", int(time.time()))
 
-                client.log(
-                    "client.amountOutdatedFonts() %s" % (client.amountOutdatedFonts())
-                )
+                client.log("client.amountOutdatedFonts() %s" % (client.amountOutdatedFonts()))
 
                 returnObject = client.amountOutdatedFonts()
 
@@ -8031,9 +7173,7 @@ def intercom(commands):
                 # Restart after restart
                 if client.get("menuBarIcon") and not agentIsRunning():
 
-                    file_path = os.path.join(
-                        os.path.dirname(__file__), r"TypeWorld Taskbar Agent.exe"
-                    )
+                    file_path = os.path.join(os.path.dirname(__file__), r"TypeWorld Taskbar Agent.exe")
                     file_path = file_path.replace(r"\\Mac\Home", r"Z:")
                     import subprocess
 
@@ -8073,9 +7213,7 @@ def createClient(startWithCommand=None, externallyControlled=True):
 
     if startWithCommand == "selftest":
         if WIN:
-            prefFile = os.path.join(
-                PREFDIR, f"preferences.selftest.{int(time.time())}.json"
-            )
+            prefFile = os.path.join(PREFDIR, f"preferences.selftest.{int(time.time())}.json")
             prefs = JSON(prefFile)
         elif MAC:
             prefs = AppKitNSUserDefaults(f"world.type.selftest.{int(time.time())}")

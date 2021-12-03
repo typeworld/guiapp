@@ -13,9 +13,7 @@ sslcontext = ssl.create_default_context(cafile=certifi.where())
 response = urllib.request.urlopen(request, context=sslcontext)
 version = response.read().decode()
 
-profile = json.loads(
-    open(os.path.join(os.path.dirname(__file__), "buildProfile.json")).read()
-)
+profile = json.loads(open(os.path.join(os.path.dirname(__file__), "buildProfile.json")).read())
 
 baseFolder = "wxPython"
 destinationFolder = "build"
@@ -62,7 +60,7 @@ setup(
                 os.path.join(baseFolder, "intercom"),
                 os.path.join(baseFolder, "typeworldguiapp"),
             ],
-            "excludes": ["win32ctypes", "tkinter", "test", "numpy"],
+            "excludes": ["win32ctypes", "tkinter", "test", "numpy", "pytz"],
             "packages": [
                 "appdirs",
                 "zmq",
@@ -78,7 +76,7 @@ setup(
                 "typeworld",
                 "keyring",
                 "markdown2",
-                "pytz",
+                # "pytz",
                 "winreg",
                 "win32api",
                 "plyer",

@@ -1,6 +1,5 @@
 import os
 import sys
-import platform
 from google.cloud import storage
 
 WIN = platform.system() == "Windows"

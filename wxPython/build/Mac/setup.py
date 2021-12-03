@@ -27,7 +27,7 @@ options = {
             # "html",
             # "/Users/appveyor/.localpython3.7.9/lib/python3.7/html",
         ],
-        "excludes": ["numpy", "distutils", "encodings"],
+        "excludes": ["numpy", "distutils", "encodings", "pytz"],
         "frameworks": ["Python.framework"],
         "resources": [
             "wxPython/build/Mac/InternetAccessPolicy.plist",
@@ -168,7 +168,7 @@ options = {
             "pyasn1_modules",
             "rsa",
             "cachetools",
-            "pytz",
+            # "pytz",
             "uuid",
             "configparser",
             "importlib_metadata",
@@ -219,9 +219,7 @@ options = {
 
 # Little Snitch Translations
 folder = "wxPython/build/Mac/Little Snitch Translations"
-options["py2app"]["resources"].extend(
-    [os.path.join(folder, x) for x in next(os.walk(folder))[1]]
-)
+options["py2app"]["resources"].extend([os.path.join(folder, x) for x in next(os.walk(folder))[1]])
 
 
 setup(

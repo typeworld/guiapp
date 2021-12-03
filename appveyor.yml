@@ -1,7 +1,7 @@
 # Secure variable encode: https://ci.appveyor.com/tools/encrypt
 
 environment:
-  TYPEWORLD_APIKEY:
+  APPBUILD_KEY:
     secure: BpVvXCls5krE+yjHTObw668j2CzcgcAOPRZ+Klorq2sIcnXIcPvAV/ZcKg6XnpewnpQXlYvtGtu18x6k8YAqWg==
   SPARKLE_KEY:
     secure: OWAKP6zkRICoVr8PCYYnw792bI/NILKI+xIfpn7LmVMJT0SpuE2fNLNY4SZuiPOQ/obdwOxv792BxpUJMyOCMharGfHegQyD4DBw+5Ip/SsvebBfI6XSqxNoINoJEext2WM/FaUTtZVWdqWdJstxHAlBCStcCZR8ic55grhnLsjQsWML3pa9nqkTVC//0Z03
@@ -59,7 +59,7 @@ for:
   init:
     - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-vnc.sh' | bash -e -
   install: 
-    # - sh: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/mac/started/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"
+    # - sh: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/mac/started/?APPBUILD_KEY=$APPBUILD_KEY"
     - sh: sh wxPython/build/build-canbuild.sh mac
     - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/secure-file/master/install.sh' | bash -e -
     - sh: ./appveyor-tools/secure-file -decrypt wxPython/build/Mac/codesigning/jangerner.p12.enc -secret $SECUREFILE_DECODE_SECRET_2 -salt $MACOS_CERT_SALT
@@ -68,9 +68,9 @@ for:
   build_script: 
     - sh: sh wxPython/build/Mac/build-all.sh
   # on_success: 
-  #   - sh: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/mac/success/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"
+  #   - sh: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/mac/success/?APPBUILD_KEY=$APPBUILD_KEY"
   # on_failure: 
-  #   - sh: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/mac/failed/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"
+  #   - sh: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/mac/failed/?APPBUILD_KEY=$APPBUILD_KEY"
 
 -
   matrix:
@@ -87,7 +87,7 @@ for:
     - cmd: appveyor-tools\secure-file -decrypt wxPython\build\Windows\codesigning\jan_gerner.p12.enc -secret "%SECUREFILE_DECODE_SECRET_2%" -salt "%JANGERNER_PFX_SALT%"
     - cmd: appveyor-tools\secure-file -decrypt wxPython\build\Windows\winsparkle\dsa_priv.pem.enc -secret "%SECUREFILE_DECODE_SECRET_2%" -salt "%WINSPARKLE_PRIVATEKEY_DECODE_SALT%"
 
-    # - cmd: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/windows/started/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"
+    # - cmd: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/windows/started/?APPBUILD_KEY=$APPBUILD_KEY"
 
     - cmd: set "PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%"
     - cmd: sh install_windows.sh
@@ -102,6 +102,6 @@ for:
     - cmd: C:\\msys64\\usr\\bin\\bash.exe wxPython/build/Windows/build-upload.sh
 
   # on_success: 
-  #   - cmd: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/windows/success/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"
+  #   - cmd: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/windows/success/?APPBUILD_KEY=$APPBUILD_KEY"
   # on_failure: 
-  #   - cmd: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/windows/failed/?TYPEWORLD_APIKEY=$TYPEWORLD_APIKEY"
+  #   - cmd: curl "https://api.type.world/setBuildStatusChange/world.type.guiapp/windows/failed/?APPBUILD_KEY=$APPBUILD_KEY"

@@ -7,7 +7,7 @@ from cx_Freeze import setup, Executable
 import urllib.request, ssl, certifi
 
 request = urllib.request.Request(
-    f"https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/?TYPEWORLD_APIKEY={os.environ['TYPEWORLD_APIKEY']}"
+    f"https://api.type.world/latestUnpublishedVersion/world.type.guiapp/windows/?APPBUILD_KEY={os.environ['APPBUILD_KEY']}"
 )
 sslcontext = ssl.create_default_context(cafile=certifi.where())
 response = urllib.request.urlopen(request, context=sslcontext)

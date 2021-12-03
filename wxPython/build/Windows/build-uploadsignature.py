@@ -115,7 +115,7 @@ response = http(
         "version": version,
         "platform": "windows",
         "signature": signature,
-        "TYPEWORLD_APIKEY": os.getenv("TYPEWORLD_APIKEY"),
+        "APPBUILD_KEY": os.getenv("APPBUILD_KEY"),
     },
 )
 if not response == "ok":

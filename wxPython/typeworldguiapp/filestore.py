@@ -46,12 +46,7 @@ def base64URL(url):
         # Memory cache
         memory_filestore[url] = copy.copy(fileDict)
         memory_filestore[url]["content"] = content
-        b64 = (
-            "data:"
-            + fileDict["content-type"]
-            + ";base64,"
-            + base64.b64encode(content).decode()
-        )
+        b64 = "data:" + fileDict["content-type"] + ";base64," + base64.b64encode(content).decode()
         return b64
 
     return f"http://127.0.0.1:{PORT}/file?url={urllib.parse.quote_plus(url)}"
@@ -117,22 +112,22 @@ class S(BaseHTTPRequestHandler):
             filename = str(uuid.uuid1())
             fileDict = {
                 "filename": filename,
-                "content-type": responseObject.headers["content-type"],
+                "content-type": responseObject["headers"]["content-type"],
                 "fetched": time.time(),
             }
             file = open(os.path.join(FILEDIR, filename), "wb")
-            file.write(responseObject.content)
+            file.write(response)
             file.close()
             preferences.set(url, fileDict)
 
             # Memory cache
             memory_filestore[url] = copy.copy(fileDict)
-            memory_filestore[url]["content"] = responseObject.content
+            memory_filestore[url]["content"] = response
 
             self.send_response(200)
-            self.send_header("Content-type", responseObject.headers["content-type"])
+            self.send_header("Content-type", responseObject["headers"]["content-type"])
             self.end_headers()
-            self.wfile.write(responseObject.content)
+            self.wfile.write(response)
 
 
 def port():

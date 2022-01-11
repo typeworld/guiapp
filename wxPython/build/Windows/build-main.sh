@@ -30,7 +30,7 @@ echo "Copy ynlib"
 /bin/cp -r ynlib/Lib/ynlib build/lib/
 
 echo "Copy importlib_metadata"
-/bin/cp $SITEPACKAGES\\importlib_metadata-4.10.0.dist-info build\\lib\\
+/bin/cp -r $SITEPACKAGES\\importlib_metadata-4.10.0.dist-info build\\lib\\
 
 echo "Delete stuff"
 /bin/rm -r build/lib/wx/locale

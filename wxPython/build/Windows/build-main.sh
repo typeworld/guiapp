@@ -12,6 +12,7 @@ echo
 echo "/build/lib content"
 /bin/ls -la build\\lib
 
+echo
 echo "$SITEPACKAGES"
 /bin/ls -la $SITEPACKAGES
 
@@ -29,7 +30,7 @@ echo "Copy ynlib"
 /bin/cp -r ynlib/Lib/ynlib build/lib/
 
 echo "Copy importlib_metadata"
-/bin/cp -r $SITEPACKAGES\\importlib_metadata-*.dist-info build\\lib\\
+/bin/cp $SITEPACKAGES\\importlib_metadata-*.dist-info build\\lib\\
 
 echo "Delete stuff"
 /bin/rm -r build/lib/wx/locale

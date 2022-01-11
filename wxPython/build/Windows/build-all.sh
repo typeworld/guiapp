@@ -18,8 +18,8 @@ echo "Main Build, Console base"
 $SHELL wxPython/build/Windows/build-main.sh
 
 # Clear build folder
-rm -rf build
-mkdir build
+/bin/rm -rf build
+/bin/mkdir build
 
 # Second round with "Win32GUI" base (no console window appears on Windows)
 echo "Main Build, GUI base"

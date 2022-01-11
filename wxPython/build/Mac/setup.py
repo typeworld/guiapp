@@ -44,7 +44,7 @@ options = {
             "zmq",
             "certifi",
             "distutils",
-            "fonttools",
+            "fontTools",
             "fractions",
             "statistics",
             "contextvars",

@@ -71,7 +71,7 @@ setup(
                 "pyasn1",
                 "rsa",
                 "cachetools",
-                "fonttools",
+                "fontTools",
                 "pyasn1_modules",
                 "typeworld",
                 "keyring",

@@ -6,11 +6,11 @@ python wxPython/build/Windows/setup.py build > nul # muting too much output
 
 echo
 echo "/build content"
-ls -la build
+/bin/ls -la build
 
 echo
 echo "/build/lib content"
-ls -la build\\lib
+/bin/ls -la build\\lib
 
 echo "Add Windows App Manifest"
 "$WINDOWSKITBIN\\mt.exe" -manifest "wxPython/build/Windows/windowsAppManifest.xml" -outputresource:build\\TypeWorld.exe;#1
@@ -23,13 +23,13 @@ echo "Add Windows App Manifest"
 # cp -r $SITEPACKAGES/google_cloud_pubsub-*.dist-info build/lib/
 
 echo "Copy ynlib"
-cp -r ynlib/Lib/ynlib build/lib/
+/bin/cp -r ynlib/Lib/ynlib build/lib/
 
 echo "Copy importlib_metadata"
-cp -r $SITEPACKAGES/importlib_metadata-*.dist-info build/lib/
+/bin/cp -r $SITEPACKAGES/importlib_metadata-*.dist-info build/lib/
 
 echo "Delete stuff"
-rm -r build/lib/wx/locale
+/bin/rm -r build/lib/wx/locale
 
 echo "App Self Test"
 "build/TypeWorld.exe" selftest

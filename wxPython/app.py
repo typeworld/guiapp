@@ -42,7 +42,6 @@ from ynlib.colors import Color
 
 from typeworldguiapp import filestore
 
-
 from typeworld.client import (
     APIClient,
     JSON,

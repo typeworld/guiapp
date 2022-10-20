@@ -6366,7 +6366,7 @@ class AppFrame(wx.Frame):
 
     def updateMessageQueueStatus(self):
         client.manageMessageQueueConnection()
-        if client._zmqRunning:
+        if client.messageQueueIsRunning():
             client.delegate.messageQueueConnected()
         else:
             client.delegate.messageQueueDisconnected()
@@ -6388,10 +6388,6 @@ class AppFrame(wx.Frame):
     def selftest(self):
 
         try:
-
-            import zmq
-
-            print(zmq)
 
             client.testing = True
             client.manageMessageQueueConnection()
@@ -7234,7 +7230,7 @@ def createClient(startWithCommand=None, externallyControlled=True):
         delegate=delegate,
         mode="gui",
         online=True,
-        zmqSubscriptions=True,
+        liveNotifications=True,
         mothership=customMothership,
         externallyControlled=externallyControlled,
         inCompiledApp=RUNTIME,

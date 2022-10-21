@@ -18,3 +18,5 @@ google-cloud-storage
 dmgbuild
 git+https://gitlab.com/python-devs/importlib_metadata.git # because version bug. until 1.7.1 is available on pypi, we'll use this one
 codecov
+
+git+https://github.com/yanone/ynlib.git

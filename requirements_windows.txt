@@ -21,5 +21,4 @@ codecov
 appdirs
 pytz
 
-# Over-ride typeworld
-pyzmq==19.0.2
+git+https://github.com/yanone/ynlib.git

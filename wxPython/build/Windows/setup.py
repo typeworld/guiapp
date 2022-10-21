@@ -63,7 +63,7 @@ setup(
             "excludes": ["win32ctypes", "tkinter", "test", "numpy", "pytz"],
             "packages": [
                 "appdirs",
-                "zmq",
+                "google-cloud-pubsub",
                 "typeworld",
                 "packaging",
                 "requests",

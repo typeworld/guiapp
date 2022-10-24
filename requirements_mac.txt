@@ -1,5 +1,5 @@
 git+https://github.com/typeworld/typeworld.git
-py2app==0.27
+py2app==0.28
 pystray
 wxPython==4.1.1
 flask
@@ -19,4 +19,4 @@ dmgbuild
 git+https://gitlab.com/python-devs/importlib_metadata.git # because version bug. until 1.7.1 is available on pypi, we'll use this one
 codecov
 
-git+https://github.com/yanone/ynlib.git
+# git+https://github.com/yanone/ynlib.git

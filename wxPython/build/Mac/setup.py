@@ -38,7 +38,7 @@ options = {
         ],
         "packages": [
             "chardet",
-            "google-cloud-pubsub",
+            # "google-cloud-pubsub",
             "certifi",
             "distutils",
             "fontTools",
@@ -216,7 +216,9 @@ options = {
 
 # Little Snitch Translations
 folder = "wxPython/build/Mac/Little Snitch Translations"
-options["py2app"]["resources"].extend([os.path.join(folder, x) for x in next(os.walk(folder))[1]])
+options["py2app"]["resources"].extend(
+    [os.path.join(folder, x) for x in next(os.walk(folder))[1]]
+)
 
 
 setup(

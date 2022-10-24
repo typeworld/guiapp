@@ -13,7 +13,9 @@ sslcontext = ssl.create_default_context(cafile=certifi.where())
 response = urllib.request.urlopen(request, context=sslcontext)
 version = response.read().decode()
 
-profile = json.loads(open(os.path.join(os.path.dirname(__file__), "buildProfile.json")).read())
+profile = json.loads(
+    open(os.path.join(os.path.dirname(__file__), "buildProfile.json")).read()
+)
 
 baseFolder = "wxPython"
 destinationFolder = "build"
@@ -63,7 +65,7 @@ setup(
             "excludes": ["win32ctypes", "tkinter", "test", "numpy", "pytz"],
             "packages": [
                 "appdirs",
-                "google-cloud-pubsub",
+                # "google-cloud-pubsub",
                 "typeworld",
                 "packaging",
                 "requests",

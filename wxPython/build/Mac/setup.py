@@ -37,8 +37,11 @@ options = {
             # "appbadge.docktileplugin",
         ],
         "packages": [
-            "chardet",
+            # for google stuff
             "proto",
+            "grpc",
+            # other
+            "chardet",
             "certifi",
             "distutils",
             "fontTools",

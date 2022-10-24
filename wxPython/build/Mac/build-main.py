@@ -188,13 +188,13 @@ executeCommands(
     (
         (
             "Copy html module",
-            "cp -R /Users/appveyor/.localpython3.7.11/lib/python3.7/html"
+            "cp -R /Users/appveyor/.localpython3.7.12/lib/python3.7/html"
             " dist/Type.World.app/Contents/Resources/lib/python3.7/",
             True,
         ),
         (
             "Copy socketserver module",
-            "cp -R /Users/appveyor/.localpython3.7.11/lib/python3.7/socketserver.py"
+            "cp -R /Users/appveyor/.localpython3.7.12/lib/python3.7/socketserver.py"
             " dist/Type.World.app/Contents/Resources/lib/python3.7/",
             True,
         ),

@@ -1,5 +1,5 @@
 git+https://github.com/typeworld/typeworld.git
-py2app==0.26.1
+py2app==0.27
 pystray
 wxPython==4.1.1
 flask

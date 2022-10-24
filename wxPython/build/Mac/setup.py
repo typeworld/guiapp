@@ -38,7 +38,7 @@ options = {
         ],
         "packages": [
             "chardet",
-            # "google-cloud-pubsub",
+            "proto",
             "certifi",
             "distutils",
             "fontTools",

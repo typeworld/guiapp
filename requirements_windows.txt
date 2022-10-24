@@ -20,4 +20,4 @@ codecov
 appdirs
 pytz
 
-git+https://github.com/yanone/ynlib.git
+# git+https://github.com/yanone/ynlib.git

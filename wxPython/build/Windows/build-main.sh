@@ -16,6 +16,10 @@ echo
 echo "$SITEPACKAGES"
 /bin/ls -la $SITEPACKAGES
 
+echo
+echo "cygwin"
+/bin/ls -la c:\cygwin\bin
+
 echo "Add Windows App Manifest"
 "$WINDOWSKITBIN\\mt.exe" -manifest "wxPython/build/Windows/windowsAppManifest.xml" -outputresource:build\\TypeWorld.exe;#1
 

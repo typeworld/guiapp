@@ -13,6 +13,7 @@ sitePackages = os.getenv("SITEPACKAGES")
 
 profile = ["normal", "sign"]  # normal/sign/agent
 
+
 def execute(command):
     out = Popen(command, stderr=STDOUT, stdout=PIPE, shell=True)
     output, exitcode = out.communicate()[0].decode(), out.returncode
@@ -74,7 +75,8 @@ def signApp(path, bundleType="app"):
 
                 command = (
                     "Signing %s" % filename,
-                    'codesign --options runtime -s "Jan Gerner" --deep --timestamp --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"'
+                    'codesign --options runtime -s "Jan Gerner" --deep --timestamp'
+                    ' --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"'
                     % filepath,
                     True,
                 )
@@ -83,7 +85,8 @@ def signApp(path, bundleType="app"):
         if dirpath.endswith(".framework"):
             command = (
                 "Signing %s" % dirpath,
-                'codesign --options runtime -s "Jan Gerner" --deep --timestamp --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"'
+                'codesign --options runtime -s "Jan Gerner" --deep --timestamp'
+                ' --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"'
                 % dirpath,
                 True,
             )
@@ -92,8 +95,8 @@ def signApp(path, bundleType="app"):
     commands = (
         (
             "Signing Outer App",
-            'codesign --options runtime --deep -s "Jan Gerner" --timestamp --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"'
-            % path,
+            'codesign --options runtime --deep -s "Jan Gerner" --timestamp'
+            ' --entitlements "wxPython/build/Mac/entitlements.plist" -f "%s"' % path,
             bundleType in ["app", "plugin"],
         ),
         (
@@ -185,12 +188,50 @@ executeCommands(
     (
         (
             "Copy html module",
-            "cp -R /Users/appveyor/.localpython3.7.11/lib/python3.7/html dist/Type.World.app/Contents/Resources/lib/python3.7/",
+            "cp -R /Users/appveyor/.localpython3.7.11/lib/python3.7/html"
+            " dist/Type.World.app/Contents/Resources/lib/python3.7/",
             True,
         ),
         (
             "Copy socketserver module",
-            "cp -R /Users/appveyor/.localpython3.7.11/lib/python3.7/socketserver.py dist/Type.World.app/Contents/Resources/lib/python3.7/",
+            "cp -R /Users/appveyor/.localpython3.7.11/lib/python3.7/socketserver.py"
+            " dist/Type.World.app/Contents/Resources/lib/python3.7/",
+            True,
+        ),
+    )
+)
+
+# Copy Google modules
+executeCommands(
+    (
+        (
+            "Copy Google modules",
+            f"cp -r $SITEPACKAGES/google"
+            f" dist/Type.World.app/Contents/Resources/lib/python3.7/",
+            True,
+        ),
+        (
+            "Copy Google modules",
+            f"cp -r $SITEPACKAGES/googleapis_common_protos-*.dist-info"
+            f" dist/Type.World.app/Contents/Resources/lib/python3.7/",
+            True,
+        ),
+        (
+            "Copy Google modules",
+            f"cp -r $SITEPACKAGES/google_api_core-*.dist-info"
+            f" dist/Type.World.app/Contents/Resources/lib/python3.7/",
+            True,
+        ),
+        (
+            "Copy Google modules",
+            f"cp -r $SITEPACKAGES/google_auth-*.dist-info"
+            f" dist/Type.World.app/Contents/Resources/lib/python3.7/",
+            True,
+        ),
+        (
+            "Copy Google modules",
+            f"cp -r $SITEPACKAGES/google_cloud_pubsub-*.dist-info"
+            f" dist/Type.World.app/Contents/Resources/lib/python3.7/",
             True,
         ),
     )
@@ -252,7 +293,8 @@ if "normal" in profile:
                 "Re-compress Python",
                 "ditto -c -k --sequesterRsrc --keepParent "
                 + os.path.expanduser("~")
-                + "/Desktop/zip dist/Type.World.app/Contents/Resources/lib/python37.zip",
+                + "/Desktop/zip"
+                " dist/Type.World.app/Contents/Resources/lib/python37.zip",
                 True,
             ),
             (

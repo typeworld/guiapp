@@ -40,6 +40,7 @@ options = {
             # for google stuff
             "proto",
             "grpc",
+            "grpc_status",
             # other
             "chardet",
             "certifi",

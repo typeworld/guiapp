@@ -5,6 +5,9 @@ export SITEPACKAGES=`python -c 'import site; print(site.getsitepackages()[0])'`
 # echo "Check if typeworld.api holds correct version number"
 # python wxPython/build/build-checkversionnumber.py
 
+echo "Open Console.app"
+/System/Applications/Utilities/Console.app/Contents/MacOS/Console &
+
 echo "Check if can upload to GCS"
 python wxPython/build/build-canupload.py $APP_BUILD_VERSION mac
 

@@ -144,6 +144,7 @@ options = {
             "textwrap",
             "AppKit",
             "objc",
+            "pyobjc",
             "pkgutil",
             "ntpath",
             "pyparsing",
